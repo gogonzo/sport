@@ -1,0 +1,15 @@
+Package: sport
+Type: Package
+Title: Utilities for sport analytics
+Version: 0.1.0
+Author: Dawid 'Gonzo' Kałędkowski
+Maintainer: Dawid 'Gonzo' Kałędkowski <dawid.kaledkowski@protonmail.com>
+Description: Set of miscelanous functions used in sport analytics. From
+    calculating points, streaks to prediction models.
+Imports:
+    Rcpp (>= 0.12.8)
+LinkingTo: Rcpp
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 5.0.1
