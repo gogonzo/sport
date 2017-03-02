@@ -44,8 +44,6 @@ test <- function() {
   x <- c(1,1,0,0,NA,NA,3,3,1,1)
   speedway:::streakLength(x)
   
-  microbenchmark( speedway:::streakLength(x),  oddsandsods:::streakLength(x), times=10000)
-  
 }
 
 
