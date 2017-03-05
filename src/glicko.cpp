@@ -12,9 +12,12 @@ List
   glicko(
     Rcpp::StringVector teams, 
     std::vector<int> rank,
+    std::vector<int> days,
     Rcpp::StringVector names,
     std::vector<double> r, 
-    std::vector<double> rd 
+    std::vector<double> rd,
+    double init_r  = 1500,
+    double init_rd = 350
   ) {
   
     Rcpp::Environment global = Rcpp::Environment::global_env();
@@ -22,9 +25,7 @@ List
     
     int 
       n = teams.size(), 
-      k = names.size(), 
-      init_r = 1500, 
-      init_rd = 300;
+      k = names.size();
     
     double 
       pi  = std::atan(1)*4,
@@ -46,7 +47,7 @@ List
         if( j < k && teams[i] == names[j] ) {
           idx[i]  = j;
           r2[i]   = r[j];
-          rd2[i]  = rd[j];
+          rd2[i]  = std::min( sqrt( pow(rd[j],2) + pow(days[j],2) ), init_rd );
           g_rd[i] = 1/sqrt(1 + 3 * pow(q,2) * pow(rd[i], 2) / pow(pi,2) );      
           break;
           
