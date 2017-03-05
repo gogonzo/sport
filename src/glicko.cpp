@@ -4,20 +4,23 @@ using namespace Rcpp;
 //' 
 //' Calculates Glicko rating for single game input
 //' 
-//' @param r ratings of game participants.
-//' @param RD rating deviations.
+//' @param teams name of event participants.
+//' @param rank classification of the event.
+//' @param days days after previous match - indicator multiplying uncertainty of expectations.
+//' @param r ratings of participants.
+//' @param rd rating deviations of participants.
+//' @param init_r initial rating for new competitors (contains NA). Default = 1500
+//' @param init_rd initial rating deviations for new competitors. Default = 350
 //' @examples
 //'  teams <- c("A","B","C","D")
 //'  rank  <- c(3 , 4 , 1, 2)
-//'
-//'  names <- c("A","B","E","F","C","D","E")
-//'  r     <- c(1500, 1400, 1500, 1500, 1550, 1700) 
-//'  rd    <- c(200,  30,   300,  300,  100,  300)
+//'  days  <- rep(0, 4)
+//'  r     <- c(1500, 1400, 1550, 1700) 
+//'  rd    <- c(200,  30,   100,  300)
 //'  glicko(
 //'    teams = teams, 
 //'    rank  = rank, 
-//'    days  = rep(1,length(rank)),
-//'    names = names, 
+//'    days  = days,
 //'    r     = r, 
 //'    rd    = rd,
 //'    init_r  = 1500,
@@ -29,7 +32,6 @@ List
     Rcpp::StringVector teams, 
     std::vector<int> rank,
     std::vector<int> days,
-    Rcpp::StringVector names,
     std::vector<double> r, 
     std::vector<double> rd,
     double init_r  = 1500,
@@ -38,47 +40,27 @@ List
   
     Rcpp::Environment global = Rcpp::Environment::global_env();
     std::map<std::string, std::string> map;
-    
-    int 
-      n = teams.size(), 
-      k = names.size();
-    
+
+    int n = teams.size();
     double 
       pi  = std::atan(1)*4,
       q   = log(10)/400,
       E_s = 0,
       d2  = 0,
       r_  = 0;
+    NumericVector g_rd(n);
     
-    NumericVector 
-      idx(n), 
-      r2(n), 
-      rd2(n), 
-      g_rd(n);
-    
-    // idx of i-team in the vector of all teams
+    // precalculate 
     for(int i = 0; i < n; i++){
-      for(int j = 0; j < (k + n); j ++){
+      if( NumericVector::is_na(r[i]) ) {
+        r[i]    = init_r;
+        rd[i]   = init_rd;
+        g_rd[i] = 1/sqrt(1 + 3 * pow(q,2) * pow(rd[i], 2) / pow(pi,2) );      
         
-        if( j < k && teams[i] == names[j] ) {
-          idx[i]  = j;
-          r2[i]   = r[j];
-          rd2[i]  = std::min( sqrt( pow(rd[j],2) + pow(days[j],2) ), init_rd );
-          g_rd[i] = 1/sqrt(1 + 3 * pow(q,2) * pow(rd[i], 2) / pow(pi,2) );      
-          break;
-          
-        } else if(j >= k){
-          names.push_back(teams[i]);
-          r.push_back(init_r);
-          rd.push_back(init_rd);
-          
-          idx[i] = j;
-          r2[i]  = r[j];
-          rd2[i] = rd[j];
-          g_rd[i] = 1/sqrt(1 + 3 * pow(q,2) * pow(rd[i], 2) / pow(pi,2) );      
-          break;
-          
-        } 
+      } else {
+        //rd[i]   = std::min( sqrt( pow(rd[i],2) + pow( days[i],2 ) ), init_rd );
+        g_rd[i] = 1/sqrt(1 + 3 * pow(q,2) * pow(rd[i], 2) / pow(pi,2) );
+        
       }
     }
     
@@ -101,26 +83,19 @@ List
       
       // this event ratings
       d2  = pow( pow(q, 2) * d2, -1);
-      r2[i]  = r2[i] + q/( 1/pow(rd2[i],2) + 1/d2 ) * r_;
-      rd2[i] = sqrt(   1/( 1/pow(rd2[i],2) + 1/d2) ); 
+      r[i]  = r[i] + q/( 1/pow(rd[i],2) + 1/d2 ) * r_;
+      rd[i] = sqrt(   1/( 1/pow(rd[i],2) + 1/d2) ); 
       
-      // global ratings update
-      r [ idx[i] ] = r2 [i];
-      rd[ idx[i] ] = rd2[i];
     }
     
     
   // objects r and rd returned to environment
-  global["r"]     = r;
-  global["rd"]    = rd;
-  global["names"] = names;
+  // global["r"]     = r;
+  // global["rd"]    = rd;
     
   return List::create(
-    _["idx"]   = idx, 
-    _["teams"] = teams,
-    _["r2"]    = r2,
-    _["rd2"]   = rd2,
-    _["g_rd"]  = g_rd
+    _["r_new"]    = r,
+    _["rd_new"]   = rd
   );  
 }
 

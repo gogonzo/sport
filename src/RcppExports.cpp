@@ -6,20 +6,19 @@
 using namespace Rcpp;
 
 // glicko
-List glicko(Rcpp::StringVector teams, std::vector<int> rank, std::vector<int> days, Rcpp::StringVector names, std::vector<double> r, std::vector<double> rd, double init_r, double init_rd);
-RcppExport SEXP sport_glicko(SEXP teamsSEXP, SEXP rankSEXP, SEXP daysSEXP, SEXP namesSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
+List glicko(Rcpp::StringVector teams, std::vector<int> rank, std::vector<int> days, std::vector<double> r, std::vector<double> rd, double init_r, double init_rd);
+RcppExport SEXP sport_glicko(SEXP teamsSEXP, SEXP rankSEXP, SEXP daysSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::StringVector >::type teams(teamsSEXP);
     Rcpp::traits::input_parameter< std::vector<int> >::type rank(rankSEXP);
     Rcpp::traits::input_parameter< std::vector<int> >::type days(daysSEXP);
-    Rcpp::traits::input_parameter< Rcpp::StringVector >::type names(namesSEXP);
     Rcpp::traits::input_parameter< std::vector<double> >::type r(rSEXP);
     Rcpp::traits::input_parameter< std::vector<double> >::type rd(rdSEXP);
     Rcpp::traits::input_parameter< double >::type init_r(init_rSEXP);
     Rcpp::traits::input_parameter< double >::type init_rd(init_rdSEXP);
-    rcpp_result_gen = Rcpp::wrap(glicko(teams, rank, days, names, r, rd, init_r, init_rd));
+    rcpp_result_gen = Rcpp::wrap(glicko(teams, rank, days, r, rd, init_r, init_rd));
     return rcpp_result_gen;
 END_RCPP
 }

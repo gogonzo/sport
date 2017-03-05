@@ -4,12 +4,22 @@
 \alias{glicko}
 \title{Glicko rating for single game}
 \usage{
-glicko(teams, rank, days, names, r, rd, init_r = 1500, init_rd = 350)
+glicko(teams, rank, days, r, rd, init_r = 1500, init_rd = 350)
 }
 \arguments{
-\item{r}{ratings of game participants.}
+\item{teams}{name of event participants.}
 
-\item{RD}{rating deviations.}
+\item{rank}{classification of the event.}
+
+\item{days}{days after previous match - indicator multiplying uncertainty of expectations.}
+
+\item{r}{ratings of participants.}
+
+\item{rd}{rating deviations of participants.}
+
+\item{init_r}{initial rating for new competitors (contains NA). Default = 1500}
+
+\item{init_rd}{initial rating deviations for new competitors. Default = 350}
 }
 \description{
 Calculates Glicko rating for single game input
@@ -17,15 +27,13 @@ Calculates Glicko rating for single game input
 \examples{
  teams <- c("A","B","C","D")
  rank  <- c(3 , 4 , 1, 2)
-
- names <- c("A","B","E","F","C","D","E")
- r     <- c(1500, 1400, 1500, 1500, 1550, 1700) 
- rd    <- c(200,  30,   300,  300,  100,  300)
+ days  <- rep(0, 4)
+ r     <- c(1500, 1400, 1550, 1700) 
+ rd    <- c(200,  30,   100,  300)
  glicko(
    teams = teams, 
    rank  = rank, 
-   days  = rep(1,length(rank)),
-   names = names, 
+   days  = days,
    r     = r, 
    rd    = rd,
    init_r  = 1500,
