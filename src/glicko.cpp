@@ -6,6 +6,22 @@ using namespace Rcpp;
 //' 
 //' @param r ratings of game participants.
 //' @param RD rating deviations.
+//' @examples
+//'  teams <- c("A","B","C","D")
+//'  rank  <- c(3 , 4 , 1, 2)
+//'
+//'  names <- c("A","B","E","F","C","D","E")
+//'  r     <- c(1500, 1400, 1500, 1500, 1550, 1700) 
+//'  rd    <- c(200,  30,   300,  300,  100,  300)
+//'  glicko(
+//'    teams = teams, 
+//'    rank  = rank, 
+//'    days  = rep(1,length(rank)),
+//'    names = names, 
+//'    r     = r, 
+//'    rd    = rd,
+//'    init_r  = 1500,
+//'    init_rd = 100)
 //' @export
 // [[Rcpp::export]]
 List 
