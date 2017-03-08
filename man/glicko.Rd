@@ -4,39 +4,43 @@
 \alias{glicko}
 \title{Glicko rating for single game}
 \usage{
-glicko(teams, rank, days, r, rd, init_r = 1500, init_rd = 350)
+glicko(teams, rank, r, rd, days = as.numeric(c(0)), init_r = 1500,
+  init_rd = 350)
 }
 \arguments{
 \item{teams}{name of event participants.}
 
 \item{rank}{classification of the event.}
 
-\item{days}{days after previous match - indicator multiplying uncertainty of expectations.}
-
 \item{r}{ratings of participants.}
 
 \item{rd}{rating deviations of participants.}
+
+\item{days}{days after previous match - indicator multiplying uncertainty of expectations.}
 
 \item{init_r}{initial rating for new competitors (contains NA). Default = 1500}
 
 \item{init_rd}{initial rating deviations for new competitors. Default = 350}
 }
+\value{
+\code{r} updated ratings of participats
+
+\code{rd} updated deviations of participants ratings
+
+\code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)}
+}
 \description{
 Calculates Glicko rating for single game input
 }
 \examples{
- teams <- c("A","B","C","D")
- rank  <- c(3 , 4 , 1, 2)
- days  <- rep(0, 4)
- r     <- c(1500, 1400, 1550, 1700) 
- rd    <- c(200,  30,   100,  300)
- glicko(
-   teams = teams, 
-   rank  = rank, 
-   days  = days,
-   r     = r, 
-   rd    = rd,
-   init_r  = 1500,
-   init_rd = 100)
+glicko(
+ teams = c( "A", "B", "C", "D" ), 
+ rank  = c( 3, 4, 1, 2 ), 
+ days  = c( 0, 0, 0, 0),
+ r     = c( 1500, 1400, 1550, 1700 ) , 
+ rd    = c( 200,  30,   100,  300 ),
+ init_r  = 1500,
+ init_rd = 100
+)
 }
 

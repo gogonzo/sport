@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include "glicko_functions.h"
 using namespace Rcpp;
 //' Glicko rating for single game
 //' 
@@ -11,91 +12,93 @@ using namespace Rcpp;
 //' @param rd rating deviations of participants.
 //' @param init_r initial rating for new competitors (contains NA). Default = 1500
 //' @param init_rd initial rating deviations for new competitors. Default = 350
+//' @return \code{r} updated ratings of participats
+//' @return \code{rd} updated deviations of participants ratings
+//' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 //' @examples
-//'  teams <- c("A","B","C","D")
-//'  rank  <- c(3 , 4 , 1, 2)
-//'  days  <- rep(0, 4)
-//'  r     <- c(1500, 1400, 1550, 1700) 
-//'  rd    <- c(200,  30,   100,  300)
-//'  glicko(
-//'    teams = teams, 
-//'    rank  = rank, 
-//'    days  = days,
-//'    r     = r, 
-//'    rd    = rd,
-//'    init_r  = 1500,
-//'    init_rd = 100)
+//'glicko(
+//'  teams = c( "A", "B", "C", "D" ), 
+//'  rank  = c( 3, 4, 1, 2 ), 
+//'  days  = c( 0, 0, 0, 0),
+//'  r     = c( 1500, 1400, 1550, 1700 ) , 
+//'  rd    = c( 200,  30,   100,  300 ),
+//'  init_r  = 1500,
+//'  init_rd = 100
+//')
 //' @export
 // [[Rcpp::export]]
 List 
   glicko(
-    Rcpp::StringVector teams, 
+    CharacterVector teams, 
     std::vector<int> rank,
-    std::vector<int> days,
-    std::vector<double> r, 
-    std::vector<double> rd,
-    double init_r  = 1500,
-    double init_rd = 350
+    NumericVector r, 
+    NumericVector rd,
+    NumericVector days = NumericVector::create(0),
+    double init_r  = 1500.00,
+    double init_rd = 350.00
   ) {
   
-    Rcpp::Environment global = Rcpp::Environment::global_env();
-    std::map<std::string, std::string> map;
-
     int n = teams.size();
+    int d_size = days.size();
     double 
-      pi  = std::atan(1)*4,
       q   = log(10)/400,
-      E_s = 0,
-      d2  = 0,
-      r_  = 0;
+      rd_ = 0.0,
+      var  = 0.0,
+      err = 0.0;
     NumericVector g_rd(n);
+    NumericVector var_i(n);
+    NumericVector err_i(n);
+    NumericVector delta_i(n);
+    NumericMatrix E_s(n, n);
     
     // precalculate 
     for(int i = 0; i < n; i++){
-      if( NumericVector::is_na(r[i]) ) {
-        r[i]    = init_r;
-        rd[i]   = init_rd;
-        g_rd[i] = 1/sqrt(1 + 3 * pow(q,2) * pow(rd[i], 2) / pow(pi,2) );      
+      if(d_size < i + 1) days.push_back(0);
+      
+      if( NumericVector::is_na(r[i]) ) 
+        r[i] = init_r, rd[i] = init_rd;
+
+      rd_ = sqrt( pow(rd[i],2) + pow( days[i], 2 ) );
+      if( rd_ < init_rd ) rd[i] = rd_;
+      g_rd[i] = calcGRd( rd[i] );
         
-      } else {
-        //rd[i]   = std::min( sqrt( pow(rd[i],2) + pow( days[i],2 ) ), init_rd );
-        g_rd[i] = 1/sqrt(1 + 3 * pow(q,2) * pow(rd[i], 2) / pow(pi,2) );
-        
-      }
     }
     
     // GLICKO RATING
     for(int i = 0; i < n; i++){
-      d2  = 0;
-      r_ = 0;
+      var  = 0;
+      err = 0;
       
       for(int j = 0; j < n; j ++){
         if(j != i){
-          E_s = 1/(1 + pow(10, -g_rd[j] * (r[i] - r[j])/400));
-          d2   += pow(g_rd[j],2) * E_s * ( 1 - E_s );
-          
-          if( rank[i] < rank[j] ) 
-            r_ += g_rd[j] * ( 1 - E_s );
-          else 
-            r_ += g_rd[j] * ( - E_s ); 
+          E_s(i,j) = calcPGlicko( g_rd[j] , r[i] , r[j] );
+          var = calcVar( var, g_rd[j], E_s(i,j) );
+          err = calcErr( err, g_rd[j], E_s(i,j), rank[i], rank[j]);
         }
       }
       
       // this event ratings
-      d2  = pow( pow(q, 2) * d2, -1);
-      r[i]  = r[i] + q/( 1/pow(rd[i],2) + 1/d2 ) * r_;
-      rd[i] = sqrt(   1/( 1/pow(rd[i],2) + 1/d2) ); 
+      err_i[i]   = err;
+      var_i[i]   = var;
+      delta_i[i] = 1/ ( pow(q, 2) * var );
       
     }
     
+    // update parameters 
+    for(int i = 0; i < n; i++){
+      r[i]     = r[i] + q/( 1/pow(rd[i],2) + 1/delta_i[i] ) * err_i[i];
+      rd[i]    = sqrt(  1/( 1/pow(rd[i],2) + 1/delta_i[i]) ); 
+    }    
     
-  // objects r and rd returned to environment
-  // global["r"]     = r;
-  // global["rd"]    = rd;
+  Rcpp::List dimnms = Rcpp::List::create(teams, teams);
+  E_s.attr("dimnames") = dimnms;
+  r.names()  = teams;
+  rd.names() = teams;
     
   return List::create(
-    _["r_new"]    = r,
-    _["rd_new"]   = rd
+    _["r"]    = r,
+    _["rd"]   = rd,
+    _["expected"] = E_s
   );  
 }
 

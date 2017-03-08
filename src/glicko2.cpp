@@ -1,110 +1,6 @@
 #include <Rcpp.h>
+#include "glicko_functions.h"
 using namespace Rcpp;
-
-double r2mu(double r){
-  double mu;
-  mu = ( r - 1500 ) / 173.7178;
-  return(mu);
-}
-double rd2phi(double rd){
-  double phi;
-  phi =  rd / 173.7178;
-  return(phi);
-  
-}
-double calcGPhi( double phi ){
-  double 
-    pi = std::atan(1)*4,
-    g_phi;
-  
-  g_phi = 1 / sqrt( 1 + 3 * pow(phi, 2) / pow(pi, 2) );
-  return(g_phi);
-}
-double calcP( double g_phi_j, double mu_i, double mu_j){
-    
-  double P;
-  P = 1/(1 + exp(-g_phi_j * (mu_i - mu_j)));
-  return(P);
-}
-double funX( double X, double delta, double phi, double ni, double a, double tau) {
-  double result;
-  result = 
-    ( exp(X) * ( pow(delta, 2) - pow(phi, 2) - ni - exp(X) ) ) / 
-    ( 2 * pow( pow(phi, 2) + ni + exp(X),2) ) - 
-    (X - a)/pow(tau, 2);
-  
-  return(result);
-}
-double optimSigma( double delta, double sig, double phi, double ni, double tau){
-  double 
-    a  = 0.0,
-    A  = 0.0,
-    B  = 0.0,
-    C  = 0.0,
-    fA = 0.0,
-    fB = 0.0,
-    fC = 0.0,
-    k  = 0.0,
-    e = 0.000001;
-  
-    A = a = log( pow( sig, 2 ) );
-    if(delta > phi + ni) {
-      B = log( pow(delta, 2) - pow(phi, 2) - ni);
-    } else {
-      k = 1;
-      while( funX(a - k * tau,  delta, phi, ni, a, tau) < 0) 
-        k ++;
-      
-      B = A - k * tau;
-    }
-    
-    
-    fA = funX(A, delta, phi, ni, a, tau);
-    fB = funX(B, delta, phi, ni, a, tau);
-    
-    while( std::abs(B) - std::abs(A) > e & k < 20 ){
-      // Rcpp::Rcout << "fA("<< k << ")" << fA << " A=" << A <<  std::endl;
-      k++;
-      C = A + (A- B) * fA / (fB - fA);
-      fC = funX(C, delta, phi, ni, a, tau);
-      
-      if(fC * fB < 0)
-        A = B, fA = fB;
-      else 
-        fA = fA/2;
-      
-      B = C, fB = fC;
-    }
-  
-  return(A);
-}
-double updatePhi( double phi, double ni, double sig) {
-  double
-  prerating_phi,
-  updated_phi;
-  
-  prerating_phi = sqrt( pow(phi, 2) + pow(sig, 2));
-  updated_phi   = 1 / sqrt( 1/pow(prerating_phi,2) + 1/ni);
-  
-  return(updated_phi);
-}
-double updateMu( double mu, double phi, double d) {
-  double updated_mu;
-  updated_mu = mu + pow(phi,2) * d;
-  return(updated_mu);
-}
-double mu2r(double mu){
-  double r;
-  r = mu * 173.7178 + 1500;
-  return(r);
-}
-double phi2rd(double phi){
-  double rd;
-  rd =  phi * 173.7178;
-  return(rd);
-  
-}
-
 //' Glicko rating for single game
 //' 
 //' Calculates Glicko rating for single game input
@@ -149,15 +45,14 @@ List
     int n = teams.size();
     int d_size = days.size();
     double 
-      d  = 0.0,
-      delta = 0.0,
-      ni = 0.0, 
+      err  = 0.0,
+      var = 0.0, 
       A  = 0.0;
     NumericVector mu(n);
     NumericVector phi(n);
     NumericVector g_phi(n);
-    NumericVector ni_i(n);
-    NumericVector d_i(n);
+    NumericVector var_i(n);
+    NumericVector err_i(n);
     NumericVector delta_i(n);
     NumericMatrix E_s(n, n);
     
@@ -176,35 +71,29 @@ List
     
     // Sum deviations from expectations  
     for(int i = 0; i < n; i++){
-      ni = 0, d  = 0;
+      var = 0, err  = 0;
       for(int j = 0; j < n; j ++){
         if(j != i){
-          E_s(i,j) = calcP(g_phi[j], mu[i], mu[j]);
-          ni +=  pow(g_phi[j],2) * E_s(i,j) * ( 1 - E_s(i,j) ) ;
-          if( rank[i] < rank[j] ) {
-            d += g_phi[j] * ( 1 - E_s(i,j) );
-          } else if(rank[i] == rank[j]) { 
-            d += g_phi[j] * ( .5 - E_s(i,j) ); 
-          } else {
-            d += g_phi[j] * ( - E_s(i,j) ); 
-          }
+          E_s(i,j) = calcPGlicko2( g_phi[j] , mu[i] , mu[j] );
+          
+          var = calcVar(var, g_phi[j], E_s(i,j) );
+          err = calcErr(err, g_phi[j], E_s(i,j), rank[i], rank[j]);
         }
       }
-      delta = 1/ni * d;
-      ni_i[i]  = 1/ni;
-      d_i[i]   = d;
-      delta_i[i] = delta;
+      var_i[i]  = 1/var;
+      err_i[i] = err;
+      delta_i[i] = 1/var * err;
     }
     
     
-    // update params
+    // update parameters
     for(int i = 0; i < n; i++){
-      //Rcpp::Rcout << "----- i =" << i <<  std::endl;
-      A = optimSigma(delta_i[i], sig[i], phi[i], ni_i[i], tau);
+      // Rcpp::Rcout << "----- i =" << i <<  std::endl;
+      A = optimSigma(delta_i[i], sig[i], phi[i], var_i[i], tau);
       sig[i] = exp(A/2);
       
-      phi[i] = updatePhi(phi[i], ni_i[i], sig[i]);
-      mu[i]  = updateMu( mu[i], phi[i], d_i[i]);
+      phi[i] = updatePhi(phi[i], var_i[i], sig[i]);
+      mu[i]  = updateMu( mu[i], phi[i], err_i[i]);
       
       r[i]   = mu2r( mu[i] );
       rd[i]  = phi2rd( phi[i] ); 
