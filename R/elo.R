@@ -44,6 +44,21 @@ test <- function() {
   x <- c(1,1,0,0,NA,NA,3,3,1,1)
   speedway:::streakLength(x)
   
+ 
+  # 
+
+  
+  glicko(
+    teams = c( "A","B","C","D" ), 
+    rank  = c( 3 , 4 , 1, 2 ), 
+    days  = rep( 0, length(rank) ),
+    r     = c( 1500, 1400, 1550, 1700 ) , 
+    rd    = c( 200,  30,   100,  300 ),
+    init_r  = 1500,
+    init_rd = 100
+  )
+  
+  
 }
 
 

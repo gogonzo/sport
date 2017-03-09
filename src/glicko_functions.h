@@ -1,5 +1,3 @@
-#include <Rcpp.h>
-using namespace Rcpp;
 double r2mu(double r){
   double mu;
   mu = ( r - 1500 ) / 173.7178;

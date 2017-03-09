@@ -8,7 +8,7 @@ Description: Set of miscelanous functions used in sport analytics. From
     calculating points, streaks to prediction models.
 Imports:
     Rcpp (>= 0.12.8)
-LinkingTo: Rcpp
+LinkingTo: Rcpp, RcppArmadillo
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
