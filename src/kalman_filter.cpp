@@ -4,7 +4,11 @@ using namespace Rcpp;
 
 arma::vec stateFun(arma::vec x, arma::mat F, arma::vec u){
   return( x + F * u );
+}    
+arma::vec measureFun(arma::vec x, arma::mat F, arma::vec u){
+  return( x + F * u );
 }
+
 
 //' Kalman filter for single game
 //' 
@@ -21,12 +25,14 @@ arma::vec stateFun(arma::vec x, arma::mat F, arma::vec u){
 //' @return \code{rd} updated deviations of participants ratings
 //' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 //' @examples
+//' B <- diag(4)
+//' diag(B) <- c( 200,  30,   100,  300 ) 
 //'KF(
 //'  x    = c( 1500, 1400, 1550, 1700 ) , 
-//'  F    = diag(4),
+//'  F    = B,
 //'  B    = matrix(c( 200,  30,   100,  300 ),2),
-//'  u    = c( 1, 1, 1, 1),
-//'  z    = c(0,1,0,0),
+//'  u    = c( 3, 4, 2, 1),
+//'  z    = c(3,4,2,1),
 //'  H    = matrix(c( .06, .06, .05, .07),2)
 //')
 //' @export
@@ -41,13 +47,19 @@ List
     arma::mat H
   ) {
     
-    arma::mat ans = stateFun(x, F, u);
-    
+    arma::mat Z = arma::mat(4,4).fill(0);
+    //arma::mat ans = stateFun(x, F, u);
+
+    for(int i = 0; i < 4; i++)
+      for(int j = 0; j < 4; j++)
+        if(i != j)
+          if(z[i] <= z[j])
+            Z(i, j) = 1;
     
     
     return List::create(
       _["x"] = x,
-      _["and"] = ans
+      _["Z"] = Z
     );  
   }
 

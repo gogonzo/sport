@@ -32,12 +32,14 @@ KF(x, F, B, u, z, H)
 Calculates score by smoothing
 }
 \examples{
+B <- diag(4)
+diag(B) <- c( 200,  30,   100,  300 ) 
 KF(
  x    = c( 1500, 1400, 1550, 1700 ) , 
- F    = diag(4),
+ F    = B,
  B    = matrix(c( 200,  30,   100,  300 ),2),
- u    = c( 1, 1, 1, 1),
- z    = c(0,1,0,0),
+ u    = c( 3, 4, 2, 1),
+ z    = c(3,4,2,1),
  H    = matrix(c( .06, .06, .05, .07),2)
 )
 }
