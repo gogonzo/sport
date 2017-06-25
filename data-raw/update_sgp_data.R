@@ -33,7 +33,7 @@ gpheats  <- customQuery({"
   "})
 dbDisconnect(con)
 
-gpsquads$date <- strptime(gpsquads$date,"%Y-%m-%d %H:%M:%S")
-gpheats$date  <- strptime(gpheats$date,"%Y-%m-%d %H:%M:%S")
+gpsquads$date <- as.POSIXct( strptime( gpsquads$date ,"%Y-%m-%d %H:%M:%S" ) )
+gpheats$date  <- as.POSIXct( strptime( gpheats$date  ,"%Y-%m-%d %H:%M:%S" ) )
 
 devtools::use_data(gpsquads,gpheats, overwrite = T)
