@@ -4,6 +4,7 @@ gpsquads <- customQuery({"
   SELECT 
     e.id,
     e.season,
+    e.date,
     e.round,
     e.name, 
     s.rider_name,
@@ -17,6 +18,7 @@ gpheats  <- customQuery({"
   SELECT 
     e.id,
     e.season,
+    e.date,
     e.round,
     e.name, 
     h.heat,
@@ -30,5 +32,8 @@ gpheats  <- customQuery({"
     competition = 'Grand-Prix'
   "})
 dbDisconnect(con)
+
+gpsquads$date <- strptime(gpsquads$date,"%Y-%m-%d %H:%M:%S")
+gpheats$date  <- strptime(gpheats$date,"%Y-%m-%d %H:%M:%S")
 
 devtools::use_data(gpsquads,gpheats, overwrite = T)
