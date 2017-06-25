@@ -3,6 +3,9 @@ con <- dbConnect(drv=MySQL(), username="root", dbname="speedway")
 gpsquads <- customQuery({"
   SELECT 
     e.id,
+    e.season,
+    e.round,
+    e.name, 
     s.rider_name,
     s.points,
     s.classification
@@ -13,6 +16,9 @@ gpsquads <- customQuery({"
 gpheats  <- customQuery({"
   SELECT 
     e.id,
+    e.season,
+    e.round,
+    e.name, 
     h.heat,
     h.field,
     h.rider_name,
