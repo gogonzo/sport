@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // fide
 List fide(CharacterVector teams, std::vector<int> rank, NumericVector r, int K, double init_r, double init_rd);
-RcppExport SEXP sport_fide(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP KSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
+RcppExport SEXP _sport_fide(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP KSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -24,7 +24,7 @@ END_RCPP
 }
 // glicko
 List glicko(CharacterVector teams, std::vector<int> rank, NumericVector r, NumericVector rd, NumericVector days, double init_r, double init_rd);
-RcppExport SEXP sport_glicko(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP daysSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
+RcppExport SEXP _sport_glicko(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP daysSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -41,7 +41,7 @@ END_RCPP
 }
 // glicko2
 List glicko2(CharacterVector teams, std::vector<int> rank, NumericVector r, NumericVector rd, NumericVector sig, NumericVector days, double tau, double init_r, double init_rd);
-RcppExport SEXP sport_glicko2(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigSEXP, SEXP daysSEXP, SEXP tauSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
+RcppExport SEXP _sport_glicko2(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigSEXP, SEXP daysSEXP, SEXP tauSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -60,7 +60,7 @@ END_RCPP
 }
 // harkness
 List harkness(Rcpp::StringVector teams, std::vector<int> rank, std::vector<int> days, std::vector<double> r, std::vector<double> rd, double init_r, double init_rd);
-RcppExport SEXP sport_harkness(SEXP teamsSEXP, SEXP rankSEXP, SEXP daysSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
+RcppExport SEXP _sport_harkness(SEXP teamsSEXP, SEXP rankSEXP, SEXP daysSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -77,7 +77,7 @@ END_RCPP
 }
 // KF
 List KF(arma::vec x, arma::mat F, arma::mat B, arma::vec u, arma::vec z, arma::mat H);
-RcppExport SEXP sport_KF(SEXP xSEXP, SEXP FSEXP, SEXP BSEXP, SEXP uSEXP, SEXP zSEXP, SEXP HSEXP) {
+RcppExport SEXP _sport_KF(SEXP xSEXP, SEXP FSEXP, SEXP BSEXP, SEXP uSEXP, SEXP zSEXP, SEXP HSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -93,7 +93,7 @@ END_RCPP
 }
 // pointsCalc
 NumericVector pointsCalc(NumericVector event_id, CharacterVector team_name, NumericVector score);
-RcppExport SEXP sport_pointsCalc(SEXP event_idSEXP, SEXP team_nameSEXP, SEXP scoreSEXP) {
+RcppExport SEXP _sport_pointsCalc(SEXP event_idSEXP, SEXP team_nameSEXP, SEXP scoreSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -106,7 +106,7 @@ END_RCPP
 }
 // rcpp_hello_world
 List rcpp_hello_world();
-RcppExport SEXP sport_rcpp_hello_world() {
+RcppExport SEXP _sport_rcpp_hello_world() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -116,7 +116,7 @@ END_RCPP
 }
 // streakLength
 NumericVector streakLength(NumericVector vec);
-RcppExport SEXP sport_streakLength(SEXP vecSEXP) {
+RcppExport SEXP _sport_streakLength(SEXP vecSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -127,14 +127,14 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"sport_fide", (DL_FUNC) &sport_fide, 6},
-    {"sport_glicko", (DL_FUNC) &sport_glicko, 7},
-    {"sport_glicko2", (DL_FUNC) &sport_glicko2, 9},
-    {"sport_harkness", (DL_FUNC) &sport_harkness, 7},
-    {"sport_KF", (DL_FUNC) &sport_KF, 6},
-    {"sport_pointsCalc", (DL_FUNC) &sport_pointsCalc, 3},
-    {"sport_rcpp_hello_world", (DL_FUNC) &sport_rcpp_hello_world, 0},
-    {"sport_streakLength", (DL_FUNC) &sport_streakLength, 1},
+    {"_sport_fide", (DL_FUNC) &_sport_fide, 6},
+    {"_sport_glicko", (DL_FUNC) &_sport_glicko, 7},
+    {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 9},
+    {"_sport_harkness", (DL_FUNC) &_sport_harkness, 7},
+    {"_sport_KF", (DL_FUNC) &_sport_KF, 6},
+    {"_sport_pointsCalc", (DL_FUNC) &_sport_pointsCalc, 3},
+    {"_sport_rcpp_hello_world", (DL_FUNC) &_sport_rcpp_hello_world, 0},
+    {"_sport_streakLength", (DL_FUNC) &_sport_streakLength, 1},
     {NULL, NULL, 0}
 };
 

@@ -22,7 +22,7 @@
 #')
 #' @export
 fide <- function(teams, rank, r, K = 32L, init_r = 1500, init_rd = 350) {
-    .Call('sport_fide', PACKAGE = 'sport', teams, rank, r, K, init_r, init_rd)
+    .Call('_sport_fide', PACKAGE = 'sport', teams, rank, r, K, init_r, init_rd)
 }
 
 #' Glicko rating for single game
@@ -51,7 +51,7 @@ fide <- function(teams, rank, r, K = 32L, init_r = 1500, init_rd = 350) {
 #')
 #' @export
 glicko <- function(teams, rank, r, rd, days = as.numeric( c(0)), init_r = 1500.00, init_rd = 350.00) {
-    .Call('sport_glicko', PACKAGE = 'sport', teams, rank, r, rd, days, init_r, init_rd)
+    .Call('_sport_glicko', PACKAGE = 'sport', teams, rank, r, rd, days, init_r, init_rd)
 }
 
 #' Glicko rating for single game
@@ -82,7 +82,7 @@ glicko <- function(teams, rank, r, rd, days = as.numeric( c(0)), init_r = 1500.0
 #')
 #' @export
 glicko2 <- function(teams, rank, r, rd, sig, days = as.numeric( c(0)), tau = .5, init_r = 1500.00, init_rd = 350.00) {
-    .Call('sport_glicko2', PACKAGE = 'sport', teams, rank, r, rd, sig, days, tau, init_r, init_rd)
+    .Call('_sport_glicko2', PACKAGE = 'sport', teams, rank, r, rd, sig, days, tau, init_r, init_rd)
 }
 
 #' Harkness rating for single game
@@ -112,7 +112,7 @@ glicko2 <- function(teams, rank, r, rd, sig, days = as.numeric( c(0)), tau = .5,
 #'    init_rd = 100)
 #' @export
 harkness <- function(teams, rank, days, r, rd, init_r = 1500, init_rd = 350) {
-    .Call('sport_harkness', PACKAGE = 'sport', teams, rank, days, r, rd, init_r, init_rd)
+    .Call('_sport_harkness', PACKAGE = 'sport', teams, rank, days, r, rd, init_r, init_rd)
 }
 
 #' Kalman filter for single game
@@ -142,7 +142,7 @@ harkness <- function(teams, rank, days, r, rd, init_r = 1500, init_rd = 350) {
 #')
 #' @export
 KF <- function(x, F, B, u, z, H) {
-    .Call('sport_KF', PACKAGE = 'sport', x, F, B, u, z, H)
+    .Call('_sport_KF', PACKAGE = 'sport', x, F, B, u, z, H)
 }
 
 #' Calculate points
@@ -152,12 +152,12 @@ KF <- function(x, F, B, u, z, H) {
 #' @param x A single integer.
 #' @export
 pointsCalc <- function(event_id, team_name, score) {
-    .Call('sport_pointsCalc', PACKAGE = 'sport', event_id, team_name, score)
+    .Call('_sport_pointsCalc', PACKAGE = 'sport', event_id, team_name, score)
 }
 
 #' @export
 rcpp_hello_world <- function() {
-    .Call('sport_rcpp_hello_world', PACKAGE = 'sport')
+    .Call('_sport_rcpp_hello_world', PACKAGE = 'sport')
 }
 
 #' Streak length of vector elements
@@ -170,6 +170,6 @@ rcpp_hello_world <- function() {
 #' streakLength(x)
 #' @export
 streakLength <- function(vec) {
-    .Call('sport_streakLength', PACKAGE = 'sport', vec)
+    .Call('_sport_streakLength', PACKAGE = 'sport', vec)
 }
 
