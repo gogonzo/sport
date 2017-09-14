@@ -129,5 +129,4 @@ double phi2rd(double phi){
   double rd;
   rd =  phi * 173.7178;
   return(rd);
-  
 }

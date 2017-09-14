@@ -192,7 +192,7 @@ List
     for(int i = 0; i < n; i++){
       // Rcpp::Rcout << "----- i =" << i <<  std::endl;
       A = optimSigma(delta_i[i], sig[i], phi[i], var_i[i], tau);
-      sig[i] = exp(A/2);
+      sig[i] = exp( A/2 );
       
       phi[i] = updatePhi(phi[i], var_i[i], sig[i]);
       mu[i]  = updateMu( mu[i], phi[i], err_i[i]);

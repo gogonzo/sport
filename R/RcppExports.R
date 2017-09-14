@@ -169,7 +169,46 @@ rcpp_hello_world <- function() {
 #' x <- c(1,1,0,0,1,0,3,3,1,1)
 #' streakLength(x)
 #' @export
+running_mean <- function(vec) {
+    .Call('_sport_running_mean', PACKAGE = 'sport', vec)
+}
+
+#' Streak length of vector elements
+#' 
+#' Calculates series of consecutive elements
+#' 
+#' @param x A single integer.
+#' @examples
+#' x <- c(1,1,0,0,1,0,3,3,1,1)
+#' streakLength(x)
+#' @export
 streakLength <- function(vec) {
     .Call('_sport_streakLength', PACKAGE = 'sport', vec)
+}
+
+#' Streak length of vector elements
+#' 
+#' Calculates series of consecutive elements
+#' 
+#' @param x A single integer.
+#' @examples
+#' x <- c(NA,NA,99999999999,3.01, 3, 4,-6,-7)
+#' whichmin_run(x)
+#' @export
+whichmin_run <- function(vec) {
+    .Call('_sport_whichmin_run', PACKAGE = 'sport', vec)
+}
+
+#' Streak length of vector elements
+#' 
+#' Calculates series of consecutive elements
+#' 
+#' @param x A single integer.
+#' @examples
+#' x <- c(NA,NA,0,NA, 1, 2,-6,4)
+#' whichmax_run(x)
+#' @export
+whichmax_run <- function(vec) {
+    .Call('_sport_whichmax_run', PACKAGE = 'sport', vec)
 }
 
