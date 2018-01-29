@@ -39,4 +39,3 @@ Calculates Harkness rating for single game input
    init_r  = 1500,
    init_rd = 100)
 }
-

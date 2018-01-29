@@ -45,4 +45,3 @@ glicko2(
  init_rd = 100
 )
 }
-

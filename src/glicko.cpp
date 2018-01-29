@@ -25,6 +25,15 @@ using namespace Rcpp;
 //'  init_r  = 1500,
 //'  init_rd = 100
 //')
+//'glicko(
+//' teams = c( "A", "B" ), 
+//'   rank  = c( 1, 2 ), 
+//'   days  = c( 0, 0),
+//'   r     = c( 1400, 1500 ) , 
+//'   rd    = c( 80,  150),
+//'   init_r  = 1500,
+//'   init_rd = 100
+//')
 //' @export
 // [[Rcpp::export]]
 List 
@@ -35,7 +44,8 @@ List
     NumericVector rd,
     NumericVector days = NumericVector::create(0),
     double init_r  = 1500.00,
-    double init_rd = 350.00
+    double init_rd = 350.00,
+    double gamma = 1
   ) {
   
     int n = teams.size();
@@ -57,7 +67,9 @@ List
       
       if( NumericVector::is_na(r[i]) ) 
         r[i] = init_r, rd[i] = init_rd;
-
+      
+      
+      // modification - rd + days since last event 
       rd_ = sqrt( pow(rd[i],2) + pow( days[i], 2 ) );
       if( rd_ < init_rd ) rd[i] = rd_;
       g_rd[i] = calcGRd( rd[i] );
@@ -71,7 +83,7 @@ List
       
       for(int j = 0; j < n; j ++){
         if(j != i){
-          E_s(i,j) = calcPGlicko( g_rd[j] , r[i] , r[j] );
+          E_s(i,j) = calcPGlicko( calcGRd( sqrt( pow(rd[i],2) + pow( rd[j], 2 ) ) ) , r[i] , r[j] );
           var = calcVar( var, g_rd[j], E_s(i,j) );
           err = calcErr( err, g_rd[j], E_s(i,j), rank[i], rank[j]);
         }
@@ -80,7 +92,7 @@ List
       // this event ratings
       err_i[i]   = err;
       var_i[i]   = var;
-      delta_i[i] = 1/ ( pow(q, 2) * var );
+      delta_i[i] =  gamma * 1/ ( pow(q, 2) * var );
       
     }
     
@@ -100,7 +112,7 @@ List
     _["rd"]   = rd,
     _["expected"] = E_s
   );  
-}
+} 
 
 
 //' Glicko rating for single game
@@ -146,10 +158,7 @@ List
     
     int n = teams.size();
     int d_size = days.size();
-    double 
-      err  = 0.0,
-        var = 0.0, 
-        A  = 0.0;
+    double err  = 0.0, var = 0.0, A  = 0.0, rd_;
     NumericVector mu(n);
     NumericVector phi(n);
     NumericVector g_phi(n);
@@ -164,6 +173,10 @@ List
       if( NumericVector::is_na(r[i]) ) 
         r[i] = init_r, rd[i] = init_rd;
       
+      // modification - rd + days since last event  
+      rd_ = sqrt( pow(rd( i ),2) + pow( days( i ), 2 ) );
+      if( rd_ < init_rd ) rd[i] = rd_;
+      
       // rescale params to glicko2 scale
       mu[i]    = r2mu( r[i] );
       phi[i]   = rd2phi( rd[i] );
@@ -176,7 +189,7 @@ List
       var = 0, err  = 0;
       for(int j = 0; j < n; j ++){
         if(j != i){
-          E_s(i,j) = calcPGlicko2( g_phi[j] , mu[i] , mu[j] );
+          E_s(i,j) = calcPGlicko2( sqrt( pow(g_phi[i],2.0) + pow(g_phi[j],2.0) ) , mu[i] , mu[j] );
           
           var = calcVar(var, g_phi[j], E_s(i,j) );
           err = calcErr(err, g_phi[j], E_s(i,j), rank[i], rank[j]);

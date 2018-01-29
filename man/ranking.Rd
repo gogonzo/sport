@@ -43,4 +43,3 @@ df \%<>\%
   ) \%>\% 
   arrange(ranking)
 }
-

@@ -15,8 +15,9 @@
 #'   \item{field}{number of gate, 1-4}
 #'   \item{rider_name}{rider name, string}
 #' }
-#' @source \url{juicystat.com}
-"gpheats"
+#' @source internal
+#' @name gpheats
+NULL
 
 
 #' Turnament results of Speedway Grand-Prix 
@@ -35,5 +36,6 @@
 #'   \item{rider_name}{points, 1-6}
 #'   \item{classification}{classification after an event}
 #' }
-#' @source \url{juicystat.com}
-"gpsquads"
+#' @source internal
+#' @name gpsquads
+NULL

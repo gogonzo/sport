@@ -12,4 +12,3 @@ pointsCalc(event_id, team_name, score)
 \description{
 Calculates points of \code{event_id} participant with given parameters
 }
-

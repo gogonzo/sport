@@ -5,7 +5,7 @@
 \title{Glicko rating for single game}
 \usage{
 glicko(teams, rank, r, rd, days = as.numeric(c(0)), init_r = 1500,
-  init_rd = 350)
+  init_rd = 350, gamma = 1)
 }
 \arguments{
 \item{teams}{name of event participants.}
@@ -42,5 +42,13 @@ glicko(
  init_r  = 1500,
  init_rd = 100
 )
+glicko(
+teams = c( "A", "B" ), 
+  rank  = c( 1, 2 ), 
+  days  = c( 0, 0),
+  r     = c( 1400, 1500 ) , 
+  rd    = c( 80,  150),
+  init_r  = 1500,
+  init_rd = 100
+)
 }
-

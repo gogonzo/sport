@@ -6,6 +6,21 @@
 
 using namespace Rcpp;
 
+// dynamicBT
+List dynamicBT(IntegerVector rank, NumericMatrix mi_ij, NumericMatrix sig_ij, double kappa, double gamma);
+RcppExport SEXP _sport_dynamicBT(SEXP rankSEXP, SEXP mi_ijSEXP, SEXP sig_ijSEXP, SEXP kappaSEXP, SEXP gammaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type mi_ij(mi_ijSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type sig_ij(sig_ijSEXP);
+    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    rcpp_result_gen = Rcpp::wrap(dynamicBT(rank, mi_ij, sig_ij, kappa, gamma));
+    return rcpp_result_gen;
+END_RCPP
+}
 // fide
 List fide(CharacterVector teams, std::vector<int> rank, NumericVector r, int K, double init_r, double init_rd);
 RcppExport SEXP _sport_fide(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP KSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
@@ -23,8 +38,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // glicko
-List glicko(CharacterVector teams, std::vector<int> rank, NumericVector r, NumericVector rd, NumericVector days, double init_r, double init_rd);
-RcppExport SEXP _sport_glicko(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP daysSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
+List glicko(CharacterVector teams, std::vector<int> rank, NumericVector r, NumericVector rd, NumericVector days, double init_r, double init_rd, double gamma);
+RcppExport SEXP _sport_glicko(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP daysSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP gammaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -35,7 +50,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type days(daysSEXP);
     Rcpp::traits::input_parameter< double >::type init_r(init_rSEXP);
     Rcpp::traits::input_parameter< double >::type init_rd(init_rdSEXP);
-    rcpp_result_gen = Rcpp::wrap(glicko(teams, rank, r, rd, days, init_r, init_rd));
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    rcpp_result_gen = Rcpp::wrap(glicko(teams, rank, r, rd, days, init_r, init_rd, gamma));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -104,16 +120,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpp_hello_world
-List rcpp_hello_world();
-RcppExport SEXP _sport_rcpp_hello_world() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(rcpp_hello_world());
-    return rcpp_result_gen;
-END_RCPP
-}
 // running_mean
 NumericVector running_mean(NumericVector vec);
 RcppExport SEXP _sport_running_mean(SEXP vecSEXP) {
@@ -125,52 +131,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// streakLength
-NumericVector streakLength(NumericVector vec);
-RcppExport SEXP _sport_streakLength(SEXP vecSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type vec(vecSEXP);
-    rcpp_result_gen = Rcpp::wrap(streakLength(vec));
-    return rcpp_result_gen;
-END_RCPP
-}
-// whichmin_run
-NumericVector whichmin_run(NumericVector vec);
-RcppExport SEXP _sport_whichmin_run(SEXP vecSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type vec(vecSEXP);
-    rcpp_result_gen = Rcpp::wrap(whichmin_run(vec));
-    return rcpp_result_gen;
-END_RCPP
-}
-// whichmax_run
-NumericVector whichmax_run(NumericVector vec);
-RcppExport SEXP _sport_whichmax_run(SEXP vecSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type vec(vecSEXP);
-    rcpp_result_gen = Rcpp::wrap(whichmax_run(vec));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_sport_dynamicBT", (DL_FUNC) &_sport_dynamicBT, 5},
     {"_sport_fide", (DL_FUNC) &_sport_fide, 6},
-    {"_sport_glicko", (DL_FUNC) &_sport_glicko, 7},
+    {"_sport_glicko", (DL_FUNC) &_sport_glicko, 8},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 9},
     {"_sport_harkness", (DL_FUNC) &_sport_harkness, 7},
     {"_sport_KF", (DL_FUNC) &_sport_KF, 6},
     {"_sport_pointsCalc", (DL_FUNC) &_sport_pointsCalc, 3},
-    {"_sport_rcpp_hello_world", (DL_FUNC) &_sport_rcpp_hello_world, 0},
     {"_sport_running_mean", (DL_FUNC) &_sport_running_mean, 1},
-    {"_sport_streakLength", (DL_FUNC) &_sport_streakLength, 1},
-    {"_sport_whichmin_run", (DL_FUNC) &_sport_whichmin_run, 1},
-    {"_sport_whichmax_run", (DL_FUNC) &_sport_whichmax_run, 1},
     {NULL, NULL, 0}
 };
 
