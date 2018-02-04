@@ -1,17 +1,16 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 #include "bbt_functions.h"
-//' Glicko rating for single game
+//' Bayesian Bradley-Terry model for single game
 //' 
-//' Calculates Glicko rating for single game input
+//' Calculates Glicko ratings based on Bayesian Bradley Terry model.
 //' 
-//' @param teams name of event participants.
-//' @param rank classification of the event.
-//' @param days days after previous match - indicator multiplying uncertainty of expectations.
-//' @param r ratings of participants.
-//' @param rd rating deviations of participants.
-//' @param init_r initial rating for new competitors (contains NA). Default = 1500
-//' @param init_rd initial rating deviations for new competitors. Default = 350
+//' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
+//' @param rank.
+//' @param mi_ij ratings of participants.
+//' @param sig_ij rating deviations of participants.
+//' @param kappa
+//' @param gamma
 //' @return \code{r} updated ratings of participats
 //' @return \code{rd} updated deviations of participants ratings
 //' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
