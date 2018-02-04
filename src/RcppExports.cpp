@@ -74,6 +74,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// gonzo
+List gonzo(IntegerVector rank, NumericVector mi_i, NumericVector sig_i);
+RcppExport SEXP _sport_gonzo(SEXP rankSEXP, SEXP mi_iSEXP, SEXP sig_iSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type mi_i(mi_iSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type sig_i(sig_iSEXP);
+    rcpp_result_gen = Rcpp::wrap(gonzo(rank, mi_i, sig_i));
+    return rcpp_result_gen;
+END_RCPP
+}
 // harkness
 List harkness(Rcpp::StringVector teams, std::vector<int> rank, std::vector<int> days, std::vector<double> r, std::vector<double> rd, double init_r, double init_rd);
 RcppExport SEXP _sport_harkness(SEXP teamsSEXP, SEXP rankSEXP, SEXP daysSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
@@ -137,6 +150,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sport_fide", (DL_FUNC) &_sport_fide, 6},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 8},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 9},
+    {"_sport_gonzo", (DL_FUNC) &_sport_gonzo, 3},
     {"_sport_harkness", (DL_FUNC) &_sport_harkness, 7},
     {"_sport_KF", (DL_FUNC) &_sport_KF, 6},
     {"_sport_pointsCalc", (DL_FUNC) &_sport_pointsCalc, 3},

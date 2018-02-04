@@ -24,6 +24,11 @@ kappa <- 0.95
 
 dynamicBT(rank = rank_i, sig_ij = sig_ij, mi_ij = mi_ij)
 
+gonzo(
+  rank  = c( 3, 4, 1, 2 ), 
+  mi_i     = c( 1500, 1400, 1550, 1700 ) , 
+  sig_i    = c( 200,  30,   100,  300 )
+)
 
 glicko(
   teams = c( "A", "B", "C", "D" ), 

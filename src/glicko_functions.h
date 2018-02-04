@@ -7,7 +7,6 @@ double rd2phi(double rd){
   double phi;
   phi =  rd / 173.7178;
   return(phi);
-  
 }
 double calcGRd( double rd){
   double 

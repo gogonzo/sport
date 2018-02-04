@@ -208,6 +208,8 @@ List
       sig[i] = exp( A/2 );
       
       phi[i] = updatePhi(phi[i], var_i[i], sig[i]);
+      if(phi[i]>(init_rd/173.7178)) phi[i] = init_rd/173.7178;
+      
       mu[i]  = updateMu( mu[i], phi[i], err_i[i]);
       
       r[i]   = mu2r( mu[i] );

@@ -113,6 +113,15 @@ glicko2 <- function(teams, rank, r, rd, sig, days = as.numeric( c(0)), tau = .5,
     .Call('_sport_glicko2', PACKAGE = 'sport', teams, rank, r, rd, sig, days, tau, init_r, init_rd)
 }
 
+#' Gonzo rating for single game
+#' 
+#' Calculates Gonzo rating for single game input
+#' 
+#' @export
+gonzo <- function(rank, mi_i, sig_i) {
+    .Call('_sport_gonzo', PACKAGE = 'sport', rank, mi_i, sig_i)
+}
+
 #' Harkness rating for single game
 #' 
 #' Calculates Harkness rating for single game input
