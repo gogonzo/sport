@@ -30,30 +30,33 @@ List
     NumericVector mi_i  = rowSums(mi_ij);
     NumericVector sig2_i = rowSums(pow_mat_elems(sig_ij));
     NumericMatrix sig_share(n,j);
-    NumericMatrix P_iq(n,n);
+    NumericMatrix P(n,n);
     NumericVector omega_i(n,0.0);
     NumericVector delta_i(n,0.0);
-    double c_iq;
+    double c;
     
     
     for(int i = 0; i < n; i++){
 
       for(int q = 0; q<n; q++ ){
         if(i!=q){
-          c_iq = sqrt( sig2_i(i) + sig2_i(q));
-          if(gamma>1) gamma = sqrt(sig2_i(i)) / c_iq;
+          
+          c = sqrt( sig2_i(i) + sig2_i(q) );
+          
+          if(gamma==1) gamma = sqrt( sig2_i(i) ) / c;
         
-          P_iq(i,q)  = exp( mi_i(i)/c_iq ) / ( exp( mi_i(i)/c_iq ) + exp( mi_i(q)/c_iq) );
+          P(i,q)  = exp( mi_i(i)/c ) / ( exp( mi_i(i)/c ) + exp( mi_i(q)/c) );
+          
           omega_i(i) = 
             omega_i(i) + 
-            sig2_i(i)/c_iq * 
-            ( calc_s(rank(i), rank(q) ) - P_iq(i,q) );
+            sig2_i(i)/c * 
+            ( calc_s(rank(i), rank(q) ) - P(i,q) );
           
           delta_i(i) = 
             delta_i(i) + 
             gamma * 
-            pow( sqrt( sig2_i(i) ) / c_iq, 2.0 ) * 
-            ( P_iq(i,q)*(1-P_iq(i,q)) );
+            pow( sqrt( sig2_i(i) ) / c, 2.0 ) * 
+            ( P(i,q) * ( 1-P(i,q) ) );
         }
       }
     }
@@ -72,9 +75,9 @@ List
       _["sig_ij"]   = sig_ij,
       _["sig2_i"]   = sig2_i,
       _["sig2_share"]= sig_share,
-      _["c_iq"]     = c_iq,
+      _["c_iq"]     = c,
       _["omega"]    = omega_i,
       _["delta"]    = delta_i,
-      _["P_iq"]     = P_iq
+      _["P_iq"]     = P
     );
   }
