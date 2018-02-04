@@ -1,13 +1,11 @@
 Package: sport
 Type: Package
-Title: Utilities for sport analytics
+Title: Online ranking methods
 Version: 0.1.0
 Author: Dawid 'Gonzo' Kałędkowski
 Maintainer: Dawid 'Gonzo' Kałędkowski <dawid.kaledkowski@protonmail.com>
-Description: Set of miscelanous functions used in sport analytics. From
-    calculating points, streaks to prediction models.
-Imports:
-    Rcpp (>= 0.12.8)
+Description: Most popular online ranking methods including, Elo, Glicko, Glicko2, BBT, Discrete Kalman Filter.
+Imports: Rcpp (>= 0.12.8)
 LinkingTo: Rcpp, RcppArmadillo
 License: MIT + file LICENSE
 Encoding: UTF-8

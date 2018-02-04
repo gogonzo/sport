@@ -16,8 +16,8 @@
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-dynamicBT <- function(rank, mi_ij, sig_ij, kappa = 0.95, gamma = 1.0) {
-    .Call('_sport_dynamicBT', PACKAGE = 'sport', rank, mi_ij, sig_ij, kappa, gamma)
+bbt <- function(rank, mi_ij, sig_ij, kappa = 0.95, gamma = 1.0) {
+    .Call('_sport_bbt', PACKAGE = 'sport', rank, mi_ij, sig_ij, kappa, gamma)
 }
 
 #' FIDE rating for single game

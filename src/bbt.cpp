@@ -1,6 +1,6 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
-#include "bt_functions.h"
+#include "bbt_functions.h"
 //' Glicko rating for single game
 //' 
 //' Calculates Glicko rating for single game input
@@ -18,7 +18,7 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 List 
-  dynamicBT(
+  bbt(
     IntegerVector rank,
     NumericMatrix mi_ij, 
     NumericMatrix sig_ij,
@@ -38,22 +38,32 @@ List
     
     
     for(int i = 0; i < n; i++){
-      sig_share(i,_) = pow(sig_ij(i,_),2.0) / sig2_i(i);
+
       for(int q = 0; q<n; q++ ){
         if(i!=q){
           c_iq = sqrt( sig2_i(i) + sig2_i(q));
           if(gamma>1) gamma = sqrt(sig2_i(i)) / c_iq;
         
-          P_iq(i,q)  = exp( mi_i(i)/c_iq ) / ( exp(mi_i(i)/c_iq) + exp(mi_i(q)/c_iq) );
-          omega_i(i) = omega_i(i) + sig2_i(i)/c_iq * ( calc_s(rank(i), rank(q) ) - P_iq(i,q) );
-          delta_i(i) = delta_i(i) + gamma * pow( sqrt(sig2_i(i))/c_iq, 2.0 ) * ( P_iq(i,q)*(1-P_iq(i,q)) );
+          P_iq(i,q)  = exp( mi_i(i)/c_iq ) / ( exp( mi_i(i)/c_iq ) + exp( mi_i(q)/c_iq) );
+          omega_i(i) = 
+            omega_i(i) + 
+            sig2_i(i)/c_iq * 
+            ( calc_s(rank(i), rank(q) ) - P_iq(i,q) );
+          
+          delta_i(i) = 
+            delta_i(i) + 
+            gamma * 
+            pow( sqrt( sig2_i(i) ) / c_iq, 2.0 ) * 
+            ( P_iq(i,q)*(1-P_iq(i,q)) );
         }
       }
     }
 
     for(int i = 0; i < n; i++){
+      sig_share(i,_) = pow(sig_ij(i,_),2.0) / sig2_i(i);
       mi_ij(i,_) = mi_ij(i,_) + sig_share(i,_) * omega_i(i);
       sig_ij(i,_) = sqrt( pow(sig_ij(i,_),2.0) * pmax( 1 - sig_share(i,_) * delta_i(i), kappa ) );
+      // if sig_ij < 0.0001 -> sig_ij=0.0001;
     }
 
     return List::create(

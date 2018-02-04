@@ -6,9 +6,9 @@
 
 using namespace Rcpp;
 
-// dynamicBT
-List dynamicBT(IntegerVector rank, NumericMatrix mi_ij, NumericMatrix sig_ij, double kappa, double gamma);
-RcppExport SEXP _sport_dynamicBT(SEXP rankSEXP, SEXP mi_ijSEXP, SEXP sig_ijSEXP, SEXP kappaSEXP, SEXP gammaSEXP) {
+// bbt
+List bbt(IntegerVector rank, NumericMatrix mi_ij, NumericMatrix sig_ij, double kappa, double gamma);
+RcppExport SEXP _sport_bbt(SEXP rankSEXP, SEXP mi_ijSEXP, SEXP sig_ijSEXP, SEXP kappaSEXP, SEXP gammaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -17,7 +17,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type sig_ij(sig_ijSEXP);
     Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
     Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
-    rcpp_result_gen = Rcpp::wrap(dynamicBT(rank, mi_ij, sig_ij, kappa, gamma));
+    rcpp_result_gen = Rcpp::wrap(bbt(rank, mi_ij, sig_ij, kappa, gamma));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -146,7 +146,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_sport_dynamicBT", (DL_FUNC) &_sport_dynamicBT, 5},
+    {"_sport_bbt", (DL_FUNC) &_sport_bbt, 5},
     {"_sport_fide", (DL_FUNC) &_sport_fide, 6},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 8},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 9},

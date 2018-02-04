@@ -1,3 +1,7 @@
+#' Dynamic Logistic Regression
+#' 
+#' Dynamic Logistic Regression
+#' R implementation of 'Dynamic Logistic Regression' William D. Penny and Stephen J. ROberts
 #' @export
 kalman_logit <- function(x.k, z.k, H.k, P.k, Bu, pa){
   if(missing(Bu)) Bu <- 0
