@@ -22,7 +22,11 @@ sig_ij <- matrix(c( 200,  30,   100,  200 ),2)
 rank_i <-  c( 1,2)
 kappa <- 0.95
 
-dynamicBT(rank = rank_i, sig_ij = sig_ij, mi_ij = mi_ij)
+bbt(
+  rank = rank_i, 
+  sig_ij = sig_ij/60, 
+  mi_ij = mi_ij/60
+)
 
 gonzo(
   rank  = c( 3, 4, 1, 2 ), 

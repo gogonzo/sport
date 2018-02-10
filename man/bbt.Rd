@@ -2,24 +2,14 @@
 % Please edit documentation in R/RcppExports.R
 \name{bbt}
 \alias{bbt}
-\title{Glicko rating for single game}
+\title{Bayesian Bradley-Terry model for single game}
 \usage{
-bbt(rank, mi_ij, sig_ij, kappa = 0.95, gamma = 1)
+bbt(rank, mi_ij, sig_ij, kappa = 1e-04, gamma = 1)
 }
 \arguments{
-\item{rank}{classification of the event.}
+\item{mi_ij}{ratings of participants.}
 
-\item{teams}{name of event participants.}
-
-\item{days}{days after previous match - indicator multiplying uncertainty of expectations.}
-
-\item{r}{ratings of participants.}
-
-\item{rd}{rating deviations of participants.}
-
-\item{init_r}{initial rating for new competitors (contains NA). Default = 1500}
-
-\item{init_rd}{initial rating deviations for new competitors. Default = 350}
+\item{sig_ij}{rating deviations of participants.}
 }
 \value{
 \code{r} updated ratings of participats
@@ -29,5 +19,8 @@ bbt(rank, mi_ij, sig_ij, kappa = 0.95, gamma = 1)
 \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)}
 }
 \description{
-Calculates Glicko rating for single game input
+Calculates Glicko ratings based on Bayesian Bradley Terry model.
+}
+\details{
+Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
 }

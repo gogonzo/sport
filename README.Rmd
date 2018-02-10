@@ -1,0 +1,25 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+# `sport` R package for bayesian dynamic rating system.
+# About
+Package contains functions calculating rating for two-player or multi-player matchups. 
+
+# Elo rating system
+`elo` function uses following formula.
+\[ 
+  E_a = \frac{ 10^{ \frac{r_a}{400} } }{ 10^{ \frac{r_a}{400} } + 10^{ \frac{r_b}{400} } }
+\]
+
+# Glicko rating system
+`glicko`
+# Glicko2 rating system
+`glicko2`
+# Dynamic Bradley Terry
+`bbt` 
+Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
+
+# Dynamic Logistic Regression
+`dlr`

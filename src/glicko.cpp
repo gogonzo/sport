@@ -50,6 +50,8 @@ List
   
     int n = teams.size();
     int d_size = days.size();
+    int idx = 0;
+  
     double 
       q   = log(10)/400,
       rd_ = 0.0,
@@ -59,7 +61,10 @@ List
     NumericVector var_i(n);
     NumericVector err_i(n);
     NumericVector delta_i(n);
-    NumericMatrix E_s(n, n);
+    CharacterVector home(n*n-n);
+    CharacterVector away(n*n-n);
+    NumericVector P(n*n-n);
+    NumericVector Y(n*n-n);
     
     // precalculate 
     for(int i = 0; i < n; i++){
@@ -83,9 +88,15 @@ List
       
       for(int j = 0; j < n; j ++){
         if(j != i){
-          E_s(i,j) = calcPGlicko( calcGRd( sqrt( pow(rd[i],2) + pow( rd[j], 2 ) ) ) , r[i] , r[j] );
-          var = calcVar( var, g_rd[j], E_s(i,j) );
-          err = calcErr( err, g_rd[j], E_s(i,j), rank[i], rank[j]);
+          idx += 1;
+          
+          home( idx - 1 ) = teams[i];
+          away( idx - 1 ) = teams[j];
+          
+          P( idx - 1 ) = calcPGlicko( calcGRd( sqrt( pow(rd[i],2) + pow( rd[j], 2 ) ) ) , r[i] , r[j] );
+          Y( idx - 1 ) = calcZ( rank[i], rank[j] );
+          var = calcVar( var, g_rd[j], P( idx - 1) );
+          err = calcErr( err, g_rd[j], P( idx -1 ), rank[i], rank[j]);
         }
       }
       
@@ -103,14 +114,18 @@ List
     }    
     
   Rcpp::List dimnms = Rcpp::List::create(teams, teams);
-  E_s.attr("dimnames") = dimnms;
   r.names()  = teams;
   rd.names() = teams;
     
   return List::create(
     _["r"]    = r,
     _["rd"]   = rd,
-    _["expected"] = E_s
+    _["pairs"] = DataFrame::create(
+      _["home"] = home,
+      _["away"] = away,
+      _["P"] = P,
+      _["Y"] = Y
+    )
   );  
 } 
 
@@ -158,6 +173,7 @@ List
     
     int n = teams.size();
     int d_size = days.size();
+    int idx = 0;
     double err  = 0.0, var = 0.0, A  = 0.0, rd_;
     NumericVector mu(n);
     NumericVector phi(n);
@@ -165,7 +181,11 @@ List
     NumericVector var_i(n);
     NumericVector err_i(n);
     NumericVector delta_i(n);
-    NumericMatrix E_s(n, n);
+    CharacterVector home(n*n-n);
+    CharacterVector away(n*n-n);
+    NumericVector P(n*n-n);
+    NumericVector Y(n*n-n);
+    
     
     // precalculate 
     for(int i = 0; i < n; i++){
@@ -189,10 +209,15 @@ List
       var = 0, err  = 0;
       for(int j = 0; j < n; j ++){
         if(j != i){
-          E_s(i,j) = calcPGlicko2( sqrt( pow(g_phi[i],2.0) + pow(g_phi[j],2.0) ) , mu[i] , mu[j] );
+          idx += 1;
+          home( idx - 1 ) = teams[i];
+          away( idx - 1 ) = teams[j];
           
-          var = calcVar(var, g_phi[j], E_s(i,j) );
-          err = calcErr(err, g_phi[j], E_s(i,j), rank[i], rank[j]);
+          Y( idx - 1 ) = calcZ( rank[i], rank[j] );
+          P( idx - 1 ) = calcPGlicko2( sqrt( pow(g_phi[i],2.0) + pow(g_phi[j],2.0) ) , mu[i] , mu[j] );
+          
+          var = calcVar(var, g_phi[j], P( idx - 1 ) );
+          err = calcErr(err, g_phi[j], P( idx - 1 ), rank[i], rank[j]);
         }
       }
       var_i[i]  = 1/var;
@@ -218,7 +243,6 @@ List
     
     
     Rcpp::List dimnms = Rcpp::List::create(teams, teams);
-    E_s.attr("dimnames") = dimnms;
     r.names()  = teams;
     rd.names() = teams;
     
@@ -226,8 +250,13 @@ List
       _["r"]    = r,
       _["rd"]   = rd,
       _["sigma"] = sig,
-      _["E_s"] = E_s
+      _["pairs"] = DataFrame::create(
+        _["home"] = home,
+        _["away"] = away,
+        _["P"] = P,
+        _["Y"] = Y
+      )
     );  
-  }
+  } 
 
 

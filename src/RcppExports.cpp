@@ -7,17 +7,35 @@
 using namespace Rcpp;
 
 // bbt
-List bbt(IntegerVector rank, NumericMatrix mi_ij, NumericMatrix sig_ij, double kappa, double gamma);
-RcppExport SEXP _sport_bbt(SEXP rankSEXP, SEXP mi_ijSEXP, SEXP sig_ijSEXP, SEXP kappaSEXP, SEXP gammaSEXP) {
+List bbt(CharacterVector teams, IntegerVector rank, NumericMatrix mi_ij, NumericMatrix sig_ij, double kappa, double gamma);
+RcppExport SEXP _sport_bbt(SEXP teamsSEXP, SEXP rankSEXP, SEXP mi_ijSEXP, SEXP sig_ijSEXP, SEXP kappaSEXP, SEXP gammaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterVector >::type teams(teamsSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type mi_ij(mi_ijSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type sig_ij(sig_ijSEXP);
     Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
     Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
-    rcpp_result_gen = Rcpp::wrap(bbt(rank, mi_ij, sig_ij, kappa, gamma));
+    rcpp_result_gen = Rcpp::wrap(bbt(teams, rank, mi_ij, sig_ij, kappa, gamma));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ddl2
+List ddl2(CharacterVector teams, IntegerVector rank, NumericMatrix X, NumericMatrix H, NumericMatrix S, NumericMatrix Bu, NumericVector pa);
+RcppExport SEXP _sport_ddl2(SEXP teamsSEXP, SEXP rankSEXP, SEXP XSEXP, SEXP HSEXP, SEXP SSEXP, SEXP BuSEXP, SEXP paSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterVector >::type teams(teamsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type H(HSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type S(SSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Bu(BuSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type pa(paSEXP);
+    rcpp_result_gen = Rcpp::wrap(ddl2(teams, rank, X, H, S, Bu, pa));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -146,7 +164,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_sport_bbt", (DL_FUNC) &_sport_bbt, 5},
+    {"_sport_bbt", (DL_FUNC) &_sport_bbt, 6},
+    {"_sport_ddl2", (DL_FUNC) &_sport_ddl2, 7},
     {"_sport_fide", (DL_FUNC) &_sport_fide, 6},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 8},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 9},

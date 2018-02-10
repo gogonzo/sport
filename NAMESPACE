@@ -2,6 +2,7 @@
 
 export(KF)
 export(bbt)
+export(dlr)
 export(fide)
 export(glicko)
 export(glicko2)

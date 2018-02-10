@@ -15,8 +15,26 @@
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-bbt <- function(rank, mi_ij, sig_ij, kappa = 0.95, gamma = 1.0) {
-    .Call('_sport_bbt', PACKAGE = 'sport', rank, mi_ij, sig_ij, kappa, gamma)
+bbt <- function(teams, rank, mi_ij, sig_ij, kappa = 0.0001, gamma = 1.0) {
+    .Call('_sport_bbt', PACKAGE = 'sport', teams, rank, mi_ij, sig_ij, kappa, gamma)
+}
+
+#' Bayesian Bradley-Terry model for single game
+#' 
+#' Calculates Glicko ratings based on Bayesian Bradley Terry model.
+#' 
+#' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
+#' @param rank.
+#' @param mi_ij ratings of participants.
+#' @param sig_ij rating deviations of participants.
+#' @param kappa
+#' @param gamma
+#' @return \code{r} updated ratings of participats
+#' @return \code{rd} updated deviations of participants ratings
+#' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
+#' @export
+ddl2 <- function(teams, rank, X, H, S, Bu = 0L, pa = 1L) {
+    .Call('_sport_ddl2', PACKAGE = 'sport', teams, rank, X, H, S, Bu, pa)
 }
 
 #' FIDE rating for single game

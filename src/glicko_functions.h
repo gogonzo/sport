@@ -52,6 +52,18 @@ double calcErr( double err,  double g_rd_j, double E_s_ij,double rank_i, double 
   
   return(err);
 }
+
+double calcZ( double rank_i, double rank_j){
+  
+  if( rank_i < rank_j ) {
+    return(1);
+  } else if( rank_i == rank_j ) { 
+    return(.5); 
+  } else {
+    return(0); 
+  }
+}
+
 double funX( double X, double delta, double phi, double var, double a, double tau) {
   double result;
   result = 
