@@ -22,6 +22,32 @@ sig_ij <- matrix(c( 200,  30,   100,  200 ),2)
 rank_i <-  c( 1,2)
 kappa <- 0.95
 
+set.seed(1)
+ddl(
+  teams = c( "A", "B", "C", "D" ), 
+  rank  = c( 3, 4, 1, 2 ), 
+  X  = matrix(rnorm(4),ncol=1),
+  H     = matrix(1, ncol=4) , 
+  S    = diag(rnorm(4))
+)
+
+set.seed(1)
+ddl(
+  teams = c( "A", "B", "C" ), 
+  rank  = c(3,4,1,2), 
+  X     = matrix(rnorm(8), ncol=2),
+  H     = matrix(rnorm(8), ncol=2) , 
+  S     = diag( runif(8) )
+)
+
+ddl(
+  teams = c( "A", "B", "C" ), 
+  rank  = c(3,4,1,2), 
+  X     = matrix(rnorm(4), ncol=1),
+  H     = matrix(rnorm(4), ncol=1) , 
+  S     = diag( runif(4) )
+)
+
 bbt(
   rank = rank_i, 
   sig_ij = sig_ij/60, 

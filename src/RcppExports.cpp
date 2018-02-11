@@ -22,20 +22,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ddl2
-List ddl2(CharacterVector teams, IntegerVector rank, NumericMatrix X, NumericMatrix H, NumericMatrix S, NumericMatrix Bu, NumericVector pa);
-RcppExport SEXP _sport_ddl2(SEXP teamsSEXP, SEXP rankSEXP, SEXP XSEXP, SEXP HSEXP, SEXP SSEXP, SEXP BuSEXP, SEXP paSEXP) {
+// ddl
+Rcpp::List ddl(Rcpp::CharacterVector teams, Rcpp::IntegerVector rank, arma::mat X, arma::mat H, arma::mat S);
+RcppExport SEXP _sport_ddl(SEXP teamsSEXP, SEXP rankSEXP, SEXP XSEXP, SEXP HSEXP, SEXP SSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterVector >::type teams(teamsSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type H(HSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type S(SSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Bu(BuSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type pa(paSEXP);
-    rcpp_result_gen = Rcpp::wrap(ddl2(teams, rank, X, H, S, Bu, pa));
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type teams(teamsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type rank(rankSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type H(HSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type S(SSEXP);
+    rcpp_result_gen = Rcpp::wrap(ddl(teams, rank, X, H, S));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -165,7 +163,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sport_bbt", (DL_FUNC) &_sport_bbt, 6},
-    {"_sport_ddl2", (DL_FUNC) &_sport_ddl2, 7},
+    {"_sport_ddl", (DL_FUNC) &_sport_ddl, 5},
     {"_sport_fide", (DL_FUNC) &_sport_fide, 6},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 8},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 9},

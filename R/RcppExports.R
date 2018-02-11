@@ -33,8 +33,8 @@ bbt <- function(teams, rank, mi_ij, sig_ij, kappa = 0.0001, gamma = 1.0) {
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-ddl2 <- function(teams, rank, X, H, S, Bu = 0L, pa = 1L) {
-    .Call('_sport_ddl2', PACKAGE = 'sport', teams, rank, X, H, S, Bu, pa)
+ddl <- function(teams, rank, X, H, S) {
+    .Call('_sport_ddl', PACKAGE = 'sport', teams, rank, X, H, S)
 }
 
 #' FIDE rating for single game

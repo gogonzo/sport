@@ -1,10 +1,6 @@
-#include <RcppEigen.h>
-// [[Rcpp::depends(RcppEigen)]]
-using Eigen::Map;               	      // 'maps' rather than copies 
-using Eigen::MatrixXd;                  // variable size matrix, double precision
-using Eigen::VectorXd;                  // variable size vector, double precision
-using Eigen::SelfAdjointEigenSolver;    // one of the eigenvalue solvers
-
+#include <RcppArmadillo.h>
+// [[Rcpp::depends(RcppArmadillo)]]
+#include "dll_functions.h"
 //' Bayesian Bradley-Terry model for single game
 //' 
 //' Calculates Glicko ratings based on Bayesian Bradley Terry model.
@@ -19,54 +15,87 @@ using Eigen::SelfAdjointEigenSolver;    // one of the eigenvalue solvers
 //' @return \code{rd} updated deviations of participants ratings
 //' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 //' @export
-List 
-  ddl2(
-    CharacterVector teams,
-    IntegerVector rank,
-    NumericMatrix X, 
-    NumericMatrix H,
-    NumericMatrix S,
-    NumericMatrix Bu = 0,
-    NumericVector pa = 1
-  ) {
-    int n = rank.size();
-    int k = X.ncol();
-    int idx = 0;
-    
-    CharacterVector home(n*n-n);
-    CharacterVector away(n*n-n);
-    NumericVector P(n*n-n);
-    NumericVector Y(n*n-n);
-    NumericMatrix F(n,n);
-    
-    NumericMatrix x(k,1);
-    NumericMatrix h(1,k);
-    NumericMatrix s(k,k);
-    
-    for(int i = 0; i < n; i++){
-      
-      for(int q = 0; q<n; q++ ){
-        if(i!=q){
-          
+// [[Rcpp::export]]
+Rcpp::List 
+ddl(
+  Rcpp::CharacterVector teams,
+  Rcpp::IntegerVector rank,
+  arma::mat X, 
+  arma::mat H,
+  arma::mat S
 
-          idx += 1;
-          home( idx - 1 ) = teams[i];
-          away( idx - 1 ) = teams[q];
+  ) {
+  int n = X.n_rows;
+  int k = X.n_cols;
+  int idx = 0;
+  arma::uvec pairs_blocks;
+  arma::uvec idx_i;
+  arma::uvec idx_q;
+  arma::uvec idxs;
+  arma::uvec col1;
+  double pi = 3.1415926535;
+  double s2;
+  double Ks;
+  double p;
+  double y;
+  double y_var;
+  double error;
+  
+  
+  arma::vec ha;
+  ha << 1 << -1;
+  col1 << 0;
+  
+  arma::mat OMEGA( n , k );
+  arma::mat DELTA( k*n , k*n );
+  
+  // state transition apriori assumption about X and S, related to `F` and `R` parameters
+  //X = X * F;
+  //S = S * R;
+  
+  for(int i = 0; i < n; i++){
+    idx_i << i;
+    for(int q = 0; q<n; q++ ){
+      if(i!=q){
+        idx += 1; 
+        idxs << i << q;
+        idx_q << q;
+        pairs_blocks << (i+1)*2-2 << (i+1)*2-1 << (q+1)*2-2 << (q+1)*2-1;
+        
+        arma::mat s  = S.submat( pairs_blocks , pairs_blocks ); 
+        arma::mat x  = join_rows( X.rows( idx_i ), X.rows( idx_q )); 
+        arma::mat h  = join_rows( H.rows( idx_i ), -H.rows( idx_q ));
+        
+        // activation variance
+        s2 = arma::as_scalar( x * s * trans(x) );
+        Ks = 1/sqrt( 1 + (pi * s2)/8 );
+        
+        // probability and output
+        p = 1/( 1 + exp( -Ks * as_scalar( h * trans(x) )) );
+        y = arma::as_scalar( calc_y( rank( i ) , rank( q ) ) );
+        error = arma::as_scalar( p - y);
+        
+        // calculating update
+        if(i < q){
           
-        }
+          y_var = 1/( 1+p*(1-p)*s2  );
+          arma::mat omega = ( s * arma::as_scalar(y_var) ) * trans(h) * arma::as_scalar(error);
+          arma::mat delta = arma::as_scalar(  p*(1-p)/y_var ) * ( ( s*trans(h)) * trans( s*trans(h) ));
+
+          OMEGA.rows( idxs ) =  OMEGA.rows( idxs ) +  trans( reshape(omega,2,k) ) ;
+          DELTA( pairs_blocks, pairs_blocks ) = DELTA( pairs_blocks, pairs_blocks ) + delta; 
+      }
       }
     }
-    
-
-    
-    return List::create(
-      _["X"]  = X,
-      _["S"] = S,
-      _["pairs"] = DataFrame::create(
-        _["home"] = home,
-        _["away"] = away,
-        _["P"] = P,
-        _["Y"] = Y
-      )
-    );
   }
+  S = S - DELTA;
+  X = X + OMEGA;
+  
+  return Rcpp::List::create(
+    Rcpp::Named("ranks") = rank,
+    Rcpp::Named("X") = X,
+    Rcpp::Named("S") = S,
+    Rcpp::Named("OMEGA") = OMEGA,
+    Rcpp::Named("DELTA") = DELTA
+  );
+}

@@ -1,6 +1,6 @@
 #' @export
 dlr <- function(team_name,rank, X, H, S, Bu, pa){
-  # rank <- c(3,4,1,2); X <- matrix(rnorm(4),ncol=1); S <- diag(rnorm(4)); H <- matrix(1, ncol=4)
+  # rank <- c(3,4,1,2); X <- matrix(rnorm(8),ncol=2); S <- diag(rnorm(8)); H <- matrix(rnorm(8), nrow=4)
   k <- length(rank)
   home <- character(k*k-k)
   away <- character(k*k-k)
@@ -27,10 +27,10 @@ dlr <- function(team_name,rank, X, H, S, Bu, pa){
       home[ idx ] <- team_name[ i ]
       away[ idx ] <- team_name[ q ]
       
-      x <- X[c(i,q),, drop=FALSE]  
-      h <- matrix( c(1,-1) , nrow=1)
+      x <- cbind(X[i,, drop=FALSE],X[i,, drop=FALSE])  
+      h <- cbind( H[i,,drop=FALSE],H[q,,drop=FALSE])  
       s <- S[ c(i,q) , c(i,q) , drop=FALSE]
-      y <- dplyr::case_when(rank[i]<rank[q]~1, rank[i]>rank[q]~0,T~.5)
+      y <- dplyr::case_when( rank[i]<rank[q]~1 , rank[i]>rank[q]~0 , T~.5 )
       
       # wariancja aktywacji
       s2 <- t(x) %*% s %*% x
@@ -41,7 +41,7 @@ dlr <- function(team_name,rank, X, H, S, Bu, pa){
       p  <- 1/( 1 + exp( -Ks * (h %*% x )) )
       P[ idx ] <- p
       Y[ idx ] <- y
-  
+      
       # UPDATE
       if(q < i) next;
       error <- y - p
@@ -49,7 +49,7 @@ dlr <- function(team_name,rank, X, H, S, Bu, pa){
         DELTA[c(i,q),c(i,q)] + 
         as.numeric( 
           p * (1 - p)  / 
-          ( 1 + p * (1 - p) * s2 ) 
+            ( 1 + p * (1 - p) * s2 ) 
         ) * 
         (  s %*% t(h)  %*% t( s %*% t(h) ) )
       
@@ -60,7 +60,7 @@ dlr <- function(team_name,rank, X, H, S, Bu, pa){
         as.numeric(error) 
     }
   }
-
+  
   # S <- diag(x=diag(S))
   # X <- X + S %*% t(H) * as.numeric( error )
   S <- S - DELTA
@@ -69,7 +69,7 @@ dlr <- function(team_name,rank, X, H, S, Bu, pa){
   rownames(X) <- team_name
   rownames(S) <- team_name
   colnames(S) <- team_name
-
+  
   
   list( 
     x = X,
