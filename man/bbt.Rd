@@ -4,12 +4,12 @@
 \alias{bbt}
 \title{Bayesian Bradley-Terry model for single game}
 \usage{
-bbt(teams, rank, mi_ij, sig_ij, kappa = 1e-04, gamma = 1)
+bbt(teams, rank, r, rd, kappa = 1e-04, gamma = 1)
 }
 \arguments{
-\item{mi_ij}{ratings of participants.}
+\item{r}{ratings of participants.}
 
-\item{sig_ij}{rating deviations of participants.}
+\item{rd}{rating deviations of participants.}
 }
 \value{
 \code{r} updated ratings of participats

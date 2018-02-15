@@ -7,33 +7,49 @@
 using namespace Rcpp;
 
 // bbt
-List bbt(CharacterVector teams, IntegerVector rank, NumericMatrix mi_ij, NumericMatrix sig_ij, double kappa, double gamma);
-RcppExport SEXP _sport_bbt(SEXP teamsSEXP, SEXP rankSEXP, SEXP mi_ijSEXP, SEXP sig_ijSEXP, SEXP kappaSEXP, SEXP gammaSEXP) {
+List bbt(CharacterVector teams, IntegerVector rank, NumericMatrix r, NumericMatrix rd, double kappa, double gamma);
+RcppExport SEXP _sport_bbt(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP kappaSEXP, SEXP gammaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< CharacterVector >::type teams(teamsSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type mi_ij(mi_ijSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type sig_ij(sig_ijSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type r(rSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type rd(rdSEXP);
     Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
     Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
-    rcpp_result_gen = Rcpp::wrap(bbt(teams, rank, mi_ij, sig_ij, kappa, gamma));
+    rcpp_result_gen = Rcpp::wrap(bbt(teams, rank, r, rd, kappa, gamma));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bdl
+Rcpp::List bdl(CharacterVector teams, IntegerVector rank, NumericMatrix R, NumericMatrix X, NumericMatrix RD, CharacterMatrix map);
+RcppExport SEXP _sport_bdl(SEXP teamsSEXP, SEXP rankSEXP, SEXP RSEXP, SEXP XSEXP, SEXP RDSEXP, SEXP mapSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterVector >::type teams(teamsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type R(RSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type RD(RDSEXP);
+    Rcpp::traits::input_parameter< CharacterMatrix >::type map(mapSEXP);
+    rcpp_result_gen = Rcpp::wrap(bdl(teams, rank, R, X, RD, map));
     return rcpp_result_gen;
 END_RCPP
 }
 // ddl
-Rcpp::List ddl(Rcpp::CharacterVector teams, Rcpp::IntegerVector rank, arma::mat X, arma::mat H, arma::mat S);
-RcppExport SEXP _sport_ddl(SEXP teamsSEXP, SEXP rankSEXP, SEXP XSEXP, SEXP HSEXP, SEXP SSEXP) {
+Rcpp::List ddl(CharacterVector teams, IntegerVector rank, NumericMatrix R, NumericMatrix X, NumericMatrix RD);
+RcppExport SEXP _sport_ddl(SEXP teamsSEXP, SEXP rankSEXP, SEXP RSEXP, SEXP XSEXP, SEXP RDSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type teams(teamsSEXP);
-    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type rank(rankSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type H(HSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type S(SSEXP);
-    rcpp_result_gen = Rcpp::wrap(ddl(teams, rank, X, H, S));
+    Rcpp::traits::input_parameter< CharacterVector >::type teams(teamsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type R(RSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type RD(RDSEXP);
+    rcpp_result_gen = Rcpp::wrap(ddl(teams, rank, R, X, RD));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -163,6 +179,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sport_bbt", (DL_FUNC) &_sport_bbt, 6},
+    {"_sport_bdl", (DL_FUNC) &_sport_bdl, 6},
     {"_sport_ddl", (DL_FUNC) &_sport_ddl, 5},
     {"_sport_fide", (DL_FUNC) &_sport_fide, 6},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 8},

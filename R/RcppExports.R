@@ -7,16 +7,16 @@
 #' 
 #' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
 #' @param rank.
-#' @param mi_ij ratings of participants.
-#' @param sig_ij rating deviations of participants.
+#' @param r ratings of participants.
+#' @param rd rating deviations of participants.
 #' @param kappa
 #' @param gamma
 #' @return \code{r} updated ratings of participats
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-bbt <- function(teams, rank, mi_ij, sig_ij, kappa = 0.0001, gamma = 1.0) {
-    .Call('_sport_bbt', PACKAGE = 'sport', teams, rank, mi_ij, sig_ij, kappa, gamma)
+bbt <- function(teams, rank, r, rd, kappa = 0.0001, gamma = 1.0) {
+    .Call('_sport_bbt', PACKAGE = 'sport', teams, rank, r, rd, kappa, gamma)
 }
 
 #' Bayesian Bradley-Terry model for single game
@@ -24,17 +24,35 @@ bbt <- function(teams, rank, mi_ij, sig_ij, kappa = 0.0001, gamma = 1.0) {
 #' Calculates Glicko ratings based on Bayesian Bradley Terry model.
 #' 
 #' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
+#' @param teams player/team names.
 #' @param rank.
-#' @param mi_ij ratings of participants.
-#' @param sig_ij rating deviations of participants.
-#' @param kappa
-#' @param gamma
+#' @param X Matrix of coefficients (ratings).
+#' @param H Matrix of player specifics.
+#' @param S Matrix of coefficients deviations
 #' @return \code{r} updated ratings of participats
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-ddl <- function(teams, rank, X, H, S) {
-    .Call('_sport_ddl', PACKAGE = 'sport', teams, rank, X, H, S)
+bdl <- function(teams, rank, R, X, RD, map) {
+    .Call('_sport_bdl', PACKAGE = 'sport', teams, rank, R, X, RD, map)
+}
+
+#' Bayesian Bradley-Terry model for single game
+#' 
+#' Calculates Glicko ratings based on Bayesian Bradley Terry model.
+#' 
+#' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
+#' @param teams player/team names.
+#' @param rank.
+#' @param R Matrix of coefficients (ratings).
+#' @param X Matrix of player specifics.
+#' @param RD Matrix of coefficients deviations
+#' @return \code{r} updated ratings of participats
+#' @return \code{rd} updated deviations of participants ratings
+#' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
+#' @export
+ddl <- function(teams, rank, R, X, RD) {
+    .Call('_sport_ddl', PACKAGE = 'sport', teams, rank, R, X, RD)
 }
 
 #' FIDE rating for single game

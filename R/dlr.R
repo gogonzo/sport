@@ -1,6 +1,6 @@
 #' @export
 dlr <- function(team_name,rank, X, H, S, Bu, pa){
-  # rank <- c(3,4,1,2); X <- matrix(rnorm(8),ncol=2); S <- diag(rnorm(8)); H <- matrix(rnorm(8), nrow=4)
+  # rank <- c(3,4,1,2); X <- matrix(rnorm(4),ncol=1); S <- diag(rnorm(4)); H <- matrix(1, ncol=4)
   k <- length(rank)
   home <- character(k*k-k)
   away <- character(k*k-k)
@@ -27,10 +27,10 @@ dlr <- function(team_name,rank, X, H, S, Bu, pa){
       home[ idx ] <- team_name[ i ]
       away[ idx ] <- team_name[ q ]
       
-      x <- cbind(X[i,, drop=FALSE],X[i,, drop=FALSE])  
-      h <- cbind( H[i,,drop=FALSE],H[q,,drop=FALSE])  
+      x <- X[c(i,q),, drop=FALSE]  
+      h <- matrix( c(1,-1) , nrow=1)
       s <- S[ c(i,q) , c(i,q) , drop=FALSE]
-      y <- dplyr::case_when( rank[i]<rank[q]~1 , rank[i]>rank[q]~0 , T~.5 )
+      y <- dplyr::case_when(rank[i]<rank[q]~1, rank[i]>rank[q]~0,T~.5)
       
       # wariancja aktywacji
       s2 <- t(x) %*% s %*% x

@@ -27,17 +27,17 @@ ddl(
   teams = c( "A", "B", "C", "D" ), 
   rank  = c( 3, 4, 1, 2 ), 
   X  = matrix(rnorm(4),ncol=1),
-  H     = matrix(1, ncol=4) , 
-  S    = diag(rnorm(4))
+  H     = matrix(1, nrow=4) , 
+  S    = matrix(rlnorm(4), nrow=4)
 )
 
 set.seed(1)
 ddl(
-  teams = c( "A", "B", "C" ), 
+  teams = c( "A", "B", "C","D" ), 
   rank  = c(3,4,1,2), 
-  X     = matrix(rnorm(8), ncol=2),
-  H     = matrix(rnorm(8), ncol=2) , 
-  S     = diag( runif(8) )
+  X     = matrix(c(1.2 , -0.5 , 0.1 , 0.9 ), ncol=1),
+  H     = matrix(c(1,1,1,1), ncol=1) , 
+  S     = matrix(rlnorm(4), ncol=1) 
 )
 
 ddl(

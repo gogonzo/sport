@@ -47,16 +47,16 @@ List
     double init_rd = 350.00,
     double gamma = 1
   ) {
-  
+    
     int n = teams.size();
     int d_size = days.size();
     int idx = 0;
-  
+    
     double 
       q   = log(10)/400,
-      rd_ = 0.0,
-      var  = 0.0,
-      err = 0.0;
+        rd_ = 0.0,
+        var  = 0.0,
+        err = 0.0;
     NumericVector g_rd(n);
     NumericVector var_i(n);
     NumericVector err_i(n);
@@ -78,7 +78,7 @@ List
       rd_ = sqrt( pow(rd[i],2) + pow( days[i], 2 ) );
       if( rd_ < init_rd ) rd[i] = rd_;
       g_rd[i] = calcGRd( rd[i] );
-        
+      
     }
     
     // GLICKO RATING
@@ -113,21 +113,22 @@ List
       rd[i]    = sqrt(  1/( 1/pow(rd[i],2) + 1/delta_i[i]) ); 
     }    
     
-  Rcpp::List dimnms = Rcpp::List::create(teams, teams);
-  r.names()  = teams;
-  rd.names() = teams;
+    Rcpp::List dimnms = Rcpp::List::create(teams, teams);
+    r.names()  = teams;
+    rd.names() = teams;
     
-  return List::create(
-    _["r"]    = r,
-    _["rd"]   = rd,
-    _["pairs"] = DataFrame::create(
-      _["home"] = home,
-      _["away"] = away,
-      _["P"] = P,
-      _["Y"] = Y
-    )
-  );  
-} 
+    return List::create(
+      _["r"]    = r,
+      _["rd"]   = rd,
+      _["pairs"] = DataFrame::create(
+        _["home"] = home,
+        _["away"] = away,
+        _["P"] = P,
+        _["Y"] = Y
+      )
+    );  
+  } 
+
 
 
 //' Glicko rating for single game
@@ -173,7 +174,7 @@ List
     
     int n = teams.size();
     int d_size = days.size();
-    int idx = 0;
+    int idx=0;
     double err  = 0.0, var = 0.0, A  = 0.0, rd_;
     NumericVector mu(n);
     NumericVector phi(n);
@@ -185,7 +186,6 @@ List
     CharacterVector away(n*n-n);
     NumericVector P(n*n-n);
     NumericVector Y(n*n-n);
-    
     
     // precalculate 
     for(int i = 0; i < n; i++){
@@ -210,14 +210,16 @@ List
       for(int j = 0; j < n; j ++){
         if(j != i){
           idx += 1;
+          
           home( idx - 1 ) = teams[i];
           away( idx - 1 ) = teams[j];
           
-          Y( idx - 1 ) = calcZ( rank[i], rank[j] );
-          P( idx - 1 ) = calcPGlicko2( sqrt( pow(g_phi[i],2.0) + pow(g_phi[j],2.0) ) , mu[i] , mu[j] );
+          P( idx - 1 ) = calcZ( rank[i], rank[j] );
+          Y( idx - 1 ) = calcPGlicko2( sqrt( pow(g_phi[i],2.0) + pow(g_phi[j],2.0) ) , mu[i] , mu[j] )
           
-          var = calcVar(var, g_phi[j], P( idx - 1 ) );
-          err = calcErr(err, g_phi[j], P( idx - 1 ), rank[i], rank[j]);
+          var = calcVar(var, g_phi[j], P(idx - 1) );
+          err = calcErr(err, g_phi[j], P(idx - 1), rank[i], rank[j]);
+          Rcout << err < '\n';
         }
       }
       var_i[i]  = 1/var;
@@ -241,7 +243,6 @@ List
       rd[i]  = phi2rd( phi[i] ); 
     }
     
-    
     Rcpp::List dimnms = Rcpp::List::create(teams, teams);
     r.names()  = teams;
     rd.names() = teams;
@@ -249,14 +250,14 @@ List
     return List::create(
       _["r"]    = r,
       _["rd"]   = rd,
-      _["sigma"] = sig,
+      _["sigma"]  = sig,
       _["pairs"] = DataFrame::create(
         _["home"] = home,
         _["away"] = away,
         _["P"] = P,
         _["Y"] = Y
       )
-    );  
+    );
   } 
 
 
