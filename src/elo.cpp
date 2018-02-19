@@ -22,7 +22,7 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 List 
-  fide(
+  elo(
     CharacterVector teams, 
     std::vector<int> rank,
     NumericVector r, 

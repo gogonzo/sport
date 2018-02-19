@@ -1,7 +1,11 @@
 ---
 title: "Untitled"
 output: github_document
+  pandoc_args: --webtex
 ---
+<head>
+ <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
 
 # `sport` R package for bayesian dynamic rating system.
 # About
@@ -9,9 +13,7 @@ Package contains functions calculating rating for two-player or multi-player mat
 
 # Elo rating system
 `elo` function uses following formula.
-\[ 
-  E_a = \frac{ 10^{ \frac{r_a}{400} } }{ 10^{ \frac{r_a}{400} } + 10^{ \frac{r_b}{400} } }
-\]
+$E_a = \frac{ 10^{ \frac{r_a}{400} } }{ 10^{ \frac{r_a}{400} } + 10^{ \frac{r_b}{400} } }$
 
 # Glicko rating system
 `glicko`

@@ -2,13 +2,13 @@
 % Please edit documentation in R/RcppExports.R
 \name{glicko2}
 \alias{glicko2}
-\title{Glicko rating for single game}
+\title{Glicko2 rating for single game}
 \usage{
-glicko2(teams, rank, r, rd, sig, days = as.numeric(c(0)), tau = 0.5,
+glicko2(team_name, rank, r, rd, sig, time = as.numeric(c(0)), tau = 0.5,
   init_r = 1500, init_rd = 350)
 }
 \arguments{
-\item{teams}{name of event participants.}
+\item{team_name}{name of event participants.}
 
 \item{rank}{classification of the event.}
 
@@ -16,7 +16,7 @@ glicko2(teams, rank, r, rd, sig, days = as.numeric(c(0)), tau = 0.5,
 
 \item{rd}{rating deviations of participants.}
 
-\item{days}{days after previous match - indicator multiplying uncertainty of expectations.}
+\item{time}{time after previous match - indicator multiplying uncertainty of expectations.}
 
 \item{init_r}{initial rating for new competitors (contains NA). Default = 1500}
 
@@ -30,13 +30,13 @@ glicko2(teams, rank, r, rd, sig, days = as.numeric(c(0)), tau = 0.5,
 \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)}
 }
 \description{
-Calculates Glicko rating for single game input
+Calculates Glicko2 rating for single game input
 }
 \examples{
 glicko2(
- teams = c( "A", "B", "C", "D" ), 
+ team_name = c( "A", "B", "C", "D" ), 
  rank  = c( 3, 4, 1, 2 ), 
- days  = c( 0, 0, 0, 0),
+ time  = c( 0, 0, 0, 0),
  r     = c( 1500, 1400, 1550, 1700 ) , 
  rd    = c( 200,  30,   100,  300 ),
  sig   = c( .06, .06, .05, .07),

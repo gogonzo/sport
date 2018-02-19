@@ -6,7 +6,7 @@ using namespace Rcpp;
 //' Calculates Glicko ratings based on Bayesian Bradley Terry model.
 //' 
 //' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
-//' @param teams player/team names.
+//' @param team_name player/team names.
 //' @param rank.
 //' @param X Matrix of coefficients (ratings).
 //' @param H Matrix of player specifics.
@@ -18,7 +18,7 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 Rcpp::List 
   bdl(
-    CharacterVector teams,
+    CharacterVector team_name,
     IntegerVector rank,
     NumericMatrix R, 
     NumericMatrix X,
@@ -36,8 +36,8 @@ Rcpp::List
     double y_var;
     double error;
     
-    CharacterVector away(n*n-n);
-    CharacterVector home(n*n-n);
+    CharacterVector team2(n*n-n);
+    CharacterVector team1(n*n-n);
     NumericVector P(n*n-n);
     NumericVector Y(n*n-n);
     NumericVector r_update(n*k);
@@ -69,8 +69,8 @@ Rcpp::List
       for(int q = 0; q<n; q++ ){
         if(i!=q){
           idx += 1; 
-          home( idx - 1 ) = teams(i);
-          away( idx - 1 ) = teams(q);
+          team1( idx - 1 ) = team_name(i);
+          team2( idx - 1 ) = team_name(q);
           
           x_q = R(q,_);
           h_q = -X(q,_);
@@ -140,8 +140,8 @@ Rcpp::List
       Rcpp::Named("OMEGA") = OMEGA,
       Rcpp::Named("DELTA") = DELTA,
       Rcpp::Named("pairs") = DataFrame::create(
-        Rcpp::Named("home") = home,
-        Rcpp::Named("away") = away,
+        Rcpp::Named("team1") = team1,
+        Rcpp::Named("team2") = team2,
         Rcpp::Named("P") = P,
         Rcpp::Named("Y") = Y
       )

@@ -2,12 +2,12 @@
 #include "glicko_functions.h"
 using namespace Rcpp;
 //' Glicko rating for single game
-//' 
+//'
 //' Calculates Glicko rating for single game input
 //' 
-//' @param teams name of event participants.
+//' @param team_name name of event participants.
 //' @param rank classification of the event.
-//' @param days days after previous match - indicator multiplying uncertainty of expectations.
+//' @param time time after previous match - indicator multiplying uncertainty of expectations.
 //' @param r ratings of participants.
 //' @param rd rating deviations of participants.
 //' @param init_r initial rating for new competitors (contains NA). Default = 1500
@@ -17,18 +17,18 @@ using namespace Rcpp;
 //' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 //' @examples
 //'glicko(
-//'  teams = c( "A", "B", "C", "D" ), 
+//'  team_name = c( "A", "B", "C", "D" ), 
 //'  rank  = c( 3, 4, 1, 2 ), 
-//'  days  = c( 0, 0, 0, 0),
+//'  time  = c( 0, 0, 0, 0),
 //'  r     = c( 1500, 1400, 1550, 1700 ) , 
 //'  rd    = c( 200,  30,   100,  300 ),
 //'  init_r  = 1500,
 //'  init_rd = 100
 //')
 //'glicko(
-//' teams = c( "A", "B" ), 
+//' team_name = c( "A", "B" ), 
 //'   rank  = c( 1, 2 ), 
-//'   days  = c( 0, 0),
+//'   time  = c( 0, 0),
 //'   r     = c( 1400, 1500 ) , 
 //'   rd    = c( 80,  150),
 //'   init_r  = 1500,
@@ -38,18 +38,18 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 List 
   glicko(
-    CharacterVector teams, 
+    CharacterVector team_name, 
     std::vector<int> rank,
     NumericVector r, 
     NumericVector rd,
-    NumericVector days = NumericVector::create(0),
+    NumericVector time = NumericVector::create(0),
     double init_r  = 1500.00,
     double init_rd = 350.00,
     double gamma = 1
   ) {
     
-    int n = teams.size();
-    int d_size = days.size();
+    int n = team_name.size();
+    int d_size = time.size();
     int idx = 0;
     
     double 
@@ -61,21 +61,21 @@ List
     NumericVector var_i(n);
     NumericVector err_i(n);
     NumericVector delta_i(n);
-    CharacterVector home(n*n-n);
-    CharacterVector away(n*n-n);
+    CharacterVector team1(n*n-n);
+    CharacterVector team2(n*n-n);
     NumericVector P(n*n-n);
     NumericVector Y(n*n-n);
     
     // precalculate 
     for(int i = 0; i < n; i++){
-      if(d_size < i + 1) days.push_back(0);
+      if(d_size < i + 1) time.push_back(0);
       
       if( NumericVector::is_na(r[i]) ) 
         r[i] = init_r, rd[i] = init_rd;
       
       
-      // modification - rd + days since last event 
-      rd_ = sqrt( pow(rd[i],2) + pow( days[i], 2 ) );
+      // modification - rd + time since last event 
+      rd_ = sqrt( pow(rd[i],2) + pow( time[i], 2 ) );
       if( rd_ < init_rd ) rd[i] = rd_;
       g_rd[i] = calcGRd( rd[i] );
       
@@ -90,8 +90,8 @@ List
         if(j != i){
           idx += 1;
           
-          home( idx - 1 ) = teams[i];
-          away( idx - 1 ) = teams[j];
+          team1( idx - 1 ) = team_name[i];
+          team2( idx - 1 ) = team_name[j];
           
           P( idx - 1 ) = calcPGlicko( calcGRd( sqrt( pow(rd[i],2) + pow( rd[j], 2 ) ) ) , r[i] , r[j] );
           Y( idx - 1 ) = calcZ( rank[i], rank[j] );
@@ -113,16 +113,16 @@ List
       rd[i]    = sqrt(  1/( 1/pow(rd[i],2) + 1/delta_i[i]) ); 
     }    
     
-    Rcpp::List dimnms = Rcpp::List::create(teams, teams);
-    r.names()  = teams;
-    rd.names() = teams;
+    Rcpp::List dimnms = Rcpp::List::create(team_name, team_name);
+    r.names()  = team_name;
+    rd.names() = team_name;
     
     return List::create(
       _["r"]    = r,
       _["rd"]   = rd,
       _["pairs"] = DataFrame::create(
-        _["home"] = home,
-        _["away"] = away,
+        _["team1"] = team1,
+        _["team2"] = team2,
         _["P"] = P,
         _["Y"] = Y
       )
@@ -131,13 +131,13 @@ List
 
 
 
-//' Glicko rating for single game
+//' Glicko2 rating for single game
 //' 
-//' Calculates Glicko rating for single game input
+//' Calculates Glicko2 rating for single game input
 //' 
-//' @param teams name of event participants.
+//' @param team_name name of event participants.
 //' @param rank classification of the event.
-//' @param days days after previous match - indicator multiplying uncertainty of expectations.
+//' @param time time after previous match - indicator multiplying uncertainty of expectations.
 //' @param r ratings of participants.
 //' @param rd rating deviations of participants.
 //' @param init_r initial rating for new competitors (contains NA). Default = 1500
@@ -147,9 +147,9 @@ List
 //' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 //' @examples
 //'glicko2(
-//'  teams = c( "A", "B", "C", "D" ), 
+//'  team_name = c( "A", "B", "C", "D" ), 
 //'  rank  = c( 3, 4, 1, 2 ), 
-//'  days  = c( 0, 0, 0, 0),
+//'  time  = c( 0, 0, 0, 0),
 //'  r     = c( 1500, 1400, 1550, 1700 ) , 
 //'  rd    = c( 200,  30,   100,  300 ),
 //'  sig   = c( .06, .06, .05, .07),
@@ -161,19 +161,19 @@ List
 // [[Rcpp::export]]
 List 
   glicko2(
-    CharacterVector teams, 
+    CharacterVector team_name, 
     std::vector<int> rank,
     NumericVector r, 
     NumericVector rd,
     NumericVector sig,
-    NumericVector days = NumericVector::create(0),
+    NumericVector time = NumericVector::create(0),
     double tau = .5,
     double init_r  = 1500.00,
     double init_rd = 350.00
   ) {
     
-    int n = teams.size();
-    int d_size = days.size();
+    int n = team_name.size();
+    int d_size = time.size();
     int idx = 0;
     double err  = 0.0, var = 0.0, A  = 0.0, rd_;
     NumericVector mu(n);
@@ -182,20 +182,20 @@ List
     NumericVector var_i(n);
     NumericVector err_i(n);
     NumericVector delta_i(n);
-    CharacterVector home(n*n-n);
-    CharacterVector away(n*n-n);
+    CharacterVector team1(n*n-n);
+    CharacterVector team2(n*n-n);
     NumericVector P(n*n-n);
     NumericVector Y(n*n-n);
     
     
     // precalculate 
     for(int i = 0; i < n; i++){
-      if(d_size < i + 1) days.push_back(0);
+      if(d_size < i + 1) time.push_back(0);
       if( NumericVector::is_na(r[i]) ) 
         r[i] = init_r, rd[i] = init_rd;
       
-      // modification - rd + days since last event  
-      rd_ = sqrt( pow(rd( i ),2) + pow( days( i ), 2 ) );
+      // modification - rd + time since last event  
+      rd_ = sqrt( pow(rd( i ),2) + pow( time( i ), 2 ) );
       if( rd_ < init_rd ) rd[i] = rd_;
       
       // rescale params to glicko2 scale
@@ -211,8 +211,8 @@ List
       for(int j = 0; j < n; j ++){
         if(j != i){
           idx += 1;
-          home( idx - 1 ) = teams[i];
-          away( idx - 1 ) = teams[j];
+          team1( idx - 1 ) = team_name[i];
+          team2( idx - 1 ) = team_name[j];
           
           Y( idx - 1 ) = calcZ( rank[i], rank[j] );
           P( idx - 1 ) = calcPGlicko2( sqrt( pow(g_phi[i],2.0) + pow(g_phi[j],2.0) ) , mu[i] , mu[j] );
@@ -243,17 +243,17 @@ List
     }
     
     
-    Rcpp::List dimnms = Rcpp::List::create(teams, teams);
-    r.names()  = teams;
-    rd.names() = teams;
+    Rcpp::List dimnms = Rcpp::List::create(team_name, team_name);
+    r.names()  = team_name;
+    rd.names() = team_name;
     
     return List::create(
       _["r"]    = r,
       _["rd"]   = rd,
       _["sigma"] = sig,
       _["pairs"] = DataFrame::create(
-        _["home"] = home,
-        _["away"] = away,
+        _["team1"] = team1,
+        _["team2"] = team2,
         _["P"] = P,
         _["Y"] = Y
       )

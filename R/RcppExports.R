@@ -15,8 +15,8 @@
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-bbt <- function(teams, rank, r, rd, kappa = 0.0001, gamma = 1.0) {
-    .Call('_sport_bbt', PACKAGE = 'sport', teams, rank, r, rd, kappa, gamma)
+bbt <- function(team_name, rank, r, rd, kappa = 0.0001, gamma = 1.0) {
+    .Call('_sport_bbt', PACKAGE = 'sport', team_name, rank, r, rd, kappa, gamma)
 }
 
 #' Bayesian Bradley-Terry model for single game
@@ -24,7 +24,7 @@ bbt <- function(teams, rank, r, rd, kappa = 0.0001, gamma = 1.0) {
 #' Calculates Glicko ratings based on Bayesian Bradley Terry model.
 #' 
 #' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
-#' @param teams player/team names.
+#' @param team_name player/team names.
 #' @param rank.
 #' @param X Matrix of coefficients (ratings).
 #' @param H Matrix of player specifics.
@@ -33,8 +33,8 @@ bbt <- function(teams, rank, r, rd, kappa = 0.0001, gamma = 1.0) {
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-bdl <- function(teams, rank, R, X, RD, map) {
-    .Call('_sport_bdl', PACKAGE = 'sport', teams, rank, R, X, RD, map)
+bdl <- function(team_name, rank, R, X, RD, map) {
+    .Call('_sport_bdl', PACKAGE = 'sport', team_name, rank, R, X, RD, map)
 }
 
 #' Bayesian Bradley-Terry model for single game
@@ -42,7 +42,7 @@ bdl <- function(teams, rank, R, X, RD, map) {
 #' Calculates Glicko ratings based on Bayesian Bradley Terry model.
 #' 
 #' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
-#' @param teams player/team names.
+#' @param team_name player/team names.
 #' @param rank.
 #' @param R Matrix of coefficients (ratings).
 #' @param X Matrix of player specifics.
@@ -51,8 +51,8 @@ bdl <- function(teams, rank, R, X, RD, map) {
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-ddl <- function(teams, rank, R, X, RD) {
-    .Call('_sport_ddl', PACKAGE = 'sport', teams, rank, R, X, RD)
+ddl <- function(team_name, rank, R, X, RD) {
+    .Call('_sport_ddl', PACKAGE = 'sport', team_name, rank, R, X, RD)
 }
 
 #' FIDE rating for single game
@@ -80,12 +80,12 @@ fide <- function(teams, rank, r, K = 32L, init_r = 1500, init_rd = 350) {
 }
 
 #' Glicko rating for single game
-#' 
+#'
 #' Calculates Glicko rating for single game input
 #' 
-#' @param teams name of event participants.
+#' @param team_name name of event participants.
 #' @param rank classification of the event.
-#' @param days days after previous match - indicator multiplying uncertainty of expectations.
+#' @param time time after previous match - indicator multiplying uncertainty of expectations.
 #' @param r ratings of participants.
 #' @param rd rating deviations of participants.
 #' @param init_r initial rating for new competitors (contains NA). Default = 1500
@@ -95,35 +95,35 @@ fide <- function(teams, rank, r, K = 32L, init_r = 1500, init_rd = 350) {
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @examples
 #'glicko(
-#'  teams = c( "A", "B", "C", "D" ), 
+#'  team_name = c( "A", "B", "C", "D" ), 
 #'  rank  = c( 3, 4, 1, 2 ), 
-#'  days  = c( 0, 0, 0, 0),
+#'  time  = c( 0, 0, 0, 0),
 #'  r     = c( 1500, 1400, 1550, 1700 ) , 
 #'  rd    = c( 200,  30,   100,  300 ),
 #'  init_r  = 1500,
 #'  init_rd = 100
 #')
 #'glicko(
-#' teams = c( "A", "B" ), 
+#' team_name = c( "A", "B" ), 
 #'   rank  = c( 1, 2 ), 
-#'   days  = c( 0, 0),
+#'   time  = c( 0, 0),
 #'   r     = c( 1400, 1500 ) , 
 #'   rd    = c( 80,  150),
 #'   init_r  = 1500,
 #'   init_rd = 100
 #')
 #' @export
-glicko <- function(teams, rank, r, rd, days = as.numeric( c(0)), init_r = 1500.00, init_rd = 350.00, gamma = 1) {
-    .Call('_sport_glicko', PACKAGE = 'sport', teams, rank, r, rd, days, init_r, init_rd, gamma)
+glicko <- function(team_name, rank, r, rd, time = as.numeric( c(0)), init_r = 1500.00, init_rd = 350.00, gamma = 1) {
+    .Call('_sport_glicko', PACKAGE = 'sport', team_name, rank, r, rd, time, init_r, init_rd, gamma)
 }
 
-#' Glicko rating for single game
+#' Glicko2 rating for single game
 #' 
-#' Calculates Glicko rating for single game input
+#' Calculates Glicko2 rating for single game input
 #' 
-#' @param teams name of event participants.
+#' @param team_name name of event participants.
 #' @param rank classification of the event.
-#' @param days days after previous match - indicator multiplying uncertainty of expectations.
+#' @param time time after previous match - indicator multiplying uncertainty of expectations.
 #' @param r ratings of participants.
 #' @param rd rating deviations of participants.
 #' @param init_r initial rating for new competitors (contains NA). Default = 1500
@@ -133,9 +133,9 @@ glicko <- function(teams, rank, r, rd, days = as.numeric( c(0)), init_r = 1500.0
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @examples
 #'glicko2(
-#'  teams = c( "A", "B", "C", "D" ), 
+#'  team_name = c( "A", "B", "C", "D" ), 
 #'  rank  = c( 3, 4, 1, 2 ), 
-#'  days  = c( 0, 0, 0, 0),
+#'  time  = c( 0, 0, 0, 0),
 #'  r     = c( 1500, 1400, 1550, 1700 ) , 
 #'  rd    = c( 200,  30,   100,  300 ),
 #'  sig   = c( .06, .06, .05, .07),
@@ -144,17 +144,8 @@ glicko <- function(teams, rank, r, rd, days = as.numeric( c(0)), init_r = 1500.0
 #'  init_rd = 100
 #')
 #' @export
-glicko2 <- function(teams, rank, r, rd, sig, days = as.numeric( c(0)), tau = .5, init_r = 1500.00, init_rd = 350.00) {
-    .Call('_sport_glicko2', PACKAGE = 'sport', teams, rank, r, rd, sig, days, tau, init_r, init_rd)
-}
-
-#' Gonzo rating for single game
-#' 
-#' Calculates Gonzo rating for single game input
-#' 
-#' @export
-gonzo <- function(rank, mi_i, sig_i) {
-    .Call('_sport_gonzo', PACKAGE = 'sport', rank, mi_i, sig_i)
+glicko2 <- function(team_name, rank, r, rd, sig, time = as.numeric( c(0)), tau = .5, init_r = 1500.00, init_rd = 350.00) {
+    .Call('_sport_glicko2', PACKAGE = 'sport', team_name, rank, r, rd, sig, time, tau, init_r, init_rd)
 }
 
 #' Harkness rating for single game
@@ -215,16 +206,6 @@ harkness <- function(teams, rank, days, r, rd, init_r = 1500, init_rd = 350) {
 #' @export
 KF <- function(x, F, B, u, z, H) {
     .Call('_sport_KF', PACKAGE = 'sport', x, F, B, u, z, H)
-}
-
-#' Calculate points
-#' 
-#' Calculates points of \code{event_id} participant with given parameters
-#' 
-#' @param x A single integer.
-#' @export
-pointsCalc <- function(event_id, team_name, score) {
-    .Call('_sport_pointsCalc', PACKAGE = 'sport', event_id, team_name, score)
 }
 
 #' Streak length of vector elements

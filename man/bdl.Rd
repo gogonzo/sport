@@ -4,10 +4,10 @@
 \alias{bdl}
 \title{Bayesian Bradley-Terry model for single game}
 \usage{
-bdl(teams, rank, R, X, RD, map)
+bdl(team_name, rank, R, X, RD, map)
 }
 \arguments{
-\item{teams}{player/team names.}
+\item{team_name}{player/team names.}
 
 \item{X}{Matrix of coefficients (ratings).}
 

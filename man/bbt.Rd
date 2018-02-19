@@ -4,7 +4,7 @@
 \alias{bbt}
 \title{Bayesian Bradley-Terry model for single game}
 \usage{
-bbt(teams, rank, r, rd, kappa = 1e-04, gamma = 1)
+bbt(team_name, rank, r, rd, kappa = 1e-04, gamma = 1)
 }
 \arguments{
 \item{r}{ratings of participants.}

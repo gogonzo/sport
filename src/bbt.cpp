@@ -18,7 +18,7 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 List 
   bbt(
-    CharacterVector teams,
+    CharacterVector team_name,
     IntegerVector rank,
     NumericMatrix r, 
     NumericMatrix rd,
@@ -34,8 +34,8 @@ List
     NumericMatrix rd_share(n,j);
     NumericVector omega(n,0.0);
     NumericVector delta(n,0.0);
-    CharacterVector home(n*n-n);
-    CharacterVector away(n*n-n);
+    CharacterVector team1(n*n-n);
+    CharacterVector team2(n*n-n);
     NumericVector P(n*n-n);
     NumericVector Y(n*n-n);
     
@@ -55,8 +55,8 @@ List
           if(gamma==1) gamma = sqrt( sig2(i) ) / c;
         
           idx += 1;
-          home( idx - 1 ) = teams[i];
-          away( idx - 1 ) = teams[q];
+          team1( idx - 1 ) = team_name[i];
+          team2( idx - 1 ) = team_name[q];
           
           Y( idx - 1 ) = calc_s( rank(i), rank(q) );
           P( idx - 1 )  = exp( mi(i)/c ) / ( exp( mi(i)/c ) + exp( mi(q)/c) );
@@ -92,8 +92,8 @@ List
       _["r"] = r,
       _["rd"]= rd,
       _["pairs"] = DataFrame::create(
-        _["home"] = home,
-        _["away"] = away,
+        _["team1"] = team1,
+        _["team2"] = team2,
         _["P"] = P,
         _["Y"] = Y
       )
