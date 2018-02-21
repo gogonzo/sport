@@ -53,9 +53,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// fide
-List fide(CharacterVector teams, std::vector<int> rank, NumericVector r, int K, double init_r, double init_rd);
-RcppExport SEXP _sport_fide(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP KSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
+// elo
+List elo(CharacterVector teams, std::vector<int> rank, NumericVector r, int K, double init_r, double init_rd);
+RcppExport SEXP _sport_elo(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP KSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -65,7 +65,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type K(KSEXP);
     Rcpp::traits::input_parameter< double >::type init_r(init_rSEXP);
     Rcpp::traits::input_parameter< double >::type init_rd(init_rdSEXP);
-    rcpp_result_gen = Rcpp::wrap(fide(teams, rank, r, K, init_r, init_rd));
+    rcpp_result_gen = Rcpp::wrap(elo(teams, rank, r, K, init_r, init_rd));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -139,28 +139,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// running_mean
-NumericVector running_mean(NumericVector vec);
-RcppExport SEXP _sport_running_mean(SEXP vecSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type vec(vecSEXP);
-    rcpp_result_gen = Rcpp::wrap(running_mean(vec));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sport_bbt", (DL_FUNC) &_sport_bbt, 6},
     {"_sport_bdl", (DL_FUNC) &_sport_bdl, 6},
     {"_sport_ddl", (DL_FUNC) &_sport_ddl, 5},
-    {"_sport_fide", (DL_FUNC) &_sport_fide, 6},
+    {"_sport_elo", (DL_FUNC) &_sport_elo, 6},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 8},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 9},
     {"_sport_harkness", (DL_FUNC) &_sport_harkness, 7},
     {"_sport_KF", (DL_FUNC) &_sport_KF, 6},
-    {"_sport_running_mean", (DL_FUNC) &_sport_running_mean, 1},
     {NULL, NULL, 0}
 };
 

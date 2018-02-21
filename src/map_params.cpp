@@ -1,7 +1,7 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 NumericMatrix
-  mapParams(
+  mapX(
     CharacterMatrix map,
     NumericVector params
   ){

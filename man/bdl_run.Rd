@@ -4,7 +4,7 @@
 \alias{bdl_run}
 \title{BDL rating algorithm}
 \usage{
-bdl_run(data, R, RD)
+bdl_run(formula, data, r, rd)
 }
 \arguments{
 \item{data}{data.frame which contains three columns: #' \enumerate{
@@ -15,7 +15,7 @@ bdl_run(data, R, RD)
 
 \item{R}{named vector of initial rating estimates. In there is no assumption, initial ratings should be r=25 Names of vector should correspond with team_name label.}
 
-\item{rd}{named vector of initial rating deviation estimates. In there is no assumption, initial ratings should be r=25/3 Names of vector should correspond with team_name label.}
+\item{RD}{named vector of initial rating deviation estimates. In there is no assumption, initial ratings should be r=25/3 Names of vector should correspond with team_name label.}
 }
 \description{
 BDL rating algorithm

@@ -50,7 +50,6 @@ glicko_run <- function(formula, data, r, rd, time){
   return(glicko_list)
 }
 
-
 #' Glicko2 rating algorithm
 #' 
 #' Glicko2 rating algorithm
@@ -118,25 +117,35 @@ glicko2_run <- function(formula, data, r, rd,sig, time){
 #' @param r named vector of initial rating estimates. In there is no assumption, initial ratings should be r=25 Names of vector should correspond with team_name label. 
 #' @param  rd named vector of initial rating deviation estimates. In there is no assumption, initial ratings should be r=25/3 Names of vector should correspond with team_name label.
 #' @export
-
-
-bbt_run <- function(data, r,rd){
+bbt_run <- function(formula, data, r,rd){
+  y  <- all.vars(formula)[1]
+  id <- all.vars(formula)[2]
+  x  <- all.vars(formula)[-(1:2)]
+  
   if(missing(r)){
-    team_names <- unique(data$team_name)
-    r <- setNames( rep(25, length(team_names)), team_names )
-    rd<- setNames( rep(25/3,  length(team_names)), team_names )
+    team_names <- unique( data[[ x ]] )
+    r <- setNames( rep(25, length(team_names)), team_names ) %>% as.matrix()
   }
-  if(any(class(data)=="data.frame")) data <- split(data, data$id) 
+  if(missing(rd)){
+    team_names <- unique( data[[ x ]] )
+    rd<- setNames( rep(25/3,  length(team_names)), team_names ) %>% as.matrix()
+  }
+  if(class(r)!="matrix"){
+    r <- as.matrix(r)
+  }
+  if(class(rd)!="matrix"){
+    rd <- as.matrix(rd)
+  }
+  
+  if(any(class(data)=="data.frame")) data <- split(data, data[[ id ]] ) 
   
   bbt_list <- list()
   for(i in 1:length(data)){
     
-    team_name <- data[[ i ]][["team_name"]]
-    ranks  <- data[[ i ]][["rank"]]
-    
+    team_name <- data[[ i ]][[ x ]]
     bbt   <- bbt( 
       team_name, 
-      rank = ranks, 
+      rank = data[[ i ]][[ y ]], 
       r  = r[team_name,,drop=FALSE], 
       rd = rd[team_name,,drop=FALSE]
     )
@@ -148,7 +157,6 @@ bbt_run <- function(data, r,rd){
   }
   return(bbt_list)
 }
-
 #' BDL rating algorithm
 #' 
 #' BDL rating algorithm
@@ -162,52 +170,79 @@ bbt_run <- function(data, r,rd){
 #' @param  RD named vector of initial rating deviation estimates. In there is no assumption, initial ratings should be r=25/3 Names of vector should correspond with team_name label.
 #' @export
 
-bdl_run <- function(data,R,RD){
-  
-  X   <- data[,!colnames(data) %in% c("rank","id"), drop=FALSE]  
+bdl_run <- function(formula, data,r,rd){
+  y  <- all.vars(formula)[1]
+  id <- all.vars(formula)[2]
+  x  <- all.vars(formula)[-(1:2)]
+  X   <- data[x]  
   
   bdl_list <- list()
-  if(all(colnames(X)=="team_name")){
-    ranks_list  <- split(data$rank,as.factor(data$id))
-    riders_list <- split(data$team_name,as.factor(data$id))
-    ddl_list <- list()
-    for(i in 1:length(riders_list)){
+  if( length(x)==1 ){
+    # if(! class(X[,1]) %in% c("factor","character")) error_msg <- "first parameter has to be factor or character"
+    if(missing(r)){
+      names <- unique(X[[ 1 ]])
+      r <- matrix( 0, nrow = length(names), dimnames = list(names, NULL) )  
+    }
+    if(missing(rd)){
+      names <- unique(X[[ 1 ]])
+      rd <- matrix( 1, nrow = length(names), dimnames = list(names, NULL) ) 
+    }
+    if(class(r)!="matrix"){
+      r <- as.matrix(r, ncol=1)
+    }
+    if(class(rd)!="matrix"){
+      rd <- as.matrix(rd, ncol=1)
+    }
+    
+    ranks_list  <- split( data[[ y ]]   , data[[ id ]])
+    X_list      <- split( X[[ 1 ]] , data[[ id ]])
+    
+    for(i in 1:length(ranks_list)){
       
-      names  <- riders_list[[ i ]]
+      names  <- X_list[[ i ]]
       ranks  <- ranks_list[[ i ]]
       
       ddl <- ddl( 
         names, 
         rank = ranks,  
-        R  = R[names,,drop=FALSE], 
+        R  = r[ names,,drop=FALSE ], 
         X  = matrix(1 , nrow=length(names)),
-        RD = RD[names,,drop=FALSE]
+        RD = rd[ names,,drop=FALSE ]
       )
       
-      R[ names, ] <- ddl$R
-      RD[ names, ] <- ddl$RD
+      r[ names, ] <- ddl$R
+      rd[ names, ] <- ddl$RD
       
-      ddl_list[[ i ]] <- ddl
+      bdl_list[[ i ]] <- ddl
     }
     
     
   } else {
     map <- mapParams( X )  
-    idx_list <- split(1:nrow(data), data$id)
+    if( missing(r) ){
+      names <- unique( c(map) )
+      r <- setNames( rep(0, length(names)), names)  
+    }
+    if(missing(rd)){
+      names <- unique( c(map) )
+      rd <- setNames( rep(1, length(names)), names) 
+    }
     
-    map_list <- lapply(idx_list, function(x) map[x,,drop=FALSE])
-    X_list   <- lapply(idx_list, function(x) X[x,,drop=FALSE])
-    ranks_list <- lapply(idx_list, function(x) data$rank[x])
-    names_list <-lapply(idx_list, function(x) data$team_name[x])
     
-    for(i in 1:length(map_list)){
+    idx_list <- split(1:nrow(data), data[[ id ]])
+    map_list   <- lapply(idx_list, function(i) map[i,,drop=FALSE])
+    X_list     <- lapply(idx_list, function(i) X[i,,drop=FALSE])
+    ranks_list <- lapply(idx_list, function(i) data[[y]][i])
+    names_list <-lapply(idx_list, function(i) X[[ x[1] ]][i])
+    
+    for(i in 1:length(X_list)){
       
       map_i   <- map_list[[ i ]]
       X_i  <- getX( X_list[[ i ]] )
-      R_i  <- apply(map_i,2, function(x) R[x])
-      RD_i <- apply(map_i,2, function(x) RD[x])
+      R_i  <- apply(map_i,2, function(x) r[x])
+      RD_i <- apply(map_i,2, function(x) rd[x])
       R_i[is.na(R_i)] <- 0
-      RD_i[is.na(RD_i)] <- 0
+      RD_i[is.na(RD_i)] <- 1
       
       bdl   <- bdl( 
         names_list[[i]], 
@@ -218,11 +253,14 @@ bdl_run <- function(data,R,RD){
         map = map_i
       )
       
-      bdl$r_update <- bdl$r_update[ names(bdl$r_update) != "" ]
-      bdl$rd_update <- bdl$rd_update[ names(bdl$rd_update) != "" ]
+      bdl$r  <- bdl$r[ names(bdl$r) != "" ]
+      bdl$rd <- bdl$rd[ names(bdl$rd) != "" ]
       
-      R[ names(bdl$r_update) ]   <- bdl$r_update
-      RD[ names(bdl$rd_update) ] <- bdl$rd_update
+      bdl$r  <- bdl$r[ !is.na(bdl$r) ]
+      bdl$rd <- bdl$rd[ !is.na(bdl$rd) ]
+      
+      r[ names(bdl$r) ]   <- bdl$r
+      rd[ names(bdl$rd) ] <- bdl$rd
       
       bdl_list[[ i ]] <- bdl
     }
@@ -232,6 +270,7 @@ bdl_run <- function(data,R,RD){
   
   return(bdl_list)
 }
+
 
 getX <- function(X){
   col_classes <- unlist( lapply(X,class) )

@@ -4,7 +4,7 @@
 \alias{bbt_run}
 \title{BBT rating algorithm}
 \usage{
-bbt_run(data, r, rd)
+bbt_run(formula, data, r, rd)
 }
 \arguments{
 \item{data}{data.frame which contains three columns: #' \enumerate{

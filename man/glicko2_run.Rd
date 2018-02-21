@@ -4,7 +4,7 @@
 \alias{glicko2_run}
 \title{Glicko2 rating algorithm}
 \usage{
-glicko2_run(data, r, rd, sig)
+glicko2_run(formula, data, r, rd, sig, time)
 }
 \arguments{
 \item{data}{data.frame which contains three columns: #' \enumerate{

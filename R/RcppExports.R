@@ -75,8 +75,8 @@ ddl <- function(team_name, rank, R, X, RD) {
 #'  init_rd = 100
 #')
 #' @export
-fide <- function(teams, rank, r, K = 32L, init_r = 1500, init_rd = 350) {
-    .Call('_sport_fide', PACKAGE = 'sport', teams, rank, r, K, init_r, init_rd)
+elo <- function(teams, rank, r, K = 32L, init_r = 1500, init_rd = 350) {
+    .Call('_sport_elo', PACKAGE = 'sport', teams, rank, r, K, init_r, init_rd)
 }
 
 #' Glicko rating for single game
@@ -206,18 +206,5 @@ harkness <- function(teams, rank, days, r, rd, init_r = 1500, init_rd = 350) {
 #' @export
 KF <- function(x, F, B, u, z, H) {
     .Call('_sport_KF', PACKAGE = 'sport', x, F, B, u, z, H)
-}
-
-#' Streak length of vector elements
-#' 
-#' Calculates series of consecutive elements
-#' 
-#' @param x A single integer.
-#' @examples
-#' x <- c(1,1,0,0,1,0,3,3,1,1)
-#' streakLength(x)
-#' @export
-running_mean <- function(vec) {
-    .Call('_sport_running_mean', PACKAGE = 'sport', vec)
 }
 

@@ -4,7 +4,7 @@
 \alias{glicko_run}
 \title{Glicko rating algorithm}
 \usage{
-glicko_run(data, r, rd)
+glicko_run(formula, data, r, rd, time)
 }
 \arguments{
 \item{data}{data.frame which contains three columns: #' \enumerate{

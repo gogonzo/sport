@@ -134,9 +134,8 @@ Rcpp::List
     rd_update.names() = param_names;
     
     return Rcpp::List::create(
-      Rcpp::Named("r_update") = r_update,
-      Rcpp::Named("rd_update") = rd_update,
-      Rcpp::Named("map") = map,
+      Rcpp::Named("r") = r_update,
+      Rcpp::Named("rd") = rd_update,
       Rcpp::Named("OMEGA") = OMEGA,
       Rcpp::Named("DELTA") = DELTA,
       Rcpp::Named("pairs") = DataFrame::create(

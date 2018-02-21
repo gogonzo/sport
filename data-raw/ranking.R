@@ -21,13 +21,6 @@
 #'     rel   = c(rep(NA,6),1,0),
 #'     x     = c(rep(NA,3),1,rep(NA,4))
 #'   )
-#' 
-#' df %<>% 
-#'   mutate(
-#'     ranking = ranking(a1=final, a2=semi, a3=pts, a4=bal, b1=rel, x1=x)
-#'   ) %>% 
-#'   arrange(ranking)
-
 #' @rdname ranking
 #' @export
 
