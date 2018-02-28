@@ -123,22 +123,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// KF
-List KF(arma::vec x, arma::mat F, arma::mat B, arma::vec u, arma::vec z, arma::mat H);
-RcppExport SEXP _sport_KF(SEXP xSEXP, SEXP FSEXP, SEXP BSEXP, SEXP uSEXP, SEXP zSEXP, SEXP HSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type F(FSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type B(BSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type u(uSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type z(zSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type H(HSEXP);
-    rcpp_result_gen = Rcpp::wrap(KF(x, F, B, u, z, H));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sport_bbt", (DL_FUNC) &_sport_bbt, 6},
@@ -148,7 +132,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 8},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 9},
     {"_sport_harkness", (DL_FUNC) &_sport_harkness, 7},
-    {"_sport_KF", (DL_FUNC) &_sport_KF, 6},
     {NULL, NULL, 0}
 };
 
