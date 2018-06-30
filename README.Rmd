@@ -1,17 +1,17 @@
-<!-- rmarkdown v1 -->
 ---
-title: "Untitled"
-output: github_document
-  pandoc_args: --webtex
+title: "`sport` R package for bayesian dynamic rating system"
+output:
+  github_document:
+    pandoc_args: --webtex
 ---
 
 <head>
  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
 </head>
 
-# `sport` R package for bayesian dynamic rating system.
 [![Project Status](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
-[![MIT License](https://badges.frapsoft.com/os/mit/mit.svg)](https://opensource.org/licenses/mit-license.php)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # About
 Package contains functions calculating rating for two-player or multi-player matchups. Methods are based on Bayesian Approximation Method, and their idea can be summarized by:
 

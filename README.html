@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta http-equiv="x-ua-compatible" content="IE=9" >
 
-<title>  pandoc_args: &ndash;webtex</title>
+<title><code>sport</code> R package for bayesian dynamic rating system</title>
 
 <style type="text/css">
 body, td {
@@ -183,32 +183,22 @@ hljs.initHighlightingOnLoad();
 </head>
 
 <body>
-<!-- rmarkdown v1 -->
+<h1><code>sport</code> R package for bayesian dynamic rating system</h1>
 
-<hr/>
+<p><head></p>
 
-<p>title: &ldquo;Untitled&rdquo;
-output: github_document</p>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
 
-<h2>  pandoc_args: &ndash;webtex</h2>
+<p></head>
+<a href="http://www.repostatus.org/#active"><img src="http://www.repostatus.org/badges/latest/active.svg" alt="Project Status"/></a> <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a> # About Package contains functions calculating rating for two-player or multi-player matchups. Methods are based on Bayesian Approximation Method, and their idea can be summarized by:</p>
 
-<p><head>
- <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
-</head></p>
+<p><img src="https://latex.codecogs.com/png.latex?\large R_i^{'} \leftarrow R_i + K * ( Y_i - \hat{Y_i}  )" alt="\\large R\_i^{&#39;} \\leftarrow R\_i + K \* ( Y\_i - \\hat{Y\_i}  )" title="\large R_i^{&#39;} \leftarrow R_i + K * ( Y_i - \hat{Y_i}  )"/></p>
 
-<h1><code>sport</code> R package for bayesian dynamic rating system.</h1>
+<p>Where:</p>
 
-<p><a href="http://www.repostatus.org/#active"><img src="http://www.repostatus.org/badges/latest/active.svg" alt="Project Status"/></a>
-<a href="https://opensource.org/licenses/mit-license.php"><img src="https://badges.frapsoft.com/os/mit/mit.svg" alt="MIT License"/></a></p>
+<p><img src="https://latex.codecogs.com/png.latex?\large \hat{Y} = P(X_i > X_j)" alt="\\large \\hat{Y} = P(X\_i &amp;gt; X\_j)" title="\large \hat{Y} = P(X_i &gt; X_j)"/></p>
 
-<h1>About</h1>
-
-<p>Package contains functions calculating rating for two-player or multi-player matchups. Methods are based on Bayesian Approximation Method, and their idea can be summarized by:</p>
-
-<p>\[ \large R_i^{'} \leftarrow R_i + K * ( Y_i - \hat{Y_i}  ) \]
-Where: 
-    \[ \large \hat{Y} = P(X_i > X_j) \] 
-    \[ K - learning rate \]</p>
+<p><img src="https://latex.codecogs.com/png.latex?K - learning rate" alt="K - learning rate" title="K - learning rate"/></p>
 
 <h1>Installation</h1>
 
@@ -220,28 +210,28 @@ library(sport)
 
 <p><code>elo</code> function uses following formula.</p>
 
-<p>\( E_a = \frac{ 10^{ \frac{r_a}{400} } }{ 10^{ \frac{r_a}{400} } + 10^{ \frac{r_b}{400} } } \)</p>
+<p><img src="https://latex.codecogs.com/png.latex?E_a = \frac{ 10^{ \frac{r_a}{400} } }{ 10^{ \frac{r_a}{400} } + 10^{ \frac{r_b}{400} } }" alt="E\_a = \\frac{ 10^{ \\frac{r\_a}{400} } }{ 10^{ \\frac{r\_a}{400} } + 10^{ \\frac{r\_b}{400} } }" title="E_a = \frac{ 10^{ \frac{r_a}{400} } }{ 10^{ \frac{r_a}{400} } + 10^{ \frac{r_b}{400} } }"/></p>
 
 <h1>Glicko rating system</h1>
 
 <p>Update Rules:</p>
 
-<p>\[ \hat{Y_{ij}} = P(X_i>X_j) = \frac{1}{ 1 + 10^{-g(RD_{ij}) * (R_i-R_j)/400}} \]</p>
+<p><img src="https://latex.codecogs.com/png.latex?\hat{Y_{ij}} = P(X_i>X_j) = \frac{1}{ 1 + 10^{-g(RD_{ij}) * (R_i-R_j)/400}}" alt="\\hat{Y\_{ij}} = P(X\_i&amp;gt;X\_j) = \\frac{1}{ 1 + 10^{-g(RD\_{ij}) \* (R\_i-R\_j)/400}}" title="\hat{Y_{ij}} = P(X_i&gt;X_j) = \frac{1}{ 1 + 10^{-g(RD_{ij}) * (R_i-R_j)/400}}"/></p>
 
-<p>\[ {R'}_i = R_i +  \frac{1}{\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}} * \sum_j{g(RD_j) * (Y_{ij} - \hat{Y_{ij}})  } \]</p>
+<p><img src="https://latex.codecogs.com/png.latex?{R'}_i = R_i +  \frac{1}{\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}} * \sum_j{g(RD_j) * (Y_{ij} - \hat{Y_{ij}})  }" alt="{R&#39;}\_i = R\_i +  \\frac{1}{\\frac{1}{{RD}^2\_{i}} + \\frac{1}{d^2\_i}} \* \\sum\_j{g(RD\_j) \* (Y\_{ij} - \\hat{Y\_{ij}})  }" title="{R&#39;}_i = R_i +  \frac{1}{\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}} * \sum_j{g(RD_j) * (Y_{ij} - \hat{Y_{ij}})  }"/></p>
 
-<p>\[ {RD'}_i = \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1} \]</p>
+<p><img src="https://latex.codecogs.com/png.latex?{RD'}_i = \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}" alt="{RD&#39;}\_i = \\sqrt{(\\frac{1}{{RD}^2\_{i}} + \\frac{1}{d^2\_i}})^{-1}" title="{RD&#39;}_i = \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}"/></p>
 
 <pre><code class="r">list_glicko &lt;- glicko_run( formula = rank|id ~ rider_name , data = gpheats)
 </code></pre>
 
 <h1>Glicko2 rating system</h1>
 
-<p>\[  \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i  - \mu_j)} } \]</p>
+<p><img src="https://latex.codecogs.com/png.latex? \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i  - \mu_j)} }" alt=" \\hat{Y\_{ij}} = \\frac{1}{1 + e^{-g(\\phi\_{ij})\*(\\mu\_i  - \\mu\_j)} }" title=" \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i  - \mu_j)} }"/></p>
 
-<p>\[  {\phi'}_i = \frac{1}{\sqrt{ \frac{1}{ { {\phi_i}^2 + {\sigma'_i}^2}} + \frac{1}{v}  }} \]</p>
+<p><img src="https://latex.codecogs.com/png.latex? {\phi'}_i = \frac{1}{\sqrt{ \frac{1}{ { {\phi_i}^2 + {\sigma'_i}^2}} + \frac{1}{v}  }}" alt=" {\\phi&#39;}\_i = \\frac{1}{\\sqrt{ \\frac{1}{ { {\\phi\_i}^2 + {\\sigma&#39;\_i}^2}} + \\frac{1}{v}  }}" title=" {\phi&#39;}_i = \frac{1}{\sqrt{ \frac{1}{ { {\phi_i}^2 + {\sigma&#39;_i}^2}} + \frac{1}{v}  }}"/></p>
 
-<p>\[  {\mu'_i} = \mu_i + {\phi'}_i * \sum_j{g(\phi_j)*(Y_{ij} - \hat{Y_{ij}})}  \]</p>
+<p><img src="https://latex.codecogs.com/png.latex? {\mu'_i} = \mu_i + {\phi'}_i * \sum_j{g(\phi_j)*(Y_{ij} - \hat{Y_{ij}})} " alt=" {\\mu&#39;\_i} = \\mu\_i + {\\phi&#39;}\_i \* \\sum\_j{g(\\phi\_j)\*(Y\_{ij} - \\hat{Y\_{ij}})} " title=" {\mu&#39;_i} = \mu_i + {\phi&#39;}_i * \sum_j{g(\phi_j)*(Y_{ij} - \hat{Y_{ij}})} "/></p>
 
 <pre><code class="r">list_glicko2 &lt;- glicko2_run( formula = rank|id ~ rider_name , data = gpheats)
 </code></pre>
@@ -250,24 +240,24 @@ library(sport)
 
 <p>Algorithm based on &#39;A Bayesian Approximation Method for Online Ranking&#39; by Ruby C. Weng and Chih-Jen Lin</p>
 
-<p>\[ \hat{Y_{ij}} = P(X_i>X_j) = \frac{e^{R_i/c_{i_j}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}}  \]</p>
+<p><img src="https://latex.codecogs.com/png.latex?\hat{Y_{ij}} = P(X_i>X_j) = \frac{e^{R_i/c_{i_j}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}} " alt="\\hat{Y\_{ij}} = P(X\_i&amp;gt;X\_j) = \\frac{e^{R\_i/c\_{i\_j}}}{e^{R\_i/c\_{ij}} + e^{R\_j/c\_{ij}}} " title="\hat{Y_{ij}} = P(X_i&gt;X_j) = \frac{e^{R_i/c_{i_j}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}} "/></p>
 
-<p>\[ {R'}_i = R_i + \sum_j{\frac{RD_i^2}{c_{ij}}*(Y_{ij} - \hat{Y_{ij}})} \]</p>
+<p><img src="https://latex.codecogs.com/png.latex?{R'}_i = R_i + \sum_j{\frac{RD_i^2}{c_{ij}}*(Y_{ij} - \hat{Y_{ij}})}" alt="{R&#39;}\_i = R\_i + \\sum\_j{\\frac{RD\_i^2}{c\_{ij}}\*(Y\_{ij} - \\hat{Y\_{ij}})}" title="{R&#39;}_i = R_i + \sum_j{\frac{RD_i^2}{c_{ij}}*(Y_{ij} - \hat{Y_{ij}})}"/></p>
 
-<p>\[ {RD'}_i = RD_i * [ 1 - \frac{RD_{ij}^2}{RD_i^2}\sum_j{ \gamma_j * (\frac{RD_i}{c_{ij}})^2* \hat{Y_{ij}}\hat{Y_{ji}}   } ] \]</p>
+<p><img src="https://latex.codecogs.com/png.latex?{RD'}_i = RD_i * [ 1 - \frac{RD_{ij}^2}{RD_i^2}\sum_j{ \gamma_j * (\frac{RD_i}{c_{ij}})^2* \hat{Y_{ij}}\hat{Y_{ji}}   } ]" alt="{RD&#39;}\_i = RD\_i \* \[  1 - \\frac{RD\_{ij}^2}{RD\_i^2}\\sum\_j{ \\gamma\_j \* (\\frac{RD\_i}{c\_{ij}})^2\* \\hat{Y\_{ij}}\\hat{Y\_{ji}}   }  \]" title="{RD&#39;}_i = RD_i * [ 1 - \frac{RD_{ij}^2}{RD_i^2}\sum_j{ \gamma_j * (\frac{RD_i}{c_{ij}})^2* \hat{Y_{ij}}\hat{Y_{ji}}   } ]"/></p>
 
 <pre><code class="r">list_bbt &lt;- bbt_run( formula = rank|id~rider_name,  data = gpheats )
 </code></pre>
 
 <h1>Dynamic Logistic Regression</h1>
 
-<p>\[ w_t = {w_{t-1}} + \eta_t \]</p>
+<p><img src="https://latex.codecogs.com/png.latex?w_t = {w_{t-1}} + \eta_t" alt="w\_t = {w\_{t-1}} + \\eta\_t" title="w_t = {w_{t-1}} + \eta_t"/></p>
 
-<p>\[ Y_t = g(w_t^Tx_t) \]</p>
+<p><img src="https://latex.codecogs.com/png.latex?Y_t = g(w_t^Tx_t)" alt="Y\_t = g(w\_t^Tx\_t)" title="Y_t = g(w_t^Tx_t)"/></p>
 
-<p>\[ x_t = x_{it} - x_{jt} \]</p>
+<p><img src="https://latex.codecogs.com/png.latex?x_t = x_{it} - x_{jt}" alt="x\_t = x\_{it} - x\_{jt}" title="x_t = x_{it} - x_{jt}"/></p>
 
-<p>\[ w_t = w_{t-1} + {\sum{_t}} x_t \]</p>
+<p><img src="https://latex.codecogs.com/png.latex?w_t = w_{t-1} + {\sum{_t}} x_t" alt="w\_t = w\_{t-1} + {\\sum{\_t}} x\_t" title="w_t = w_{t-1} + {\sum{_t}} x_t"/></p>
 
 <pre><code class="r">list_bdl &lt;- bdl_run( formula = rank|id ~ rider_name, data = gpheats )
 </code></pre>
