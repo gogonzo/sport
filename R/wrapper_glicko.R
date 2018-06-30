@@ -37,13 +37,13 @@ glicko_run <- function(formula, data, r, rd, time){
   
   model_P <- list()
   model_r <- list()
-  for(i in 1:length(data)){
+  for(i in names(data)){
     team_names <- data[[ i ]][[ x ]]
-    model <- glicko( 
+    model      <- glicko( 
       team_names , 
       rank = data[[ i ]][[ y ]], 
-      r = r[team_names ], 
-      rd = rd[team_names ], 
+      r    =  r[team_names ], 
+      rd   = rd[team_names ], 
       time = data[[ i ]][[ time ]] 
     )    
     r [ team_names ] <- model$r[  team_names ]

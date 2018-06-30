@@ -29,14 +29,14 @@ bdl_run <- function(formula, data,r,rd){
       names <- unique(X[[ 1 ]])
       r <- matrix( 0, nrow = length(names), dimnames = list(names, NULL) )  
     }
-    if(missing(rd)){
+    if( missing(rd) ){
       names <- unique(X[[ 1 ]])
       rd <- matrix( 1, nrow = length(names), dimnames = list(names, NULL) ) 
     }
-    if(class(r)!="matrix"){
+    if( class(r)!="matrix" ){
       r <- as.matrix(r, ncol=1)
     }
-    if(class(rd)!="matrix"){
+    if( class(rd)!="matrix" ){
       rd <- as.matrix(rd, ncol=1)
     }
     
@@ -74,7 +74,7 @@ bdl_run <- function(formula, data,r,rd){
     }
     
     
-    idx_list <- split(1:nrow(data), data[[ id ]])
+    idx_list   <- split(1:nrow(data), data[[ id ]])
     map_list   <- lapply(idx_list, function(i) map[i,,drop=FALSE])
     X_list     <- lapply(idx_list, function(i) X[i,,drop=FALSE])
     ranks_list <- lapply(idx_list, function(i) data[[y]][i])

@@ -90,8 +90,8 @@ ddl(
         if(i < q){
           y_var = 1/( 1+p*(1-p)*s2  );
         
-          OMEGA(i,_) =  OMEGA(i,_) + ( ( s_i * y_var ) * ( h_i * error ) );
-          OMEGA(q,_) =  OMEGA(q,_) + ( ( s_q * y_var ) * ( h_q * error ) );
+          OMEGA(i,_) =  OMEGA(i,_) + ( ( s_i * y_var ) * ( h_i * error ) ) ;
+          OMEGA(q,_) =  OMEGA(q,_) + ( ( s_q * y_var ) * ( h_q * error ) ) ;
           DELTA(i,_) = DELTA(i,_) +  
                       ( p*(1 - p) * y_var  ) * 
                       ( s_i * h_i ) * 

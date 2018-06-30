@@ -1,6 +1,6 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
-#include "dbl_functions.h"
+#include "bdl_functions.h"
 //' Bayesian Bradley-Terry model for single game
 //' 
 //' Calculates Glicko ratings based on Bayesian Bradley Terry model.

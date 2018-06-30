@@ -1,5 +1,5 @@
 update_sgp_data <- function(){
-  library(oddsandsods);library(magrittr);library(dplyr);library(RMySQL)
+  library(oddsandsods);library(magrittr);library(dplyr);library(RMySQL);library(runner)
   con <- dbConnect(drv=MySQL(), username="root", dbname="speedway")
   gpsquads <- customQuery({"
     SELECT 
@@ -37,6 +37,20 @@ update_sgp_data <- function(){
   
   gpsquads$date <- as.POSIXct( strptime( gpsquads$date ,"%Y-%m-%d %H:%M:%S" ) )
   gpheats$date  <- as.POSIXct( strptime( gpheats$date  ,"%Y-%m-%d %H:%M:%S" ) )
+  
+  gpheats <-
+    gpheats %>% 
+    arrange(date, heat) %>%
+    mutate( id = runner::sum_run( paste(date, heat) != lag(paste(date, heat), default="") ) ) %>%
+    filter( !is.na(position) ) %>%
+      filter( !is.na(points) ) %>%
+      filter( !position %in% c('F','N') ) %>%
+      filter( !is.na(field)) %>%
+      filter( !is.na(rider_name) ) %>%
+      mutate(
+        rank = as.integer(position),
+        rank = ifelse( is.na(rank), max(rank, na.rm=T) + 1, rank))
+  
   
   devtools::use_data(gpsquads,gpheats, overwrite = T)
 }

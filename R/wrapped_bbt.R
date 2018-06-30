@@ -38,7 +38,7 @@ bbt_run <- function(formula, data, r,rd){
   
   model_r <- list()
   model_P <- list()
-  for(i in 1:length(data)){
+  for(i in names(data)){
     
     team_name <- data[[ i ]][[ x ]]
     model   <- bbt( 

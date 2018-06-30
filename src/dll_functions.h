@@ -7,4 +7,3 @@ double calc_y(int rank_i, int rank_j){
     return 0.0;
   }
 }
-

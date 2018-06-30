@@ -96,7 +96,7 @@ List
           P( idx - 1 ) = calcPGlicko( calcGRd( sqrt( pow(rd[i],2) + pow( rd[j], 2 ) ) ) , r[i] , r[j] );
           Y( idx - 1 ) = calcZ( rank[i], rank[j] );
           var = calcVar( var, g_rd[j], P( idx - 1) );
-          err = calcErr( err, g_rd[j], P( idx -1 ), rank[i], rank[j]);
+          err = calcErr( err, g_rd[j], P( idx - 1 ), rank[i], rank[j]);
         }
       }
       

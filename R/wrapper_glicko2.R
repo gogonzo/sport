@@ -25,8 +25,8 @@ glicko2_run <- function(formula, data, r, rd,sig, time){
   if( missing(r) ){
     team_names <- unique(data[[x]])
     r   <- setNames( rep(1500, length(team_names)), team_names )
-    rd   <- setNames( rep(300,  length(team_names)), team_names )
-    sig  <- setNames(rep(0.05, length(team_names)), team_names)
+    rd  <- setNames( rep(300 , length(team_names)), team_names )
+    sig <- setNames( rep(0.05, length(team_names)), team_names)
   }
   if( missing(time) ){
     data$time <- 0
@@ -38,7 +38,7 @@ glicko2_run <- function(formula, data, r, rd,sig, time){
   
   model_r <- list()
   model_P <- list()
-  for(i in 1:length(data)){
+  for(i in names(data)){
     team_names <- data[[ i ]][[ x ]]
     
     model <- glicko2( 
