@@ -1,9 +1,6 @@
-`sport` R package for bayesian dynamic rating system
+`sport` an R package for bayesian dynamic rating system
 ================
 
-<head>
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
-</head>
 [![Project Status](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 About
