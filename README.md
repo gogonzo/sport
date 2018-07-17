@@ -6,7 +6,7 @@
 About
 =====
 
-Package contains functions calculating rating for two-player or multi-player matchups. Methods are based on Bayesian Approximation Method, and their idea can be summarized by:
+Package contains functions calculating ratings for two-player or multi-player matchups. Methods are based on Bayesian Approximation Method, and their idea can be summarized by:
 
 ![\\large R\_i^{'} \\leftarrow R\_i + K \* ( Y\_i - \\hat{Y\_i}  )](https://latex.codecogs.com/png.latex?%5Clarge%20R_i%5E%7B%27%7D%20%5Cleftarrow%20R_i%20%2B%20K%20%2A%20%28%20Y_i%20-%20%5Chat%7BY_i%7D%20%20%29 "\large R_i^{'} \leftarrow R_i + K * ( Y_i - \hat{Y_i}  )")
 
@@ -16,23 +16,25 @@ Package contains functions calculating rating for two-player or multi-player mat
 
 ![K - learning rate](https://latex.codecogs.com/png.latex?K%20-%20learning%20rate "K - learning rate")
 
+Probability function is based on ![Bradley-Terry model](https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model) designed to predict outcome of pairwise comparison. For multi-player matchups where output is a ranking, `sport` package uses the same data transformation as in [exploded logit](https://www.jstor.org/stable/270983) - ranking is then presented as combination all pairs compiting within same event.
+
 Installation
 ============
+
+Package can be installed from github page.
 
 ``` r
 # devtools::install_github("gogonzo/sport")
 library(sport)
 ```
 
-Elo rating system
-=================
-
-`elo` function uses following formula.
-
-![E\_a = \\frac{ 10^{ \\frac{r\_a}{400} } }{ 10^{ \\frac{r\_a}{400} } + 10^{ \\frac{r\_b}{400} } }](https://latex.codecogs.com/png.latex?E_a%20%3D%20%5Cfrac%7B%2010%5E%7B%20%5Cfrac%7Br_a%7D%7B400%7D%20%7D%20%7D%7B%2010%5E%7B%20%5Cfrac%7Br_a%7D%7B400%7D%20%7D%20%2B%2010%5E%7B%20%5Cfrac%7Br_b%7D%7B400%7D%20%7D%20%7D "E_a = \frac{ 10^{ \frac{r_a}{400} } }{ 10^{ \frac{r_a}{400} } + 10^{ \frac{r_b}{400} } }")
+Package Usage
+=============
 
 Glicko rating system
-====================
+--------------------
+
+First bayesian rating system
 
 Update Rules:
 
@@ -42,12 +44,14 @@ Update Rules:
 
 ![{RD'}\_i = \\sqrt{(\\frac{1}{{RD}^2\_{i}} + \\frac{1}{d^2\_i}})^{-1}](https://latex.codecogs.com/png.latex?%7BRD%27%7D_i%20%3D%20%5Csqrt%7B%28%5Cfrac%7B1%7D%7B%7BRD%7D%5E2_%7Bi%7D%7D%20%2B%20%5Cfrac%7B1%7D%7Bd%5E2_i%7D%7D%29%5E%7B-1%7D "{RD'}_i = \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}")
 
+To compute glicko ratings one has to specify model. Glicko uses only one parameter per competitot describing his overall abilities (`rider_name`). Ouput is a ranking within specified event (`rank|id`).
+
 ``` r
 list_glicko <- glicko_run( formula = rank|id ~ rider_name , data = gpheats)
 ```
 
 Glicko2 rating system
-=====================
+---------------------
 
 ![ \\hat{Y\_{ij}} = \\frac{1}{1 + e^{-g(\\phi\_{ij})\*(\\mu\_i  - \\mu\_j)} }](https://latex.codecogs.com/png.latex?%20%5Chat%7BY_%7Bij%7D%7D%20%3D%20%5Cfrac%7B1%7D%7B1%20%2B%20e%5E%7B-g%28%5Cphi_%7Bij%7D%29%2A%28%5Cmu_i%20%20-%20%5Cmu_j%29%7D%20%7D " \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i  - \mu_j)} }")
 
@@ -60,7 +64,7 @@ list_glicko2 <- glicko2_run( formula = rank|id ~ rider_name , data = gpheats)
 ```
 
 Dynamic Bradley Terry
-=====================
+---------------------
 
 Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
 
@@ -75,7 +79,7 @@ list_bbt <- bbt_run( formula = rank|id~rider_name,  data = gpheats )
 ```
 
 Dynamic Logistic Regression
-===========================
+---------------------------
 
 ![w\_t = {w\_{t-1}} + \\eta\_t](https://latex.codecogs.com/png.latex?w_t%20%3D%20%7Bw_%7Bt-1%7D%7D%20%2B%20%5Ceta_t "w_t = {w_{t-1}} + \eta_t")
 
@@ -90,7 +94,7 @@ list_bdl <- bdl_run( formula = rank|id ~ rider_name, data = gpheats )
 ```
 
 ``` r
-library(dplyr);library(magrittr)
+library(tidyverse);library(magrittr)
 riders <- unique(gpheats$rider_name)
 stadiums <- unique(gpheats$place)
 set.seed(1)
@@ -114,7 +118,7 @@ list_bdl2 <- bdl_run(
 ```
 
 Join ratings
-============
+------------
 
 ``` r
 ratings_glicko  <- list_glicko$r %>% rename(r_glicko = r, rd_glicko = rd, rider_name = names )
@@ -128,4 +132,34 @@ gpheats %<>%
   left_join( ratings_glicko2 ) %>%
   left_join( ratings_bbt ) %>%
   left_join( ratings_bdl )
+```
+
+Join pairs
+----------
+
+``` r
+pairs_glicko  <- list_glicko[[2]]  %>% rename(P_glicko = P)
+pairs_glicko2 <- list_glicko2[[2]] %>% rename(P_glicko2 = P)
+pairs_bbt     <- list_bbt[[2]]     %>% rename(P_bbt = P)
+pairs_bdl     <- list_bdl[[1]]     %>% rename(P_bdl = P)
+pairs_bdl2    <- list_bdl2[[1]]    %>% rename(P_bdl2 = P)
+
+pairs <-
+  pairs_glicko %>%
+  left_join(pairs_glicko2) %>%
+  left_join(pairs_bbt) %>%
+  left_join(pairs_bdl) %>%
+  left_join(pairs_bdl2) %>%
+  rename(rider_name = team1, opponent = team2) %>%
+  filter(Y!=0.5) %>%
+  arrange(id, sample(1:n()))
+
+
+# leave only unique pairs
+pairs$uniq_pair <-
+  pairs %>% 
+  select(rider_name,opponent) %>% 
+  apply(1,function(x)paste(sort(x), collapse=" - ")) 
+
+pairs %<>% filter(!duplicated(paste(id, uniq_pair)))
 ```

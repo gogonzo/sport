@@ -9,27 +9,30 @@ output:
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # About
-Package contains functions calculating rating for two-player or multi-player matchups. Methods are based on Bayesian Approximation Method, and their idea can be summarized by:
+Package contains functions calculating ratings for two-player or multi-player matchups. Methods are based on Bayesian Approximation Method, and their idea can be summarized by:
 
 $$\large R_i^{'} \leftarrow R_i + K * ( Y_i - \hat{Y_i}  )$$
 Where: 
     $$\large \hat{Y} = P(X_i > X_j)$$ 
     $$K - learning rate$$
 
+Probability function is based on ![Bradley-Terry model](https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model) designed to predict outcome of pairwise comparison. For multi-player matchups where output is a ranking, `sport` package uses the same data transformation as in [exploded logit](https://www.jstor.org/stable/270983) - ranking is then presented as combination all pairs compiting within same event.
+
 # Installation
+Package can be installed from github page. 
+
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 # devtools::install_github("gogonzo/sport")
 library(sport)
 ```
 
 
-# Elo rating system
-`elo` function uses following formula.
+# Package Usage
+## Glicko rating system
+First bayesian rating system
 
-$E_a = \frac{ 10^{ \frac{r_a}{400} } }{ 10^{ \frac{r_a}{400} } + 10^{ \frac{r_b}{400} } }$
-
-# Glicko rating system
 Update Rules:
+
 
 $$\hat{Y_{ij}} = P(X_i>X_j) = \frac{1}{ 1 + 10^{-g(RD_{ij}) * (R_i-R_j)/400}}$$
 
@@ -37,12 +40,12 @@ $${R'}_i = R_i +  \frac{1}{\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}} * \sum_j{g(RD
 
 $${RD'}_i = \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}$$
 
-
+To compute glicko ratings one has to specify model. Glicko uses only one parameter per competitot describing his overall abilities (`rider_name`). Ouput is a ranking within specified event (`rank|id`).
 ```{r message=FALSE, warning=FALSE}
 list_glicko <- glicko_run( formula = rank|id ~ rider_name , data = gpheats)
 ```
 
-# Glicko2 rating system
+## Glicko2 rating system
 
 $$ \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i  - \mu_j)} }$$
 
@@ -55,7 +58,7 @@ list_glicko2 <- glicko2_run( formula = rank|id ~ rider_name , data = gpheats)
 ```
 
 
-# Dynamic Bradley Terry
+## Dynamic Bradley Terry
 Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
 
 $$\hat{Y_{ij}} = P(X_i>X_j) = \frac{e^{R_i/c_{i_j}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}} $$
@@ -69,7 +72,7 @@ list_bbt <- bbt_run( formula = rank|id~rider_name,  data = gpheats )
 ```
 
 
-# Dynamic Logistic Regression
+## Dynamic Logistic Regression
 
 $$w_t = {w_{t-1}} + \eta_t$$
 
@@ -86,7 +89,7 @@ list_bdl <- bdl_run( formula = rank|id ~ rider_name, data = gpheats )
 
 
 ```{r message=FALSE, warning=FALSE}
-library(dplyr);library(magrittr)
+library(tidyverse);library(magrittr)
 riders <- unique(gpheats$rider_name)
 stadiums <- unique(gpheats$place)
 set.seed(1)
@@ -110,7 +113,7 @@ list_bdl2 <- bdl_run(
 ```
 
 
-# Join ratings
+## Join ratings
 ```{r message=FALSE, warning=FALSE}
 ratings_glicko  <- list_glicko$r %>% rename(r_glicko = r, rd_glicko = rd, rider_name = names )
 ratings_glicko2 <- list_glicko2$r %>% rename(r_glicko2 = r, rd_glicko2 = rd, rider_name = names )
@@ -123,7 +126,36 @@ gpheats %<>%
   left_join( ratings_glicko2 ) %>%
   left_join( ratings_bbt ) %>%
   left_join( ratings_bdl )
+```
+
+## Join pairs
+```{r message=FALSE, warning=FALSE}
+pairs_glicko  <- list_glicko[[2]]  %>% rename(P_glicko = P)
+pairs_glicko2 <- list_glicko2[[2]] %>% rename(P_glicko2 = P)
+pairs_bbt     <- list_bbt[[2]]     %>% rename(P_bbt = P)
+pairs_bdl     <- list_bdl[[1]]     %>% rename(P_bdl = P)
+pairs_bdl2    <- list_bdl2[[1]]    %>% rename(P_bdl2 = P)
+
+pairs <-
+  pairs_glicko %>%
+  left_join(pairs_glicko2) %>%
+  left_join(pairs_bbt) %>%
+  left_join(pairs_bdl) %>%
+  left_join(pairs_bdl2) %>%
+  rename(rider_name = team1, opponent = team2) %>%
+  filter(Y!=0.5) %>%
+  arrange(id, sample(1:n()))
+
+
+# leave only unique pairs
+pairs$uniq_pair <-
+  pairs %>% 
+  select(rider_name,opponent) %>% 
+  apply(1,function(x)paste(sort(x), collapse=" - ")) 
+
+pairs %<>% filter(!duplicated(paste(id, uniq_pair)))
 
 ```
+
 
 
