@@ -45,10 +45,10 @@ Algorithm according to [Mark E. Glickman (2013)](http://www.glicko.net/glicko/gl
 
 ![ {\\mu'\_i} = \\mu\_i + {\\phi'}\_i \* \\sum\_j{g(\\phi\_j)\*(Y\_{ij} - \\hat{Y\_{ij}})} ](https://latex.codecogs.com/png.latex?%20%7B%5Cmu%27_i%7D%20%3D%20%5Cmu_i%20%2B%20%7B%5Cphi%27%7D_i%20%2A%20%5Csum_j%7Bg%28%5Cphi_j%29%2A%28Y_%7Bij%7D%20-%20%5Chat%7BY_%7Bij%7D%7D%29%7D%20 " {\mu'_i} = \mu_i + {\phi'}_i * \sum_j{g(\phi_j)*(Y_{ij} - \hat{Y_{ij}})} ")
 
-Dynamic Bradley Terry
----------------------
+Bayesian Bradley Terry
+----------------------
 
-Based on [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf) Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
+Based on [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf)
 
 ![\\hat{Y\_{ij}} = P(X\_i&gt;X\_j) = \\frac{e^{R\_i/c\_{i\_j}}}{e^{R\_i/c\_{ij}} + e^{R\_j/c\_{ij}}} ](https://latex.codecogs.com/png.latex?%5Chat%7BY_%7Bij%7D%7D%20%3D%20P%28X_i%3EX_j%29%20%3D%20%5Cfrac%7Be%5E%7BR_i%2Fc_%7Bi_j%7D%7D%7D%7Be%5E%7BR_i%2Fc_%7Bij%7D%7D%20%2B%20e%5E%7BR_j%2Fc_%7Bij%7D%7D%7D%20 "\hat{Y_{ij}} = P(X_i>X_j) = \frac{e^{R_i/c_{i_j}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}} ")
 
@@ -71,8 +71,11 @@ This algorithm differs from above in not basing on Bradley Terry model. Dynamic 
 
 ![w\_t = w\_{t-1} + {\\sum{\_t}} x\_t](https://latex.codecogs.com/png.latex?w_t%20%3D%20w_%7Bt-1%7D%20%2B%20%7B%5Csum%7B_t%7D%7D%20x_t "w_t = w_{t-1} + {\sum{_t}} x_t")
 
+Package Usage
+=============
+
 Installation
-============
+------------
 
 Install package from github.
 
@@ -81,10 +84,41 @@ Install package from github.
 library(sport)
 ```
 
-Package Usage
-=============
+Available Data
+--------------
 
-To compute glicko and glicko2 ratings one has to specify formula. Glicko uses only one parameter per competitor to describe his overall abilities (`rider_name`). Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge. `glicko` estimates `r` and `rd` but glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=300`, `sig=0.05`.
+Package contains data from Speedway Grand-Prix. There are two data.frames: 1. `gpheats` - results of each race in all SGP events. Column `rank` is a numeric version of column `position` - rider position in race. 2. `gpsquads` - summarized results of the events, with sum of point and final position.
+
+``` r
+head(gpsquads)
+```
+
+    ##   id season                date                               place round
+    ## 1 49   2012 2012-03-31 05:00:00 Western Springs Stadium in Auckland     1
+    ## 2 49   2012 2012-03-31 05:00:00 Western Springs Stadium in Auckland     1
+    ## 3 49   2012 2012-03-31 05:00:00 Western Springs Stadium in Auckland     1
+    ## 4 49   2012 2012-03-31 05:00:00 Western Springs Stadium in Auckland     1
+    ## 5 49   2012 2012-03-31 05:00:00 Western Springs Stadium in Auckland     1
+    ## 6 49   2012 2012-03-31 05:00:00 Western Springs Stadium in Auckland     1
+    ##                                  name       rider_name points
+    ## 1 FIM Buckley Systems New Zealand SGP     Greg Hancock     22
+    ## 2 FIM Buckley Systems New Zealand SGP  Jarosław Hampel     18
+    ## 3 FIM Buckley Systems New Zealand SGP   Nicki Pedersen     13
+    ## 4 FIM Buckley Systems New Zealand SGP      Jason Crump     12
+    ## 5 FIM Buckley Systems New Zealand SGP    Tomasz Gollob     15
+    ## 6 FIM Buckley Systems New Zealand SGP Antonio Lindbäck     13
+    ##   classification
+    ## 1              1
+    ## 2              2
+    ## 3              3
+    ## 4              4
+    ## 5              5
+    ## 6              6
+
+Estimation
+----------
+
+To compute ratings using each algorithms one has to specify formula. To estimate riders (`rider_name`) abilities with given outputs (`rank`) nested within particular heats (`id`). Glicko uses only one parameter per competitor to describe his overall abilities (`rider_name`). Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge. `glicko` estimates `r` and `rd` but glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=300`, `sig=0.05`.
 
 ``` r
 # initial estimates default

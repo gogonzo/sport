@@ -42,10 +42,9 @@ $$ {\phi'}_i = \frac{1}{\sqrt{ \frac{1}{ { {\phi_i}^2 + {\sigma'_i}^2}} + \frac{
 $$ {\mu'_i} = \mu_i + {\phi'}_i * \sum_j{g(\phi_j)*(Y_{ij} - \hat{Y_{ij}})} $$
 
 
-## Dynamic Bradley Terry
+## Bayesian Bradley Terry
 
 Based on [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf)
-Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
 
 $$\hat{Y_{ij}} = P(X_i>X_j) = \frac{e^{R_i/c_{i_j}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}} $$
 
@@ -68,7 +67,9 @@ $$x_t = x_{it} - x_{jt}$$
 
 $$w_t = w_{t-1} + {\sum{_t}} x_t$$
 
-# Installation
+# Package Usage
+
+## Installation
 Install package from github.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
@@ -76,9 +77,20 @@ Install package from github.
 library(sport)
 ```
 
-# Package Usage
+## Available Data
+Package contains data from Speedway Grand-Prix. There are two data.frames: 
+1. `gpheats` - results of each race in all SGP events. Column `rank` is a numeric version of column `position` - rider position in race.
+2. `gpsquads` - summarized results of the events, with sum of point and final position.
 
-To compute glicko and glicko2 ratings one has to specify formula. Glicko uses only one parameter per competitor to describe his overall abilities (`rider_name`). Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge. `glicko` estimates `r` and `rd` but glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=300`, `sig=0.05`.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+head(gpsquads)
+```
+
+
+## Estimation
+
+To compute ratings using each algorithms one has to specify formula. To estimate riders (`rider_name`) abilities with given outputs (`rank`) nested within particular heats (`id`). 
+Glicko uses only one parameter per competitor to describe his overall abilities (`rider_name`). Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge. `glicko` estimates `r` and `rd` but glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=300`, `sig=0.05`.
 ```{r message=FALSE, warning=FALSE}
 # initial estimates default
 list_glicko <- glicko_run( formula = rank|id ~ rider_name , data = gpheats)
