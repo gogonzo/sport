@@ -18,18 +18,8 @@ Package contains functions calculating ratings for two-player or multi-player ma
 
 Probability function is based on [Bradley-Terry model](https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model) designed to predict outcome of pairwise comparison. For multi-player matchups where output is a ranking, `sport` package uses the same data transformation as in [exploded logit](https://www.jstor.org/stable/270983) - ranking is then presented as combination all possible pairs competing within same event.
 
-Installation
-============
-
-Install package from github.
-
-``` r
-# devtools::install_github("gogonzo/sport")
-library(sport)
-```
-
-Package Usage
-=============
+Theory
+======
 
 Glicko rating system
 --------------------
@@ -44,12 +34,6 @@ Update Rules:
 
 ![{RD'}\_i = \\sqrt{(\\frac{1}{{RD}^2\_{i}} + \\frac{1}{d^2\_i}})^{-1}](https://latex.codecogs.com/png.latex?%7BRD%27%7D_i%20%3D%20%5Csqrt%7B%28%5Cfrac%7B1%7D%7B%7BRD%7D%5E2_%7Bi%7D%7D%20%2B%20%5Cfrac%7B1%7D%7Bd%5E2_i%7D%7D%29%5E%7B-1%7D "{RD'}_i = \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}")
 
-To compute glicko ratings one has to specify model. Glicko uses only one parameter per competitot describing his overall abilities (`rider_name`). Ouput is a ranking within specified event (`rank|id`).
-
-``` r
-list_glicko <- glicko_run( formula = rank|id ~ rider_name , data = gpheats)
-```
-
 Glicko2 rating system
 ---------------------
 
@@ -61,10 +45,6 @@ Algorithm according to [Mark E. Glickman (2013)](http://www.glicko.net/glicko/gl
 
 ![ {\\mu'\_i} = \\mu\_i + {\\phi'}\_i \* \\sum\_j{g(\\phi\_j)\*(Y\_{ij} - \\hat{Y\_{ij}})} ](https://latex.codecogs.com/png.latex?%20%7B%5Cmu%27_i%7D%20%3D%20%5Cmu_i%20%2B%20%7B%5Cphi%27%7D_i%20%2A%20%5Csum_j%7Bg%28%5Cphi_j%29%2A%28Y_%7Bij%7D%20-%20%5Chat%7BY_%7Bij%7D%7D%29%7D%20 " {\mu'_i} = \mu_i + {\phi'}_i * \sum_j{g(\phi_j)*(Y_{ij} - \hat{Y_{ij}})} ")
 
-``` r
-list_glicko2 <- glicko2_run( formula = rank|id ~ rider_name , data = gpheats)
-```
-
 Dynamic Bradley Terry
 ---------------------
 
@@ -75,10 +55,6 @@ Based on [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers
 ![{R'}\_i = R\_i + \\sum\_j{\\frac{RD\_i^2}{c\_{ij}}\*(Y\_{ij} - \\hat{Y\_{ij}})}](https://latex.codecogs.com/png.latex?%7BR%27%7D_i%20%3D%20R_i%20%2B%20%5Csum_j%7B%5Cfrac%7BRD_i%5E2%7D%7Bc_%7Bij%7D%7D%2A%28Y_%7Bij%7D%20-%20%5Chat%7BY_%7Bij%7D%7D%29%7D "{R'}_i = R_i + \sum_j{\frac{RD_i^2}{c_{ij}}*(Y_{ij} - \hat{Y_{ij}})}")
 
 ![{RD'}\_i = RD\_i \* \[ 1 - \\frac{RD\_{ij}^2}{RD\_i^2}\\sum\_j{ \\gamma\_j \* (\\frac{RD\_i}{c\_{ij}})^2\* \\hat{Y\_{ij}}\\hat{Y\_{ji}}   } \]](https://latex.codecogs.com/png.latex?%7BRD%27%7D_i%20%3D%20RD_i%20%2A%20%5B%201%20-%20%5Cfrac%7BRD_%7Bij%7D%5E2%7D%7BRD_i%5E2%7D%5Csum_j%7B%20%5Cgamma_j%20%2A%20%28%5Cfrac%7BRD_i%7D%7Bc_%7Bij%7D%7D%29%5E2%2A%20%5Chat%7BY_%7Bij%7D%7D%5Chat%7BY_%7Bji%7D%7D%20%20%20%7D%20%5D "{RD'}_i = RD_i * [ 1 - \frac{RD_{ij}^2}{RD_i^2}\sum_j{ \gamma_j * (\frac{RD_i}{c_{ij}})^2* \hat{Y_{ij}}\hat{Y_{ji}}   } ]")
-
-``` r
-list_bbt <- bbt_run( formula = rank|id~rider_name,  data = gpheats )
-```
 
 Dynamic Logistic Regression
 ---------------------------
@@ -94,6 +70,49 @@ This algorithm differs from above in not basing on Bradley Terry model. Dynamic 
 ![x\_t = x\_{it} - x\_{jt}](https://latex.codecogs.com/png.latex?x_t%20%3D%20x_%7Bit%7D%20-%20x_%7Bjt%7D "x_t = x_{it} - x_{jt}")
 
 ![w\_t = w\_{t-1} + {\\sum{\_t}} x\_t](https://latex.codecogs.com/png.latex?w_t%20%3D%20w_%7Bt-1%7D%20%2B%20%7B%5Csum%7B_t%7D%7D%20x_t "w_t = w_{t-1} + {\sum{_t}} x_t")
+
+Installation
+============
+
+Install package from github.
+
+``` r
+# devtools::install_github("gogonzo/sport")
+library(sport)
+```
+
+Package Usage
+=============
+
+To compute glicko and glicko2 ratings one has to specify formula. Glicko uses only one parameter per competitor to describe his overall abilities (`rider_name`). Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge. `glicko` estimates `r` and `rd` but glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=300`, `sig=0.05`.
+
+``` r
+# initial estimates default
+list_glicko <- glicko_run( formula = rank|id ~ rider_name , data = gpheats)
+list_glicko2 <- glicko2_run( formula = rank|id ~ rider_name , data = gpheats)
+```
+
+``` r
+library(magrittr)
+unique_riders <- unique(gpheats$rider_name)
+r   <- rep(1500, length(unique_riders) ) %>% setNames(unique_riders)
+rd  <- rep(1500, length(unique_riders) ) %>% setNames(unique_riders)
+sig <- rep(0.05, length(unique_riders) ) %>% setNames(unique_riders)
+
+list_glicko  <- glicko_run( 
+  formula = rank|id ~ rider_name , 
+  r = r, rd = rd, 
+  data = gpheats)
+
+list_glicko2 <- glicko2_run( 
+  formula = rank|id ~ rider_name , 
+  r = r, rd = rd, sig = sig ,
+  data = gpheats)
+```
+
+``` r
+list_bbt <- bbt_run( formula = rank|id~rider_name,  data = gpheats )
+```
 
 ``` r
 list_dlr1 <- dlr_run( formula = rank|id ~ rider_name, data = gpheats )
