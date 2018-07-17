@@ -16,12 +16,12 @@ Package contains functions calculating ratings for two-player or multi-player ma
 
 ![K - learning rate](https://latex.codecogs.com/png.latex?K%20-%20learning%20rate "K - learning rate")
 
-Probability function is based on ![Bradley-Terry model](https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model) designed to predict outcome of pairwise comparison. For multi-player matchups where output is a ranking, `sport` package uses the same data transformation as in [exploded logit](https://www.jstor.org/stable/270983) - ranking is then presented as combination all pairs compiting within same event.
+Probability function is based on [Bradley-Terry model](https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model) designed to predict outcome of pairwise comparison. For multi-player matchups where output is a ranking, `sport` package uses the same data transformation as in [exploded logit](https://www.jstor.org/stable/270983) - ranking is then presented as combination all possible pairs competing within same event.
 
 Installation
 ============
 
-Package can be installed from github page.
+Install package from github.
 
 ``` r
 # devtools::install_github("gogonzo/sport")
@@ -34,7 +34,7 @@ Package Usage
 Glicko rating system
 --------------------
 
-First bayesian rating system
+Algorithms based on [Mark E. Glickman (1999)](http://www.glicko.net/research/glicko.pdf).
 
 Update Rules:
 
@@ -53,6 +53,8 @@ list_glicko <- glicko_run( formula = rank|id ~ rider_name , data = gpheats)
 Glicko2 rating system
 ---------------------
 
+Algorithm according to [Mark E. Glickman (2013)](http://www.glicko.net/glicko/glicko2.pdf)
+
 ![ \\hat{Y\_{ij}} = \\frac{1}{1 + e^{-g(\\phi\_{ij})\*(\\mu\_i  - \\mu\_j)} }](https://latex.codecogs.com/png.latex?%20%5Chat%7BY_%7Bij%7D%7D%20%3D%20%5Cfrac%7B1%7D%7B1%20%2B%20e%5E%7B-g%28%5Cphi_%7Bij%7D%29%2A%28%5Cmu_i%20%20-%20%5Cmu_j%29%7D%20%7D " \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i  - \mu_j)} }")
 
 ![ {\\phi'}\_i = \\frac{1}{\\sqrt{ \\frac{1}{ { {\\phi\_i}^2 + {\\sigma'\_i}^2}} + \\frac{1}{v}  }}](https://latex.codecogs.com/png.latex?%20%7B%5Cphi%27%7D_i%20%3D%20%5Cfrac%7B1%7D%7B%5Csqrt%7B%20%5Cfrac%7B1%7D%7B%20%7B%20%7B%5Cphi_i%7D%5E2%20%2B%20%7B%5Csigma%27_i%7D%5E2%7D%7D%20%2B%20%5Cfrac%7B1%7D%7Bv%7D%20%20%7D%7D " {\phi'}_i = \frac{1}{\sqrt{ \frac{1}{ { {\phi_i}^2 + {\sigma'_i}^2}} + \frac{1}{v}  }}")
@@ -66,7 +68,7 @@ list_glicko2 <- glicko2_run( formula = rank|id ~ rider_name , data = gpheats)
 Dynamic Bradley Terry
 ---------------------
 
-Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
+Based on [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf) Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
 
 ![\\hat{Y\_{ij}} = P(X\_i&gt;X\_j) = \\frac{e^{R\_i/c\_{i\_j}}}{e^{R\_i/c\_{ij}} + e^{R\_j/c\_{ij}}} ](https://latex.codecogs.com/png.latex?%5Chat%7BY_%7Bij%7D%7D%20%3D%20P%28X_i%3EX_j%29%20%3D%20%5Cfrac%7Be%5E%7BR_i%2Fc_%7Bi_j%7D%7D%7D%7Be%5E%7BR_i%2Fc_%7Bij%7D%7D%20%2B%20e%5E%7BR_j%2Fc_%7Bij%7D%7D%7D%20 "\hat{Y_{ij}} = P(X_i>X_j) = \frac{e^{R_i/c_{i_j}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}} ")
 
@@ -81,6 +83,10 @@ list_bbt <- bbt_run( formula = rank|id~rider_name,  data = gpheats )
 Dynamic Logistic Regression
 ---------------------------
 
+This algorithm differs from above in not basing on Bradley Terry model. Dynamic Logistic Regression weights are updated using extended Kalman Filter, which means that it's possible to estimate multiple parameters per individual.
+
+*William D. Penny and Stephen J. Roberts (1999): Dynamic Logistic Regression, Departament of Electrical and Electronic Engineering, Imperial College*
+
 ![w\_t = {w\_{t-1}} + \\eta\_t](https://latex.codecogs.com/png.latex?w_t%20%3D%20%7Bw_%7Bt-1%7D%7D%20%2B%20%5Ceta_t "w_t = {w_{t-1}} + \eta_t")
 
 ![Y\_t = g(w\_t^Tx\_t)](https://latex.codecogs.com/png.latex?Y_t%20%3D%20g%28w_t%5ETx_t%29 "Y_t = g(w_t^Tx_t)")
@@ -90,7 +96,7 @@ Dynamic Logistic Regression
 ![w\_t = w\_{t-1} + {\\sum{\_t}} x\_t](https://latex.codecogs.com/png.latex?w_t%20%3D%20w_%7Bt-1%7D%20%2B%20%7B%5Csum%7B_t%7D%7D%20x_t "w_t = w_{t-1} + {\sum{_t}} x_t")
 
 ``` r
-list_bdl <- bdl_run( formula = rank|id ~ rider_name, data = gpheats )
+list_dlr1 <- dlr_run( formula = rank|id ~ rider_name, data = gpheats )
 ```
 
 ``` r
@@ -109,7 +115,7 @@ rd <-
     seq(0.6,0.1, length.out = 6) %>% setNames(paste("field:",1:6))
   ) %>% as.matrix
 
-list_bdl2 <- bdl_run(
+list_dlr <- dlr_run(
     rank|id ~ rider_name + field,
     r = r,
     rd = rd, 
@@ -124,14 +130,14 @@ Join ratings
 ratings_glicko  <- list_glicko$r %>% rename(r_glicko = r, rd_glicko = rd, rider_name = names )
 ratings_glicko2 <- list_glicko2$r %>% rename(r_glicko2 = r, rd_glicko2 = rd, rider_name = names )
 ratings_bbt     <- list_bbt$r %>% rename(r_bbt = r, rd_bbt = rd, rider_name = names )
-ratings_bdl     <- list_bdl$r %>% rename(r_bdl = r, rd_bdl = rd, rider_name = names )
+ratings_dlr     <- list_dlr$r %>% rename(r_dlr = r, rd_dlr = rd, rider_name = names )
 
 gpheats %<>%
   mutate( id = as.character(id)) %>%
   left_join( ratings_glicko ) %>%
   left_join( ratings_glicko2 ) %>%
   left_join( ratings_bbt ) %>%
-  left_join( ratings_bdl )
+  left_join( ratings_dlr )
 ```
 
 Join pairs
@@ -141,15 +147,15 @@ Join pairs
 pairs_glicko  <- list_glicko[[2]]  %>% rename(P_glicko = P)
 pairs_glicko2 <- list_glicko2[[2]] %>% rename(P_glicko2 = P)
 pairs_bbt     <- list_bbt[[2]]     %>% rename(P_bbt = P)
-pairs_bdl     <- list_bdl[[1]]     %>% rename(P_bdl = P)
-pairs_bdl2    <- list_bdl2[[1]]    %>% rename(P_bdl2 = P)
+pairs_dlr1    <- list_dlr1[[1]]    %>% rename(P_dlr1 = P)
+pairs_dlr     <- list_dlr[[1]]     %>% rename(P_dlr = P)
 
 pairs <-
   pairs_glicko %>%
   left_join(pairs_glicko2) %>%
   left_join(pairs_bbt) %>%
-  left_join(pairs_bdl) %>%
-  left_join(pairs_bdl2) %>%
+  left_join(pairs_dlr1) %>%
+  left_join(pairs_dlr) %>%
   rename(rider_name = team1, opponent = team2) %>%
   filter(Y!=0.5) %>%
   arrange(id, sample(1:n()))

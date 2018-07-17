@@ -1,9 +1,9 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
-#include "bdl_functions.h"
-//' Bayesian Bradley-Terry model for single game
+#include "dlr_functions.h"
+//' Dynamic Logit Regression model for single game
 //' 
-//' Calculates Glicko ratings based on Bayesian Bradley Terry model.
+//' Calculates ratings based on Bayesian Bradley Terry model.
 //' 
 //' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
 //' @param team_name player/team names.
@@ -17,7 +17,7 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 Rcpp::List 
-  bdl(
+  dlr(
     CharacterVector team_name,
     IntegerVector rank,
     NumericMatrix R, 
@@ -83,7 +83,7 @@ Rcpp::List
           
           // probability and output
           p = 1/( 1 + exp( -Ks * ( sum(x_i * h_i) + sum(x_q * h_q) )  ) );
-          y = dbl_calc_y( rank( i ) , rank( q ) );
+          y = dlr_calc_y( rank( i ) , rank( q ) );
           error = y - p;
           
           P( idx - 1 ) = p;

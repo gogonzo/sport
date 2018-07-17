@@ -51,11 +51,4 @@ team_name = c( "A", "B" ),
   init_r  = 1500,
   init_rd = 100
 )
-riders <- unique(gpheats$rider_name)
-r  <- list( rider_name = rep(1500, length(riders)) \%>\% setNames(riders) )
-rd <- list( rider_name = rep(300, length(riders)) \%>\% setNames(riders) )
-list_glicko <- glicko_run( 
-     formula = rank|id ~ rider_name ,
-     data = gpheats)
-
 }

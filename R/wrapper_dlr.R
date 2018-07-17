@@ -15,7 +15,7 @@ NULL
 #' @param  rd named vector of initial rating deviation estimates. In there is no assumption, initial ratings should be r=25/3 Names of vector should correspond with team_name label.
 #' @export
 
-bdl_run <- function(formula, data,r,rd){
+dlr_run <- function(formula, data,r,rd){
   y  <- all.vars(formula)[1]
   id <- all.vars(formula)[2]
   x  <- all.vars(formula)[-(1:2)]
@@ -48,7 +48,7 @@ bdl_run <- function(formula, data,r,rd){
       names  <- X_list[[ i ]]
       ranks  <- ranks_list[[ i ]]
       
-      model <- ddl( 
+      model <- dlr1( 
         names, 
         rank = ranks,  
         R  = r[ names,,drop=FALSE ], 
@@ -89,7 +89,7 @@ bdl_run <- function(formula, data,r,rd){
       R_i[is.na(R_i)] <- 0
       RD_i[is.na(RD_i)] <- 1
       
-      model   <- bdl( 
+      model   <- dlr( 
         names_list[[i]], 
         rank = ranks_list[[ i ]], 
         R  = R_i, 

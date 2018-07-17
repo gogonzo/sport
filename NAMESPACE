@@ -2,9 +2,9 @@
 
 export(bbt)
 export(bbt_run)
-export(bdl)
-export(bdl_run)
-export(ddl)
+export(dlr)
+export(dlr1)
+export(dlr_run)
 export(elo)
 export(glicko)
 export(glicko2)

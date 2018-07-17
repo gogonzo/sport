@@ -19,9 +19,9 @@ bbt <- function(team_name, rank, r, rd, kappa = 0.0001, gamma = 1.0) {
     .Call('_sport_bbt', PACKAGE = 'sport', team_name, rank, r, rd, kappa, gamma)
 }
 
-#' Bayesian Bradley-Terry model for single game
+#' Dynamic Logit Regression model for single game
 #' 
-#' Calculates Glicko ratings based on Bayesian Bradley Terry model.
+#' Calculates ratings based on Bayesian Bradley Terry model.
 #' 
 #' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
 #' @param team_name player/team names.
@@ -33,13 +33,13 @@ bbt <- function(team_name, rank, r, rd, kappa = 0.0001, gamma = 1.0) {
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-bdl <- function(team_name, rank, R, X, RD, map) {
-    .Call('_sport_bdl', PACKAGE = 'sport', team_name, rank, R, X, RD, map)
+dlr <- function(team_name, rank, R, X, RD, map) {
+    .Call('_sport_dlr', PACKAGE = 'sport', team_name, rank, R, X, RD, map)
 }
 
-#' Bayesian Bradley-Terry model for single game
+#' Dynamic Logit Regression
 #' 
-#' Calculates Glicko ratings based on Bayesian Bradley Terry model.
+#' Calculates ratings using extended Kalman Filter.
 #' 
 #' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
 #' @param team_name player/team names.
@@ -51,8 +51,8 @@ bdl <- function(team_name, rank, R, X, RD, map) {
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-ddl <- function(team_name, rank, R, X, RD) {
-    .Call('_sport_ddl', PACKAGE = 'sport', team_name, rank, R, X, RD)
+dlr1 <- function(team_name, rank, R, X, RD) {
+    .Call('_sport_dlr1', PACKAGE = 'sport', team_name, rank, R, X, RD)
 }
 
 #' FIDE rating for single game

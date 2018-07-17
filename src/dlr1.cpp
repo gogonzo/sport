@@ -1,9 +1,9 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
-#include "dll_functions.h"
-//' Bayesian Bradley-Terry model for single game
+#include "dlr1_functions.h"
+//' Dynamic Logit Regression
 //' 
-//' Calculates Glicko ratings based on Bayesian Bradley Terry model.
+//' Calculates ratings using extended Kalman Filter.
 //' 
 //' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
 //' @param team_name player/team names.
@@ -17,7 +17,7 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 Rcpp::List 
-ddl(
+dlr1(
     CharacterVector team_name,
     IntegerVector rank,
     NumericMatrix R, 

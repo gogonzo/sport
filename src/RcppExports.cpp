@@ -22,9 +22,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// bdl
-Rcpp::List bdl(CharacterVector team_name, IntegerVector rank, NumericMatrix R, NumericMatrix X, NumericMatrix RD, CharacterMatrix map);
-RcppExport SEXP _sport_bdl(SEXP team_nameSEXP, SEXP rankSEXP, SEXP RSEXP, SEXP XSEXP, SEXP RDSEXP, SEXP mapSEXP) {
+// dlr
+Rcpp::List dlr(CharacterVector team_name, IntegerVector rank, NumericMatrix R, NumericMatrix X, NumericMatrix RD, CharacterMatrix map);
+RcppExport SEXP _sport_dlr(SEXP team_nameSEXP, SEXP rankSEXP, SEXP RSEXP, SEXP XSEXP, SEXP RDSEXP, SEXP mapSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -34,13 +34,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type RD(RDSEXP);
     Rcpp::traits::input_parameter< CharacterMatrix >::type map(mapSEXP);
-    rcpp_result_gen = Rcpp::wrap(bdl(team_name, rank, R, X, RD, map));
+    rcpp_result_gen = Rcpp::wrap(dlr(team_name, rank, R, X, RD, map));
     return rcpp_result_gen;
 END_RCPP
 }
-// ddl
-Rcpp::List ddl(CharacterVector team_name, IntegerVector rank, NumericMatrix R, NumericMatrix X, NumericMatrix RD);
-RcppExport SEXP _sport_ddl(SEXP team_nameSEXP, SEXP rankSEXP, SEXP RSEXP, SEXP XSEXP, SEXP RDSEXP) {
+// dlr1
+Rcpp::List dlr1(CharacterVector team_name, IntegerVector rank, NumericMatrix R, NumericMatrix X, NumericMatrix RD);
+RcppExport SEXP _sport_dlr1(SEXP team_nameSEXP, SEXP rankSEXP, SEXP RSEXP, SEXP XSEXP, SEXP RDSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -49,7 +49,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type R(RSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type RD(RDSEXP);
-    rcpp_result_gen = Rcpp::wrap(ddl(team_name, rank, R, X, RD));
+    rcpp_result_gen = Rcpp::wrap(dlr1(team_name, rank, R, X, RD));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -126,8 +126,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sport_bbt", (DL_FUNC) &_sport_bbt, 6},
-    {"_sport_bdl", (DL_FUNC) &_sport_bdl, 6},
-    {"_sport_ddl", (DL_FUNC) &_sport_ddl, 5},
+    {"_sport_dlr", (DL_FUNC) &_sport_dlr, 6},
+    {"_sport_dlr1", (DL_FUNC) &_sport_dlr1, 5},
     {"_sport_elo", (DL_FUNC) &_sport_elo, 6},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 8},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 9},
