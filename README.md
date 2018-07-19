@@ -1,4 +1,4 @@
-`sport` an R package for bayesian dynamic rating system
+`sport` an R package for online update algorithms
 ================
 
 [![Project Status](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -6,7 +6,12 @@
 About
 =====
 
-Package contains functions calculating ratings for two-player or multi-player matchups. Methods are based on Bayesian Approximation Method, and their idea can be summarized by:
+Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate players ratings, estimates evolution in time and to predict output of any challange. Algorithms are based on Bayesian Approximation Method, and they don't involve any martix inversions nor likelihood estimation. Weights (parameters) are updated iteratively, so computation doesn't require any additional RAM to make estimation feasible. Additionaly, base of the package is writen in `C++` what makes `sport` computation even faster.
+
+Theory
+======
+
+Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preferrence of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preffered to win over worst.
 
 ![\\large R\_i^{'} \\leftarrow R\_i + K \* ( Y\_i - \\hat{Y\_i}  )](https://latex.codecogs.com/png.latex?%5Clarge%20R_i%5E%7B%27%7D%20%5Cleftarrow%20R_i%20%2B%20K%20%2A%20%28%20Y_i%20-%20%5Chat%7BY_i%7D%20%20%29 "\large R_i^{'} \leftarrow R_i + K * ( Y_i - \hat{Y_i}  )")
 
@@ -17,9 +22,6 @@ Package contains functions calculating ratings for two-player or multi-player ma
 ![K - learning rate](https://latex.codecogs.com/png.latex?K%20-%20learning%20rate "K - learning rate")
 
 Probability function is based on [Bradley-Terry model](https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model) designed to predict outcome of pairwise comparison. For multi-player matchups where output is a ranking, `sport` package uses the same data transformation as in [exploded logit](https://www.jstor.org/stable/270983) - ranking is then presented as combination all possible pairs competing within same event.
-
-Theory
-======
 
 Glicko rating system
 --------------------
@@ -90,86 +92,79 @@ Available Data
 Package contains data from Speedway Grand-Prix. There are two data.frames: 1. `gpheats` - results of each race in all SGP events. Column `rank` is a numeric version of column `position` - rider position in race. 2. `gpsquads` - summarized results of the events, with sum of point and final position.
 
 ``` r
-head(gpsquads)
+str(gpheats)
 ```
 
-    ##   id season                date                               place round
-    ## 1 49   2012 2012-03-31 05:00:00 Western Springs Stadium in Auckland     1
-    ## 2 49   2012 2012-03-31 05:00:00 Western Springs Stadium in Auckland     1
-    ## 3 49   2012 2012-03-31 05:00:00 Western Springs Stadium in Auckland     1
-    ## 4 49   2012 2012-03-31 05:00:00 Western Springs Stadium in Auckland     1
-    ## 5 49   2012 2012-03-31 05:00:00 Western Springs Stadium in Auckland     1
-    ## 6 49   2012 2012-03-31 05:00:00 Western Springs Stadium in Auckland     1
-    ##                                  name       rider_name points
-    ## 1 FIM Buckley Systems New Zealand SGP     Greg Hancock     22
-    ## 2 FIM Buckley Systems New Zealand SGP  Jarosław Hampel     18
-    ## 3 FIM Buckley Systems New Zealand SGP   Nicki Pedersen     13
-    ## 4 FIM Buckley Systems New Zealand SGP      Jason Crump     12
-    ## 5 FIM Buckley Systems New Zealand SGP    Tomasz Gollob     15
-    ## 6 FIM Buckley Systems New Zealand SGP Antonio Lindbäck     13
-    ##   classification
-    ## 1              1
-    ## 2              2
-    ## 3              3
-    ## 4              4
-    ## 5              5
-    ## 6              6
+    ## 'data.frame':    20374 obs. of  11 variables:
+    ##  $ id      : num  1 1 1 1 2 2 2 2 3 3 ...
+    ##  $ season  : int  1995 1995 1995 1995 1995 1995 1995 1995 1995 1995 ...
+    ##  $ date    : POSIXct, format: "1995-05-20 19:00:00" "1995-05-20 19:00:00" ...
+    ##  $ round   : int  1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ name    : chr  "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" ...
+    ##  $ heat    : int  1 1 1 1 2 2 2 2 3 3 ...
+    ##  $ field   : int  1 2 3 4 1 2 3 4 1 2 ...
+    ##  $ rider   : chr  "Tomasz Gollob" "Gary Havelock" "Chris Louis" "Tony Rickardsson" ...
+    ##  $ points  : int  2 0 3 1 3 0 1 2 0 2 ...
+    ##  $ position: chr  "2" "4" "1" "3" ...
+    ##  $ rank    : num  2 4 1 3 1 4 3 2 4 2 ...
 
-Estimation
-----------
+Estimate dynamic ratings
+------------------------
 
-To compute ratings using each algorithms one has to specify formula. To estimate riders (`rider_name`) abilities with given outputs (`rank`) nested within particular heats (`id`). Glicko uses only one parameter per competitor to describe his overall abilities (`rider_name`). Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge. `glicko` estimates `r` and `rd` but glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=300`, `sig=0.05`.
+To compute ratings using each algorithms one has to specify formula. For example `formula = rank|id ~ rider` estimates `rider` abilities, with observed outputs `rank` nested within particular event/experiment `id`. This formula can be
+
+Glicko uses only one parameter per `rider` to describe his overall abilities. Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge. `glicko` estimates `r` and `rd` but glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=300`, `sig=0.05`.
 
 ``` r
 # initial estimates default
-list_glicko <- glicko_run( formula = rank|id ~ rider_name , data = gpheats)
-list_glicko2 <- glicko2_run( formula = rank|id ~ rider_name , data = gpheats)
+list_glicko  <- glicko_run(  formula = rank|id ~ rider , data = gpheats )
+list_glicko2 <- glicko2_run( formula = rank|id ~ rider , data = gpheats )
 ```
 
 ``` r
 library(magrittr)
-unique_riders <- unique(gpheats$rider_name)
+unique_riders <- unique(gpheats$rider)
 r   <- rep(1500, length(unique_riders) ) %>% setNames(unique_riders)
 rd  <- rep(1500, length(unique_riders) ) %>% setNames(unique_riders)
 sig <- rep(0.05, length(unique_riders) ) %>% setNames(unique_riders)
 
 list_glicko  <- glicko_run( 
-  formula = rank|id ~ rider_name , 
+  formula = rank|id ~ rider , 
   r = r, rd = rd, 
   data = gpheats)
 
 list_glicko2 <- glicko2_run( 
-  formula = rank|id ~ rider_name , 
+  formula = rank|id ~ rider , 
   r = r, rd = rd, sig = sig ,
   data = gpheats)
 ```
 
 ``` r
-list_bbt <- bbt_run( formula = rank|id~rider_name,  data = gpheats )
+list_bbt <- bbt_run( formula = rank|id~rider,  data = gpheats )
 ```
 
 ``` r
-list_dlr1 <- dlr_run( formula = rank|id ~ rider_name, data = gpheats )
+list_dlr1 <- dlr_run( formula = rank|id ~ rider, data = gpheats )
 ```
 
 ``` r
 library(tidyverse);library(magrittr)
-riders <- unique(gpheats$rider_name)
+riders <- unique(gpheats$rider)
 stadiums <- unique(gpheats$place)
 set.seed(1)
 r <- 
   c(
-    rep(0, length(riders)) %>% setNames(paste("rider_name:", riders)),
+    rep(0, length(riders)) %>% setNames(paste("rider:", riders)),
     seq(0.6,0.1, length.out = 6) %>% setNames(paste("field:",1:6))
   ) %>% as.matrix
 rd <- 
   c(
-    rep(1, length(riders)) %>% setNames(paste("rider_name:", riders)),
+    rep(1, length(riders)) %>% setNames(paste("rider:", riders)),
     seq(0.6,0.1, length.out = 6) %>% setNames(paste("field:",1:6))
   ) %>% as.matrix
 
 list_dlr <- dlr_run(
-    rank|id ~ rider_name + field,
+    rank|id ~ rider + field,
     r = r,
     rd = rd, 
     data = gpheats
@@ -180,10 +175,10 @@ Join ratings
 ------------
 
 ``` r
-ratings_glicko  <- list_glicko$r %>% rename(r_glicko = r, rd_glicko = rd, rider_name = names )
-ratings_glicko2 <- list_glicko2$r %>% rename(r_glicko2 = r, rd_glicko2 = rd, rider_name = names )
-ratings_bbt     <- list_bbt$r %>% rename(r_bbt = r, rd_bbt = rd, rider_name = names )
-ratings_dlr     <- list_dlr$r %>% rename(r_dlr = r, rd_dlr = rd, rider_name = names )
+ratings_glicko  <- list_glicko$r %>% rename(r_glicko = r, rd_glicko = rd, rider = names )
+ratings_glicko2 <- list_glicko2$r %>% rename(r_glicko2 = r, rd_glicko2 = rd, rider = names )
+ratings_bbt     <- list_bbt$r %>% rename(r_bbt = r, rd_bbt = rd, rider = names )
+ratings_dlr     <- list_dlr$r %>% rename(r_dlr = r, rd_dlr = rd, rider = names )
 
 gpheats %<>%
   mutate( id = as.character(id)) %>%
@@ -209,7 +204,7 @@ pairs <-
   left_join(pairs_bbt) %>%
   left_join(pairs_dlr1) %>%
   left_join(pairs_dlr) %>%
-  rename(rider_name = team1, opponent = team2) %>%
+  rename(rider = team1, opponent = team2) %>%
   filter(Y!=0.5) %>%
   arrange(id, sample(1:n()))
 
@@ -217,7 +212,7 @@ pairs <-
 # leave only unique pairs
 pairs$uniq_pair <-
   pairs %>% 
-  select(rider_name,opponent) %>% 
+  select(rider,opponent) %>% 
   apply(1,function(x)paste(sort(x), collapse=" - ")) 
 
 pairs %<>% filter(!duplicated(paste(id, uniq_pair)))

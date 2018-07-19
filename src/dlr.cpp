@@ -102,7 +102,7 @@ Rcpp::List
               ( s_i * h_i ) ; 
             
             DELTA(q,_) = DELTA(q,_) +  
-              ( p*(1 - p) * y_var  ) * 
+              ( p * (1 - p) * y_var  ) * 
               ( s_q * h_q ) * 
               ( s_q * h_q ) ; 
             

@@ -12,7 +12,7 @@ using namespace Rcpp;
 //' @param init_r initial rating for new competitors (contains NA). Default = 1500
 //' @param init_rd initial rating deviations for new competitors. Default = 350
 //' @examples
-//'elo(
+//'fide(
 //'  teams = c( "A", "B", "C", "D", "E", "F" ), 
 //'  rank  = c( 3, 2, 3, 5, 6, 1), 
 //'  r     = c( 1613, 1609, 1477, 1388, 1586, 1720 ) , 
@@ -22,7 +22,7 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 List 
-  elo(
+  fide(
     CharacterVector teams, 
     std::vector<int> rank,
     NumericVector r, 

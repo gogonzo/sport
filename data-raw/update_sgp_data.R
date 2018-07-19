@@ -9,7 +9,7 @@ update_sgp_data <- function(){
       e.place,
       e.round,
       e.name, 
-      s.rider_name,
+      s.rider_name rider,
       s.points,
       s.classification
     FROM speedway.event_squads s
@@ -25,7 +25,7 @@ update_sgp_data <- function(){
       e.name, 
       h.heat,
       h.field,
-      h.rider_name,
+      h.rider_name rider,
       h.points,
       h.position
     FROM speedway.event_heats h
@@ -45,12 +45,12 @@ update_sgp_data <- function(){
     filter( !is.na(position) ) %>%
       filter( !is.na(points) ) %>%
       filter( !position %in% c('F','N') ) %>%
-      filter( !is.na(field)) %>%
-      filter( !is.na(rider_name) ) %>%
+      filter( !is.na(field) ) %>%
+      filter( !is.na(rider) ) %>%
       mutate(
         rank = as.integer(position),
         rank = ifelse( is.na(rank), max(rank, na.rm=T) + 1, rank))
   
   
-  devtools::use_data(gpsquads,gpheats, overwrite = T)
+  devtools::use_data(gpheats,gpsquads, overwrite = T)
 }
