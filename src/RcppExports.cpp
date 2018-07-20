@@ -53,9 +53,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// elo
-List elo(CharacterVector teams, std::vector<int> rank, NumericVector r, int K, double init_r, double init_rd);
-RcppExport SEXP _sport_elo(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP KSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
+// fide
+List fide(CharacterVector teams, std::vector<int> rank, NumericVector r, int K, double init_r, double init_rd);
+RcppExport SEXP _sport_fide(SEXP teamsSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP KSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -65,7 +65,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type K(KSEXP);
     Rcpp::traits::input_parameter< double >::type init_r(init_rSEXP);
     Rcpp::traits::input_parameter< double >::type init_rd(init_rdSEXP);
-    rcpp_result_gen = Rcpp::wrap(elo(teams, rank, r, K, init_r, init_rd));
+    rcpp_result_gen = Rcpp::wrap(fide(teams, rank, r, K, init_r, init_rd));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -128,7 +128,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sport_bbt", (DL_FUNC) &_sport_bbt, 6},
     {"_sport_dlr", (DL_FUNC) &_sport_dlr, 6},
     {"_sport_dlr1", (DL_FUNC) &_sport_dlr1, 5},
-    {"_sport_elo", (DL_FUNC) &_sport_elo, 6},
+    {"_sport_fide", (DL_FUNC) &_sport_fide, 6},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 8},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 9},
     {"_sport_harkness", (DL_FUNC) &_sport_harkness, 7},

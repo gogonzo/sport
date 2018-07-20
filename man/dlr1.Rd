@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{dlr1}
 \alias{dlr1}
-\title{Bayesian Bradley-Terry model for single game}
+\title{Dynamic Logit Regression}
 \usage{
 dlr1(team_name, rank, R, X, RD)
 }
@@ -23,7 +23,7 @@ dlr1(team_name, rank, R, X, RD)
 \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)}
 }
 \description{
-Calculates Glicko ratings based on Bayesian Bradley Terry model.
+Calculates ratings using extended Kalman Filter.
 }
 \details{
 Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin

@@ -67,7 +67,7 @@ dlr1 <- function(team_name, rank, R, X, RD) {
 #' @param init_r initial rating for new competitors (contains NA). Default = 1500
 #' @param init_rd initial rating deviations for new competitors. Default = 350
 #' @examples
-#'elo(
+#'fide(
 #'  teams = c( "A", "B", "C", "D", "E", "F" ), 
 #'  rank  = c( 3, 2, 3, 5, 6, 1), 
 #'  r     = c( 1613, 1609, 1477, 1388, 1586, 1720 ) , 
@@ -75,8 +75,8 @@ dlr1 <- function(team_name, rank, R, X, RD) {
 #'  init_rd = 100
 #')
 #' @export
-elo <- function(teams, rank, r, K = 32L, init_r = 1500, init_rd = 350) {
-    .Call('_sport_elo', PACKAGE = 'sport', teams, rank, r, K, init_r, init_rd)
+fide <- function(teams, rank, r, K = 32L, init_r = 1500, init_rd = 350) {
+    .Call('_sport_fide', PACKAGE = 'sport', teams, rank, r, K, init_r, init_rd)
 }
 
 #' Glicko rating for single game
