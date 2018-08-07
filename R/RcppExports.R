@@ -178,3 +178,11 @@ harkness <- function(teams, rank, days, r, rd, init_r = 1500, init_rd = 350) {
     .Call('_sport_harkness', PACKAGE = 'sport', teams, rank, days, r, rd, init_r, init_rd)
 }
 
+#' Dummy matrix from factor
+#'
+#' Dummy matrix from factor
+#' @export
+factor2dummy <- function(factor) {
+    .Call('_sport_factor2dummy', PACKAGE = 'sport', factor)
+}
+

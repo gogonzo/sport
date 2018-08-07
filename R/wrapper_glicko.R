@@ -15,10 +15,18 @@ NULL
 #' @param r named vector of initial rating estimates. In there is no assumption, initial ratings should be r=1500. Names of vector should correspond with team_name label. 
 #' @param  rd named vector of initial rating deviation estimates. In there is no assumption, initial ratings should be r=300 Names of vector should correspond with team_name label.
 #' @export
-glicko_run <- function(formula, data, r, rd, time){
+glicko_run <- function(formula,data, r, rd, time){
+  if(missing(formula)) stop("Formula is not specified")
+  if( length(all.vars(update(formula, .~0)) ) != 2) stop("Left hand side formula must contain two variables")
+  if( length(all.vars(update(formula, 0~.)) ) != 1) stop("Glicko expects only one variable which is ~ 1|pid_variable")
+  # attributes(terms(formula))$term.labels  
+  
   y  <- all.vars(formula)[1]
   id <- all.vars(formula)[2]
-  x  <- all.vars(formula)[-(1:2)]
+  x  <- gsub( "^1[ ]*|[ ]*","", all.vars(formula)[-(1:2)] )
+
+  if(!class(data[[x]]) %in% c("character","factor")) warning(paste("variable",x,"is of class",class(x)))
+  
   
   if( missing(r) ){
     team_names <- unique(data[[x]])
@@ -27,7 +35,7 @@ glicko_run <- function(formula, data, r, rd, time){
   }
   if( missing(time) ){
     data$time <- 0
-    time <- "time"
+    time      <- "time"
   } 
   
   if(any(class(data)=="data.frame"))

@@ -16,10 +16,13 @@ NULL
 #' @export
 
 dlr_run <- function(formula, data,r,rd){
+  if(missing(formula)) stop("Formula is not specified")
+  if( length(all.vars(update(formula, .~0)) ) != 2) stop("Left hand side formula must contain two variables")
+  
   y  <- all.vars(formula)[1]
   id <- all.vars(formula)[2]
   x  <- all.vars(formula)[-(1:2)]
-  X   <- data[x]  
+  X  <- data[x]  
   
   model_P <- list()
   model_r <- list()

@@ -1,24 +1,23 @@
-#include <RcppArmadillo.h>
+#include <Rcpp.h>
 using namespace Rcpp;
-NumericMatrix
-  mapX(
-    CharacterMatrix map,
-    NumericVector params
-  ){
-    int n = map.nrow();
-    int k = map.ncol();
-    LogicalVector idx;
-    NumericMatrix params_out(n,k);
-    CharacterVector params_names = params.names();
-    
-    
-    for(int i=0; i<n; i++){
-      for(int j=0; i<k; i++){
-        //bool idx = params_names == map(i,j);
-        params_out(i,j) = params(0);
-      
-      }      
+#include "mapParams.h"
+
+//' Dummy matrix from factor
+//'
+//' Dummy matrix from factor
+//' @export
+// [[Rcpp::export]]
+IntegerMatrix factor2dummy( SEXP variable, int type ) {
+  switch ( TYPEOF( variable ) ) {
+    case INTSXP:  return impl::factor2dummy_<INTSXP>(as<IntegerVector>( variable ));
+    case REALSXP: return impl::factor2dummy_<REALSXP>(as<NumericVector>( variable ));
+    case STRSXP:  return impl::factor2dummy_<STRSXP>(as<CharacterVector>( variable ));
+    default: {
+      warning(
+        "Invalid SEXPTYPE %d (%s).\n",
+        TYPEOF( variable ), type2name( variable )
+      );
+      return 0;
     }
-    
-    return(params_out);
   }
+}
