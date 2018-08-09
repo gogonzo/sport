@@ -12,6 +12,7 @@ namespace impl {
       for(int j = 0; j < levels.size(); j++)
         if( x(i) == levels(j) ) dummy(i,j) = 1;
 
+    colnames(dummy) = levels;
     return(dummy);
   }
   
@@ -29,7 +30,7 @@ namespace impl {
   
   // numeric:factor interaction
   template <int RTYPE>
-  NumericMatrix numeric2dummy_( NumericVector y, const Vector<RTYPE>& x ){
+  NumericMatrix numeric2dummy_( const Vector<RTYPE>& x , IntegerVector y){
     const Vector<RTYPE> levels = unique(x);
     NumericMatrix term( x.size() , levels.size() );
     for(int i = 0; i < x.size(); i++)
