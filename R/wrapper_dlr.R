@@ -129,6 +129,83 @@ dlr_run <- function(formula, data,r,rd){
 }
 
 
+#' DBL rating algorithm
+#' 
+#' DBL rating algorithm
+#' Wrapper arround `dbl` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
+#' @param formula formula specifying model.
+#' @param data data.frame which contains three columns: #' \enumerate{
+#'   \item id event identifier
+#'   \item team_name label of event participant -  name corresponding with parameters names
+#'   \item rank position of team_name in event
+#' }  
+#' @param init_r named vector of initial rating estimates. In there is no assumption, initial ratings should be r=25 Names of vector should correspond with team_name label. 
+#' @param init_rd named vector of initial rating deviation estimates. In there is no assumption, initial ratings should be r=25/3 Names of vector should correspond with team_name label.
+#' @export
+dbl_run <- function(formula, data, r, rd){
+  if(missing(formula)) stop("Formula is not specified")
+  if(missing(data)) stop("Data is not provided")
+  
+  all_terms  <- sport::createTermMatrix(formula,data)
+  all_params <- sport::allLevelsList(formula, data)
+  
+  lhs  <- all.vars(update(formula, .~0))
+  rhs  <- all.vars(update(formula, 0~.))
+  
+  id         <- data[[ lhs[2] ]]
+  unique_id  <- unique(id) 
+  data_list  <- split(data, id)
+  rank_list  <- split( data[[ lhs[1] ]] , id)
+  rider_list <- split( data[[ rhs[1] ]] , id)
+  
+  names(data_list)  <- unique_id
+  names(rank_list)  <- unique_id
+  names(rider_list) <- unique_id
+  
+  if(missing(r))
+    r  <- setNames(rep(0, length(all_params)), all_params )
+  if(missing(rd))
+    rd <- setNames(rep(1, length(all_params)), all_params )
+  
+  model_r <- list()
+  model_P  <- list()
+  
+  for(i in id){
+    terms <- createTermMatrix( formula, data_list[[ i ]] ) 
+    model <- dbl(
+      rider_list[[ i ]],
+      rank = rank_list[[ i ]],
+      X = terms,
+      R =   r[ colnames(terms) ], 
+      RD = rd[ colnames(terms) ]  
+    )
+    
+    model_r[[ i ]] <- data.frame(
+      param  = colnames(terms), 
+      init_r = r[ colnames(terms) ],
+      init_rd= rd[ colnames(terms) ],
+      r      = model$r,
+      rd     = model$rd,
+      row.names = NULL
+    )
+    
+    model_P[[ i ]] <- model$pairs
+    
+    r[names(model$r)]  <- model$r
+    rd[names(model$rd)] <- model$rd
+    
+  }
+  
+  list(
+    r       = bind_rows( model_r , .id = "id" ),
+    pairs   = bind_rows( model_P  , .id = "id" ),
+    final_r = r,
+    final_rd = rd
+  )
+}
+
+
+
 
 getX <- function(X){
   col_classes <- unlist( lapply(X,class) )

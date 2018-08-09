@@ -20,8 +20,8 @@ Rcpp::List
 dlr1(
     CharacterVector team_name,
     IntegerVector rank,
-    NumericMatrix R, 
     NumericMatrix X,
+    NumericMatrix R, 
     NumericMatrix RD
   ) {
   int n = R.nrow();

@@ -19,21 +19,6 @@ bbt <- function(team_name, rank, r, rd, kappa = 0.0001, gamma = 1.0) {
     .Call('_sport_bbt', PACKAGE = 'sport', team_name, rank, r, rd, kappa, gamma)
 }
 
-#' Dynamic Bayesian Logit
-#' 
-#' Calculates ratings using extended Kalman Filter.
-#' @param rank.
-#' @param R Matrix of coefficients (ratings).
-#' @param X Matrix of player specifics.
-#' @param RD Matrix of coefficients deviations
-#' @return \code{r} updated ratings of participats
-#' @return \code{rd} updated deviations of participants ratings
-#' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
-#' @export
-dbl <- function(rank, id, X, R, RD) {
-    .Call('_sport_dbl', PACKAGE = 'sport', rank, id, X, R, RD)
-}
-
 #' Dynamic Logit Regression model for single game
 #' 
 #' Calculates ratings based on Bayesian Bradley Terry model.
@@ -52,6 +37,21 @@ dlr <- function(team_name, rank, R, X, RD, map) {
     .Call('_sport_dlr', PACKAGE = 'sport', team_name, rank, R, X, RD, map)
 }
 
+#' Dynamic Bayesian Logit
+#' 
+#' Calculates ratings using extended Kalman Filter.
+#' @param rank.
+#' @param R Matrix of coefficients (ratings).
+#' @param X Matrix of player specifics.
+#' @param RD Matrix of coefficients deviations
+#' @return \code{r} updated ratings of participats
+#' @return \code{rd} updated deviations of participants ratings
+#' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
+#' @export
+dbl <- function(team_name, rank, X, R, RD) {
+    .Call('_sport_dbl', PACKAGE = 'sport', team_name, rank, X, R, RD)
+}
+
 #' Dynamic Logit Regression
 #' 
 #' Calculates ratings using extended Kalman Filter.
@@ -66,8 +66,8 @@ dlr <- function(team_name, rank, R, X, RD, map) {
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-dlr1 <- function(team_name, rank, R, X, RD) {
-    .Call('_sport_dlr1', PACKAGE = 'sport', team_name, rank, R, X, RD)
+dlr1 <- function(team_name, rank, X, R, RD) {
+    .Call('_sport_dlr1', PACKAGE = 'sport', team_name, rank, X, R, RD)
 }
 
 #' FIDE rating for single game
