@@ -56,7 +56,7 @@ createTermMatrix <- function(formula, data){
     }
     terms <- cbind(terms,term_i)
   }
-  return(terms)
+  return(as.matrix(terms))
 }
 
 #' @export
@@ -121,6 +121,6 @@ extractTermNames <- function(formula, classes){
   vars <- lapply( trm , function(x) unlist(classes[x] ) )
   vars <- lapply( vars, function(x) x[order(!x %in% c('character','factor'))] )
   
-  return(as.matrix(vars))
+  return(vars)
 }
   
