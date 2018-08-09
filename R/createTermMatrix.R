@@ -1,63 +1,126 @@
+#' Creates Full Term Matrix
+#' 
+#' Creates Full Term Matrix
+#' @param formula Specify model by formula. 
+#' @param data data.frame
+#' @export
+
 createTermMatrix <- function(formula, data){
-  # formula <- Sepal.Length ~ Species + Petal.Length + Petal.Length : Species; data <- iris
+  # library(magrittr);library(dplyr);formula <- Sepal.Length|Species ~ Species + Petal.Length + Petal.Length : Species + Species:Species2; data <- iris %>% mutate(Species2 = sample(Species))
   if(missing(formula)) stop("Formula is not specified")
   if(missing(data)) warning("No data provided")
-  rhs <- all.vars(update(formula, 0~.)) 
-  lhs <- all.vars(update(formula, .~0)) 
-  if( length(lhs) != 2) stop("Left hand side formula must contain two variables. Observed and partitioning (id) variable")
+  if( !any( class(data) == "data.frame") ) stop("Only data.frame allowed")
+  if( length(all.vars(update(formula, .~0)) ) != 2) 
+    stop("Left hand side formula must contain two variables. Observed and partitioning (id) variable")
   
   vars <- extractTermNames(formula, lapply(data, class))
+  terms <- NULL
   
-  for(i in vars){
-    class_i <- vars[[i]]
-    names_i <- names(vars[[i]])
+  for(i in 1:length(vars)){
+    class_i <- vars[[ i ]]
+    names_i <- names( vars[[ i ]] )
     
-    if( length(vars_i) == 1 )  {
+    if( length(class_i) == 1 )  {
       
-      if(vars_i %in% c("factor","character")){
-        term_i <- factor2Dummy( factor = data[[ names_i ]] )
-      } else if(vars %in% c("numeric","integer") ) {
-        term_i <- data[[names_i]]
-      } else {
+      if(class_i == 'factor'){
+        term_i <- factor2dummy( factor = as.character(data[[ names_i ]] ) )
+        colnames(term_i) <- paste(names_i,colnames(term_i),sep=".")
+        
+      } else if(class_i %in% c("character")){
+        term_i <- factor2dummy( factor = data[[ names_i ]] )
+        colnames(term_i) <- paste(names_i,colnames(term_i),sep=".")
+        
+      } else if(class_i %in% c("numeric","integer") ) {
+        term_i <- data[ names_i ]
+        
+      } else
         stop("Variables can be only of following classes: factor, character, numeric, integer.")
-      }
-      
-    } else if(length(vars_i) == 2){
-      
-      
-    } else {
-      stop("Only two vars interactions are permitted. You can still create column combining values of desired variables.")
     
-    
+      
+    } else if( length(class_i) == 2 ){
+      
+      if( class_i[1] %in% c("factor","character") & class_i[2] %in% c("numeric","integer") ){
+        factor <- paste(names_i[1], data[[names_i[1]]], sep=".")        
+        term_i <- factor2dummy( factor )
+        term_i <- term_i * data[[ names_i[[2]] ]] 
+        colnames(term_i) <- paste0( colnames(term_i), ":" , names_i[[2]])
+      } else if( all(class_i %in% c("factor","character") ) ){
+        factor <- paste( paste(names_i[1], data[[names_i[1]]], sep=".") , 
+                         paste(names_i[2], data[[ names_i[2] ]], sep="."), sep=":")
+        term_i <- factor2dummy( factor )
+      } else if( all(class_i %in% c("numeric","integer") ) ){
+        term_i <- data[[ names_i[1] ]] * data[[ names_i[2] ]]
+      } else
+        stop("Variables can be only of following classes: factor, character, numeric, integer.")
+      
+    }
+    terms <- cbind(terms,term_i)
   }
-  
-  # f_var1 | f_var2 - all possible combination (existing) - names = name(f_var1).f_var1_lvl | name(f_var2).f_var2_lvl
-  # n_var  | f_var1 - all factor levels - name - name(n_var) | name(f_var1).f_var1_lvl
-  
-  var     <- all.vars( formula )[3] %>% gsub("^1[ ]*|[]*")
-  levels <- data[[ var ]] %>% unique
-  
-  
-  head( model.matrix(~Species + Sepal.Length,data = iris) )
-  }
+  return(terms)
 }
+
+#' @export
+allLevelsList <- function(formula, data){
+  # library(magrittr);library(dplyr);formula <- Sepal.Length|Species ~ Species + Petal.Length + Petal.Length : Species + Species:Species2; data <- iris %>% mutate(Species2 = sample(Species))
+  if(missing(formula)) stop("Formula is not specified")
+  if(missing(data)) warning("No data provided")
+  if( !any( class(data) == "data.frame") ) stop("Only data.frame allowed")
+  if( length(all.vars(update(formula, .~0)) ) != 2) 
+    stop("Left hand side formula must contain two variables. Observed and partitioning (id) variable")
   
+  vars <- extractTermNames(formula, lapply(data, class))
+  params <- NULL
+  
+  for(i in 1:length(vars)){
+    class_i <- vars[[ i ]]
+    names_i <- names( vars[[ i ]] )
+    
+    if( length(class_i) == 1 )  {
+      
+      if(class_i == 'factor'){
+        param_i <- unique(as.character(data[[ names_i ]] ) )
+        param_i <- paste( names_i , param_i,sep=".")
+        
+      } else if(class_i %in% c("character")){
+        param_i <- unique( data[[ names_i ]] )
+        param_i <- paste( names_i, param_i,sep=".")
+        
+      } else if(class_i %in% c("numeric","integer") ) {
+        param_i <- names_i
+      } else
+        stop("Variables can be only of following classes: factor, character, numeric, integer.")
+      
+      
+    } else if( length(class_i) == 2 ){
+      
+      if( class_i[1] %in% c("factor","character") & class_i[2] %in% c("numeric","integer") ){
+        param_i <- paste(names_i[1], unique( data[[ names_i[1]]] ), sep=".")
+        param_i <- paste0( param_i, ":" , names_i[[2]])
+        
+      } else if( all(class_i %in% c("factor","character") ) ){
+        factor <- paste( paste(names_i[1], data[[ names_i[1] ]], sep=".") , 
+                         paste(names_i[2], data[[ names_i[2] ]] , sep="."), sep=":")
+        param_i <- unique(factor)
+        
+      } else if( all(class_i %in% c("numeric","integer") ) ){
+        param_i <- paste( names_i[1] , names_i[2], sep=":")
+        
+      } else
+        stop("Variables can be only of following classes: factor, character, numeric, integer.")
+      
+    }
+    params <- c(params,param_i)
+  }
+  return(params)
+}
+
 extractTermNames <- function(formula, classes){
-  trm <- unlist(strsplit( attr(terms(formula),"term.labels"),"[ ][+][ ]+" ))
+  trm <- unlist( strsplit( attr(terms(formula),"term.labels"),"[ ][+][ ]+" ) )
   trm <- strsplit(trm,":")
 
   vars <- lapply( trm , function(x) unlist(classes[x] ) )
-  vars <- lapply( vars, function(x) x[order(!x %in% c('character','factor'))])
+  vars <- lapply( vars, function(x) x[order(!x %in% c('character','factor'))] )
   
   return(vars)
 }
   
-factor2Dummy <- function(factor){
-  levels <- unique( factor )  
-  dummy <- matrix( 0 , nrow=length(factor) , ncol=length(levels) )
-  colnames(dummy) <- levels
-  for(i in 1:length(factor))
-    dummy[ i, levels==factor[i] ] <- 1
-
-  return(dummy)
-}

@@ -19,6 +19,21 @@ bbt <- function(team_name, rank, r, rd, kappa = 0.0001, gamma = 1.0) {
     .Call('_sport_bbt', PACKAGE = 'sport', team_name, rank, r, rd, kappa, gamma)
 }
 
+#' Dynamic Bayesian Logit
+#' 
+#' Calculates ratings using extended Kalman Filter.
+#' @param rank.
+#' @param R Matrix of coefficients (ratings).
+#' @param X Matrix of player specifics.
+#' @param RD Matrix of coefficients deviations
+#' @return \code{r} updated ratings of participats
+#' @return \code{rd} updated deviations of participants ratings
+#' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
+#' @export
+dbl <- function(rank, id, X, R, RD) {
+    .Call('_sport_dbl', PACKAGE = 'sport', rank, id, X, R, RD)
+}
+
 #' Dynamic Logit Regression model for single game
 #' 
 #' Calculates ratings based on Bayesian Bradley Terry model.
@@ -181,6 +196,7 @@ harkness <- function(teams, rank, days, r, rd, init_r = 1500, init_rd = 350) {
 #' Dummy matrix from factor
 #'
 #' Dummy matrix from factor
+#' @param factor to be transormed into dummy matrix
 #' @export
 factor2dummy <- function(factor) {
     .Call('_sport_factor2dummy', PACKAGE = 'sport', factor)

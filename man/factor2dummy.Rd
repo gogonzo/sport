@@ -6,6 +6,9 @@
 \usage{
 factor2dummy(factor)
 }
+\arguments{
+\item{factor}{to be transormed into dummy matrix}
+}
 \description{
 Dummy matrix from factor
 }
