@@ -4,7 +4,7 @@
 \alias{dbl_run}
 \title{DBL rating algorithm}
 \usage{
-dbl_run(formula, data, init_r, init_rd)
+dbl_run(formula, data, r, rd)
 }
 \arguments{
 \item{formula}{formula specifying model.}

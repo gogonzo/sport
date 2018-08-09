@@ -121,6 +121,6 @@ extractTermNames <- function(formula, classes){
   vars <- lapply( trm , function(x) unlist(classes[x] ) )
   vars <- lapply( vars, function(x) x[order(!x %in% c('character','factor'))] )
   
-  return(vars)
+  return(as.matrix(vars))
 }
   
