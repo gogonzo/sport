@@ -8,16 +8,16 @@ NULL
 #' @param formula formula specifying model. Glicko2 algorithm allows only player ranking parameter and should be specified by following manner: 
 #' `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same where:
 #' \enumerate{
-#'  \item rank alternative/participant position in experiment/event. Order of comparison
-#'  \item id event identifier
-#'  \item name of alternative/participant
+#'  \item rank player position in event.
+#'  \item id event identifier in which pairwise comparison is assessed.
+#'  \item name of player.
 #' }
 #' @param data data.frame which contains columns specified in formula, and optionaly columns defined by `weight` or `date`.
 #' @param r named vector of initial rating estimates. In there is no assumption, initial ratings should be r=1500. Names of vector should correspond with team_name label. 
 #' @param rd named vector of initial rating deviation estimates. In there is no assumption, initial ratings should be r=300 Names of vector should correspond with team_name label.
 #' @param sig named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.
-#' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on parameters estimates
-#' @param date name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`
+#' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.
+#' @param date name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by event `id`
 #' @export
 
 glicko2_run <- function(formula, data, r, rd,sig, weight){

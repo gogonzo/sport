@@ -6,14 +6,16 @@
 About
 =====
 
-Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate players ratings, estimates evolution in time and to predict output of any challange. Algorithms are based on Bayesian Approximation Method, and they don't involve any martix inversions nor likelihood estimation. Weights (parameters) are updated iteratively, so computation doesn't require any additional RAM to make estimation feasible. Additionaly, base of the package is writen in `C++` what makes `sport` computation even faster.
+Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate players ratings and their evolution in time, also able to predict output of challange. Algorithms are based on Bayesian Approximation Method, and they don't involve any martix inversions nor likelihood estimation. Weights (parameters) are updated iteratively, and computation doesn't require any additional RAM to make estimation feasible. Additionaly, base of the package is writen in `C++` what makes `sport` computation even faster.
 
 Theory
 ======
 
-Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preferrence of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preffered to win over worst.
+Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preferrence of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preffered to win over worst. As player and alternative or event and experiment can be used interchangeably, for ease of use sport nomenclature is adapted (player/event).
 
-![\\large R\_i^{'} \\leftarrow R\_i + K \* ( Y\_i - \\hat{Y\_i}  )](https://latex.codecogs.com/png.latex?%5Clarge%20R_i%5E%7B%27%7D%20%5Cleftarrow%20R_i%20%2B%20K%20%2A%20%28%20Y_i%20-%20%5Chat%7BY_i%7D%20%20%29 "\large R_i^{'} \leftarrow R_i + K * ( Y_i - \hat{Y_i}  )")
+Algorithms implemented in a `sport` package works similarly, using Bayesian Approximation Method. Algorithms works as follows: At the moment player `i` competes with player `q` and both have initial ![R\_i](https://latex.codecogs.com/png.latex?R_i "R_i") and ![R\_q](https://latex.codecogs.com/png.latex?R_q "R_q") ratings. According to distribution of the ratings prior probability that player `i` win over player `q` is ![\\hat{Y\_i}](https://latex.codecogs.com/png.latex?%5Chat%7BY_i%7D "\hat{Y_i}"). After event is finished when true result ![Y\_{iq}](https://latex.codecogs.com/png.latex?Y_%7Biq%7D "Y_{iq}") is observed, initial believe about rating is changed ![R\_i^{'} \\leftarrow R\_i](https://latex.codecogs.com/png.latex?R_i%5E%7B%27%7D%20%5Cleftarrow%20R_i "R_i^{'} \leftarrow R_i") according to the prediction error ![( Y\_{iq} - \\hat{Y\_{iq}} )](https://latex.codecogs.com/png.latex?%28%20Y_%7Biq%7D%20-%20%5Chat%7BY_%7Biq%7D%7D%20%29 "( Y_{iq} - \hat{Y_{iq}} )") and some constant ![K](https://latex.codecogs.com/png.latex?K "K").
+
+![\\large R\_i^{'} \\leftarrow R\_i + K \* ( Y\_{iq} - \\hat{Y\_{iq}}  )](https://latex.codecogs.com/png.latex?%5Clarge%20R_i%5E%7B%27%7D%20%5Cleftarrow%20R_i%20%2B%20K%20%2A%20%28%20Y_%7Biq%7D%20-%20%5Chat%7BY_%7Biq%7D%7D%20%20%29 "\large R_i^{'} \leftarrow R_i + K * ( Y_{iq} - \hat{Y_{iq}}  )")
 
  Where:
 
@@ -95,7 +97,7 @@ Package contains data from Speedway Grand-Prix. There are two data.frames: 1. `g
 str(gpheats)
 ```
 
-    ## 'data.frame':    20374 obs. of  11 variables:
+    ## 'data.frame':    20466 obs. of  11 variables:
     ##  $ id      : num  1 1 1 1 2 2 2 2 3 3 ...
     ##  $ season  : int  1995 1995 1995 1995 1995 1995 1995 1995 1995 1995 ...
     ##  $ date    : POSIXct, format: "1995-05-20 19:00:00" "1995-05-20 19:00:00" ...
@@ -144,31 +146,7 @@ list_bbt <- bbt_run( formula = rank|id~rider,  data = gpheats )
 ```
 
 ``` r
-list_dlr1 <- dlr_run( formula = rank|id ~ rider, data = gpheats )
-```
-
-``` r
 library(tidyverse);library(magrittr)
-riders <- unique(gpheats$rider)
-stadiums <- unique(gpheats$place)
-set.seed(1)
-r <- 
-  c(
-    rep(0, length(riders)) %>% setNames(paste("rider:", riders)),
-    seq(0.6,0.1, length.out = 6) %>% setNames(paste("field:",1:6))
-  ) %>% as.matrix
-rd <- 
-  c(
-    rep(1, length(riders)) %>% setNames(paste("rider:", riders)),
-    seq(0.6,0.1, length.out = 6) %>% setNames(paste("field:",1:6))
-  ) %>% as.matrix
-
-list_dlr <- dlr_run(
-    rank|id ~ rider + field,
-    r = r,
-    rd = rd, 
-    data = gpheats
-  )
 ```
 
 Join ratings
@@ -178,14 +156,12 @@ Join ratings
 ratings_glicko  <- list_glicko$r %>% rename(r_glicko = r, rd_glicko = rd, rider = names )
 ratings_glicko2 <- list_glicko2$r %>% rename(r_glicko2 = r, rd_glicko2 = rd, rider = names )
 ratings_bbt     <- list_bbt$r %>% rename(r_bbt = r, rd_bbt = rd, rider = names )
-ratings_dlr     <- list_dlr$r %>% rename(r_dlr = r, rd_dlr = rd, rider = names )
 
 gpheats %<>%
   mutate( id = as.character(id)) %>%
   left_join( ratings_glicko ) %>%
   left_join( ratings_glicko2 ) %>%
-  left_join( ratings_bbt ) %>%
-  left_join( ratings_dlr )
+  left_join( ratings_bbt )
 ```
 
 Join pairs
@@ -195,15 +171,11 @@ Join pairs
 pairs_glicko  <- list_glicko[[2]]  %>% rename(P_glicko = P)
 pairs_glicko2 <- list_glicko2[[2]] %>% rename(P_glicko2 = P)
 pairs_bbt     <- list_bbt[[2]]     %>% rename(P_bbt = P)
-pairs_dlr1    <- list_dlr1[[1]]    %>% rename(P_dlr1 = P)
-pairs_dlr     <- list_dlr[[1]]     %>% rename(P_dlr = P)
 
 pairs <-
   pairs_glicko %>%
   left_join(pairs_glicko2) %>%
   left_join(pairs_bbt) %>%
-  left_join(pairs_dlr1) %>%
-  left_join(pairs_dlr) %>%
   rename(rider = team1, opponent = team2) %>%
   filter(Y!=0.5) %>%
   arrange(id, sample(1:n()))
