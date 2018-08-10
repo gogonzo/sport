@@ -4,7 +4,7 @@
 \alias{dbl}
 \title{Dynamic Bayesian Logit}
 \usage{
-dbl(team_name, rank, X, R, RD)
+dbl(team_name, rank, X, R, RD, sig, weight)
 }
 \arguments{
 \item{X}{Matrix of player specifics.}

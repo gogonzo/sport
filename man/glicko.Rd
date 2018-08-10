@@ -4,8 +4,8 @@
 \alias{glicko}
 \title{Glicko rating for single game}
 \usage{
-glicko(team_name, rank, r, rd, time = as.numeric(c(0)), init_r = 1500,
-  init_rd = 350, gamma = 1)
+glicko(team_name, rank, r, rd, sig, weight, init_r = 1500, init_rd = 350,
+  gamma = 1)
 }
 \arguments{
 \item{team_name}{name of event participants.}
@@ -16,11 +16,15 @@ glicko(team_name, rank, r, rd, time = as.numeric(c(0)), init_r = 1500,
 
 \item{rd}{rating deviations of participants.}
 
-\item{time}{time after previous match - indicator multiplying uncertainty of expectations.}
+\item{sig}{}
+
+\item{weight}{increase/decrease update of the parameter in particular event. Lower values makes parameter update smaller}
 
 \item{init_r}{initial rating for new competitors (contains NA). Default = 1500}
 
 \item{init_rd}{initial rating deviations for new competitors. Default = 350}
+
+\item{time}{time after previous match - indicator multiplying uncertainty of expectations.}
 }
 \value{
 \code{r} updated ratings of participats

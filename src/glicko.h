@@ -116,21 +116,24 @@ double optimSigma( double delta, double sig, double phi, double var, double tau)
   
   return(A);
 }
-double updatePhi( double phi, double var, double sig) {
+
+double updatePhi( double phi, double var, double sig, double w) {
   double
   prerating_phi,
   updated_phi;
   
   prerating_phi = sqrt( pow(phi, 2) + pow(sig, 2));
-  updated_phi   = 1 / sqrt( 1/pow(prerating_phi,2) + 1/var);
+  updated_phi   = 1 / sqrt( 1/pow(prerating_phi,2) + 1/var * w );
   
   return(updated_phi);
 }
-double updateMu( double mu, double phi, double err) {
+
+double updateMu( double mu, double phi, double err, double w) {
   double updated_mu;
-  updated_mu = mu + pow(phi,2) * err;
+  updated_mu = mu + pow(phi,2) * err * w;
   return(updated_mu);
 }
+
 double mu2r(double mu){
   double r;
   r = mu * 173.7178 + 1500;

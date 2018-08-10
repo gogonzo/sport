@@ -56,7 +56,7 @@ createTermMatrix <- function(formula, data){
     }
     terms <- cbind(terms,term_i)
   }
-  return(as.matrix(terms))
+  return( terms )
 }
 
 #' @export

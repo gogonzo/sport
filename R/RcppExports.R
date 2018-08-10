@@ -15,26 +15,8 @@
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-bbt <- function(team_name, rank, r, rd, kappa = 0.0001, gamma = 1.0) {
-    .Call('_sport_bbt', PACKAGE = 'sport', team_name, rank, r, rd, kappa, gamma)
-}
-
-#' Dynamic Logit Regression model for single game
-#' 
-#' Calculates ratings based on Bayesian Bradley Terry model.
-#' 
-#' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
-#' @param team_name player/team names.
-#' @param rank.
-#' @param X Matrix of coefficients (ratings).
-#' @param H Matrix of player specifics.
-#' @param S Matrix of coefficients deviations
-#' @return \code{r} updated ratings of participats
-#' @return \code{rd} updated deviations of participants ratings
-#' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
-#' @export
-dlr <- function(team_name, rank, R, X, RD, map) {
-    .Call('_sport_dlr', PACKAGE = 'sport', team_name, rank, R, X, RD, map)
+bbt <- function(team_name, rank, r, rd, sig, weight, kappa = 0.0001, gamma = 1.0, init_r = 25, init_rd = 25/3, beta = 25/6) {
+    .Call('_sport_bbt', PACKAGE = 'sport', team_name, rank, r, rd, sig, weight, kappa, gamma, init_r, init_rd, beta)
 }
 
 #' Dynamic Bayesian Logit
@@ -48,26 +30,8 @@ dlr <- function(team_name, rank, R, X, RD, map) {
 #' @return \code{rd} updated deviations of participants ratings
 #' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 #' @export
-dbl <- function(team_name, rank, X, R, RD) {
-    .Call('_sport_dbl', PACKAGE = 'sport', team_name, rank, X, R, RD)
-}
-
-#' Dynamic Logit Regression
-#' 
-#' Calculates ratings using extended Kalman Filter.
-#' 
-#' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
-#' @param team_name player/team names.
-#' @param rank.
-#' @param R Matrix of coefficients (ratings).
-#' @param X Matrix of player specifics.
-#' @param RD Matrix of coefficients deviations
-#' @return \code{r} updated ratings of participats
-#' @return \code{rd} updated deviations of participants ratings
-#' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
-#' @export
-dlr1 <- function(team_name, rank, X, R, RD) {
-    .Call('_sport_dlr1', PACKAGE = 'sport', team_name, rank, X, R, RD)
+dbl <- function(team_name, rank, X, R, RD, sig, weight) {
+    .Call('_sport_dbl', PACKAGE = 'sport', team_name, rank, X, R, RD, sig, weight)
 }
 
 #' FIDE rating for single game
@@ -103,6 +67,8 @@ fide <- function(teams, rank, r, K = 32L, init_r = 1500, init_rd = 350) {
 #' @param time time after previous match - indicator multiplying uncertainty of expectations.
 #' @param r ratings of participants.
 #' @param rd rating deviations of participants.
+#' @param sig 
+#' @param weight increase/decrease update of the parameter in particular event. Lower values makes parameter update smaller
 #' @param init_r initial rating for new competitors (contains NA). Default = 1500
 #' @param init_rd initial rating deviations for new competitors. Default = 350
 #' @return \code{r} updated ratings of participats
@@ -128,8 +94,8 @@ fide <- function(teams, rank, r, K = 32L, init_r = 1500, init_rd = 350) {
 #'   init_rd = 100
 #')
 #' @export
-glicko <- function(team_name, rank, r, rd, time = as.numeric( c(0)), init_r = 1500.00, init_rd = 350.00, gamma = 1) {
-    .Call('_sport_glicko', PACKAGE = 'sport', team_name, rank, r, rd, time, init_r, init_rd, gamma)
+glicko <- function(team_name, rank, r, rd, sig, weight, init_r = 1500.00, init_rd = 350.00, gamma = 1) {
+    .Call('_sport_glicko', PACKAGE = 'sport', team_name, rank, r, rd, sig, weight, init_r, init_rd, gamma)
 }
 
 #' Glicko2 rating for single game
@@ -138,9 +104,11 @@ glicko <- function(team_name, rank, r, rd, time = as.numeric( c(0)), init_r = 15
 #' 
 #' @param team_name name of event participants.
 #' @param rank classification of the event.
-#' @param time time after previous match - indicator multiplying uncertainty of expectations.
 #' @param r ratings of participants.
-#' @param rd rating deviations of participants.
+#' @param rd ratings standard deviations.
+#' @param sig rating volatility. The volatility measure indicates the degree of expected fluctuation in a player’s rating. The volatility measure is high when a player has erratic performances (e.g., when the player has had exceptionally strong results after a period of stability), and the volatility measure is low when the player performs at a consistent level
+#' @param weight weight influencing variation.
+#' @param tau The system constant. Which constrains the change in volatility over time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though the system should be tested to decide which value results in greatest predictive accuracy. Smaller values of `tau` prevent the volatility measures from changing by largeamounts, which in turn prevent enormous changes in ratings based on very improbable results. If the application of Glicko-2 is expected to involve extremely improbable collections of game outcomes, then `tau` should be set to a small value, even as small as, say, `tau= 0`.2.
 #' @param init_r initial rating for new competitors (contains NA). Default = 1500
 #' @param init_rd initial rating deviations for new competitors. Default = 350
 #' @return \code{r} updated ratings of participats
@@ -150,7 +118,7 @@ glicko <- function(team_name, rank, r, rd, time = as.numeric( c(0)), init_r = 15
 #'glicko2(
 #'  team_name = c( "A", "B", "C", "D" ), 
 #'  rank  = c( 3, 4, 1, 2 ), 
-#'  time  = c( 0, 0, 0, 0),
+#'  weight = c( 1, 1, 1, 1),
 #'  r     = c( 1500, 1400, 1550, 1700 ) , 
 #'  rd    = c( 200,  30,   100,  300 ),
 #'  sig   = c( .06, .06, .05, .07),
@@ -159,8 +127,8 @@ glicko <- function(team_name, rank, r, rd, time = as.numeric( c(0)), init_r = 15
 #'  init_rd = 100
 #')
 #' @export
-glicko2 <- function(team_name, rank, r, rd, sig, time = as.numeric( c(0)), tau = .5, init_r = 1500.00, init_rd = 350.00) {
-    .Call('_sport_glicko2', PACKAGE = 'sport', team_name, rank, r, rd, sig, time, tau, init_r, init_rd)
+glicko2 <- function(team_name, rank, r, rd, sig, weight, tau = .5, init_r = 1500.00, init_rd = 350.00) {
+    .Call('_sport_glicko2', PACKAGE = 'sport', team_name, rank, r, rd, sig, weight, tau, init_r, init_rd)
 }
 
 #' Harkness rating for single game

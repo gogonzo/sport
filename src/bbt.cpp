@@ -1,6 +1,6 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
-#include "bbt_functions.h"
+#include "bbt.h"
 //' Bayesian Bradley-Terry model for single game
 //' 
 //' Calculates Glicko ratings based on Bayesian Bradley Terry model.
@@ -22,8 +22,13 @@ List
     IntegerVector rank,
     NumericMatrix r, 
     NumericMatrix rd,
+    NumericVector sig,
+    NumericVector weight,
     double kappa=0.0001,
-    double gamma = 1.0
+    double gamma = 1.0,
+    double init_r = 25,
+    double init_rd = 25/3,
+    double beta = 25/6
   ) {
     int n = rank.size();
     int j = r.ncol();
@@ -39,14 +44,14 @@ List
     NumericVector P(n*n-n);
     NumericVector Y(n*n-n);
     
-    double c;
-    double init_r_i  = 25;
-    double init_rd_i = 25/3;
-    double beta = (25/6);
-    
+    double c, rd_;
     
     for(int i = 0; i < n; i++){
-
+      if( (rd[i] * sig[i]) < init_rd ) rd_ = rd[i] * sig[i]; else rd_ = init_rd;
+      rd[ i ] = rd_;
+    }
+    
+    for(int i = 0; i < n; i++){
       for(int q = 0; q<n; q++ ){
         if(i!=q){
 
@@ -78,11 +83,10 @@ List
     for(int i = 0; i < n; i++){
       rd_share(i,_) = pow(rd(i,_),2.0) / sig2(i);
       
-      r(i,_) = r(i,_) + rd_share(i,_) * omega(i);
-      
-      rd(i,_) = 
-        sqrt( 
+      r(i,_) = r(i,_) + rd_share(i,_) * omega(i) * weight(i);
+      rd(i,_) = sqrt( 
           pow(rd(i,_),2.0) * 
+          weight(i) *
           pmax( 1 - rd_share(i,_) * delta(i) , kappa ) 
         );
     }

@@ -1,6 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
-#include "mapParams.h"
+#include "map_params.h"
 
 //' Dummy matrix from factor
 //'

@@ -4,8 +4,8 @@
 \alias{glicko2}
 \title{Glicko2 rating for single game}
 \usage{
-glicko2(team_name, rank, r, rd, sig, time = as.numeric(c(0)), tau = 0.5,
-  init_r = 1500, init_rd = 350)
+glicko2(team_name, rank, r, rd, sig, weight, tau = 0.5, init_r = 1500,
+  init_rd = 350)
 }
 \arguments{
 \item{team_name}{name of event participants.}
@@ -14,9 +14,13 @@ glicko2(team_name, rank, r, rd, sig, time = as.numeric(c(0)), tau = 0.5,
 
 \item{r}{ratings of participants.}
 
-\item{rd}{rating deviations of participants.}
+\item{rd}{ratings standard deviations.}
 
-\item{time}{time after previous match - indicator multiplying uncertainty of expectations.}
+\item{sig}{rating volatility. The volatility measure indicates the degree of expected fluctuation in a player’s rating. The volatility measure is high when a player has erratic performances (e.g., when the player has had exceptionally strong results after a period of stability), and the volatility measure is low when the player performs at a consistent level}
+
+\item{weight}{weight influencing variation.}
+
+\item{tau}{The system constant. Which constrains the change in volatility over time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though the system should be tested to decide which value results in greatest predictive accuracy. Smaller values of `tau` prevent the volatility measures from changing by largeamounts, which in turn prevent enormous changes in ratings based on very improbable results. If the application of Glicko-2 is expected to involve extremely improbable collections of game outcomes, then `tau` should be set to a small value, even as small as, say, `tau= 0`.2.}
 
 \item{init_r}{initial rating for new competitors (contains NA). Default = 1500}
 
@@ -36,7 +40,7 @@ Calculates Glicko2 rating for single game input
 glicko2(
  team_name = c( "A", "B", "C", "D" ), 
  rank  = c( 3, 4, 1, 2 ), 
- time  = c( 0, 0, 0, 0),
+ weight = c( 1, 1, 1, 1),
  r     = c( 1500, 1400, 1550, 1700 ) , 
  rd    = c( 200,  30,   100,  300 ),
  sig   = c( .06, .06, .05, .07),

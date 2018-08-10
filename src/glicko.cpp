@@ -1,5 +1,5 @@
 #include <Rcpp.h>
-#include "glicko_functions.h"
+#include "glicko.h"
 using namespace Rcpp;
 //' Glicko rating for single game
 //'
@@ -10,6 +10,8 @@ using namespace Rcpp;
 //' @param time time after previous match - indicator multiplying uncertainty of expectations.
 //' @param r ratings of participants.
 //' @param rd rating deviations of participants.
+//' @param sig 
+//' @param weight increase/decrease update of the parameter in particular event. Lower values makes parameter update smaller
 //' @param init_r initial rating for new competitors (contains NA). Default = 1500
 //' @param init_rd initial rating deviations for new competitors. Default = 350
 //' @return \code{r} updated ratings of participats
@@ -42,21 +44,21 @@ List
     std::vector<int> rank,
     NumericVector r, 
     NumericVector rd,
-    NumericVector time = NumericVector::create(0),
+    NumericVector sig,
+    NumericVector weight,
     double init_r  = 1500.00,
     double init_rd = 350.00,
     double gamma = 1
   ) {
     
     int n = team_name.size();
-    int d_size = time.size();
     int idx = 0;
     
     double 
       q   = log(10)/400,
-        rd_ = 0.0,
-        var  = 0.0,
-        err = 0.0;
+      var  = 0.0,
+      err = 0.0,
+      rd_;
     NumericVector g_rd(n);
     NumericVector var_i(n);
     NumericVector err_i(n);
@@ -68,16 +70,14 @@ List
     
     // precalculate 
     for(int i = 0; i < n; i++){
-      if(d_size < i + 1) time.push_back(0);
-      
       if( NumericVector::is_na(r[i]) ) 
         r[i] = init_r, rd[i] = init_rd;
       
       
       // modification - rd + time since last event 
-      rd_ = sqrt( pow(rd[i],2) + pow( time[i], 2 ) );
-      if( rd_ < init_rd ) rd[i] = rd_;
-      g_rd[i] = calcGRd( rd[i] );
+      if( (rd[i] * sig[i]) < init_rd ) 
+        rd_ = rd[i] * sig[i]; else rd_ = init_rd;
+      g_rd[i] = calcGRd( rd_ );
       
     }
     
@@ -97,6 +97,7 @@ List
           Y( idx - 1 ) = calcZ( rank[i], rank[j] );
           var = calcVar( var, g_rd[j], P( idx - 1) );
           err = calcErr( err, g_rd[j], P( idx - 1 ), rank[i], rank[j]);
+          
         }
       }
       
@@ -109,8 +110,8 @@ List
     
     // update parameters 
     for(int i = 0; i < n; i++){
-      r[i]     = r[i] + q/( 1/pow(rd[i],2) + 1/delta_i[i] ) * err_i[i];
-      rd[i]    = sqrt(  1/( 1/pow(rd[i],2) + 1/delta_i[i]) ); 
+      r[i]     = r[i] + q/( 1/pow(rd[i],2) + 1/delta_i[i] ) * err_i[i] * weight[i];
+      rd[i]    = sqrt(  1/( 1/pow(rd[i],2) + 1/delta_i[i]) ) * weight[i]; 
     }    
     
     Rcpp::List dimnms = Rcpp::List::create(team_name, team_name);
@@ -137,9 +138,11 @@ List
 //' 
 //' @param team_name name of event participants.
 //' @param rank classification of the event.
-//' @param time time after previous match - indicator multiplying uncertainty of expectations.
 //' @param r ratings of participants.
-//' @param rd rating deviations of participants.
+//' @param rd ratings standard deviations.
+//' @param sig rating volatility. The volatility measure indicates the degree of expected fluctuation in a player’s rating. The volatility measure is high when a player has erratic performances (e.g., when the player has had exceptionally strong results after a period of stability), and the volatility measure is low when the player performs at a consistent level
+//' @param weight weight influencing variation.
+//' @param tau The system constant. Which constrains the change in volatility over time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though the system should be tested to decide which value results in greatest predictive accuracy. Smaller values of `tau` prevent the volatility measures from changing by largeamounts, which in turn prevent enormous changes in ratings based on very improbable results. If the application of Glicko-2 is expected to involve extremely improbable collections of game outcomes, then `tau` should be set to a small value, even as small as, say, `tau= 0`.2.
 //' @param init_r initial rating for new competitors (contains NA). Default = 1500
 //' @param init_rd initial rating deviations for new competitors. Default = 350
 //' @return \code{r} updated ratings of participats
@@ -149,7 +152,7 @@ List
 //'glicko2(
 //'  team_name = c( "A", "B", "C", "D" ), 
 //'  rank  = c( 3, 4, 1, 2 ), 
-//'  time  = c( 0, 0, 0, 0),
+//'  weight = c( 1, 1, 1, 1),
 //'  r     = c( 1500, 1400, 1550, 1700 ) , 
 //'  rd    = c( 200,  30,   100,  300 ),
 //'  sig   = c( .06, .06, .05, .07),
@@ -166,14 +169,13 @@ List
     NumericVector r, 
     NumericVector rd,
     NumericVector sig,
-    NumericVector time = NumericVector::create(0),
+    NumericVector weight,
     double tau = .5,
     double init_r  = 1500.00,
     double init_rd = 350.00
   ) {
     
     int n = team_name.size();
-    int d_size = time.size();
     int idx = 0;
     double err  = 0.0, var = 0.0, A  = 0.0, rd_;
     NumericVector mu(n);
@@ -190,19 +192,11 @@ List
     
     // precalculate 
     for(int i = 0; i < n; i++){
-      if(d_size < i + 1) time.push_back(0);
-      if( NumericVector::is_na(r[i]) ) 
-        r[i] = init_r, rd[i] = init_rd;
-      
-      // modification - rd + time since last event  
-      rd_ = sqrt( pow(rd( i ),2) + pow( time( i ), 2 ) );
-      if( rd_ < init_rd ) rd[i] = rd_;
-      
       // rescale params to glicko2 scale
       mu[i]    = r2mu( r[i] );
-      phi[i]   = rd2phi( rd[i] );
+      if( (rd[i] * sig[i]) < init_rd ) rd_ = rd[i] * sig[i]; else rd_ = init_rd;
+      phi[i]   = rd2phi( rd_ );
       g_phi[i] = calcGPhi( phi[i] );
-      
     }
     
     // Sum deviations from expectations  
@@ -233,10 +227,10 @@ List
       A = optimSigma(delta_i[i], sig[i], phi[i], var_i[i], tau);
       sig[i] = exp( A/2 );
       
-      phi[i] = updatePhi(phi[i], var_i[i], sig[i]);
+      phi[i] = updatePhi(phi[i], var_i[i], sig[i], weight[i]);
       if(phi[i]>(init_rd/173.7178)) phi[i] = init_rd/173.7178;
       
-      mu[i]  = updateMu( mu[i], phi[i], err_i[i]);
+      mu[i]  = updateMu( mu[i], phi[i], err_i[i], weight[i]);
       
       r[i]   = mu2r( mu[i] );
       rd[i]  = phi2rd( phi[i] ); 
