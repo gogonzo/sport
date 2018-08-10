@@ -52,5 +52,5 @@ update_sgp_data <- function(){
         rank = ifelse( is.na(rank), max(rank, na.rm=T) + 1, rank))
   
   
-  devtools::use_data(gpheats,gpsquads, overwrite = T)
+  devtools::use_data(gpsquads,gpheats, overwrite = T)
 }
