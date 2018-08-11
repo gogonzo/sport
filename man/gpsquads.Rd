@@ -5,13 +5,14 @@
 \title{Turnament results of Speedway Grand-Prix}
 \format{A data frame with >4000 rows and 9 variables:
 \describe{
-  \item{event_id}{event identifier}
+  \item{id}{event identifier}
   \item{season}{year of Grand-Prix, 1995-now}
   \item{date}{date of turnament}
+  \item{place}{stadium of event}
   \item{round}{round in season}
   \item{name}{Turnament name}
-  \item{place}{stadium of event}
-  \item{rider_name}{points, 1-6}
+  \item{rider}{rider names, 1-6}
+  \item{points}{points gained, integer}
   \item{classification}{classification after an event}
 }}
 \source{

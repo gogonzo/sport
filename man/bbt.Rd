@@ -4,15 +4,31 @@
 \alias{bbt}
 \title{Bayesian Bradley-Terry model for single game}
 \usage{
-bbt(team_name, rank, r, rd, sig, weight, kappa = 1e-04, gamma = 1,
-  init_r = 25, init_rd = 25/3, beta = 25/6)
+bbt(name, rank, r, rd, sig, weight, kappa = 1e-04, gamma = 1, beta = 25/6,
+  init_r = 25, init_rd = 25/3)
 }
 \arguments{
-\item{r}{ratings of participants.}
+\item{name}{of player.}
 
-\item{rd}{rating deviations of participants.}
+\item{rank}{in event.}
 
-\item{beta}{}
+\item{r}{ratings of player.}
+
+\item{rd}{rating deviations of player.}
+
+\item{sig}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.}
+
+\item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.}
+
+\item{kappa}{small positive value to ensure rd positive after update. Higher value of `kappa` limits `rd` change size, and lower value of `kappa` allows `rd` update to be bigger. By default `kappa=0.0001`}
+
+\item{gamma}{can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slow down decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.}
+
+\item{beta}{additional variance of performance. By default `beta = 25/6`.}
+
+\item{init_r}{initial rating for new competitors (contains NA). Default = 25}
+
+\item{init_rd}{initial rating deviations for new competitors. Default = 25/3}
 }
 \value{
 \code{r} updated ratings of participats

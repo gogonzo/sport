@@ -5,12 +5,12 @@ using namespace Rcpp;
 //'
 //' Calculates Glicko rating for single game input
 //' 
-//' @param team_name name of event participants.
+//' @param name of a player.
 //' @param rank classification of the event.
 //' @param time time after previous match - indicator multiplying uncertainty of expectations.
 //' @param r ratings of participants.
 //' @param rd rating deviations of participants.
-//' @param sig 
+//' @param sig rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.
 //' @param weight increase/decrease update of the parameter in particular event. Lower values makes parameter update smaller
 //' @param init_r initial rating for new competitors (contains NA). Default = 1500
 //' @param init_rd initial rating deviations for new competitors. Default = 350
@@ -19,28 +19,16 @@ using namespace Rcpp;
 //' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 //' @examples
 //'glicko(
-//'  team_name = c( "A", "B", "C", "D" ), 
+//'  name = c( "A", "B", "C", "D" ), 
 //'  rank  = c( 3, 4, 1, 2 ), 
-//'  time  = c( 0, 0, 0, 0),
 //'  r     = c( 1500, 1400, 1550, 1700 ) , 
 //'  rd    = c( 200,  30,   100,  300 ),
-//'  init_r  = 1500,
-//'  init_rd = 100
+//'  sig   = c(1,1,1,1),
+//'  weight= c(1,1,1,1)
 //')
-//'glicko(
-//' team_name = c( "A", "B" ), 
-//'   rank  = c( 1, 2 ), 
-//'   time  = c( 0, 0),
-//'   r     = c( 1400, 1500 ) , 
-//'   rd    = c( 80,  150),
-//'   init_r  = 1500,
-//'   init_rd = 100
-//')
-//' @export
-// [[Rcpp::export]]
 List 
   glicko(
-    CharacterVector team_name, 
+    CharacterVector name, 
     std::vector<int> rank,
     NumericVector r, 
     NumericVector rd,
@@ -51,7 +39,7 @@ List
     double gamma = 1
   ) {
     
-    int n = team_name.size();
+    int n = name.size();
     int idx = 0;
     
     double 
@@ -90,8 +78,8 @@ List
         if(j != i){
           idx += 1;
           
-          team1( idx - 1 ) = team_name[i];
-          team2( idx - 1 ) = team_name[j];
+          team1( idx - 1 ) = name[i];
+          team2( idx - 1 ) = name[j];
           
           P( idx - 1 ) = calcPGlicko( calcGRd( sqrt( pow(rd[i],2) + pow( rd[j], 2 ) ) ) , r[i] , r[j] );
           Y( idx - 1 ) = calcZ( rank[i], rank[j] );
@@ -114,9 +102,9 @@ List
       rd[i]    = sqrt(  1/( 1/pow(rd[i],2) + 1/delta_i[i]) ) * weight[i]; 
     }    
     
-    Rcpp::List dimnms = Rcpp::List::create(team_name, team_name);
-    r.names()  = team_name;
-    rd.names() = team_name;
+    Rcpp::List dimnms = Rcpp::List::create(name, name);
+    r.names()  = name;
+    rd.names() = name;
     
     return List::create(
       _["r"]    = r,
@@ -136,10 +124,10 @@ List
 //' 
 //' Calculates Glicko2 rating for single game input
 //' 
-//' @param team_name name of event participants.
+//' @param name of event participants.
 //' @param rank classification of the event.
-//' @param r ratings of participants.
-//' @param rd ratings standard deviations.
+//' @param r ratings of player.
+//' @param rd rating deviations of player.
 //' @param sig rating volatility. The volatility measure indicates the degree of expected fluctuation in a player’s rating. The volatility measure is high when a player has erratic performances (e.g., when the player has had exceptionally strong results after a period of stability), and the volatility measure is low when the player performs at a consistent level
 //' @param weight weight influencing variation.
 //' @param tau The system constant. Which constrains the change in volatility over time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though the system should be tested to decide which value results in greatest predictive accuracy. Smaller values of `tau` prevent the volatility measures from changing by largeamounts, which in turn prevent enormous changes in ratings based on very improbable results. If the application of Glicko-2 is expected to involve extremely improbable collections of game outcomes, then `tau` should be set to a small value, even as small as, say, `tau= 0`.2.
@@ -150,7 +138,7 @@ List
 //' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
 //' @examples
 //'glicko2(
-//'  team_name = c( "A", "B", "C", "D" ), 
+//'  name = c( "A", "B", "C", "D" ), 
 //'  rank  = c( 3, 4, 1, 2 ), 
 //'  weight = c( 1, 1, 1, 1),
 //'  r     = c( 1500, 1400, 1550, 1700 ) , 
@@ -164,7 +152,7 @@ List
 // [[Rcpp::export]]
 List 
   glicko2(
-    CharacterVector team_name, 
+    CharacterVector name, 
     std::vector<int> rank,
     NumericVector r, 
     NumericVector rd,
@@ -175,7 +163,7 @@ List
     double init_rd = 350.00
   ) {
     
-    int n = team_name.size();
+    int n = name.size();
     int idx = 0;
     double err  = 0.0, var = 0.0, A  = 0.0, rd_;
     NumericVector mu(n);
@@ -205,8 +193,8 @@ List
       for(int j = 0; j < n; j ++){
         if(j != i){
           idx += 1;
-          team1( idx - 1 ) = team_name[i];
-          team2( idx - 1 ) = team_name[j];
+          team1( idx - 1 ) = name[i];
+          team2( idx - 1 ) = name[j];
           
           Y( idx - 1 ) = calcZ( rank[i], rank[j] );
           P( idx - 1 ) = calcPGlicko2( sqrt( pow(g_phi[i],2.0) + pow(g_phi[j],2.0) ) , mu[i] , mu[j] );
@@ -237,9 +225,9 @@ List
     }
     
     
-    Rcpp::List dimnms = Rcpp::List::create(team_name, team_name);
-    r.names()  = team_name;
-    rd.names() = team_name;
+    Rcpp::List dimnms = Rcpp::List::create(name, name);
+    r.names()  = name;
+    rd.names() = name;
     
     return List::create(
       _["r"]    = r,

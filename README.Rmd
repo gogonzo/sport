@@ -28,7 +28,7 @@ Outcome probability function is based on [Bradley-Terry model](https://en.wikipe
 ## Glicko rating system
 Glicko is the first bayesian online update algorithm incorporating rating volatility to rating and outcome computation. Glicko system is not balanced, and sum of rating rewards of all players are not zero. In one 2-players event, reward of player `i` differs from reward of player `q` as it depends on their individual ratings deviation. Rating values oscillates around `r=1500` with max deviation `rd<=350`.
 
-Algorithms based on [Mark E. Glickman (1999)](http://www.glicko.net/research/glicko.pdf).
+For deeper knowledge read [Mark E. Glickman (1999)](http://www.glicko.net/research/glicko.pdf).
 
 Update Rules:
 
@@ -41,7 +41,7 @@ $${RD'}_i = \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}$$
 ## Glicko2 rating system
 Glicko2 improved predecessor by adding volatile parameter $\sigma_i$ which increase/decrease rating deviation in periods when player performance differs from expected. Sigma is estimated iteratively using Illinois algorithm, which converges quickly not affecting computation time. Rating values oscillates around `r=1500` with max deviation `rd<=350`.
 
-Algorithm according to [Mark E. Glickman (2013)](http://www.glicko.net/glicko/glicko2.pdf)
+For deeper knowledge read [Mark E. Glickman (2013)](http://www.glicko.net/glicko/glicko2.pdf)
 
 $$ \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i  - \mu_j)} }$$
 
@@ -51,9 +51,9 @@ $$ {\mu'_i} = \mu_i + {\phi'}_i * \sum_j{g(\phi_j)*(Y_{ij} - \hat{Y_{ij}})} $$
 
 
 ## Bayesian Bradley Terry
-The fastest algorithm with simple formula. This method benefits with additional variance parameter included in BT model.
+The fastest algorithm with simple formula. Original BT formula lacks variance parameter, and this method incorporates rating deviation into model. BBT also prevents against fast `rd` decline to zero using `gamma` and `kappa`.
 
-Based on [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf)
+For deeper knowledge read [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf)
 
 $$\hat{Y_{ij}} = P(X_i>X_j) = \frac{e^{R_i/c_{i_j}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}} $$
 
@@ -63,18 +63,16 @@ $${RD'}_i = RD_i * [ 1 - \frac{RD_{ij}^2}{RD_i^2}\sum_j{ \gamma_j * (\frac{RD_i}
 
 
 
-## Dynamic Logistic Regression
-This algorithm differs from above in not basing on Bradley Terry model. Dynamic Logistic Regression weights are updated using extended Kalman Filter, which means that it's possible to estimate multiple parameters per individual. 
+## Dynamic Bayesian Logit
+DBL implements Extended Kalman Filter learning rule, and allows to estimate multiple parameters not just player ratings. DBL is extended to usage in pairwise comparisons by modeling differences of skills. 
 
-*William D. Penny and Stephen J. Roberts (1999): Dynamic Logistic Regression, Departament of Electrical and Electronic Engineering, Imperial College*
-
-$$w_t = {w_{t-1}} + \eta_t$$
-
-$$Y_t = g(w_t^Tx_t)$$
+$$Y_t = \frac{ e^{w _t^Tx_t} }{1+e^{w _t^Tx_t}}$$
 
 $$x_t = x_{it} - x_{jt}$$
 
-$$w_t = w_{t-1} + {\sum{_t}} x_t$$
+
+For deeper knowledge read  *William D. Penny and Stephen J. Roberts (1999): Dynamic Logistic Regression, Departament of Electrical and Electronic Engineering, Imperial College*
+
 
 # Package Usage
 
@@ -87,7 +85,7 @@ library(sport)
 ```
 
 ## Available Data
-Package contains data from Speedway Grand-Prix. There are two data.frames: 
+Package contains actual data from Speedway Grand-Prix. There are two data.frames: 
 1. `gpheats` - results of each race in all SGP events. Column `rank` is a numeric version of column `position` - rider position in race.
 2. `gpsquads` - summarized results of the events, with sum of point and final position.
 
@@ -95,16 +93,17 @@ Package contains data from Speedway Grand-Prix. There are two data.frames:
 str(gpheats)
 ```
 
-
 ## Estimate dynamic ratings
 
-To compute ratings using each algorithms one has to specify formula. For example `formula = rank|id ~ rider` estimates `rider` abilities, with observed outputs `rank` nested within particular event/experiment `id`. This formula can be 
+To compute ratings using each algorithms one has to specify formula. Following manner is required - `formula = rank|id ~ name` - which estimates `name` (of a player) abilities, with observed outputs `rank` nested within particular event `id`. Variable names in formula are unrestricted, but model structure remains the same. 
 
-
-Glicko uses only one parameter per `rider` to describe his overall abilities. Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge. `glicko` estimates `r` and `rd` but glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=300`, `sig=0.05`.
+Glicko uses only one parameter `name` to describe player overall abilities. Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge estimates `r` and `rd`. By default `r=1500` and `rd=350`
 ```{r message=FALSE, warning=FALSE}
-# initial estimates default
 list_glicko  <- glicko_run(  formula = rank|id ~ rider , data = gpheats )
+```
+
+Glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=350`, `sig=0.05`.
+```{r message=FALSE, warning=FALSE}
 list_glicko2 <- glicko2_run( formula = rank|id ~ rider , data = gpheats )
 ```
 

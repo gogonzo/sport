@@ -4,14 +4,22 @@
 \alias{dbl}
 \title{Dynamic Bayesian Logit}
 \usage{
-dbl(team_name, rank, X, R, RD, sig, weight)
+dbl(name, rank, X, R, RD, sig, weight)
 }
 \arguments{
+\item{name}{of event participants.}
+
+\item{rank}{classification of the event.}
+
 \item{X}{Matrix of player specifics.}
 
 \item{R}{Matrix of coefficients (ratings).}
 
 \item{RD}{Matrix of coefficients deviations}
+
+\item{sig}{named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.}
+
+\item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on parameters estimates}
 }
 \value{
 \code{r} updated ratings of participats

@@ -4,12 +4,16 @@
 \alias{dbl_run}
 \title{DBL rating algorithm}
 \usage{
-dbl_run(formula, data, r, rd, sig, weight, date)
+dbl_run(formula, data, r, rd, sig, weight, date, init_r, init_rd)
 }
 \arguments{
 \item{formula}{formula specifying model. DBL allows multiple variables in formula, also two-way interaction are available. LHS needs `rank|id`, to specify competitors order and event `id`.}
 
 \item{data}{data.frame which contains columns specified in formula, and optionaly columns defined by `sig`, `weight` or `date`.}
+
+\item{r}{named vector of initial estimates. If there is no assumption, initial ratings is set to be r=0.}
+
+\item{rd}{named vector of initial deviation estimates. In there is no assumption, initial is set to be rd=3.}
 
 \item{sig}{named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.}
 

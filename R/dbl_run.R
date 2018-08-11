@@ -4,6 +4,8 @@
 #' Wrapper arround `dbl` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
 #' @param formula formula specifying model. DBL allows multiple variables in formula, also two-way interaction are available. LHS needs `rank|id`, to specify competitors order and event `id`.
 #' @param data data.frame which contains columns specified in formula, and optionaly columns defined by `sig`, `weight` or `date`.
+#' @param r named vector of initial estimates. If there is no assumption, initial ratings is set to be r=0. 
+#' @param rd named vector of initial deviation estimates. In there is no assumption, initial is set to be rd=3.
 #' @param init_r named vector of initial rating estimates. In there is no assumption, initial ratings should be r=25 Names of vector should correspond with team_name label. 
 #' @param init_rd named vector of initial rating deviation estimates. In there is no assumption, initial ratings should be r=25/3 Names of vector should correspond with team_name label.
 #' @param sig named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.
@@ -11,7 +13,7 @@
 #' @param date name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in
 #' @export
 
-dbl_run <- function(formula, data, r, rd, sig, weight, date){
+dbl_run <- function(formula, data, r, rd, sig, weight, date, init_r, init_rd){
   if(missing(formula)) stop("Formula is not specified")
   if(missing(data)) stop("Data is not provided")
   if( missing(weight) ){
@@ -51,7 +53,9 @@ dbl_run <- function(formula, data, r, rd, sig, weight, date){
       R      = r[ colnames(terms) ], 
       RD     = rd[ colnames(terms) ],
       sig     = data_list[[ i ]][[ sig ]],
-      weight  = data_list[[ i ]][[ weight ]]
+      weight  = data_list[[ i ]][[ weight ]],
+      init_r = init_r,
+      init_rd = init_rd
     )
     
     model_r[[ i ]] <- data.frame(
@@ -70,8 +74,8 @@ dbl_run <- function(formula, data, r, rd, sig, weight, date){
   }
   
   list(
-    r       = bind_rows( model_r  , .id = id ),
-    pairs   = bind_rows( model_P  , .id = id ),
+    r       = dplyr::bind_rows( model_r  , .id = id ),
+    pairs   = dplyr::bind_rows( model_P  , .id = id ),
     final_r = r,
     final_rd = rd
   )

@@ -5,10 +5,13 @@ using namespace Rcpp;
 //' Dynamic Bayesian Logit
 //' 
 //' Calculates ratings using extended Kalman Filter.
-//' @param rank.
+//' @param name of event participants.
+//' @param rank classification of the event.
 //' @param R Matrix of coefficients (ratings).
 //' @param X Matrix of player specifics.
 //' @param RD Matrix of coefficients deviations
+//' @param sig named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.
+//' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on parameters estimates
 //' @return \code{r} updated ratings of participats
 //' @return \code{rd} updated deviations of participants ratings
 //' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
@@ -16,7 +19,7 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 Rcpp::List 
   dbl(
-    CharacterVector team_name,
+    CharacterVector name,
     IntegerVector rank,
     NumericMatrix X,
     NumericVector R, 
@@ -66,8 +69,8 @@ Rcpp::List
       for(int q = 0; q<n; q++ ){
         if(i!=q){
           idx += 1; 
-          team1( idx - 1 ) = team_name(i);
-          team2( idx - 1 ) = team_name(q);
+          team1( idx - 1 ) = name(i);
+          team2( idx - 1 ) = name(q);
           
           x_q = R;
           h_q = -X(q,_);
@@ -114,7 +117,7 @@ Rcpp::List
     
     // UPDATE according to mapping
 
-    r_update.names() = colnames(X);
+    r_update.names()  = colnames(X);
     rd_update.names() = colnames(X);
     
     return Rcpp::List::create(

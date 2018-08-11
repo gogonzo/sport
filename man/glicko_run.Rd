@@ -8,7 +8,7 @@ glicko_run(formula, data, r, rd, sig, weight, date)
 }
 \arguments{
 \item{formula}{formula specifying model. Glicko algorithm allows only player ranking parameter and should be specified by following manner: 
-`rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same where:
+`rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same:
 \enumerate{
  \item rank player position in event.
  \item id event identifier in which pairwise comparison is assessed.

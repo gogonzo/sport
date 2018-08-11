@@ -4,11 +4,11 @@
 \alias{bbt_run}
 \title{BBT rating algorithm}
 \usage{
-bbt_run(formula, data, r, rd, sig, weight, kappa, beta, gamma)
+bbt_run(formula, data, r, rd, sig, weight, kappa, beta, gamma, date)
 }
 \arguments{
 \item{formula}{formula specifying model. BBT algorithm allows only player ranking parameter and should be specified by following manner: 
-`rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same where:
+`rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same:
 \enumerate{
  \item rank player position in event.
  \item id event identifier in which pairwise comparison is assessed.
@@ -19,7 +19,7 @@ bbt_run(formula, data, r, rd, sig, weight, kappa, beta, gamma)
 
 \item{r}{named vector of initial rating estimates. In there is no assumption, initial ratings is set to be r=25 Names of vector should correspond with `name` in formula.}
 
-\item{rd}{named vector of initial rating deviation estimates. In there is no assumption, initial is set recomended to be r=25/3 Names of vector should correspond with `name` in formula.}
+\item{rd}{named vector of initial rating deviation estimates. In there is no assumption, initial is set to be r=25/3 Names of vector should correspond with `name` in formula.}
 
 \item{sig}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.}
 

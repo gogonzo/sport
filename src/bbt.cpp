@@ -6,12 +6,17 @@ using namespace Rcpp;
 //' Calculates Glicko ratings based on Bayesian Bradley Terry model.
 //' 
 //' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
-//' @param rank.
-//' @param r ratings of participants.
-//' @param rd rating deviations of participants.
-//' @param kappa
-//' @param beta 
-//' @param gamma
+//' @param name of player.
+//' @param rank in event.
+//' @param r ratings of player.
+//' @param rd rating deviations of player.
+//' @param sig name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.
+//' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.
+//' @param kappa small positive value to ensure rd positive after update. Higher value of `kappa` limits `rd` change size, and lower value of `kappa` allows `rd` update to be bigger. By default `kappa=0.0001`
+//' @param gamma can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slow down decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.
+//' @param beta additional variance of performance. By default `beta = 25/6`.
+//' @param init_r initial rating for new competitors (contains NA). Default = 25
+//' @param init_rd initial rating deviations for new competitors. Default = 25/3
 //' @return \code{r} updated ratings of participats
 //' @return \code{rd} updated deviations of participants ratings
 //' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
@@ -19,7 +24,7 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 List 
   bbt(
-    CharacterVector team_name,
+    CharacterVector name,
     IntegerVector rank,
     NumericMatrix r, 
     NumericMatrix rd,
@@ -27,9 +32,9 @@ List
     NumericVector weight,
     double kappa=0.0001,
     double gamma = 1.0,
+    double beta = 25/6,
     double init_r = 25,
-    double init_rd = 25/3,
-    double beta = 25/6
+    double init_rd = 25/3
   ) {
     int n = rank.size();
     int j = r.ncol();
@@ -60,8 +65,8 @@ List
           if(gamma==1) gamma = sqrt( sig2(i) ) / c;
         
           idx += 1;
-          team1( idx - 1 ) = team_name[i];
-          team2( idx - 1 ) = team_name[q];
+          team1( idx - 1 ) = name[i];
+          team2( idx - 1 ) = name[q];
           
           Y( idx - 1 ) = calc_s( rank(i), rank(q) );
           P( idx - 1 )  = exp( mi(i)/c ) / ( exp( mi(i)/c ) + exp( mi(q)/c) );

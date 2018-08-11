@@ -4,17 +4,17 @@
 \alias{glicko2}
 \title{Glicko2 rating for single game}
 \usage{
-glicko2(team_name, rank, r, rd, sig, weight, tau = 0.5, init_r = 1500,
+glicko2(name, rank, r, rd, sig, weight, tau = 0.5, init_r = 1500,
   init_rd = 350)
 }
 \arguments{
-\item{team_name}{name of event participants.}
+\item{name}{of event participants.}
 
 \item{rank}{classification of the event.}
 
-\item{r}{ratings of participants.}
+\item{r}{ratings of player.}
 
-\item{rd}{ratings standard deviations.}
+\item{rd}{rating deviations of player.}
 
 \item{sig}{rating volatility. The volatility measure indicates the degree of expected fluctuation in a player’s rating. The volatility measure is high when a player has erratic performances (e.g., when the player has had exceptionally strong results after a period of stability), and the volatility measure is low when the player performs at a consistent level}
 
@@ -38,7 +38,7 @@ Calculates Glicko2 rating for single game input
 }
 \examples{
 glicko2(
- team_name = c( "A", "B", "C", "D" ), 
+ name = c( "A", "B", "C", "D" ), 
  rank  = c( 3, 4, 1, 2 ), 
  weight = c( 1, 1, 1, 1),
  r     = c( 1500, 1400, 1550, 1700 ) , 

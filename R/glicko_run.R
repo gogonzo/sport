@@ -1,13 +1,12 @@
 #' @importFrom dplyr bind_rows
 NULL
 
-
 #' Glicko rating algorithm
 #' 
 #' Glicko rating algorithm
 #' Wrapper arround `glicko` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
 #' @param formula formula specifying model. Glicko algorithm allows only player ranking parameter and should be specified by following manner: 
-#' `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same where:
+#' `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same:
 #' \enumerate{
 #'  \item rank player position in event.
 #'  \item id event identifier in which pairwise comparison is assessed.
@@ -55,7 +54,7 @@ glicko_run <- function(formula,data, r, rd, sig, weight,date){
   for(i in names(data)){
     team_names <- data[[ i ]][[ x ]]
     model      <- glicko( 
-      team_names , 
+      name = team_names , 
       rank = data[[ i ]][[ y ]], 
       r    =  r[team_names ], 
       rd   = rd[team_names ], 
@@ -69,8 +68,8 @@ glicko_run <- function(formula,data, r, rd, sig, weight,date){
     model_P[[ i ]] <- model$pairs
     
   }
-  model_r <- bind_rows(model_r, .id = id )
-  model_P <- bind_rows(model_P, .id = id )
+  model_r <- dplyr::bind_rows(model_r, .id = id )
+  model_P <- dplyr::bind_rows(model_P, .id = id )
   
   return(
     list(

@@ -10,10 +10,12 @@
   \item{date}{date of turnament}
   \item{round}{round in season}
   \item{name}{Turnament name}
-  \item{place}{stadium of event}
   \item{heat}{heat number, 1-23}
   \item{field}{number of gate, 1-4}
-  \item{rider_name}{rider name, string}
+  \item{rider}{rider name, string}
+  \item{points}{paints gained, integer}
+  \item{position}{position at finish line, string}
+  \item{rank}{rank at finish line, integer}
 }}
 \source{
 internal

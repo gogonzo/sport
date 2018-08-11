@@ -59,7 +59,7 @@ createTermMatrix <- function(formula, data){
   return( terms )
 }
 
-#' @export
+
 allLevelsList <- function(formula, data){
   # library(magrittr);library(dplyr);formula <- Sepal.Length|Species ~ Species + Petal.Length + Petal.Length : Species + Species:Species2; data <- iris %>% mutate(Species2 = sample(Species))
   if(missing(formula)) stop("Formula is not specified")
