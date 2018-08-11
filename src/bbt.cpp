@@ -10,6 +10,7 @@ using namespace Rcpp;
 //' @param r ratings of participants.
 //' @param rd rating deviations of participants.
 //' @param kappa
+//' @param beta 
 //' @param gamma
 //' @return \code{r} updated ratings of participats
 //' @return \code{rd} updated deviations of participants ratings
@@ -56,7 +57,6 @@ List
         if(i!=q){
 
           c = sqrt( sig2(i) + sig2(q) + pow(beta,2) );
-          
           if(gamma==1) gamma = sqrt( sig2(i) ) / c;
         
           idx += 1;

@@ -18,9 +18,12 @@ NULL
 #' @param sig name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.
 #' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.
 #' @param date name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`
+#' @param kappa small positive value to ensure rd positive after update. Higher value of `kappa` limits `rd` change size, and lower value of `kappa` allows `rd` update to be bigger. By default `kappa=0.0001`
+#' @param beta The additional variance of performance. By default `beta = 25/6`.
+#' @param gamma can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slow down decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.
 #' @export
 
-bbt_run <- function(formula, data, r,rd, sig, weight){
+bbt_run <- function(formula, data, r,rd, sig, weight, kappa, beta,gamma){
   if(missing(formula)) stop("Formula is not specified")
   if( length(all.vars(update(formula, .~0)) ) != 2) stop("Left hand side formula must contain two variables")
   if( missing(sig) ){

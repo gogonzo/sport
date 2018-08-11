@@ -4,15 +4,15 @@
 \alias{glicko2_run}
 \title{Glicko2 rating algorithm}
 \usage{
-glicko2_run(formula, data, r, rd, sig, weight)
+glicko2_run(formula, data, r, rd, sig, tau, weight)
 }
 \arguments{
 \item{formula}{formula specifying model. Glicko2 algorithm allows only player ranking parameter and should be specified by following manner: 
 `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same where:
 \enumerate{
- \item rank alternative/participant position in experiment/event. Order of comparison
- \item id event identifier
- \item name of alternative/participant
+ \item rank player position in event.
+ \item id event identifier in which pairwise comparison is assessed.
+ \item name of player.
 }}
 
 \item{data}{data.frame which contains columns specified in formula, and optionaly columns defined by `weight` or `date`.}
@@ -23,9 +23,11 @@ glicko2_run(formula, data, r, rd, sig, weight)
 
 \item{sig}{named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.}
 
-\item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on parameters estimates}
+\item{tau}{The system constant. Which constrains the change in volatility over time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though the system should be tested to decide which value results in greatest predictive accuracy. Smaller values of `tau` prevent the volatility measures from changing by largeamounts, which in turn prevent enormous changes in ratings based on very improbable results. If the application of Glicko-2 is expected to involve extremely improbable collections of game outcomes, then `tau` should be set to a small value, even as small as, say, `tau= 0`.2.}
 
-\item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`}
+\item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.}
+
+\item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by event `id`}
 }
 \description{
 Glicko2 rating algorithm

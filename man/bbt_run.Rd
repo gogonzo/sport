@@ -4,26 +4,32 @@
 \alias{bbt_run}
 \title{BBT rating algorithm}
 \usage{
-bbt_run(formula, data, r, rd, sig, weight)
+bbt_run(formula, data, r, rd, sig, weight, kappa, beta, gamma)
 }
 \arguments{
 \item{formula}{formula specifying model. BBT algorithm allows only player ranking parameter and should be specified by following manner: 
 `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same where:
 \enumerate{
- \item rank alternative/participant position in experiment/event. Order of comparison
- \item id event identifier
- \item name of alternative/participant
+ \item rank player position in event.
+ \item id event identifier in which pairwise comparison is assessed.
+ \item name of player.
 }}
 
 \item{data}{data.frame which contains columns specified in formula, and optionaly columns defined by `sig`, `weight` or `date`.}
 
-\item{r}{named vector of initial rating estimates. In there is no assumption, initial ratings recomended to be r=25 Names of vector should correspond with team_name label.}
+\item{r}{named vector of initial rating estimates. In there is no assumption, initial ratings is set to be r=25 Names of vector should correspond with `name` in formula.}
 
-\item{rd}{named vector of initial rating deviation estimates. In there is no assumption, initial ratings recomended to be r=25/3 Names of vector should correspond with team_name label.}
+\item{rd}{named vector of initial rating deviation estimates. In there is no assumption, initial is set recomended to be r=25/3 Names of vector should correspond with `name` in formula.}
 
 \item{sig}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.}
 
-\item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on parameters estimates}
+\item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.}
+
+\item{kappa}{small positive value to ensure rd positive after update. Higher value of `kappa` limits `rd` change size, and lower value of `kappa` allows `rd` update to be bigger. By default `kappa=0.0001`}
+
+\item{beta}{The additional variance of performance. By default `beta = 25/6`.}
+
+\item{gamma}{can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slow down decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.}
 
 \item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`}
 }

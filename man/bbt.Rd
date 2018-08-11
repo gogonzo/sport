@@ -11,6 +11,8 @@ bbt(team_name, rank, r, rd, sig, weight, kappa = 1e-04, gamma = 1,
 \item{r}{ratings of participants.}
 
 \item{rd}{rating deviations of participants.}
+
+\item{beta}{}
 }
 \value{
 \code{r} updated ratings of participats

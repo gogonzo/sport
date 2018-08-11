@@ -10,20 +10,20 @@ glicko_run(formula, data, r, rd, sig, weight, date)
 \item{formula}{formula specifying model. Glicko algorithm allows only player ranking parameter and should be specified by following manner: 
 `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same where:
 \enumerate{
- \item rank alternative/participant position in experiment/event. Order of comparison
- \item id event identifier
- \item name of alternative/participant
+ \item rank player position in event.
+ \item id event identifier in which pairwise comparison is assessed.
+ \item name of player.
 }}
 
 \item{data}{data.frame which contains columns specified in formula, and optionaly columns defined by `sig`, `weight` or `date`.}
 
-\item{r}{named vector of initial rating estimates. In there is no assumption, initial ratings should be r=1500. Names of vector should correspond with team_name label.}
+\item{r}{named vector of initial players ratings estimates. In there is no assumption, initial ratings are set be r=1500. Names of vector should correspond with `name` in formula.}
 
-\item{rd}{named vector of initial rating deviation estimates. In there is no assumption, initial ratings should be r=300 Names of vector should correspond with team_name label.}
+\item{rd}{named vector of initial rating deviation estimates. In there is no assumption, initial ratings are set be r=300 Names of vector should correspond with `name` in formula.}
 
 \item{sig}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.}
 
-\item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on parameters estimates.}
+\item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.}
 
 \item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`.}
 }
