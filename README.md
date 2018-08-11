@@ -13,9 +13,9 @@ Theory
 
 Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preferrence of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preffered to win over worst. As player/event and alternative/experiment can be used interchangeably, for ease of use sport nomenclature is adapted (player/event).
 
-Algorithms implemented in a `sport` package works similarly, using Bayesian Approximation Method. Algorithms works as follows: At the moment player `i` competes with player `q` and both have initial ![R\_i](https://latex.codecogs.com/png.latex?R_i "R_i") and ![R\_q](https://latex.codecogs.com/png.latex?R_q "R_q") ratings. According to distribution of the ratings prior probability that player `i` win over player `q` is ![\\hat{Y\_i}](https://latex.codecogs.com/png.latex?%5Chat%7BY_i%7D "\hat{Y_i}"). After event is finished when true result ![Y\_{iq}](https://latex.codecogs.com/png.latex?Y_%7Biq%7D "Y_{iq}") is observed, initial believe about rating is changed ![R\_i^{'} \\leftarrow R\_i](https://latex.codecogs.com/png.latex?R_i%5E%7B%27%7D%20%5Cleftarrow%20R_i "R_i^{'} \leftarrow R_i") according to the prediction error ![( Y\_{iq} - \\hat{Y\_{iq}} )](https://latex.codecogs.com/png.latex?%28%20Y_%7Biq%7D%20-%20%5Chat%7BY_%7Biq%7D%7D%20%29 "( Y_{iq} - \hat{Y_{iq}} )") and some constant ![K](https://latex.codecogs.com/png.latex?K "K").
+Algorithms implemented in a `sport` package works similarly, as all using Bayesian Approximation Method. Algorithms works as follows: At the moment player `i` competes with player `j` while both have initial ![R\_i](https://latex.codecogs.com/png.latex?R_i "R_i") and ![R\_j](https://latex.codecogs.com/png.latex?R_j "R_j") ratings. Prior to event, probability that player `i` win over player `j` is ![\\hat{Y\_i}](https://latex.codecogs.com/png.latex?%5Chat%7BY_i%7D "\hat{Y_i}"). After event is finished when true result ![Y\_{ij}](https://latex.codecogs.com/png.latex?Y_%7Bij%7D "Y_{ij}") is observed, initial believe about rating is changed ![R\_i^{'} \\leftarrow R\_i](https://latex.codecogs.com/png.latex?R_i%5E%7B%27%7D%20%5Cleftarrow%20R_i "R_i^{'} \leftarrow R_i") according to the prediction error ![( Y\_{ij} - \\hat{Y\_{ij}} )](https://latex.codecogs.com/png.latex?%28%20Y_%7Bij%7D%20-%20%5Chat%7BY_%7Bij%7D%7D%20%29 "( Y_{ij} - \hat{Y_{ij}} )") and some constant ![K](https://latex.codecogs.com/png.latex?K "K"). Updates are summed as player can compete with more than one player in particular event.
 
-![\\large R\_i^{'} \\leftarrow R\_i + K \* ( Y\_{iq} - \\hat{Y\_{iq}}  )](https://latex.codecogs.com/png.latex?%5Clarge%20R_i%5E%7B%27%7D%20%5Cleftarrow%20R_i%20%2B%20K%20%2A%20%28%20Y_%7Biq%7D%20-%20%5Chat%7BY_%7Biq%7D%7D%20%20%29 "\large R_i^{'} \leftarrow R_i + K * ( Y_{iq} - \hat{Y_{iq}}  )")
+![\\large R\_i^{'} \\leftarrow R\_i + \\sum\_{j \\neq i}{ K \* ( Y\_{ij} - \\hat{Y\_{ij}}}  )](https://latex.codecogs.com/png.latex?%5Clarge%20R_i%5E%7B%27%7D%20%5Cleftarrow%20R_i%20%2B%20%5Csum_%7Bj%20%5Cneq%20i%7D%7B%20K%20%2A%20%28%20Y_%7Bij%7D%20-%20%5Chat%7BY_%7Bij%7D%7D%7D%20%20%29 "\large R_i^{'} \leftarrow R_i + \sum_{j \neq i}{ K * ( Y_{ij} - \hat{Y_{ij}}}  )")
 
  Where:
 
@@ -23,10 +23,12 @@ Algorithms implemented in a `sport` package works similarly, using Bayesian Appr
 
 ![K - learning rate](https://latex.codecogs.com/png.latex?K%20-%20learning%20rate "K - learning rate")
 
-Probability function is based on [Bradley-Terry model](https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model) designed to predict outcome of pairwise comparison. For multi-player matchups where output is a ranking, `sport` package uses the same data transformation as in [exploded logit](https://www.jstor.org/stable/270983) - ranking is then presented as combination all possible pairs competing within same event.
+Outcome probability function is based on [Bradley-Terry model](https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model) designed to predict outcome of pairwise comparison. For multi-player matchups where output is a ranking, `sport` package uses the same data transformation as in [exploded logit](https://www.jstor.org/stable/270983) - ranking is then presented as combination of all possible pairs competing within same event.
 
 Glicko rating system
 --------------------
+
+Glicko is the first bayesian online update algorithm incorporating rating volatility to rating and outcome computation. Glicko system is not balanced, and sum of rating rewards of all players are not zero. In one 2-players event, reward of player `i` differs from reward of player `q` as it depends on their individual ratings deviation. Rating values oscillates around `r=1500` with max deviation `rd<=350`.
 
 Algorithms based on [Mark E. Glickman (1999)](http://www.glicko.net/research/glicko.pdf).
 
@@ -41,6 +43,8 @@ Update Rules:
 Glicko2 rating system
 ---------------------
 
+Glicko2 improved predecessor by adding volatile parameter ![\\sigma\_i](https://latex.codecogs.com/png.latex?%5Csigma_i "\sigma_i") which increase/decrease rating deviation in periods when player performance differs from expected. Sigma is estimated iteratively using Illinois algorithm, which converges quickly not affecting computation time. Rating values oscillates around `r=1500` with max deviation `rd<=350`.
+
 Algorithm according to [Mark E. Glickman (2013)](http://www.glicko.net/glicko/glicko2.pdf)
 
 ![ \\hat{Y\_{ij}} = \\frac{1}{1 + e^{-g(\\phi\_{ij})\*(\\mu\_i  - \\mu\_j)} }](https://latex.codecogs.com/png.latex?%20%5Chat%7BY_%7Bij%7D%7D%20%3D%20%5Cfrac%7B1%7D%7B1%20%2B%20e%5E%7B-g%28%5Cphi_%7Bij%7D%29%2A%28%5Cmu_i%20%20-%20%5Cmu_j%29%7D%20%7D " \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i  - \mu_j)} }")
@@ -51,6 +55,8 @@ Algorithm according to [Mark E. Glickman (2013)](http://www.glicko.net/glicko/gl
 
 Bayesian Bradley Terry
 ----------------------
+
+The fastest algorithm with simple formula. This method benefits with additional variance parameter included in BT model.
 
 Based on [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf)
 
@@ -97,7 +103,7 @@ Package contains data from Speedway Grand-Prix. There are two data.frames: 1. `g
 str(gpheats)
 ```
 
-    ## 'data.frame':    20466 obs. of  11 variables:
+    ## 'data.frame':    20555 obs. of  11 variables:
     ##  $ id      : num  1 1 1 1 2 2 2 2 3 3 ...
     ##  $ season  : int  1995 1995 1995 1995 1995 1995 1995 1995 1995 1995 ...
     ##  $ date    : POSIXct, format: "1995-05-20 19:00:00" "1995-05-20 19:00:00" ...
