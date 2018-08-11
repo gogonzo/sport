@@ -1,4 +1,5 @@
 #' @importFrom dplyr bind_rows
+#' @importFrom stats setNames terms update
 NULL
 
 #' BBT rating algorithm
@@ -21,9 +22,11 @@ NULL
 #' @param kappa small positive value to ensure rd positive after update. Higher value of `kappa` limits `rd` change size, and lower value of `kappa` allows `rd` update to be bigger. By default `kappa=0.0001`
 #' @param beta The additional variance of performance. By default `beta = 25/6`.
 #' @param gamma can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slow down decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.
+#' @param init_r initial rating for new competitors (contains NA). Default = 25
+#' @param init_rd initial rating deviations for new competitors. Default = 25/3
 #' @export
 
-bbt_run <- function(formula, data, r,rd, sig, weight, kappa, beta, gamma, date){
+bbt_run <- function(formula, data, r,rd, sig, weight, kappa, beta, gamma, date, init_r = 25, init_rd=25/3){
   if(missing(formula)) stop("Formula is not specified")
   if( length(all.vars(update(formula, .~0)) ) != 2) stop("Left hand side formula must contain two variables")
   if( missing(sig) ){
@@ -68,7 +71,9 @@ bbt_run <- function(formula, data, r,rd, sig, weight, kappa, beta, gamma, date){
       r       = r[ team_name,,drop=FALSE], 
       rd      = rd[ team_name,,drop=FALSE],
       sig     = data[[ i ]][[ sig ]],
-      weight  = data[[ i ]][[ weight ]]
+      weight  = data[[ i ]][[ weight ]],
+      init_r = init_r,
+      init_rd = init_rd
     )
     
     r [ team_name, ] <- model$r[  team_name, ]

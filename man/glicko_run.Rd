@@ -4,7 +4,8 @@
 \alias{glicko_run}
 \title{Glicko rating algorithm}
 \usage{
-glicko_run(formula, data, r, rd, sig, weight, date)
+glicko_run(formula, data, r, rd, sig, weight, date, init_r = 1500,
+  init_rd = 350)
 }
 \arguments{
 \item{formula}{formula specifying model. Glicko algorithm allows only player ranking parameter and should be specified by following manner: 
@@ -26,6 +27,10 @@ glicko_run(formula, data, r, rd, sig, weight, date)
 \item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.}
 
 \item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`.}
+
+\item{init_r}{initial rating for new competitors (contains NA). Default = 1500}
+
+\item{init_rd}{initial rating deviations for new competitors. Default = 350}
 }
 \description{
 Glicko rating algorithm

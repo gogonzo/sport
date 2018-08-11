@@ -44,6 +44,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// glicko
+List glicko(CharacterVector name, std::vector<int> rank, NumericVector r, NumericVector rd, NumericVector sig, NumericVector weight, double init_r, double init_rd, double gamma);
+RcppExport SEXP _sport_glicko(SEXP nameSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigSEXP, SEXP weightSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP gammaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterVector >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< std::vector<int> >::type rank(rankSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type r(rSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type rd(rdSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type sig(sigSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type weight(weightSEXP);
+    Rcpp::traits::input_parameter< double >::type init_r(init_rSEXP);
+    Rcpp::traits::input_parameter< double >::type init_rd(init_rdSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    rcpp_result_gen = Rcpp::wrap(glicko(name, rank, r, rd, sig, weight, init_r, init_rd, gamma));
+    return rcpp_result_gen;
+END_RCPP
+}
 // glicko2
 List glicko2(CharacterVector name, std::vector<int> rank, NumericVector r, NumericVector rd, NumericVector sig, NumericVector weight, double tau, double init_r, double init_rd);
 RcppExport SEXP _sport_glicko2(SEXP nameSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigSEXP, SEXP weightSEXP, SEXP tauSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
@@ -95,6 +114,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_sport_bbt", (DL_FUNC) &_sport_bbt, 11},
     {"_sport_dbl", (DL_FUNC) &_sport_dbl, 7},
+    {"_sport_glicko", (DL_FUNC) &_sport_glicko, 9},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 9},
     {"_sport_harkness", (DL_FUNC) &_sport_harkness, 7},
     {"_sport_factor2dummy", (DL_FUNC) &_sport_factor2dummy, 1},

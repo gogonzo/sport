@@ -49,11 +49,11 @@ dbl <- function(name, rank, X, R, RD, sig, weight) {
 #' 
 #' @param name of a player.
 #' @param rank classification of the event.
-#' @param time time after previous match - indicator multiplying uncertainty of expectations.
 #' @param r ratings of participants.
 #' @param rd rating deviations of participants.
 #' @param sig rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.
 #' @param weight increase/decrease update of the parameter in particular event. Lower values makes parameter update smaller
+#' @param gamma can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slow down decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.
 #' @param init_r initial rating for new competitors (contains NA). Default = 1500
 #' @param init_rd initial rating deviations for new competitors. Default = 350
 #' @return \code{r} updated ratings of participats
@@ -68,7 +68,10 @@ dbl <- function(name, rank, X, R, RD, sig, weight) {
 #'  sig   = c(1,1,1,1),
 #'  weight= c(1,1,1,1)
 #')
-NULL
+#' @export
+glicko <- function(name, rank, r, rd, sig, weight, init_r = 1500.00, init_rd = 350.00, gamma = 1) {
+    .Call('_sport_glicko', PACKAGE = 'sport', name, rank, r, rd, sig, weight, init_r, init_rd, gamma)
+}
 
 #' Glicko2 rating for single game
 #' 

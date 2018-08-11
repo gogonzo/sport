@@ -1,3 +1,7 @@
+#' @importFrom dplyr bind_rows
+#' @importFrom stats setNames terms update
+NULL
+
 #' DBL rating algorithm
 #' 
 #' DBL rating algorithm
@@ -6,14 +10,12 @@
 #' @param data data.frame which contains columns specified in formula, and optionaly columns defined by `sig`, `weight` or `date`.
 #' @param r named vector of initial estimates. If there is no assumption, initial ratings is set to be r=0. 
 #' @param rd named vector of initial deviation estimates. In there is no assumption, initial is set to be rd=3.
-#' @param init_r named vector of initial rating estimates. In there is no assumption, initial ratings should be r=25 Names of vector should correspond with team_name label. 
-#' @param init_rd named vector of initial rating deviation estimates. In there is no assumption, initial ratings should be r=25/3 Names of vector should correspond with team_name label.
 #' @param sig named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.
 #' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on parameters estimates
 #' @param date name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in
 #' @export
 
-dbl_run <- function(formula, data, r, rd, sig, weight, date, init_r, init_rd){
+dbl_run <- function(formula, data, r, rd, sig, weight, date){
   if(missing(formula)) stop("Formula is not specified")
   if(missing(data)) stop("Data is not provided")
   if( missing(weight) ){
@@ -53,9 +55,7 @@ dbl_run <- function(formula, data, r, rd, sig, weight, date, init_r, init_rd){
       R      = r[ colnames(terms) ], 
       RD     = rd[ colnames(terms) ],
       sig     = data_list[[ i ]][[ sig ]],
-      weight  = data_list[[ i ]][[ weight ]],
-      init_r = init_r,
-      init_rd = init_rd
+      weight  = data_list[[ i ]][[ weight ]]
     )
     
     model_r[[ i ]] <- data.frame(

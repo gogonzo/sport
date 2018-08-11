@@ -4,7 +4,8 @@
 \alias{bbt_run}
 \title{BBT rating algorithm}
 \usage{
-bbt_run(formula, data, r, rd, sig, weight, kappa, beta, gamma, date)
+bbt_run(formula, data, r, rd, sig, weight, kappa, beta, gamma, date,
+  init_r = 25, init_rd = 25/3)
 }
 \arguments{
 \item{formula}{formula specifying model. BBT algorithm allows only player ranking parameter and should be specified by following manner: 
@@ -32,6 +33,10 @@ bbt_run(formula, data, r, rd, sig, weight, kappa, beta, gamma, date)
 \item{gamma}{can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slow down decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.}
 
 \item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`}
+
+\item{init_r}{initial rating for new competitors (contains NA). Default = 25}
+
+\item{init_rd}{initial rating deviations for new competitors. Default = 25/3}
 }
 \description{
 BBT rating algorithm

@@ -1,4 +1,5 @@
 #' @importFrom dplyr bind_rows
+#' @importFrom stats setNames terms update
 NULL
 
 #' Glicko rating algorithm
@@ -18,9 +19,11 @@ NULL
 #' @param sig name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.
 #' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.
 #' @param date name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`.
+#' @param init_r initial rating for new competitors (contains NA). Default = 1500
+#' @param init_rd initial rating deviations for new competitors. Default = 350
 #' @export
 
-glicko_run <- function(formula,data, r, rd, sig, weight,date){
+glicko_run <- function(formula,data, r, rd, sig, weight,date, init_r=1500, init_rd=350){
   if(missing(formula)) stop("Formula is not specified")
   y  <- all.vars(formula)[1]
   id <- all.vars(formula)[2]
@@ -59,7 +62,9 @@ glicko_run <- function(formula,data, r, rd, sig, weight,date){
       r    =  r[team_names ], 
       rd   = rd[team_names ], 
       sig = data[[ i ]][[ sig ]] ,
-      weight = data[[ i ]][[ weight ]] 
+      weight = data[[ i ]][[ weight ]],
+      init_r = init_r,
+      init_rd = init_rd
     )    
     r [ team_names ] <- model$r[  team_names ]
     rd[ team_names ] <- model$rd[ team_names ]

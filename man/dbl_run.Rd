@@ -4,7 +4,7 @@
 \alias{dbl_run}
 \title{DBL rating algorithm}
 \usage{
-dbl_run(formula, data, r, rd, sig, weight, date, init_r, init_rd)
+dbl_run(formula, data, r, rd, sig, weight, date)
 }
 \arguments{
 \item{formula}{formula specifying model. DBL allows multiple variables in formula, also two-way interaction are available. LHS needs `rank|id`, to specify competitors order and event `id`.}
@@ -20,10 +20,6 @@ dbl_run(formula, data, r, rd, sig, weight, date, init_r, init_rd)
 \item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on parameters estimates}
 
 \item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in}
-
-\item{init_r}{named vector of initial rating estimates. In there is no assumption, initial ratings should be r=25 Names of vector should correspond with team_name label.}
-
-\item{init_rd}{named vector of initial rating deviation estimates. In there is no assumption, initial ratings should be r=25/3 Names of vector should correspond with team_name label.}
 }
 \description{
 DBL rating algorithm

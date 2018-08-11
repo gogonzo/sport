@@ -1,4 +1,5 @@
 #' @importFrom dplyr bind_rows
+#' @importFrom stats setNames terms update 
 NULL
 
 #' Glicko2 rating algorithm
@@ -19,9 +20,11 @@ NULL
 #' @param tau The system constant. Which constrains the change in volatility over time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though the system should be tested to decide which value results in greatest predictive accuracy. Smaller values of `tau` prevent the volatility measures from changing by largeamounts, which in turn prevent enormous changes in ratings based on very improbable results. If the application of Glicko-2 is expected to involve extremely improbable collections of game outcomes, then `tau` should be set to a small value, even as small as, say, `tau= 0`.2.
 #' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.
 #' @param date name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by event `id`
+#' @param init_r initial rating for new competitors (contains NA). Default = 1500
+#' @param init_rd initial rating deviations for new competitors. Default = 350
 #' @export
 
-glicko2_run <- function(formula, data, r, rd,sig, tau, weight, date){
+glicko2_run <- function(formula, data, r, rd,sig, tau, weight, date,init_r = 1500, init_rd=350){
   if(missing(formula)) stop("Formula is not specified")
   if( length(all.vars(update(formula, .~0)) ) != 2) stop("Left hand side formula must contain two variables")
   if( length(all.vars(update(formula, 0~.)) ) != 1) stop("Glicko expects only one variable which is ~ 1|pid_variable")
@@ -55,7 +58,9 @@ glicko2_run <- function(formula, data, r, rd,sig, tau, weight, date){
       r      = r[ team_names ] ,  
       rd     = rd[ team_names ] , 
       sig    = sig[ team_names ] , 
-      weight = data[[ i ]][[ weight ]]
+      weight = data[[ i ]][[ weight ]],
+      init_r = init_r,
+      init_rd = init_rd
     )  
     r [ team_names ] <- model$r[  team_names ]
     rd[ team_names ] <- model$rd[ team_names ]
