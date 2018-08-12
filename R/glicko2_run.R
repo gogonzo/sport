@@ -34,10 +34,10 @@ glicko2_run <- function(formula, data, r, rd,sig, tau, weight, date,init_r = 150
   x  <- gsub( "^1[ ]*|[ ]*","", all.vars(formula)[-(1:2)] )
   
   if( missing(r) ){
-    team_names <- unique(data[[x]])
-    r   <- setNames( rep( 1500, length( team_names) ), team_names )
-    rd  <- setNames( rep( 300 , length( team_names) ), team_names )
-    sig <- setNames( rep( 0.05, length( team_names) ), team_names )
+    player_names <- unique(data[[x]])
+    r   <- setNames( rep( 1500, length( player_names) ), player_names )
+    rd  <- setNames( rep( 300 , length( player_names) ), player_names )
+    sig <- setNames( rep( 0.05, length( player_names) ), player_names )
   }
   if( missing(weight) ){
     data$weight <- 1
@@ -50,23 +50,23 @@ glicko2_run <- function(formula, data, r, rd,sig, tau, weight, date,init_r = 150
   model_r <- list()
   model_P <- list()
   for(i in names(data)){
-    team_names <- data[[ i ]][[ x ]]
+    player_names <- data[[ i ]][[ x ]]
     
     model <- glicko2( 
-      team_names , 
+      player_names , 
       rank   = data[[ i ]][[ y ]], 
-      r      = r[ team_names ] ,  
-      rd     = rd[ team_names ] , 
-      sig    = sig[ team_names ] , 
+      r      = r[ player_names ] ,  
+      rd     = rd[ player_names ] , 
+      sig    = sig[ player_names ] , 
       weight = data[[ i ]][[ weight ]],
       init_r = init_r,
       init_rd = init_rd
     )  
-    r [ team_names ] <- model$r[  team_names ]
-    rd[ team_names ] <- model$rd[ team_names ]
-    sig[ team_names ] <- model$sig[ team_names ]
+    r [ player_names ] <- model$r[  player_names ]
+    rd[ player_names ] <- model$rd[ player_names ]
+    sig[ player_names ] <- model$sig[ player_names ]
     
-    model_r[[ i ]] <- data.frame(names=team_names, r = model$r, rd = model$rd)
+    model_r[[ i ]] <- data.frame(names=player_names, r = model$r, rd = model$rd)
     model_P[[ i ]] <- model$pairs
     
   }

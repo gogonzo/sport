@@ -5,7 +5,7 @@ Version: 0.5
 Depends: R (>= 2.10)
 Author: Dawid 'Gonzo' Kałędkowski
 Maintainer: Dawid 'Gonzo' Kałędkowski <dawid.kaledkowski@protonmail.com>
-Description: Most popular online ranking methods including, Elo, Glicko, Glicko2, BBT, DBL
+Description: Most popular online rating methods including, Elo, Glicko, Glicko2, BBT, DBL. Package designed to estimate player abilities in competing sport event.
 Imports: Rcpp (>= 0.12.8), dplyr
 LinkingTo: Rcpp, RcppArmadillo
 License: MIT + file LICENSE

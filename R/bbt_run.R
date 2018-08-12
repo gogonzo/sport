@@ -43,12 +43,12 @@ bbt_run <- function(formula, data, r,rd, sig, weight, kappa, beta, gamma, date, 
   x  <- all.vars(formula)[-(1:2)]
   
   if(missing(r)){
-    team_names <- unique( data[[ x ]] )
-    r <- as.matrix( setNames( rep(25, length(team_names)), team_names ) )
+    player_names <- unique( data[[ x ]] )
+    r <- as.matrix( setNames( rep(25, length(player_names)), player_names ) )
   }
   if(missing(rd)){
-    team_names <- unique( data[[ x ]] )
-    rd<- as.matrix( setNames( rep(25/3,  length(team_names)), team_names ) )
+    player_names <- unique( data[[ x ]] )
+    rd<- as.matrix( setNames( rep(25/3,  length(player_names)), player_names ) )
   }
   if(class(r)!="matrix"){
     r <- as.matrix(r)

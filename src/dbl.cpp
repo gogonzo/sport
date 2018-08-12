@@ -2,21 +2,6 @@
 using namespace Rcpp;
 #include "dbl.h"
 
-//' Dynamic Bayesian Logit
-//' 
-//' Calculates ratings using extended Kalman Filter.
-//' @param name of event participants.
-//' @param rank classification of the event.
-//' @param R Matrix of coefficients (ratings).
-//' @param X Matrix of player specifics.
-//' @param RD Matrix of coefficients deviations
-//' @param sig named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.
-//' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on parameters estimates
-//' @return \code{r} updated ratings of participats
-//' @return \code{rd} updated deviations of participants ratings
-//' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
-//' @export
-// [[Rcpp::export]]
 Rcpp::List 
   dbl(
     CharacterVector name,

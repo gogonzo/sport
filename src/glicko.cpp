@@ -1,33 +1,7 @@
 #include <Rcpp.h>
 #include "glicko.h"
 using namespace Rcpp;
-//' Glicko rating for single game
-//'
-//' Calculates Glicko rating for single game input
-//' 
-//' @param name of a player.
-//' @param rank classification of the event.
-//' @param r ratings of participants.
-//' @param rd rating deviations of participants.
-//' @param sig rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.
-//' @param weight increase/decrease update of the parameter in particular event. Lower values makes parameter update smaller
-//' @param gamma can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slow down decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.
-//' @param init_r initial rating for new competitors (contains NA). Default = 1500
-//' @param init_rd initial rating deviations for new competitors. Default = 350
-//' @return \code{r} updated ratings of participats
-//' @return \code{rd} updated deviations of participants ratings
-//' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
-//' @examples
-//'glicko(
-//'  name = c( "A", "B", "C", "D" ), 
-//'  rank  = c( 3, 4, 1, 2 ), 
-//'  r     = c( 1500, 1400, 1550, 1700 ) , 
-//'  rd    = c( 200,  30,   100,  300 ),
-//'  sig   = c(1,1,1,1),
-//'  weight= c(1,1,1,1)
-//')
-//' @export
-// [[Rcpp::export]]
+
 List 
   glicko(
     CharacterVector name, 
@@ -120,38 +94,6 @@ List
     );  
   } 
 
-
-
-//' Glicko2 rating for single game
-//' 
-//' Calculates Glicko2 rating for single game input
-//' 
-//' @param name of event participants.
-//' @param rank classification of the event.
-//' @param r ratings of player.
-//' @param rd rating deviations of player.
-//' @param sig rating volatility. The volatility measure indicates the degree of expected fluctuation in a player’s rating. The volatility measure is high when a player has erratic performances (e.g., when the player has had exceptionally strong results after a period of stability), and the volatility measure is low when the player performs at a consistent level
-//' @param weight weight influencing variation.
-//' @param tau The system constant. Which constrains the change in volatility over time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though the system should be tested to decide which value results in greatest predictive accuracy. Smaller values of `tau` prevent the volatility measures from changing by largeamounts, which in turn prevent enormous changes in ratings based on very improbable results. If the application of Glicko-2 is expected to involve extremely improbable collections of game outcomes, then `tau` should be set to a small value, even as small as, say, `tau= 0`.2.
-//' @param init_r initial rating for new competitors (contains NA). Default = 1500
-//' @param init_rd initial rating deviations for new competitors. Default = 350
-//' @return \code{r} updated ratings of participats
-//' @return \code{rd} updated deviations of participants ratings
-//' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
-//' @examples
-//'glicko2(
-//'  name = c( "A", "B", "C", "D" ), 
-//'  rank  = c( 3, 4, 1, 2 ), 
-//'  weight = c( 1, 1, 1, 1),
-//'  r     = c( 1500, 1400, 1550, 1700 ) , 
-//'  rd    = c( 200,  30,   100,  300 ),
-//'  sig   = c( .06, .06, .05, .07),
-//'  tau   = .5,
-//'  init_r  = 1500,
-//'  init_rd = 100
-//')
-//' @export
-// [[Rcpp::export]]
 List 
   glicko2(
     CharacterVector name, 

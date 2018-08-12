@@ -1,27 +1,7 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 #include "bbt.h"
-//' Bayesian Bradley-Terry model for single game
-//' 
-//' Calculates Glicko ratings based on Bayesian Bradley Terry model.
-//' 
-//' Algorithm based on 'A Bayesian Approximation Method for Online Ranking' by Ruby C. Weng and Chih-Jen Lin
-//' @param name of player.
-//' @param rank in event.
-//' @param r ratings of player.
-//' @param rd rating deviations of player.
-//' @param sig name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.
-//' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.
-//' @param kappa small positive value to ensure rd positive after update. Higher value of `kappa` limits `rd` change size, and lower value of `kappa` allows `rd` update to be bigger. By default `kappa=0.0001`
-//' @param gamma can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slow down decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.
-//' @param beta additional variance of performance. By default `beta = 25/6`.
-//' @param init_r initial rating for new competitors (contains NA). Default = 25
-//' @param init_rd initial rating deviations for new competitors. Default = 25/3
-//' @return \code{r} updated ratings of participats
-//' @return \code{rd} updated deviations of participants ratings
-//' @return \code{expected} matrix of expected score. \code{expected[i, j] = P(i > j)} 
-//' @export
-// [[Rcpp::export]]
+
 List 
   bbt(
     CharacterVector name,

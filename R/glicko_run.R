@@ -23,7 +23,7 @@ NULL
 #' @param init_rd initial rating deviations for new competitors. Default = 350
 #' @export
 
-glicko_run <- function(formula,data, r, rd, sig, weight,date, init_r=1500, init_rd=350){
+glicko_run <- function(formula,data, r, rd, sig, weight, date, init_r=1500, init_rd=350){
   if(missing(formula)) stop("Formula is not specified")
   y  <- all.vars(formula)[1]
   id <- all.vars(formula)[2]
@@ -32,9 +32,9 @@ glicko_run <- function(formula,data, r, rd, sig, weight,date, init_r=1500, init_
   if( length(all.vars(update(formula, .~0)) ) != 2) stop("Left hand side formula must contain two variables")
   if( length(all.vars(update(formula, 0~.)) ) != 1) stop("Glicko expects only one variable which is ~ 1|pid_variable")
   if( missing(r) ){
-    team_names <- unique(data[[x]])
-    r <- setNames( rep(1500, length(team_names)), team_names )
-    rd<- setNames( rep(300,  length(team_names)), team_names )
+    player_names <- unique(data[[x]])
+    r <- setNames( rep(1500, length(player_names)), player_names )
+    rd<- setNames( rep(300,  length(player_names)), player_names )
   }
   if( missing(sig) ){
     data$sig <- 1
@@ -55,21 +55,21 @@ glicko_run <- function(formula,data, r, rd, sig, weight,date, init_r=1500, init_
   model_P <- list()
   model_r <- list()
   for(i in names(data)){
-    team_names <- data[[ i ]][[ x ]]
+    player_names <- data[[ i ]][[ x ]]
     model      <- glicko( 
-      name = team_names , 
-      rank = data[[ i ]][[ y ]], 
-      r    =  r[team_names ], 
-      rd   = rd[team_names ], 
-      sig = data[[ i ]][[ sig ]] ,
+      name   = player_names , 
+      rank   = data[[ i ]][[ y ]], 
+      r      =  r[player_names ], 
+      rd     = rd[player_names ], 
+      sig    = data[[ i ]][[ sig ]] ,
       weight = data[[ i ]][[ weight ]],
       init_r = init_r,
       init_rd = init_rd
     )    
-    r [ team_names ] <- model$r[  team_names ]
-    rd[ team_names ] <- model$rd[ team_names ]
+    r [ player_names ] <- model$r[  player_names ]
+    rd[ player_names ] <- model$rd[ player_names ]
     
-    model_r[[ i ]] <- data.frame(names=team_names, r = model$r, rd = model$rd)
+    model_r[[ i ]] <- data.frame(names=player_names, r = model$r, rd = model$rd)
     model_P[[ i ]] <- model$pairs
     
   }
