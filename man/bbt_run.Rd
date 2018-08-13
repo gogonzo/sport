@@ -24,7 +24,7 @@ bbt_run(formula, data, r, rd, sig, weight, kappa, beta, gamma, date,
 
 \item{sig}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.}
 
-\item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.}
+\item{weight}{name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.}
 
 \item{kappa}{small positive value to ensure rd positive after update. Higher value of `kappa` limits `rd` change size, and lower value of `kappa` allows `rd` update to be bigger. By default `kappa=0.0001`}
 

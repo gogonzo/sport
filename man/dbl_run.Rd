@@ -17,7 +17,7 @@ dbl_run(formula, data, r, rd, sig, weight, date)
 
 \item{sig}{named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.}
 
-\item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on parameters estimates}
+\item{weight}{name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.}
 
 \item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in}
 }

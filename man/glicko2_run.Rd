@@ -26,7 +26,7 @@ glicko2_run(formula, data, r, rd, sig, tau, weight, date, init_r = 1500,
 
 \item{tau}{The system constant. Which constrains the change in volatility over time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though the system should be tested to decide which value results in greatest predictive accuracy. Smaller values of `tau` prevent the volatility measures from changing by largeamounts, which in turn prevent enormous changes in ratings based on very improbable results. If the application of Glicko-2 is expected to involve extremely improbable collections of game outcomes, then `tau` should be set to a small value, even as small as, say, `tau= 0`.2.}
 
-\item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.}
+\item{weight}{name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.}
 
 \item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by event `id`}
 
@@ -39,6 +39,7 @@ A "sport" object is returned
 \itemize{
   \item \code{final_r} named vector containing players ratings.
   \item \code{final_rd} named vector containing players ratings deviations.
+  \item \code{final_sig} named vector containing players ratings volatiles.
   \item \code{r} data.frame with evolution of the ratings and ratings deviations estimated at each event.
   \item \code{pairs} pairwise combinations of players in analysed events with prior probability and result of a challange.
   \item \code{class} of the object

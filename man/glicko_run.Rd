@@ -24,7 +24,7 @@ glicko_run(formula, data, r, rd, sig, weight, date, init_r = 1500,
 
 \item{sig}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.}
 
-\item{weight}{name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.}
+\item{weight}{name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.}
 
 \item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`.}
 
@@ -46,4 +46,13 @@ A "sport" object is returned: \itemize{
 \description{
 Glicko rating algorithm
 Wrapper arround `glicko` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
+}
+\examples{
+# Example from Glickman
+data <- data.frame( name = c( "A", "B", "C", "D" ), 
+                    rank  = c( 3, 4, 1, 2 ))
+glicko_list <- glicko_run( rank ~ name, 
+                           data = data, 
+                           r    = c( 1500, 1400, 1550, 1700 ) , 
+                           rd   = c( 200,  30,   100,  300 ) )
 }
