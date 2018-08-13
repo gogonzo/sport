@@ -11,7 +11,7 @@ NULL
 #' @param r named vector of initial estimates. If there is no assumption, initial ratings is set to be r=0. 
 #' @param rd named vector of initial deviation estimates. In there is no assumption, initial is set to be rd=3.
 #' @param sig named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.
-#' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on parameters estimates
+#' @param weight name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.
 #' @param date name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in
 #' @return 
 #' A "sport" object is returned
@@ -28,6 +28,7 @@ NULL
 
 dbl_run <- function(formula, data, r, rd, sig, weight, date){
   if(missing(formula)) stop("Formula is not specified")
+  if( !length(all.vars(update(formula, .~0)) )  %in% c(1,2)) stop("Left hand side formula must contain two variables")
   if(missing(data)) stop("Data is not provided")
   if( missing(weight) ){
     data$weight <- 1

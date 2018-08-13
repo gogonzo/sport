@@ -17,7 +17,7 @@ NULL
 #' @param r named vector of initial players ratings estimates. In there is no assumption, initial ratings are set be r=1500. Names of vector should correspond with `name` in formula. 
 #' @param rd named vector of initial rating deviation estimates. In there is no assumption, initial ratings are set be r=300 Names of vector should correspond with `name` in formula.
 #' @param sig name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.
-#' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.
+#' @param weight name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.
 #' @param date name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`.
 #' @param init_r initial rating for new competitors (contains NA). Default = 1500
 #' @param init_rd initial rating deviations for new competitors. Default = 350
@@ -31,11 +31,19 @@ NULL
 #' \item \code{method} type of algorithm used.
 #' \item \code{formula} modelled formula.
 #' }
+#' @examples
+#' # Example from Glickman
+#' data <- data.frame( name = c( "A", "B", "C", "D" ), 
+#'                     rank  = c( 3, 4, 1, 2 ))
+#' glicko_list <- glicko_run( rank ~ name, 
+#'                            data = data, 
+#'                            r    = c( 1500, 1400, 1550, 1700 ) , 
+#'                            rd   = c( 200,  30,   100,  300 ) )
 #' @export
 
 glicko_run <- function(formula, data, r, rd, sig, weight, date, init_r=1500, init_rd=350){
   if(missing(formula)) stop("Formula is not specified")
-  if( length(all.vars(update(formula, .~0)) ) > 2)  stop("Left hand side formula must contain one or two variables")
+  if( !length(all.vars(update(formula, .~0)) )  %in% c(1,2)) stop("Left hand side formula must contain two variables")
   if( length(all.vars(update(formula, 0~.)) ) != 1) stop("Glicko expects only one variable which is ~ name")  
   if( length(all.vars(update(formula, .~0)) ) == 1) data$id <- 1
   

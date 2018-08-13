@@ -17,7 +17,7 @@ NULL
 #' @param r named vector of initial rating estimates. In there is no assumption, initial ratings is set to be r=25 Names of vector should correspond with `name` in formula. 
 #' @param rd named vector of initial rating deviation estimates. In there is no assumption, initial is set to be r=25/3 Names of vector should correspond with `name` in formula.
 #' @param sig name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.
-#' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on ratings estimates.
+#' @param weight name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.
 #' @param date name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`
 #' @param kappa small positive value to ensure rd positive after update. Higher value of `kappa` limits `rd` change size, and lower value of `kappa` allows `rd` update to be bigger. By default `kappa=0.0001`
 #' @param beta The additional variance of performance. By default `beta = 25/6`.
@@ -39,7 +39,7 @@ NULL
 
 bbt_run <- function(formula, data, r,rd, sig, weight, kappa, beta, gamma, date, init_r = 25, init_rd=25/3){
   if(missing(formula)) stop("Formula is not specified")
-  if( length(all.vars(update(formula, .~0)) ) != 2) stop("Left hand side formula must contain two variables")
+  if( !length(all.vars(update(formula, .~0)) )  %in% c(1,2)) stop("Left hand side formula must contain two variables")
   if( missing(sig) ){
     data$sig <- 1
     sig <- "sig"
@@ -61,6 +61,7 @@ bbt_run <- function(formula, data, r,rd, sig, weight, kappa, beta, gamma, date, 
     player_names <- unique( data[[ x ]] )
     rd<- as.matrix( setNames( rep(init_rd,  length(player_names)), player_names ) )
   }
+  
   if(class(r)!="matrix"){
     r <- as.matrix(r)
   }
