@@ -13,6 +13,17 @@ NULL
 #' @param sig named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.
 #' @param weight name of column in `data` containing weights. Weights multiplies step update increasing/decreasing step impact on parameters estimates
 #' @param date name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in
+#' @return 
+#' A "sport" object is returned
+#' \itemize{
+#'   \item \code{final_r} named vector containing players ratings.
+#'   \item \code{final_rd} named vector containing players ratings deviations.
+#'   \item \code{r} data.frame with evolution of the ratings and ratings deviations estimated at each event.
+#'   \item \code{pairs} pairwise combinations of players in analysed events with prior probability and result of a challange.
+#'   \item \code{class} of the object
+#'   \item \code{method} type of algorithm used
+#'   \item \code{formula} modelled formula
+#' }
 #' @export
 
 dbl_run <- function(formula, data, r, rd, sig, weight, date){
@@ -27,10 +38,12 @@ dbl_run <- function(formula, data, r, rd, sig, weight, date){
     sig      <- "sig"
   } 
   
-  all_params <- sport::allLevelsList(formula, data)
+  all_params <- allLevelsList(formula, data)
   
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))
+  y    <- lhs[1]
+  id   <- lhs[2]
   
   if(any(class(data)=="data.frame")) 
     data_list <- split( data[ c(rhs, sig, weight) ], data[[ lhs[2] ]] )   
@@ -59,9 +72,7 @@ dbl_run <- function(formula, data, r, rd, sig, weight, date){
     )
     
     model_r[[ i ]] <- data.frame(
-      names  = colnames(terms), 
-      init_r = r[ colnames(terms) ],
-      init_rd= rd[ colnames(terms) ],
+      names  = colnames(terms),
       r      = model$r,
       rd     = model$rd,
       row.names = NULL
@@ -73,12 +84,31 @@ dbl_run <- function(formula, data, r, rd, sig, weight, date){
     rd[names(model$rd)] <- model$rd
   }
   
-  list(
-    r       = dplyr::bind_rows( model_r  , .id = id ),
-    pairs   = dplyr::bind_rows( model_P  , .id = id ),
-    final_r = r,
-    final_rd = rd
+  model_r <- dplyr::bind_rows( model_r , .id = id )
+  model_P <- dplyr::bind_rows( model_P , .id = id )
+  
+  # Output, class and attributes ----
+  class( model_r[[ id ]] ) <- class( model_P[[ id ]] )  <- class( data[[ id ]] )
+  if(!missing(date)){
+    dates <- unique( data[ colnames(data) %in% c(id,date) ] )
+    model_r_date <- dates[[ date ]][ match( model_r[[ id ]], dates[[ id ]] ) ] 
+    model_P_date <- dates[[ date ]][ match( model_P[[ id ]], dates[[ id ]] ) ] 
+  } else {
+    model_r_date <- model_r[[ id ]]
+    model_P_date <- model_P[[ id ]]
+  }
+  
+  out <- structure(
+    list(final_r  = r,
+         final_rd = rd,
+         r        = structure( model_r, class="data.frame", identifier = model_r_date),
+         pairs    = structure( model_P, class="data.frame"  , identifier = model_P_date)),
+    class="sport",
+    method = "bdl",
+    formula = formula
   )
+  
+  return( out )
 }
 
 

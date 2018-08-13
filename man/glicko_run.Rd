@@ -10,10 +10,10 @@ glicko_run(formula, data, r, rd, sig, weight, date, init_r = 1500,
 \arguments{
 \item{formula}{formula specifying model. Glicko algorithm allows only player ranking parameter and should be specified by following manner: 
 `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same:
-\enumerate{
- \item rank player position in event.
- \item id event identifier in which pairwise comparison is assessed.
- \item name of player.
+\itemize{
+ \item {rank} player position in event.
+ \item {id} event identifier in which pairwise comparison is assessed.
+ \item {name} of player.
 }}
 
 \item{data}{data.frame which contains columns specified in formula, and optionaly columns defined by `sig`, `weight` or `date`.}
@@ -31,6 +31,17 @@ glicko_run(formula, data, r, rd, sig, weight, date, init_r = 1500,
 \item{init_r}{initial rating for new competitors (contains NA). Default = 1500}
 
 \item{init_rd}{initial rating deviations for new competitors. Default = 350}
+}
+\value{
+A "sport" object is returned: \itemize{
+\item \code{final_r} named vector containing players ratings.
+\item \code{final_rd} named vector containing players ratings deviations.
+\item \code{r} data.frame with evolution of the ratings and ratings deviations estimated at each event.
+\item \code{pairs} pairwise combinations of players in analysed events with prior probability and result of a challange.
+\item \code{class} of the object.
+\item \code{method} type of algorithm used.
+\item \code{formula} modelled formula.
+}
 }
 \description{
 Glicko rating algorithm

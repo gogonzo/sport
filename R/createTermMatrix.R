@@ -1,12 +1,4 @@
-#' Creates Full Term Matrix
-#' 
-#' Creates Full Term Matrix
-#' @param formula Specify model by formula. 
-#' @param data data.frame
-#' @export
-
 createTermMatrix <- function(formula, data){
-  # library(magrittr);library(dplyr);formula <- Sepal.Length|Species ~ Species + Petal.Length + Petal.Length : Species + Species:Species2; data <- iris %>% mutate(Species2 = sample(Species))
   if(missing(formula)) stop("Formula is not specified")
   if(missing(data)) warning("No data provided")
   if( !any( class(data) == "data.frame") ) stop("Only data.frame allowed")

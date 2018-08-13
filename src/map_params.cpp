@@ -2,11 +2,6 @@
 using namespace Rcpp;
 #include "map_params.h"
 
-//' Dummy matrix from factor
-//'
-//' Dummy matrix from factor
-//' @param factor to be transormed into dummy matrix
-//' @export
 // [[Rcpp::export]]
 IntegerMatrix factor2dummy( SEXP factor ) {
   switch ( TYPEOF( factor ) ) {

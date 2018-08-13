@@ -8,10 +8,10 @@ NULL
 #' Wrapper arround `glicko` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
 #' @param formula formula specifying model. Glicko algorithm allows only player ranking parameter and should be specified by following manner: 
 #' `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same:
-#' \enumerate{
-#'  \item rank player position in event.
-#'  \item id event identifier in which pairwise comparison is assessed.
-#'  \item name of player.
+#' \itemize{
+#'  \item {rank} player position in event.
+#'  \item {id} event identifier in which pairwise comparison is assessed.
+#'  \item {name} of player.
 #' }
 #' @param data data.frame which contains columns specified in formula, and optionaly columns defined by `sig`, `weight` or `date`.
 #' @param r named vector of initial players ratings estimates. In there is no assumption, initial ratings are set be r=1500. Names of vector should correspond with `name` in formula. 
@@ -21,20 +21,34 @@ NULL
 #' @param date name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`.
 #' @param init_r initial rating for new competitors (contains NA). Default = 1500
 #' @param init_rd initial rating deviations for new competitors. Default = 350
+#' @return 
+#' A "sport" object is returned: \itemize{
+#' \item \code{final_r} named vector containing players ratings.
+#' \item \code{final_rd} named vector containing players ratings deviations.
+#' \item \code{r} data.frame with evolution of the ratings and ratings deviations estimated at each event.
+#' \item \code{pairs} pairwise combinations of players in analysed events with prior probability and result of a challange.
+#' \item \code{class} of the object.
+#' \item \code{method} type of algorithm used.
+#' \item \code{formula} modelled formula.
+#' }
 #' @export
 
-glicko_run <- function(formula,data, r, rd, sig, weight, date, init_r=1500, init_rd=350){
+glicko_run <- function(formula, data, r, rd, sig, weight, date, init_r=1500, init_rd=350){
   if(missing(formula)) stop("Formula is not specified")
-  y  <- all.vars(formula)[1]
-  id <- all.vars(formula)[2]
-  x  <- gsub( "^1[ ]*|[ ]*","", all.vars(formula)[-(1:2)] )
+  if( length(all.vars(update(formula, .~0)) ) > 2)  stop("Left hand side formula must contain one or two variables")
+  if( length(all.vars(update(formula, 0~.)) ) != 1) stop("Glicko expects only one variable which is ~ name")  
+  if( length(all.vars(update(formula, .~0)) ) == 1) data$id <- 1
   
-  if( length(all.vars(update(formula, .~0)) ) != 2) stop("Left hand side formula must contain two variables")
-  if( length(all.vars(update(formula, 0~.)) ) != 1) stop("Glicko expects only one variable which is ~ 1|pid_variable")
+  lhs  <- all.vars(update(formula, .~0))
+  rhs  <- all.vars(update(formula, 0~.))
+  y    <- lhs[1]
+  x    <- rhs[1]
+  id <- ifelse( length(lhs)==1 , "id", lhs[2])
+  
   if( missing(r) ){
     player_names <- unique(data[[x]])
-    r <- setNames( rep(1500, length(player_names)), player_names )
-    rd<- setNames( rep(300,  length(player_names)), player_names )
+    r <- setNames( rep(init_r, length(player_names)), player_names )
+    rd<- setNames( rep(init_rd,  length(player_names)), player_names )
   }
   if( missing(sig) ){
     data$sig <- 1
@@ -48,21 +62,19 @@ glicko_run <- function(formula,data, r, rd, sig, weight, date, init_r=1500, init
   
   if(!class(data[[x]]) %in% c("character","factor")) warning(paste("variable",x,"is of class",class(x)))
   if(any(class(data)=="data.frame")) 
-    data <- split(data[ c(y,id,x, sig, weight)], data[[ id ]] )   
-  
-  
+    data_list <- split(data[ c(y,id,x, sig, weight)], data[[ id ]] )
   
   model_P <- list()
   model_r <- list()
-  for(i in names(data)){
-    player_names <- data[[ i ]][[ x ]]
+  for(i in names(data_list)){
+    player_names <- data_list[[ i ]][[ x ]]
     model      <- glicko( 
       name   = player_names , 
-      rank   = data[[ i ]][[ y ]], 
+      rank   = data_list[[ i ]][[ y ]], 
       r      =  r[player_names ], 
       rd     = rd[player_names ], 
-      sig    = data[[ i ]][[ sig ]] ,
-      weight = data[[ i ]][[ weight ]],
+      sig    = data_list[[ i ]][[ sig ]] ,
+      weight = data_list[[ i ]][[ weight ]],
       init_r = init_r,
       init_rd = init_rd
     )    
@@ -73,15 +85,30 @@ glicko_run <- function(formula,data, r, rd, sig, weight, date, init_r=1500, init
     model_P[[ i ]] <- model$pairs
     
   }
-  model_r <- dplyr::bind_rows(model_r, .id = id )
-  model_P <- dplyr::bind_rows(model_P, .id = id )
   
-  return(
-    list(
-      r = model_r,
-      pairs = model_P,
-      final_r = r,
-      final_rd = rd
-    )
+  model_r <- dplyr::bind_rows( model_r , .id = id )
+  model_P <- dplyr::bind_rows( model_P , .id = id )
+  
+  # Output, class and attributes ----
+  class( model_r[[ id ]] ) <- class( model_P[[ id ]] )  <- class( data[[ id ]] )
+  if(!missing(date)){
+    dates <- unique( data[ colnames(data) %in% c(id,date) ] )
+    model_r_date <- dates[[ date ]][ match( model_r[[ id ]], dates[[ id ]] ) ] 
+    model_P_date <- dates[[ date ]][ match( model_P[[ id ]], dates[[ id ]] ) ] 
+  } else {
+    model_r_date <- model_r[[ id ]]
+    model_P_date <- model_P[[ id ]]
+  }
+  
+  out <- structure(
+    list(final_r  = r,
+         final_rd = rd,
+         r        = structure( model_r, class="data.frame", identifier = model_r_date),
+         pairs    = structure( model_P, class="data.frame"  , identifier = model_P_date)),
+    class="sport",
+    method = "glicko",
+    formula = formula
   )
+  
+  return( out )
 }

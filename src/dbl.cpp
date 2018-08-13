@@ -2,6 +2,7 @@
 using namespace Rcpp;
 #include "dbl.h"
 
+// [[Rcpp::export]]
 Rcpp::List 
   dbl(
     CharacterVector name,

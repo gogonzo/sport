@@ -2,6 +2,7 @@
 using namespace Rcpp;
 #include "bbt.h"
 
+// [[Rcpp::export]]
 List 
   bbt(
     CharacterVector name,

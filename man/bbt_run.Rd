@@ -10,7 +10,7 @@ bbt_run(formula, data, r, rd, sig, weight, kappa, beta, gamma, date,
 \arguments{
 \item{formula}{formula specifying model. BBT algorithm allows only player ranking parameter and should be specified by following manner: 
 `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same:
-\enumerate{
+\itemize{
  \item rank player position in event.
  \item id event identifier in which pairwise comparison is assessed.
  \item name of player.
@@ -37,6 +37,18 @@ bbt_run(formula, data, r, rd, sig, weight, kappa, beta, gamma, date,
 \item{init_r}{initial rating for new competitors (contains NA). Default = 25}
 
 \item{init_rd}{initial rating deviations for new competitors. Default = 25/3}
+}
+\value{
+A "sport" object is returned
+\itemize{
+  \item \code{final_r} named vector containing players ratings.
+  \item \code{final_rd} named vector containing players ratings deviations.
+  \item \code{r} data.frame with evolution of the ratings and ratings deviations estimated at each event.
+  \item \code{pairs} pairwise combinations of players in analysed events with prior probability and result of a challange.
+  \item \code{class} of the object
+  \item \code{method} type of algorithm used
+  \item \code{formula} modelled formula
+}
 }
 \description{
 BBT rating algorithm

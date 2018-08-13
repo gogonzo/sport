@@ -8,7 +8,7 @@ NULL
 #' Wrapper arround `bbt` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
 #' @param formula formula specifying model. BBT algorithm allows only player ranking parameter and should be specified by following manner: 
 #' `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same:
-#' \enumerate{
+#' \itemize{
 #'  \item rank player position in event.
 #'  \item id event identifier in which pairwise comparison is assessed.
 #'  \item name of player.
@@ -24,6 +24,17 @@ NULL
 #' @param gamma can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slow down decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.
 #' @param init_r initial rating for new competitors (contains NA). Default = 25
 #' @param init_rd initial rating deviations for new competitors. Default = 25/3
+#' @return 
+#' A "sport" object is returned
+#' \itemize{
+#'   \item \code{final_r} named vector containing players ratings.
+#'   \item \code{final_rd} named vector containing players ratings deviations.
+#'   \item \code{r} data.frame with evolution of the ratings and ratings deviations estimated at each event.
+#'   \item \code{pairs} pairwise combinations of players in analysed events with prior probability and result of a challange.
+#'   \item \code{class} of the object
+#'   \item \code{method} type of algorithm used
+#'   \item \code{formula} modelled formula
+#' }
 #' @export
 
 bbt_run <- function(formula, data, r,rd, sig, weight, kappa, beta, gamma, date, init_r = 25, init_rd=25/3){
@@ -44,11 +55,11 @@ bbt_run <- function(formula, data, r,rd, sig, weight, kappa, beta, gamma, date, 
   
   if(missing(r)){
     player_names <- unique( data[[ x ]] )
-    r <- as.matrix( setNames( rep(25, length(player_names)), player_names ) )
+    r <- as.matrix( setNames( rep(init_r, length(player_names)), player_names ) )
   }
   if(missing(rd)){
     player_names <- unique( data[[ x ]] )
-    rd<- as.matrix( setNames( rep(25/3,  length(player_names)), player_names ) )
+    rd<- as.matrix( setNames( rep(init_rd,  length(player_names)), player_names ) )
   }
   if(class(r)!="matrix"){
     r <- as.matrix(r)
@@ -58,20 +69,20 @@ bbt_run <- function(formula, data, r,rd, sig, weight, kappa, beta, gamma, date, 
   }
   
   if(any(class(data)=="data.frame")) 
-    data <- split(data[ c(y,id,x, sig, weight)], data[[ id ]] ) 
+    data_list <- split(data[ c(y,id,x, sig, weight)], data[[ id ]] ) 
   
   model_r <- list()
   model_P <- list()
-  for(i in names(data)){
+  for(i in names(data_list)){
     
-    team_name <- data[[ i ]][[ x ]]
+    team_name <- data_list[[ i ]][[ x ]]
     model   <- bbt( 
       team_name, 
-      rank    = data[[ i ]][[ y ]], 
+      rank    = data_list[[ i ]][[ y ]], 
       r       = r[ team_name,,drop=FALSE], 
       rd      = rd[ team_name,,drop=FALSE],
-      sig     = data[[ i ]][[ sig ]],
-      weight  = data[[ i ]][[ weight ]],
+      sig     = data_list[[ i ]][[ sig ]],
+      weight  = data_list[[ i ]][[ weight ]],
       init_r = init_r,
       init_rd = init_rd
     )
@@ -83,15 +94,29 @@ bbt_run <- function(formula, data, r,rd, sig, weight, kappa, beta, gamma, date, 
     model_r[[ i ]] <- data.frame(names=team_name, r = model$r, rd = model$rd)
   }
   
-  model_r <- dplyr::bind_rows( model_r, .id = id)
-  model_P <- dplyr::bind_rows( model_P, .id = id)
+  model_r <- dplyr::bind_rows( model_r , .id = id )
+  model_P <- dplyr::bind_rows( model_P , .id = id )
   
-  return(
-    list(
-      r = model_r,
-      pairs = model_P,
-      final_r = r,
-      final_rd = rd
-    )
+  # Output, class and attributes ----
+  class( model_r[[ id ]] ) <- class( model_P[[ id ]] )  <- class( data[[ id ]] )
+  if(!missing(date)){
+    dates <- unique( data[ colnames(data) %in% c(id,date) ] )
+    model_r_date <- dates[[ date ]][ match( model_r[[ id ]], dates[[ id ]] ) ] 
+    model_P_date <- dates[[ date ]][ match( model_P[[ id ]], dates[[ id ]] ) ] 
+  } else {
+    model_r_date <- model_r[[ id ]]
+    model_P_date <- model_P[[ id ]]
+  }
+  
+  out <- structure(
+    list(final_r  = r,
+         final_rd = rd,
+         r        = structure( model_r, class="data.frame", identifier = model_r_date),
+         pairs    = structure( model_P, class="data.frame"  , identifier = model_P_date)),
+    class="sport",
+    method = "bbt",
+    formula = formula
   )
+  
+  return( out )
 }

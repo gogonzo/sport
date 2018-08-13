@@ -2,6 +2,7 @@
 #include "glicko.h"
 using namespace Rcpp;
 
+// [[Rcpp::export]]
 List 
   glicko(
     CharacterVector name, 
@@ -94,6 +95,7 @@ List
     );  
   } 
 
+// [[Rcpp::export]]
 List 
   glicko2(
     CharacterVector name, 
@@ -109,7 +111,7 @@ List
     
     int n = name.size();
     int idx = 0;
-    double err  = 0.0, var = 0.0, A  = 0.0, rd_;
+    double err  = 0.0, var = 0.0, A  = 0.0;
     NumericVector mu(n);
     NumericVector phi(n);
     NumericVector g_phi(n);
@@ -126,8 +128,7 @@ List
     for(int i = 0; i < n; i++){
       // rescale params to glicko2 scale
       mu[i]    = r2mu( r[i] );
-      if( (rd[i] * sig[i]) < init_rd ) rd_ = rd[i] * sig[i]; else rd_ = init_rd;
-      phi[i]   = rd2phi( rd_ );
+      phi[i]   = rd2phi( rd[i] );
       g_phi[i] = calcGPhi( phi[i] );
     }
     

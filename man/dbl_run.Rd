@@ -21,6 +21,18 @@ dbl_run(formula, data, r, rd, sig, weight, date)
 
 \item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in}
 }
+\value{
+A "sport" object is returned
+\itemize{
+  \item \code{final_r} named vector containing players ratings.
+  \item \code{final_rd} named vector containing players ratings deviations.
+  \item \code{r} data.frame with evolution of the ratings and ratings deviations estimated at each event.
+  \item \code{pairs} pairwise combinations of players in analysed events with prior probability and result of a challange.
+  \item \code{class} of the object
+  \item \code{method} type of algorithm used
+  \item \code{formula} modelled formula
+}
+}
 \description{
 DBL rating algorithm
 Wrapper arround `dbl` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions

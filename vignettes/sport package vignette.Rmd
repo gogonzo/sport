@@ -1,13 +1,20 @@
 ---
 title: "`sport` an R package for online update algorithms"
-output:
-  github_document:
-    pandoc_args: --webtex
+author: "Dawid Kałędkowski"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-[![Travis-CI Build Status](https://travis-ci.org/gogonzo/sport.svg?branch=master)](https://travis-ci.org/gogonzo/sport)
-[![Project Status](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
 
 # About
 Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate players ratings and their evolution in time, also able to predict output of challange. 
@@ -87,7 +94,8 @@ library(sport)
 
 ## Available Data
 Package contains actual data from Speedway Grand-Prix. There are two data.frames: 
-1. `gpheats` - results of each race in all SGP events. Column `rank` is a numeric version of column `position` - rider position in race.
+
+1. `gpheats` - results SGP heats. Column `rank` is a numeric version of column `position` - rider position in race.
 2. `gpsquads` - summarized results of the events, with sum of point and final position.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
@@ -98,15 +106,19 @@ str(gpheats)
 
 To compute ratings using each algorithms one has to specify formula. Following manner is required - `formula = rank|id ~ name` - which estimates `name` (of a player) abilities, with observed outputs `rank` nested within particular event `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
 
-Glicko uses only one parameter `name` to describe player overall abilities. Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge estimates `r` and `rd`. By default `r=1500` and `rd=350`
 ```{r message=FALSE, warning=FALSE}
-list_glicko  <- glicko_run(  formula = rank|id ~ rider , data = gpheats )
+list_glicko  <- glicko_run(  formula = rank|id ~ rider , data = head(gpheats,1002 ) )
+list_glicko2 <- glicko2_run( formula = rank|id ~ rider , data = head(gpheats,1002) )
+list_bbt     <- bbt_run( formula = rank|id~rider,  data = head(gpheats,1002 ) )
+list_dbl     <- dbl_run(  formula = rank|id~rider,  data = head(gpheats,1002 ) )
 ```
 
+
+# Advanced `sport`
+
+Glicko uses only one parameter `name` to describe player overall abilities. Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge estimates `r` and `rd`. By default `r=1500` and `rd=350`
 Glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=350`, `sig=0.05`.
-```{r message=FALSE, warning=FALSE}
-list_glicko2 <- glicko2_run( formula = rank|id ~ rider , data = gpheats, date="date" )
-```
+
 
 
 ```{r message=FALSE, warning=FALSE}
@@ -119,23 +131,16 @@ sig <- rep(0.05, length(unique_riders) ) %>% setNames(unique_riders)
 list_glicko  <- glicko_run( 
   formula = rank|id ~ rider , 
   r = r, rd = rd, 
-  data = gpheats)
+  data = head(gpheats,1002))
 
 list_glicko2 <- glicko2_run( 
   formula = rank|id ~ rider , 
   r = r, rd = rd, sig = sig ,
-  data = gpheats)
+  data = head(gpheats,1002))
 
 ```
 
 
 ```{r message=FALSE, warning=FALSE}
-list_bbt <- bbt_run( formula = rank|id~rider,  data = gpheats )
-```
-
-
-
-```{r message=FALSE, warning=FALSE}
-library(tidyverse);library(magrittr)
 
 ```

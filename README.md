@@ -45,7 +45,7 @@ Glicko2 rating system
 
 Glicko2 improved predecessor by adding volatile parameter ![\\sigma\_i](https://latex.codecogs.com/png.latex?%5Csigma_i "\sigma_i") which increase/decrease rating deviation in periods when player performance differs from expected. Sigma is estimated iteratively using Illinois algorithm, which converges quickly not affecting computation time. Rating values oscillates around `r=1500` with max deviation `rd<=350`.
 
-For deeper knowledge read [Mark E. Glickman (2013)](http://www.glicko.net/glicko/glicko2.pdf)
+For further knowledge read [Mark E. Glickman (2013)](http://www.glicko.net/glicko/glicko2.pdf)
 
 ![ \\hat{Y\_{ij}} = \\frac{1}{1 + e^{-g(\\phi\_{ij})\*(\\mu\_i  - \\mu\_j)} }](https://latex.codecogs.com/png.latex?%20%5Chat%7BY_%7Bij%7D%7D%20%3D%20%5Cfrac%7B1%7D%7B1%20%2B%20e%5E%7B-g%28%5Cphi_%7Bij%7D%29%2A%28%5Cmu_i%20%20-%20%5Cmu_j%29%7D%20%7D " \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i  - \mu_j)} }")
 
@@ -58,7 +58,7 @@ Bayesian Bradley Terry
 
 The fastest algorithm with simple formula. Original BT formula lacks variance parameter, and this method incorporates rating deviation into model. BBT also prevents against fast `rd` decline to zero using `gamma` and `kappa`.
 
-For deeper knowledge read [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf)
+For further knowledge read [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf)
 
 ![\\hat{Y\_{ij}} = P(X\_i&gt;X\_j) = \\frac{e^{R\_i/c\_{i\_j}}}{e^{R\_i/c\_{ij}} + e^{R\_j/c\_{ij}}} ](https://latex.codecogs.com/png.latex?%5Chat%7BY_%7Bij%7D%7D%20%3D%20P%28X_i%3EX_j%29%20%3D%20%5Cfrac%7Be%5E%7BR_i%2Fc_%7Bi_j%7D%7D%7D%7Be%5E%7BR_i%2Fc_%7Bij%7D%7D%20%2B%20e%5E%7BR_j%2Fc_%7Bij%7D%7D%7D%20 "\hat{Y_{ij}} = P(X_i>X_j) = \frac{e^{R_i/c_{i_j}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}} ")
 
@@ -69,13 +69,13 @@ For deeper knowledge read [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csa
 Dynamic Bayesian Logit
 ----------------------
 
-DBL implements Extended Kalman Filter learning rule, and allows to estimate multiple parameters not just player ratings. DBL is extended to usage in pairwise comparisons by modeling differences of skills.
+DBL implements Extended Kalman Filter learning rule, and allows to estimate multiple parameters additional to player ratings. DBL is a logit extended to usage in pairwise comparisons by modeling differences of skills.
 
 ![Y\_t = \\frac{ e^{w \_t^Tx\_t} }{1+e^{w \_t^Tx\_t}}](https://latex.codecogs.com/png.latex?Y_t%20%3D%20%5Cfrac%7B%20e%5E%7Bw%20_t%5ETx_t%7D%20%7D%7B1%2Be%5E%7Bw%20_t%5ETx_t%7D%7D "Y_t = \frac{ e^{w _t^Tx_t} }{1+e^{w _t^Tx_t}}")
 
 ![x\_t = x\_{it} - x\_{jt}](https://latex.codecogs.com/png.latex?x_t%20%3D%20x_%7Bit%7D%20-%20x_%7Bjt%7D "x_t = x_{it} - x_{jt}")
 
-For deeper knowledge read *William D. Penny and Stephen J. Roberts (1999): Dynamic Logistic Regression, Departament of Electrical and Electronic Engineering, Imperial College*
+For further knowledge read *William D. Penny and Stephen J. Roberts (1999): Dynamic Logistic Regression, Departament of Electrical and Electronic Engineering, Imperial College*
 
 Package Usage
 =============
@@ -99,7 +99,7 @@ Package contains actual data from Speedway Grand-Prix. There are two data.frames
 str(gpheats)
 ```
 
-    ## 'data.frame':    20555 obs. of  11 variables:
+    ## 'data.frame':    20649 obs. of  11 variables:
     ##  $ id      : num  1 1 1 1 2 2 2 2 3 3 ...
     ##  $ season  : int  1995 1995 1995 1995 1995 1995 1995 1995 1995 1995 ...
     ##  $ date    : POSIXct, format: "1995-05-20 19:00:00" "1995-05-20 19:00:00" ...
@@ -115,7 +115,7 @@ str(gpheats)
 Estimate dynamic ratings
 ------------------------
 
-To compute ratings using each algorithms one has to specify formula. Following manner is required - `formula = rank|id ~ name` - which estimates `name` (of a player) abilities, with observed outputs `rank` nested within particular event `id`. Variable names in formula are unrestricted, but model structure remains the same.
+To compute ratings using each algorithms one has to specify formula. Following manner is required - `formula = rank|id ~ name` - which estimates `name` (of a player) abilities, with observed outputs `rank` nested within particular event `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
 
 Glicko uses only one parameter `name` to describe player overall abilities. Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge estimates `r` and `rd`. By default `r=1500` and `rd=350`
 
@@ -126,7 +126,7 @@ list_glicko  <- glicko_run(  formula = rank|id ~ rider , data = gpheats )
 Glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=350`, `sig=0.05`.
 
 ``` r
-list_glicko2 <- glicko2_run( formula = rank|id ~ rider , data = gpheats )
+list_glicko2 <- glicko2_run( formula = rank|id ~ rider , data = gpheats, date="date" )
 ```
 
 ``` r
@@ -153,45 +153,4 @@ list_bbt <- bbt_run( formula = rank|id~rider,  data = gpheats )
 
 ``` r
 library(tidyverse);library(magrittr)
-```
-
-Join ratings
-------------
-
-``` r
-ratings_glicko  <- list_glicko$r %>% rename(r_glicko = r, rd_glicko = rd, rider = names )
-ratings_glicko2 <- list_glicko2$r %>% rename(r_glicko2 = r, rd_glicko2 = rd, rider = names )
-ratings_bbt     <- list_bbt$r %>% rename(r_bbt = r, rd_bbt = rd, rider = names )
-
-gpheats %<>%
-  mutate( id = as.character(id)) %>%
-  left_join( ratings_glicko ) %>%
-  left_join( ratings_glicko2 ) %>%
-  left_join( ratings_bbt )
-```
-
-Join pairs
-----------
-
-``` r
-pairs_glicko  <- list_glicko[[2]]  %>% rename(P_glicko = P)
-pairs_glicko2 <- list_glicko2[[2]] %>% rename(P_glicko2 = P)
-pairs_bbt     <- list_bbt[[2]]     %>% rename(P_bbt = P)
-
-pairs <-
-  pairs_glicko %>%
-  left_join(pairs_glicko2) %>%
-  left_join(pairs_bbt) %>%
-  rename(rider = team1, opponent = team2) %>%
-  filter(Y!=0.5) %>%
-  arrange(id, sample(1:n()))
-
-
-# leave only unique pairs
-pairs$uniq_pair <-
-  pairs %>% 
-  select(rider,opponent) %>% 
-  apply(1,function(x)paste(sort(x), collapse=" - ")) 
-
-pairs %<>% filter(!duplicated(paste(id, uniq_pair)))
 ```

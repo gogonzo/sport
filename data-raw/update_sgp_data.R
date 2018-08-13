@@ -52,11 +52,11 @@ update_sgp_data <- function(){
         rank = ifelse( is.na(rank), max(rank, na.rm=T) + 1, rank))
   
   
-  Encoding(gpheats$name)   <- "UTF-8"
-  Encoding(gpheats$rider)  <- "UTF-8"
-  Encoding(gpsquads$name)  <- "UTF-8"
-  Encoding(gpsquads$place) <- "UTF-8"
-  Encoding(gpsquads$rider) <- "UTF-8"
+  Encoding( gpheats$name )  <- "UTF-8"
+  Encoding( gpheats$rider ) <- "UTF-8"
+  Encoding(gpsquads$name )  <- "UTF-8"
+  Encoding(gpsquads$place ) <- "UTF-8"
+  Encoding(gpsquads$rider ) <- "UTF-8"
   
   devtools::use_data(gpsquads,gpheats, overwrite = T)
 }
