@@ -94,8 +94,8 @@ bbt_run <- function(formula, data, r,rd, sig, weight, kappa, beta, gamma, date, 
     model_r[[ i ]] <- data.frame(names=team_name, r = model$r, rd = model$rd)
   }
   
-  model_r <- dplyr::bind_rows( model_r , .id = id )
-  model_P <- dplyr::bind_rows( model_P , .id = id )
+  model_r <- suppressWarnings( dplyr::bind_rows( model_r , .id = id ) )
+  model_P <- suppressWarnings( dplyr::bind_rows( model_P , .id = id ) )
   
   # Output, class and attributes ----
   class( model_r[[ id ]] ) <- class( model_P[[ id ]] )  <- class( data[[ id ]] )

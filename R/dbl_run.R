@@ -84,8 +84,8 @@ dbl_run <- function(formula, data, r, rd, sig, weight, date){
     rd[names(model$rd)] <- model$rd
   }
   
-  model_r <- dplyr::bind_rows( model_r , .id = id )
-  model_P <- dplyr::bind_rows( model_P , .id = id )
+  model_r <- suppressWarnings( dplyr::bind_rows( model_r , .id = id ) )
+  model_P <- suppressWarnings( dplyr::bind_rows( model_P , .id = id ) )
   
   # Output, class and attributes ----
   class( model_r[[ id ]] ) <- class( model_P[[ id ]] )  <- class( data[[ id ]] )
@@ -101,8 +101,8 @@ dbl_run <- function(formula, data, r, rd, sig, weight, date){
   out <- structure(
     list(final_r  = r,
          final_rd = rd,
-         r        = structure( model_r, class="data.frame", identifier = model_r_date),
-         pairs    = structure( model_P, class="data.frame"  , identifier = model_P_date)),
+         r        = structure( model_r, class="data.frame" , identifier = model_r_date),
+         pairs    = structure( model_P, class="data.frame" , identifier = model_P_date)),
     class="sport",
     method = "bdl",
     formula = formula

@@ -82,8 +82,8 @@ glicko2_run <- function(formula, data, r, rd,sig, tau, weight, date,init_r = 150
     
   }
   
-  model_r <- dplyr::bind_rows( model_r , .id = id )
-  model_P <- dplyr::bind_rows( model_P , .id = id )
+  model_r <- suppressWarnings( dplyr::bind_rows( model_r , .id = id ) )
+  model_P <- suppressWarnings( dplyr::bind_rows( model_P , .id = id ) )
   
   # Output, class and attributes ----
   class( model_r[[ id ]] ) <- class( model_P[[ id ]] )  <- class( data[[ id ]] )

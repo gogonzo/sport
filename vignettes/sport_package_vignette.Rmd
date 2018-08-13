@@ -118,29 +118,3 @@ list_dbl     <- dbl_run(  formula = rank|id~rider,  data = head(gpheats,1002 ) )
 
 Glicko uses only one parameter `name` to describe player overall abilities. Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge estimates `r` and `rd`. By default `r=1500` and `rd=350`
 Glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=350`, `sig=0.05`.
-
-
-
-```{r message=FALSE, warning=FALSE}
-library(magrittr)
-unique_riders <- unique(gpheats$rider)
-r   <- rep(1500, length(unique_riders) ) %>% setNames(unique_riders)
-rd  <- rep(1500, length(unique_riders) ) %>% setNames(unique_riders)
-sig <- rep(0.05, length(unique_riders) ) %>% setNames(unique_riders)
-
-list_glicko  <- glicko_run( 
-  formula = rank|id ~ rider , 
-  r = r, rd = rd, 
-  data = head(gpheats,1002))
-
-list_glicko2 <- glicko2_run( 
-  formula = rank|id ~ rider , 
-  r = r, rd = rd, sig = sig ,
-  data = head(gpheats,1002))
-
-```
-
-
-```{r message=FALSE, warning=FALSE}
-
-```

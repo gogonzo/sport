@@ -86,11 +86,12 @@ glicko_run <- function(formula, data, r, rd, sig, weight, date, init_r=1500, ini
     
   }
   
-  model_r <- dplyr::bind_rows( model_r , .id = id )
-  model_P <- dplyr::bind_rows( model_P , .id = id )
+  model_r <- suppressWarnings( dplyr::bind_rows( model_r , .id = id ) )
+  model_P <- suppressWarnings( dplyr::bind_rows( model_P , .id = id ) )
   
   # Output, class and attributes ----
   class( model_r[[ id ]] ) <- class( model_P[[ id ]] )  <- class( data[[ id ]] )
+  
   if(!missing(date)){
     dates <- unique( data[ colnames(data) %in% c(id,date) ] )
     model_r_date <- dates[[ date ]][ match( model_r[[ id ]], dates[[ id ]] ) ] 
