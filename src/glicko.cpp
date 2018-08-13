@@ -131,7 +131,7 @@ List
       phi[i]   = rd2phi( rd[i] );
       g_phi[i] = calcGPhi( phi[i] );
     }
-    
+  
     // Sum deviations from expectations  
     for(int i = 0; i < n; i++){
       var = 0, err  = 0;
