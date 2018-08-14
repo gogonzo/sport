@@ -4,7 +4,7 @@
 \alias{dbl_run}
 \title{DBL rating algorithm}
 \usage{
-dbl_run(formula, data, r, rd, sig, weight, date)
+dbl_run(formula, data, r, rd, sig, weight, idlab)
 }
 \arguments{
 \item{formula}{formula specifying model. DBL allows multiple variables in formula, also two-way interaction are available. LHS needs `rank|id`, to specify competitors order and event `id`.}
@@ -19,7 +19,7 @@ dbl_run(formula, data, r, rd, sig, weight, date)
 
 \item{weight}{name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.}
 
-\item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in}
+\item{idlab}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in}
 }
 \value{
 A "sport" object is returned

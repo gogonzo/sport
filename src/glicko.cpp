@@ -11,6 +11,7 @@ List
     NumericVector rd,
     NumericVector sig,
     NumericVector weight,
+    CharacterVector identifier,
     double init_r  = 1500.00,
     double init_rd = 350.00,
     double gamma = 1
@@ -22,12 +23,12 @@ List
     double 
       q   = log(10)/400,
       var  = 0.0,
-      err = 0.0,
-      rd_;
+      err = 0.0;
     NumericVector g_rd(n);
     NumericVector var_i(n);
     NumericVector err_i(n);
     NumericVector delta_i(n);
+    CharacterVector identifierp(n*n-n);
     CharacterVector team1(n*n-n);
     CharacterVector team2(n*n-n);
     NumericVector P(n*n-n);
@@ -41,8 +42,8 @@ List
       
       // modification - rd + time since last event 
       if( (rd[i] * sig[i]) < init_rd ) 
-        rd_ = rd[i] * sig[i]; else rd_ = init_rd;
-      g_rd[i] = calcGRd( rd_ );
+        rd[i] = rd[i] * sig[i]; else rd[i] = init_rd;
+      g_rd[i] = calcGRd( rd[i] );
       
     }
     
@@ -55,6 +56,7 @@ List
         if(j != i){
           idx += 1;
           
+          identifierp( idx - 1) = identifier[i];
           team1( idx - 1 ) = name[i];
           team2( idx - 1 ) = name[j];
           
@@ -76,7 +78,7 @@ List
     // update parameters 
     for(int i = 0; i < n; i++){
       r[i]     = r[i] + q/( 1/pow(rd[i],2) + 1/delta_i[i] ) * err_i[i] * weight[i];
-      rd[i]    = sqrt(  1/( 1/pow(rd[i],2) + 1/delta_i[i] * weight[i] )); 
+      rd[i]    = sqrt(  1/( 1/pow(rd[i],2) + 1/delta_i[i] * weight[i] ));
     }    
     
     Rcpp::List dimnms = Rcpp::List::create(name, name);
@@ -86,12 +88,19 @@ List
     return List::create(
       _["r"]    = r,
       _["rd"]   = rd,
+      _["r_df"] = DataFrame::create(
+        _["name"] = name,
+        _["r"]    = r,
+        _["rd"]   = rd
+      ),
       _["pairs"] = DataFrame::create(
-        _["team1"] = team1,
-        _["team2"] = team2,
+        _["name"] = team1,
+        _["opponent"] = team2,
         _["P"] = P,
         _["Y"] = Y
-      )
+      ),
+      _["identifierp"] = identifierp,
+      _["identifier"] = identifier
     );  
   } 
 
@@ -104,6 +113,7 @@ List
     NumericVector rd,
     NumericVector sig,
     NumericVector weight,
+    CharacterVector identifier,
     double tau = .5,
     double init_r  = 1500.00,
     double init_rd = 350.00
@@ -118,6 +128,7 @@ List
     NumericVector var_i(n);
     NumericVector err_i(n);
     NumericVector delta_i(n);
+    CharacterVector identifierp(n*n-n);
     CharacterVector team1(n*n-n);
     CharacterVector team2(n*n-n);
     NumericVector P(n*n-n);
@@ -138,6 +149,7 @@ List
       for(int j = 0; j < n; j ++){
         if(j != i){
           idx += 1;
+          identifierp( idx - 1) = identifier[i];
           team1( idx - 1 ) = name[i];
           team2( idx - 1 ) = name[j];
           
@@ -175,16 +187,26 @@ List
     rd.names() = name;
     
     return List::create(
-      _["r"]    = r,
-      _["rd"]   = rd,
+      _["r"]     = r,
+      _["rd"]    = rd,
       _["sigma"] = sig,
+      _["r_df"]  = DataFrame::create(
+        _["name"] = name,
+        _["r"]    = r,
+        _["rd"]   = rd,
+        _["stringsAsFactors"] = false
+      ),
       _["pairs"] = DataFrame::create(
-        _["team1"] = team1,
-        _["team2"] = team2,
+        _["name"]     = team1,
+        _["opponent"] = team2,
         _["P"] = P,
-        _["Y"] = Y
-      )
+        _["Y"] = Y,
+        _["stringsAsFactors"] = false
+      ),
+      _["identifierp"] = identifierp,
+      _["identifier"]  = identifier
     );  
   } 
+
 
 

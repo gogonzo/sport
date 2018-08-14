@@ -4,8 +4,8 @@
 \alias{bbt_run}
 \title{BBT rating algorithm}
 \usage{
-bbt_run(formula, data, r, rd, sig, weight, kappa, beta, gamma, date,
-  init_r = 25, init_rd = 25/3)
+bbt_run(formula, data, r, rd, sig, weight, beta = 25/6, gamma = 1,
+  idlab, init_r = 25, init_rd = 25/3)
 }
 \arguments{
 \item{formula}{formula specifying model. BBT algorithm allows only player ranking parameter and should be specified by following manner: 
@@ -26,13 +26,11 @@ bbt_run(formula, data, r, rd, sig, weight, kappa, beta, gamma, date,
 
 \item{weight}{name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.}
 
-\item{kappa}{small positive value to ensure rd positive after update. Higher value of `kappa` limits `rd` change size, and lower value of `kappa` allows `rd` update to be bigger. By default `kappa=0.0001`}
-
 \item{beta}{The additional variance of performance. By default `beta = 25/6`.}
 
 \item{gamma}{can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slow down decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.}
 
-\item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`}
+\item{idlab}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`}
 
 \item{init_r}{initial rating for new competitors (contains NA). Default = 25}
 

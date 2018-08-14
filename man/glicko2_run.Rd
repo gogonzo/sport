@@ -4,7 +4,7 @@
 \alias{glicko2_run}
 \title{Glicko2 rating algorithm}
 \usage{
-glicko2_run(formula, data, r, rd, sig, tau, weight, date, init_r = 1500,
+glicko2_run(formula, data, r, rd, sig, tau, weight, idlab, init_r = 1500,
   init_rd = 350)
 }
 \arguments{
@@ -28,7 +28,7 @@ glicko2_run(formula, data, r, rd, sig, tau, weight, date, init_r = 1500,
 
 \item{weight}{name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.}
 
-\item{date}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by event `id`}
+\item{idlab}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by event `id`}
 
 \item{init_r}{initial rating for new competitors (contains NA). Default = 1500}
 

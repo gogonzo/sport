@@ -11,8 +11,9 @@ List
     NumericMatrix rd,
     NumericVector sig,
     NumericVector weight,
+    CharacterVector identifier,
     double kappa=0.0001,
-    double gamma = 1.0,
+    double gamma = 999,
     double beta = 25/6,
     double init_r = 25,
     double init_rd = 25/3
@@ -26,16 +27,15 @@ List
     NumericMatrix rd_share(n,j);
     NumericVector omega(n,0.0);
     NumericVector delta(n,0.0);
+    CharacterVector identifierp(n*n-n);
     CharacterVector team1(n*n-n);
     CharacterVector team2(n*n-n);
     NumericVector P(n*n-n);
     NumericVector Y(n*n-n);
-    
-    double c, rd_;
+    double c;
     
     for(int i = 0; i < n; i++){
-      if( (rd[i] * sig[i]) < init_rd ) rd_ = rd[i] * sig[i]; else rd_ = init_rd;
-      rd[ i ] = rd_;
+      if( (rd[i] * sig[i]) < init_rd ) rd[i] = rd[i] * sig[i]; else rd[i] = init_rd;
     }
     
     for(int i = 0; i < n; i++){
@@ -43,9 +43,10 @@ List
         if(i!=q){
 
           c = sqrt( sig2(i) + sig2(q) + pow(beta,2) );
-          if(gamma==1) gamma = sqrt( sig2(i) ) / c;
+          if(gamma==999) gamma = sqrt( sig2(i) ) / c;
         
           idx += 1;
+          identifierp( idx - 1 ) = identifier[i];
           team1( idx - 1 ) = name[i];
           team2( idx - 1 ) = name[q];
           
@@ -55,7 +56,7 @@ List
           omega(i) = 
             omega(i) + 
             sig2(i)/c * 
-            ( calc_s( rank(i), rank(q) ) - P( idx - 1 ) );
+            ( Y( idx - 1 ) - P( idx - 1 ) );
           
           delta(i) = 
             delta(i) + 
@@ -72,20 +73,27 @@ List
       r(i,_) = r(i,_) + rd_share(i,_) * omega(i) * weight(i);
       rd(i,_) = sqrt( 
           pow(rd(i,_),2.0) * 
-          weight(i) *
           pmax( 1 - rd_share(i,_) * delta(i) , kappa ) 
         );
     }
-    
 
     return List::create(
-      _["r"] = r,
-      _["rd"]= rd,
+      _["r"]     = r,
+      _["rd"]    = rd,
+      _["r_df"]  = DataFrame::create(
+        _["name"] = name,
+        _["r"]    = r,
+        _["rd"]   = rd,
+        _["stringsAsFactors"] = false
+      ),
       _["pairs"] = DataFrame::create(
-        _["team1"] = team1,
-        _["team2"] = team2,
+        _["name"]     = team1,
+        _["opponent"] = team2,
         _["P"] = P,
-        _["Y"] = Y
-      )
-    );
-  }
+        _["Y"] = Y,
+        _["stringsAsFactors"] = false
+      ),
+      _["identifierp"] = identifierp,
+      _["identifier"]  = identifier
+    );  
+  } 
