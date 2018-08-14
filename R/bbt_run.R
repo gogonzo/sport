@@ -35,7 +35,6 @@ NULL
 #'   \item \code{formula} modelled formula
 #' }
 #' @export
-
 bbt_run <- function(formula, data, r,rd, sig, weight,beta=25/6, gamma, idlab, init_r = 25, init_rd=25/3){
   if(missing(formula)) stop("Formula is not specified")
   if(missing(data)) stop("Data is not provided")

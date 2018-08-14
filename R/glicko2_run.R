@@ -35,7 +35,6 @@ NULL
 #'   \item \code{formula} modelled formula
 #' }
 #' @export
-
 glicko2_run <- function(formula, data, r, rd,sig, tau, weight, idlab, init_r = 1500, init_rd=350){
   if(missing(formula)) stop("Formula is not specified")
   if(missing(data)) stop("Data is not provided")
@@ -74,7 +73,7 @@ glicko2_run <- function(formula, data, r, rd,sig, tau, weight, idlab, init_r = 1
   for(i in names(data_list)){
     player_names <- data_list[[ i ]][[ x ]]
     
-    model <- sport:::glicko2( 
+    model <- glicko2( 
       player_names , 
       rank   = data_list[[ i ]][[ y ]], 
       r      = r[ player_names ] ,  

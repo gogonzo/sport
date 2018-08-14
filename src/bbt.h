@@ -1,16 +1,3 @@
-NumericMatrix sqrt_mat_elems (NumericMatrix x){
-  int n = x.nrow();
-  int k = x.ncol();
-  NumericMatrix powered(n,k);
-  
-  for (int i = 0; i < n ; ++i) {
-    powered(i,_) = sqrt(x(i,_));
-  }
-
-  return powered;
-}
-
-
 NumericMatrix pow_mat_elems (NumericMatrix x){
   int n = x.nrow();
   int k = x.ncol();

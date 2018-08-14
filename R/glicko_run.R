@@ -40,13 +40,12 @@ NULL
 #'                            r    = c( 1500, 1400, 1550, 1700 ) , 
 #'                            rd   = c( 200,  30,   100,  300 ) )
 #' @export
-
 glicko_run <- function(formula, data, r, rd, sig, weight, idlab, init_r=1500, init_rd=350){
   if(missing(formula)) stop("Formula is not specified")
   if(missing(data)) stop("Data is not provided")
   if( !length(all.vars(update(formula, .~0)) )  %in% c(1,2)) stop("Left hand side formula must contain two variables")
-  if( length(all.vars(update(formula, 0~.)) ) != 1) stop("Glicko expects only one variable which is ~ name")  
   if( length(all.vars(update(formula, .~0)) ) == 1) data$id <- 1
+  if( length(all.vars(update(formula, 0~.)) ) != 1) stop("Glicko expects only one variable which is ~ name")  
   
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))
@@ -81,7 +80,7 @@ glicko_run <- function(formula, data, r, rd, sig, weight, idlab, init_r=1500, in
   models <- list()
   for(i in names(data_list)){
     player_names <- data_list[[ i ]][[ x ]]
-    model      <- sport:::glicko( 
+    model      <- glicko( 
       name   = player_names , 
       rank   = data_list[[ i ]][[ y ]], 
       r      = r[player_names ], 

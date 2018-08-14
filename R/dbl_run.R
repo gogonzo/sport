@@ -25,11 +25,10 @@ NULL
 #'   \item \code{formula} modelled formula
 #' }
 #' @export
-
 dbl_run <- function(formula, data, r, rd, sig, weight, idlab){
   if(missing(formula)) stop("Formula is not specified")
   if(missing(data)) stop("Data is not provided")
-  if( !length(all.vars(update(formula, .~0)) )  %in% c(1,2)) stop("Left hand side formula must contain one or two variables")
+  if( !length(all.vars(update(formula, .~0)) ) %in% c(1,2) ) stop("Left hand side formula must contain one or two variables")
   if( length(all.vars(update(formula, .~0)) ) == 1) data$id <- 1
   
 
@@ -46,7 +45,7 @@ dbl_run <- function(formula, data, r, rd, sig, weight, idlab){
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))
   y    <- lhs[1]
-  id   <- lhs[2]
+  id <- ifelse( length(lhs)==1 , "id", lhs[2])
   
   if(missing(r)) r  <- setNames(rep(0, length(all_params)), all_params )
   if(missing(rd)) rd <- setNames(rep(10, length(all_params)), all_params )
