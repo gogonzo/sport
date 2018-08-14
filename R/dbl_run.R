@@ -96,23 +96,3 @@ dbl_run <- function(formula, data, r, rd, sig, weight, idlab){
   
   return( out )
 }
-
-
-getX <- function(X){
-  col_classes <- unlist( lapply(X,class) )
-  factor_idx <- col_classes %in% c("character","factor")
-  X[,factor_idx] <- (!is.na(X[,factor_idx]))*1
-  as.matrix(X)
-}
-
-mapParams <- function(X){
-  H <- matrix("",nrow(X), ncol(X))
-  for(j in 1:ncol(X)){
-    if(class(X[[j]])=="character"){
-      H[,j] <- paste0(colnames(X)[j],": ",X[[j]] )
-    } else {
-      H[,j] <- colnames(X)[j]
-    }
-  }
-  return(H)
-}
