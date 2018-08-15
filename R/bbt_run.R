@@ -21,8 +21,8 @@ NULL
 #' @param idlab name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`
 #' @param beta The additional variance of performance. As beta increases, the performance is more uncertain and update change is smaller. By default `beta = 25/6`.
 #' @param gamma can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slows decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.
-#' @param init_r initial rating for new competitors (contains NA). Default = 25
-#' @param init_rd initial rating deviations for new competitors. Default = 25/3
+#' @param init_r initial values for `r` if not provided. Default = 25
+#' @param init_rd initial values for `r` if not provided. Default = 25/3
 #' @return 
 #' A "sport" object is returned
 #' \itemize{
@@ -72,9 +72,12 @@ bbt_run <- function(formula, data, r,rd, sig, weight,beta=25/6, gamma, idlab, in
   if(any(class(data)=="data.frame")) 
     data_list <- split(data[ unique(c(y,id,x, sig, weight, idlab))], data[[ id ]] ) 
   
+  j <- 0
+  n <- length(data_list)
+  pb <- txtProgressBar(min=0, max=n, width=20, initial=0, style=3)
   models <- list()
   for(i in names(data_list)){
-    
+    j <- j + 1
     team_name <- data_list[[ i ]][[ x ]]
     model     <- bbt( 
       team_name, 
@@ -94,7 +97,7 @@ bbt_run <- function(formula, data, r,rd, sig, weight,beta=25/6, gamma, idlab, in
     rd[ team_name, ] <- model$rd[ team_name, ]
     
     models[[ i ]] <- model
-    
+    setTxtProgressBar(pb,j)
   }
   
   model_r <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["r_df"]] ) , use.names=T, idcol="id" ) )

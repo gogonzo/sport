@@ -5,8 +5,8 @@ bbt <- function(name, rank, r, rd, sig, weight, identifier, kappa = 0.0001, gamm
     .Call('_sport_bbt', PACKAGE = 'sport', name, rank, r, rd, sig, weight, identifier, kappa, gamma, beta, init_r, init_rd)
 }
 
-dbl <- function(name, rank, X, R, RD, sig, weight, identifier) {
-    .Call('_sport_dbl', PACKAGE = 'sport', name, rank, X, R, RD, sig, weight, identifier)
+dbl <- function(name, rank, X, R, RD, beta, weight, identifier, tau = 0.05) {
+    .Call('_sport_dbl', PACKAGE = 'sport', name, rank, X, R, RD, beta, weight, identifier, tau)
 }
 
 factor2dummy <- function(factor) {
