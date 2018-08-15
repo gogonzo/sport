@@ -97,23 +97,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// harkness
-List harkness(Rcpp::StringVector teams, std::vector<int> rank, std::vector<int> days, std::vector<double> r, std::vector<double> rd, double init_r, double init_rd);
-RcppExport SEXP _sport_harkness(SEXP teamsSEXP, SEXP rankSEXP, SEXP daysSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::StringVector >::type teams(teamsSEXP);
-    Rcpp::traits::input_parameter< std::vector<int> >::type rank(rankSEXP);
-    Rcpp::traits::input_parameter< std::vector<int> >::type days(daysSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type r(rSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type rd(rdSEXP);
-    Rcpp::traits::input_parameter< double >::type init_r(init_rSEXP);
-    Rcpp::traits::input_parameter< double >::type init_rd(init_rdSEXP);
-    rcpp_result_gen = Rcpp::wrap(harkness(teams, rank, days, r, rd, init_r, init_rd));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sport_bbt", (DL_FUNC) &_sport_bbt, 12},
@@ -121,7 +104,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sport_factor2dummy", (DL_FUNC) &_sport_factor2dummy, 1},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 10},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 10},
-    {"_sport_harkness", (DL_FUNC) &_sport_harkness, 7},
     {NULL, NULL, 0}
 };
 

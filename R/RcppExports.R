@@ -21,33 +21,3 @@ glicko2 <- function(name, rank, r, rd, sig, weight, identifier, tau = .5, init_r
     .Call('_sport_glicko2', PACKAGE = 'sport', name, rank, r, rd, sig, weight, identifier, tau, init_r, init_rd)
 }
 
-#' Harkness rating for single game
-#' 
-#' Calculates Harkness rating for single game input
-#' 
-#' @param teams name of event participants.
-#' @param rank classification of the event.
-#' @param days days after previous match - indicator multiplying uncertainty of expectations.
-#' @param r ratings of participants.
-#' @param rd rating deviations of participants.
-#' @param init_r initial rating for new competitors (contains NA). Default = 1500
-#' @param init_rd initial rating deviations for new competitors. Default = 350
-#' @examples
-#'  teams <- c("A","B","C","D")
-#'  rank  <- c(3 , 4 , 1, 2)
-#'  days  <- rep(0, 4)
-#'  r     <- c(1500, 1400, 1550, 1700) 
-#'  rd    <- c(200,  30,   100,  300)
-#'  harkness(
-#'    teams = teams, 
-#'    rank  = rank, 
-#'    days  = days,
-#'    r     = r, 
-#'    rd    = rd,
-#'    init_r  = 1500,
-#'    init_rd = 100)
-#' @export
-harkness <- function(teams, rank, days, r, rd, init_r = 1500, init_rd = 350) {
-    .Call('_sport_harkness', PACKAGE = 'sport', teams, rank, days, r, rd, init_r, init_rd)
-}
-
