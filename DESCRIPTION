@@ -1,7 +1,7 @@
 Package: sport
 Type: Package
 Title: Online ranking methods
-Version: 0.5
+Version: 0.1.0
 Depends: R (>= 2.10)
 Author: Dawid 'Gonzo' Kałędkowski
 Maintainer: Dawid 'Gonzo' Kałędkowski <dawid.kaledkowski@protonmail.com>
