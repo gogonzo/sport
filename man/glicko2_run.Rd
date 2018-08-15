@@ -30,9 +30,9 @@ glicko2_run(formula, data, r, rd, sig, tau, weight, idlab, init_r = 1500,
 
 \item{idlab}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by event `id`}
 
-\item{init_r}{initial rating for new competitors (contains NA). Default = 1500}
+\item{init_r}{initial values for `r` if not provided. Default = 1500}
 
-\item{init_rd}{initial rating deviations for new competitors. Default = 350}
+\item{init_rd}{initial values for `r` if not provided. Default = 350}
 }
 \value{
 A "sport" object is returned

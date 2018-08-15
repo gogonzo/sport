@@ -66,6 +66,6 @@ test_that("valid glicko attr names",{
 test_that("r object has date labels attribute",{
   expect_identical(
     list(names = c("id","name","r","rd"), row.names=1:4, class=c("data.table","data.frame"),identifier=as.character(c(1,1,1,1))),
-    attributes(glicko_run( rank ~ name, data = data, weight="weight", sig = "sig", init_r=1000, init_rd=200)$r)[-3]
+    attributes( glicko_run( rank ~ name, data = data, weight="weight", sig = "sig", init_r=1000, init_rd=200)$r )[-3]
   )
 })

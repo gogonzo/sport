@@ -29,8 +29,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // dbl
-Rcpp::List dbl(CharacterVector name, IntegerVector rank, NumericMatrix X, NumericVector R, NumericVector RD, NumericVector sig, NumericVector weight, CharacterVector identifier);
-RcppExport SEXP _sport_dbl(SEXP nameSEXP, SEXP rankSEXP, SEXP XSEXP, SEXP RSEXP, SEXP RDSEXP, SEXP sigSEXP, SEXP weightSEXP, SEXP identifierSEXP) {
+Rcpp::List dbl(CharacterVector name, IntegerVector rank, NumericMatrix X, NumericVector R, NumericVector RD, NumericVector beta, NumericVector weight, CharacterVector identifier, double tau);
+RcppExport SEXP _sport_dbl(SEXP nameSEXP, SEXP rankSEXP, SEXP XSEXP, SEXP RSEXP, SEXP RDSEXP, SEXP betaSEXP, SEXP weightSEXP, SEXP identifierSEXP, SEXP tauSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -39,10 +39,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type R(RSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type RD(RDSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type sig(sigSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type weight(weightSEXP);
     Rcpp::traits::input_parameter< CharacterVector >::type identifier(identifierSEXP);
-    rcpp_result_gen = Rcpp::wrap(dbl(name, rank, X, R, RD, sig, weight, identifier));
+    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
+    rcpp_result_gen = Rcpp::wrap(dbl(name, rank, X, R, RD, beta, weight, identifier, tau));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -100,7 +101,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sport_bbt", (DL_FUNC) &_sport_bbt, 12},
-    {"_sport_dbl", (DL_FUNC) &_sport_dbl, 8},
+    {"_sport_dbl", (DL_FUNC) &_sport_dbl, 9},
     {"_sport_factor2dummy", (DL_FUNC) &_sport_factor2dummy, 1},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 10},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 10},

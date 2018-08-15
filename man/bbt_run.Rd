@@ -32,9 +32,9 @@ bbt_run(formula, data, r, rd, sig, weight, beta = 25/6, gamma, idlab,
 
 \item{idlab}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`}
 
-\item{init_r}{initial rating for new competitors (contains NA). Default = 25}
+\item{init_r}{initial values for `r` if not provided. Default = 25}
 
-\item{init_rd}{initial rating deviations for new competitors. Default = 25/3}
+\item{init_rd}{initial values for `r` if not provided. Default = 25/3}
 }
 \value{
 A "sport" object is returned

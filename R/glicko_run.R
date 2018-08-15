@@ -19,8 +19,8 @@ NULL
 #' @param sig name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.
 #' @param weight name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.
 #' @param idlab name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`.
-#' @param init_r initial rating for new competitors (contains NA). Default = 1500
-#' @param init_rd initial rating deviations for new competitors. Default = 350
+#' @param init_r initial values for `r` if not provided. Default = 1500
+#' @param init_rd initial values for `r` if not provided. Default = 350
 #' @return 
 #' A "sport" object is returned: \itemize{
 #' \item \code{final_r} named vector containing players ratings.
@@ -77,8 +77,12 @@ glicko_run <- function(formula, data, r, rd, sig, weight, idlab, init_r=1500, in
   if(any(class(data)=="data.frame")) 
     data_list <- split(data[ unique(c(y,id,x, sig, weight,idlab))], data[[ id ]] )
   
+  j <- 0
+  n <- length(data_list)
+  pb <- txtProgressBar(min=0, max=n, width=20, initial=0, style=3)
   models <- list()
   for(i in names(data_list)){
+    j <- j + 1;
     player_names <- data_list[[ i ]][[ x ]]
     model      <- glicko( 
       name   = player_names , 
@@ -93,9 +97,9 @@ glicko_run <- function(formula, data, r, rd, sig, weight, idlab, init_r=1500, in
     )    
     r [ player_names ] <- model$r[  player_names ]
     rd[ player_names ] <- model$rd[ player_names ]
-    
+
     models[[ i ]] <- model
-    
+    setTxtProgressBar(pb,j)
   }
   
   model_r <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["r_df"]] ) , use.names=T, idcol="id" ) )

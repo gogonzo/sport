@@ -17,8 +17,8 @@ knitr::opts_chunk$set(
 ```
 
 # About
-Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate players ratings and their evolution in time, also able to predict output of challange. 
-Algorithms are based on Bayesian Approximation Method, and they don't involve any martix inversions nor likelihood estimation. Weights (parameters) are updated iteratively, and computation doesn't require any additional RAM to make estimation feasible. Additionaly, base of the package is writen in `C++` what makes `sport` computation even faster. 
+Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate players form and their evolution in time, also able to predict output of challange. 
+Algorithms are based on Bayesian Approximation Method, and they don't involve any martix inversions nor likelihood estimation. Weights (parameters) are updated sequentionaly, and computation doesn't require any additional RAM to make estimation feasible. Additionaly, base of the package is writen in `C++` what makes `sport` computation even faster. 
 
 # Theory
 Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preferrence of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preffered to win over worst. As player/event and alternative/experiment can be used interchangeably, for ease of use sport nomenclature is adapted (player/event).  
@@ -72,15 +72,15 @@ $${RD'}_i = RD_i * [ 1 - \frac{RD_{ij}^2}{RD_i^2}\sum_j{ \gamma_j * (\frac{RD_i}
 
 
 ## Dynamic Bayesian Logit
-DBL implements Extended Kalman Filter learning rule, and allows to estimate multiple parameters additional to player ratings. DBL is a logit extended to usage in pairwise comparisons by modeling differences of skills.
+Following algorithm gives some advantages over mentioned rating systems, adding other important factors to estimation process making final ratings unbiased. Algorithm perform better in disciples where other variables can make a difference in result eg. home field advantage. DBL implements Extended Kalman Filter learning rule, and allows to estimate multiple parameters in addition to player ratings. DBL is a Dynamic Logit extended to usage in pairwise comparisons by modeling differences in players characteristics. Classic Bradley-Terry model is enriched by moderation element $K(s_t)$ which adds prior uncertainty to output prediction.
 
-$$Y_t = \frac{ e^{w _t^Tx_t} }{1+e^{w _t^Tx_t}}$$
+$$\hat{Y_{ij}} = \frac{ e^{-K(s_t)w _t^T(x_{it}-x_{jt})} }{1+e^{-K(s_t)w _t^T(x_{it}-x_{jt})}}$$
+Parameters for player `i` competing with player `j` are estimated using EKF update rule.
+$$\hat{\omega}_{it} = \hat{\omega}_{i(t-1)} + \frac{RD^2_{i(t-1)}}{1+\hat{Y_{ij}}  (1-\hat{Y_{ij}})}  x_t (Y_{ij} - \hat{Y_{ij}})$$
+$$RD^2_{i t} = RD^2_{i(t-1)} - \frac{\hat{Y_{ij}}(1-\hat{Y_{ij}})}{1+\hat{Y_{ij}}  (1-\hat{Y_{ij}})s_t^2}(RD^2_{i(t-1)}x_i)(RD^2_{i(t-1)}x_i)^T$$
 
-$$x_t = x_{it} - x_{jt}$$
 
-
-For further knowledge read  *William D. Penny and Stephen J. Roberts (1999): Dynamic Logistic Regression, Departament of Electrical and Electronic Engineering, Imperial College*
-
+For further knowledge read [Stephen J. Roberts, William Penny (2011)](https://www.researchgate.net/publication/2465226_Dynamic_Logistic_Regression)
 
 # Package Usage
 
@@ -107,10 +107,10 @@ str(gpheats)
 To compute ratings using each algorithms one has to specify formula. Following manner is required - `formula = rank|id ~ name` - which estimates `name` (of a player) abilities, with observed outputs `rank` nested within particular event `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
 
 ```{r message=FALSE, warning=FALSE}
-list_glicko  <- glicko_run(  formula = rank|id ~ rider , data = head(gpheats,1002 ) )
-list_glicko2 <- glicko2_run( formula = rank|id ~ rider , data = head(gpheats,1002) )
-list_bbt     <- bbt_run( formula = rank|id~rider,  data = head(gpheats,1002 ) )
-list_dbl     <- dbl_run(  formula = rank|id~rider,  data = head(gpheats,1002 ) )
+list_glicko  <- glicko_run(  formula = rank|id ~ rider , data = head(gpheats,10002 ) )
+list_glicko2 <- glicko2_run( formula = rank|id ~ rider , data = head(gpheats,10002) )
+list_bbt     <- bbt_run( formula = rank|id~rider,  data = head(gpheats,10002 ) )
+list_dbl     <- dbl_run(  formula = rank|id~rider,  data = head(gpheats,10002 ) )
 ```
 
 

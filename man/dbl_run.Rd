@@ -4,22 +4,29 @@
 \alias{dbl_run}
 \title{DBL rating algorithm}
 \usage{
-dbl_run(formula, data, r, rd, sig, weight, idlab)
+dbl_run(formula, data, r, rd, beta, weight, idlab, tau = 0.05,
+  init_r = 0, init_rd = 1)
 }
 \arguments{
 \item{formula}{formula specifying model. DBL allows multiple variables in formula, also two-way interaction are available. LHS needs `rank|id`, to specify competitors order and event `id`.}
 
-\item{data}{data.frame which contains columns specified in formula, and optionaly columns defined by `sig`, `weight` or `date`.}
+\item{data}{data.frame which contains columns specified in formula, and optionaly columns defined by `beta`, `weight` or `date`.}
 
 \item{r}{named vector of initial estimates. If there is no assumption, initial ratings is set to be r=0.}
 
-\item{rd}{named vector of initial deviation estimates. In there is no assumption, initial is set to be rd=3.}
+\item{rd}{named vector of initial variance of `r` estimates. In there is no assumption, initial is set to be rd=1.}
 
-\item{sig}{named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.}
+\item{beta}{The additional variance of performance. As beta increases, the performance is more uncertain and update change is smaller. By default `beta = 25/6`.}
 
 \item{weight}{name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.}
 
 \item{idlab}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in}
+
+\item{tau}{parameter controlling `rd` to avoid quick decreasing to zero. Is the proportion of `rd` which is maximum change size.}
+
+\item{init_r}{initial values for `r` if not provided. Default `r=0`}
+
+\item{init_rd}{initial values for `rd` if not provided. Default `rd=1`}
 }
 \value{
 A "sport" object is returned
