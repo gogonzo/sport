@@ -41,7 +41,7 @@ dbl_run <- function(formula, data, r, rd, sig, weight, idlab){
     sig      <- "sig"
   } 
   
-  all_params <- allLevelsList(formula, data)
+  all_params <- sport:::allLevelsList(formula, data)
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))
   y    <- lhs[1]
@@ -59,7 +59,7 @@ dbl_run <- function(formula, data, r, rd, sig, weight, idlab){
   
   models <- list()
   for(i in names(data_list)){
-    terms <- createTermMatrix( formula, data_list[[ i ]][ rhs ] ) 
+    terms <- sport:::createTermMatrix( formula, data_list[[ i ]][ rhs ] ) 
     model <- dbl(
       rider_list[[ i ]],
       rank    = rank_list[[ i ]],

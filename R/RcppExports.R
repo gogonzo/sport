@@ -9,6 +9,10 @@ dbl <- function(name, rank, X, R, RD, sig, weight, identifier) {
     .Call('_sport_dbl', PACKAGE = 'sport', name, rank, X, R, RD, sig, weight, identifier)
 }
 
+factor2dummy <- function(factor) {
+    .Call('_sport_factor2dummy', PACKAGE = 'sport', factor)
+}
+
 glicko <- function(name, rank, r, rd, sig, weight, identifier, init_r = 1500.00, init_rd = 350.00, gamma = 1) {
     .Call('_sport_glicko', PACKAGE = 'sport', name, rank, r, rd, sig, weight, identifier, init_r, init_rd, gamma)
 }
@@ -45,9 +49,5 @@ glicko2 <- function(name, rank, r, rd, sig, weight, identifier, tau = .5, init_r
 #' @export
 harkness <- function(teams, rank, days, r, rd, init_r = 1500, init_rd = 350) {
     .Call('_sport_harkness', PACKAGE = 'sport', teams, rank, days, r, rd, init_r, init_rd)
-}
-
-factor2dummy <- function(factor) {
-    .Call('_sport_factor2dummy', PACKAGE = 'sport', factor)
 }
 

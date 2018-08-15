@@ -10,8 +10,8 @@ rd <- dbl_run( formula, data = data[1:16,])$final_rd
 
 test_that("final parameters list match all variables.levels ",{
   expect_identical(
-    sport:::allLevelsList(formula = rank|id ~ rider + field + field:name,data),
-    names(dbl_run( formula = rank|id ~ rider + field + field:name, data = data)$final_r)
+    sport:::allLevelsList( rank|id ~ rider + field + field:name+rider:name,data),
+    names(        dbl_run(rank|id ~ rider + field + field:name+rider:name, data = data)$final_r)
   )
 })
 

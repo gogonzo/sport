@@ -46,6 +46,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// factor2dummy
+IntegerMatrix factor2dummy(SEXP factor);
+RcppExport SEXP _sport_factor2dummy(SEXP factorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type factor(factorSEXP);
+    rcpp_result_gen = Rcpp::wrap(factor2dummy(factor));
+    return rcpp_result_gen;
+END_RCPP
+}
 // glicko
 List glicko(CharacterVector name, std::vector<int> rank, NumericVector r, NumericVector rd, NumericVector sig, NumericVector weight, CharacterVector identifier, double init_r, double init_rd, double gamma);
 RcppExport SEXP _sport_glicko(SEXP nameSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigSEXP, SEXP weightSEXP, SEXP identifierSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP gammaSEXP) {
@@ -103,25 +114,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// factor2dummy
-IntegerMatrix factor2dummy(SEXP factor);
-RcppExport SEXP _sport_factor2dummy(SEXP factorSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type factor(factorSEXP);
-    rcpp_result_gen = Rcpp::wrap(factor2dummy(factor));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sport_bbt", (DL_FUNC) &_sport_bbt, 12},
     {"_sport_dbl", (DL_FUNC) &_sport_dbl, 8},
+    {"_sport_factor2dummy", (DL_FUNC) &_sport_factor2dummy, 1},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 10},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 10},
     {"_sport_harkness", (DL_FUNC) &_sport_harkness, 7},
-    {"_sport_factor2dummy", (DL_FUNC) &_sport_factor2dummy, 1},
     {NULL, NULL, 0}
 };
 
