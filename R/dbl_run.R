@@ -7,12 +7,15 @@ NULL
 #' DBL rating algorithm
 #' Wrapper arround `dbl` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
 #' @param formula formula specifying model. DBL allows multiple variables in formula, also two-way interaction are available. LHS needs `rank|id`, to specify competitors order and event `id`.
-#' @param data data.frame which contains columns specified in formula, and optionaly columns defined by `sig`, `weight` or `date`.
+#' @param data data.frame which contains columns specified in formula, and optionaly columns defined by `beta`, `weight` or `date`.
 #' @param r named vector of initial estimates. If there is no assumption, initial ratings is set to be r=0. 
-#' @param rd named vector of initial deviation estimates. In there is no assumption, initial is set to be rd=3.
-#' @param sig named vector of rating volatile. In there is no assumption, initial ratings should be sig=0.5. Names of vector should correspond with team_name label.
+#' @param rd named vector of initial variance of `r` estimates. In there is no assumption, initial is set to be rd=1.
+#' @param beta The additional variance of performance. As beta increases, the performance is more uncertain and update change is smaller. By default `beta = 25/6`.
 #' @param weight name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.
 #' @param idlab name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in
+#' @param tau parameter controlling `rd` to avoid quick decreasing to zero. Is the proportion of `rd` which is maximum change size.
+#' @param init_r initial values for `r` if not provided. Default `r=0`
+#' @param init_rd initial values for `rd` if not provided. Default `rd=1`
 #' @return 
 #' A "sport" object is returned
 #' \itemize{
@@ -25,7 +28,7 @@ NULL
 #'   \item \code{formula} modelled formula
 #' }
 #' @export
-dbl_run <- function(formula, data, r, rd, sig, weight, idlab){
+dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=0, init_rd=1){
   if(missing(formula)) stop("Formula is not specified")
   if(missing(data)) stop("Data is not provided")
   if( !length(all.vars(update(formula, .~0)) ) %in% c(1,2) ) stop("Left hand side formula must contain one or two variables")
@@ -36,45 +39,51 @@ dbl_run <- function(formula, data, r, rd, sig, weight, idlab){
     data$weight <- 1
     weight      <- "weight"
   } 
-  if( missing(sig) ){
-    data$sig <- 1
-    sig      <- "sig"
+  if( missing(beta) ){
+    data$beta <- 1
+    beta      <- "beta"
   } 
   
-  all_params <- sport:::allLevelsList(formula, data)
+  all_params <- allLevelsList(formula, data)
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))
   y    <- lhs[1]
   id <- ifelse( length(lhs)==1 , "id", lhs[2])
   
-  if(missing(r)) r  <- setNames(rep(0, length(all_params)), all_params )
-  if(missing(rd)) rd <- setNames(rep(10, length(all_params)), all_params )
+  if(missing(r)) r  <- setNames(rep(init_r, length(all_params)), all_params )
+  if(missing(rd)) rd <- setNames(rep(init_rd, length(all_params)), all_params )
   if(missing(idlab)) idlab <- id
   
   if(any(class(data)=="data.frame")) 
-    data_list <- split( data[ c(rhs, sig, weight,idlab) ], data[[ lhs[2] ]] )   
+    data_list <- split( data[ c(rhs, beta, weight,idlab) ], data[[ lhs[2] ]] )   
   unique_id  <- unique(data[[ lhs[2] ]]) 
   rank_list  <- split( data[[ lhs[1] ]] , data[[ lhs[2] ]])
   rider_list <- split( data[[ rhs[1] ]] , data[[ lhs[2] ]])
   
+  j <- 0
+  n <- length(data_list)
+  pb <- txtProgressBar(min=0, max=n, width=20, initial=0, style=3)
   models <- list()
   for(i in names(data_list)){
+    j <- j + 1
     terms <- sport:::createTermMatrix( formula, data_list[[ i ]][ rhs ] ) 
-    model <- dbl(
+    model <- sport:::dbl(
       rider_list[[ i ]],
       rank    = rank_list[[ i ]],
       X       = as.matrix(terms),
       R       = r[ colnames(terms) ], 
       RD      = rd[ colnames(terms) ],
-      sig     = data_list[[ i ]][[ sig ]],
+      beta     = data_list[[ i ]][[ beta ]],
       weight  = data_list[[ i ]][[ weight ]],
-      identifier = as.character( data_list[[ i ]][[ idlab ]] )
+      identifier = as.character( data_list[[ i ]][[ idlab ]] ),
+      tau = tau
     )
     
     r[names(model$r)]  <- model$r
     rd[names(model$rd)] <- model$rd
     
     models[[ i ]] <- model
+    setTxtProgressBar(pb,j)
   }
   
   model_r <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["r_df"]] ) , use.names=T, idcol="id" ) )
