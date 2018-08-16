@@ -64,8 +64,8 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=
   models <- list()
   for(i in names(data_list)){
     j <- j + 1
-    terms <- sport:::createTermMatrix( formula, data_list[[ i ]][ rhs ] ) 
-    model <- sport:::dbl(
+    terms <- createTermMatrix( formula, data_list[[ i ]][ rhs ] ) 
+    model <- dbl(
       rider_list[[ i ]],
       rank    = rank_list[[ i ]],
       X       = as.matrix(terms),
