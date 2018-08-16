@@ -33,8 +33,6 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=
   if(missing(data)) stop("Data is not provided")
   if( !length(all.vars(update(formula, .~0)) ) %in% c(1,2) ) stop("Left hand side formula must contain one or two variables")
   if( length(all.vars(update(formula, .~0)) ) == 1) data$id <- 1
-  
-
   if( missing(weight) ){
     data$weight <- 1
     weight      <- "weight"
@@ -96,8 +94,8 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=
   out <- structure(
     list(final_r  = r,
          final_rd = rd,
-         r        = structure( model_r, class="data.frame", identifier = identifier),
-         pairs    = structure( model_P, class="data.frame", identifier = identifierp)),
+         r        = structure( model_r, identifier = identifier),
+         pairs    = structure( model_P, identifier = identifierp)),
     class="sport",
     method = "dbl",
     formula = formula

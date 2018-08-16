@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 # About
-Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate players form and their evolution in time, also able to predict output of challange. 
+Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challange. 
 Algorithms are based on Bayesian Approximation Method, and they don't involve any martix inversions nor likelihood estimation. Weights (parameters) are updated sequentionaly, and computation doesn't require any additional RAM to make estimation feasible. Additionaly, base of the package is writen in `C++` what makes `sport` computation even faster. 
 
 # Theory
@@ -102,16 +102,33 @@ Package contains actual data from Speedway Grand-Prix. There are two data.frames
 str(gpheats)
 ```
 
+Data used in `sport` package must be in so called long format. Typicaly data.frame contains at least `id`, `name` and `rank`, with one row for one player within specific match. Package allows for any number of players within event and allows ties also. For all games, *output needs to be a rank/position in event*. Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output for two player game is 1-winner 2-looser. Below example of two matches with 4 players each.
+
+```{r echo=FALSE}
+gpheats[1:8,c("id","rider","rank")]
+```
+
+
+
 ## Estimate dynamic ratings
 
-To compute ratings using each algorithms one has to specify formula. Following manner is required - `formula = rank|id ~ name` - which estimates `name` (of a player) abilities, with observed outputs `rank` nested within particular event `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
+To compute ratings using each algorithms one has to specify formula. Following manner is required, which estimates `name` (of a player) abilities, with observed outputs `rank` nested within particular event `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
+`formula = rank|id ~ name` 
 
-```{r message=FALSE, warning=FALSE}
-list_glicko  <- glicko_run(  formula = rank|id ~ rider , data = head(gpheats,10002 ) )
-list_glicko2 <- glicko2_run( formula = rank|id ~ rider , data = head(gpheats,10002) )
-list_bbt     <- bbt_run( formula = rank|id~rider,  data = head(gpheats,10002 ) )
-list_dbl     <- dbl_run(  formula = rank|id~rider,  data = head(gpheats,10002 ) )
+```{r message=FALSE, warning=FALSE, include=FALSE}
+glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats[1:1002,] )
+glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats[1:1002,] )
+bbt     <- bbt_run(     formula = rank|id~rider  , data = gpheats[1:1002,] )
+dbl     <- dbl_run(     formula = rank|id~rider+field  , data = gpheats[1:1002,] )
 ```
+
+Output objects are of class `sport` 
+
+```{r paged.print=FALSE}
+print(glicko)
+summary(glicko)
+```
+
 
 
 # Advanced `sport`

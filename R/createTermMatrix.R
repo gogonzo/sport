@@ -15,11 +15,11 @@ createTermMatrix <- function(formula, data){
     if( length(class_i) == 1 )  {
       
       if(class_i == 'factor'){
-        term_i <- sport:::factor2dummy( factor = as.character(data[[ names_i ]] ) )
+        term_i <- factor2dummy( factor = as.character(data[[ names_i ]] ) )
         colnames(term_i) <- paste(names_i,colnames(term_i),sep=".")
         
       } else if(class_i %in% c("character")){
-        term_i <- sport:::factor2dummy( factor = data[[ names_i ]] )
+        term_i <- factor2dummy( factor = data[[ names_i ]] )
         colnames(term_i) <- paste(names_i,colnames(term_i),sep=".")
         
       } else if(class_i %in% c("numeric","integer") ) {
@@ -32,13 +32,13 @@ createTermMatrix <- function(formula, data){
       
       if( class_i[1] %in% c("factor","character") & class_i[2] %in% c("numeric","integer") ){
         factor <- paste(names_i[1], data[[names_i[1]]], sep=".")        
-        term_i <- sport:::factor2dummy( factor )
+        term_i <- factor2dummy( factor )
         term_i <- term_i * data[[ names_i[[2]] ]] 
         colnames(term_i) <- paste0( colnames(term_i), ":" , names_i[[2]])
       } else if( all(class_i %in% c("factor","character") ) ){
         factor <- paste( paste(names_i[1], data[[names_i[1]]], sep=".") , 
                          paste(names_i[2], data[[ names_i[2] ]], sep="."), sep=":")
-        term_i <- sport:::factor2dummy( factor )
+        term_i <- factor2dummy( factor )
       } else if( all(class_i %in% c("numeric","integer") ) ){
         term_i <- matrix(data[[ names_i[1] ]] * data[[ names_i[2] ]], ncol=1)
         colnames(term_i) <- paste0( names_i[1],":",names_i[2])
@@ -115,4 +115,3 @@ extractTermNames <- function(formula, classes){
   
   return(vars)
 }
-  

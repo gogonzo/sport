@@ -109,8 +109,8 @@ glicko2_run <- function(formula, data, r, rd,sig, tau, weight, idlab, init_r = 1
     list(final_r  = r,
          final_rd = rd,
          final_sig = sig,
-         r        = structure( model_r, class="data.frame", identifier = identifier),
-         pairs    = structure( model_P, class="data.frame", identifier = identifierp)),
+         r        = structure( model_r, identifier = identifier),
+         pairs    = structure( model_P, identifier = identifierp)),
     class="sport",
     method = "glicko",
     formula = formula

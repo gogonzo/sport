@@ -109,10 +109,10 @@ bbt_run <- function(formula, data, r,rd, sig, weight,beta=25/6, gamma, idlab, in
   class( model_r[[ id ]] ) <- class( model_P[[ id ]] ) <- class( data[[ id ]] )
   
   out <- structure(
-    list(final_r  = r,
-         final_rd = rd,
-         r        = structure( model_r, class="data.frame", identifier = identifier),
-         pairs    = structure( model_P, class="data.frame", identifier = identifierp)),
+    list(final_r  = setNames(as.vector(r), rownames(r)),
+         final_rd = setNames(as.vector(rd), rownames(rd)),
+         r        = structure( model_r, identifier = identifier),
+         pairs    = structure( model_P, identifier = identifierp)),
     class="sport",
     method = "bbt",
     formula = formula
