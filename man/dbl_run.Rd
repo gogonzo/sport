@@ -8,7 +8,7 @@ dbl_run(formula, data, r, rd, beta, weight, idlab, tau = 0.05,
   init_r = 0, init_rd = 1)
 }
 \arguments{
-\item{formula}{formula specifying model. DBL allows multiple variables in formula, also two-way interaction are available. LHS needs `rank|id`, to specify competitors order and event `id`.}
+\item{formula}{formula specifying model. DBL allows multiple variables in formula, also two-way interaction are available specified by `:`. `dbl` formula require first variable to be player name or identifier. LHS needs `rank|id`, to specify competitors order and event `id`.}
 
 \item{data}{data.frame which contains columns specified in formula, and optionaly columns defined by `beta`, `weight` or `date`.}
 
