@@ -41,39 +41,37 @@ NULL
 #'                            rd   = c( 200,  30,   100,  300 ) )
 #' @export
 glicko_run <- function(formula, data, r, rd, sig, weight, idlab, init_r=1500, init_rd=350){
-  if(missing(formula)) stop("Formula is not specified")
-  if(missing(data)) stop("Data is not provided")
-  if( !length(all.vars(update(formula, .~0)) )  %in% c(1,2)) stop("Left hand side formula must contain two variables")
-  if( length(all.vars(update(formula, .~0)) ) == 1) data$id <- 1
-  if( length(all.vars(update(formula, 0~.)) ) != 1) stop("Glicko expects only one variable which is ~ name")  
+  is_formula_missing(formula)
+  is_data_provided(formula)
+  is_lhs_valid(formula)
+  is_rhs_valid1(formula, "glicko_run")
+
   
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))
   y    <- lhs[1]
   x    <- rhs[1]
   id <- ifelse( length(lhs)==1 , "id", lhs[2])
+  if( length(lhs) == 1) data$id <- 1
   
   if( missing(r) ){
+    message(paste("rd is missing and will set to default="), init_r)
+    player_names <- unique(data[[x]]);
+    r   <- setNames( rep( init_r, length( player_names) ), player_names ) }
+  if( missing(rd) ){
+    message(paste("rd is missing and will set to default="), init_rd)
     player_names <- unique(data[[x]])
-    r <- setNames( rep(init_r, length(player_names)), player_names )
+    rd  <- setNames( rep( init_rd , length( player_names) ), player_names ) }
+  if( missing(sig) ){ 
+    data$sig <- 1; sig <- "sig" } 
+  if( missing(weight) ){ 
+    data$weight <- 1; weight="weight"}
+  if( missing(idlab) )   
+    idlab <- id
+  if( !class(data[[x]]) %in% c("character","factor")) {
+    message(paste0("\nvariable '",x,"' is of class ",class(data[[x]])," and will be converted to character"))
+    data[[x]] <- as.character(data[[x]])
   }
-  if(missing(rd)){
-    player_names <- unique(data[[x]])    
-    rd<- setNames( rep(init_rd,  length(player_names)), player_names )
-  }
-  
-  if( missing(sig) ){
-    data$sig <- 1
-    sig      <- "sig"
-  } 
-  if( missing(weight) ){
-    data$weight <- 1
-    weight      <- "weight"
-  } 
-  if(missing(idlab)) idlab <- id
-  
-  
-  if(!class(data[[x]]) %in% c("character","factor")) warning(paste("variable",x,"is of class",class(x)))
   if(any(class(data)=="data.frame")) 
     data_list <- split(data[ unique(c(y,id,x, sig, weight,idlab))], data[[ id ]] )
   

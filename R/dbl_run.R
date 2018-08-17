@@ -6,7 +6,7 @@ NULL
 #' 
 #' DBL rating algorithm
 #' Wrapper arround `dbl` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
-#' @param formula formula specifying model. DBL allows multiple variables in formula, also two-way interaction are available. LHS needs `rank|id`, to specify competitors order and event `id`.
+#' @param formula formula specifying model. DBL allows multiple variables in formula, also two-way interaction are available specified by `:`. `dbl` formula require first variable to be player name or identifier. LHS needs `rank|id`, to specify competitors order and event `id`.
 #' @param data data.frame which contains columns specified in formula, and optionaly columns defined by `beta`, `weight` or `date`.
 #' @param r named vector of initial estimates. If there is no assumption, initial ratings is set to be r=0. 
 #' @param rd named vector of initial variance of `r` estimates. In there is no assumption, initial is set to be rd=1.
@@ -29,28 +29,27 @@ NULL
 #' }
 #' @export
 dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=0, init_rd=1){
-  if(missing(formula)) stop("Formula is not specified")
-  if(missing(data)) stop("Data is not provided")
-  if( !length(all.vars(update(formula, .~0)) ) %in% c(1,2) ) stop("Left hand side formula must contain one or two variables")
-  if( length(all.vars(update(formula, .~0)) ) == 1) data$id <- 1
-  if( missing(weight) ){
-    data$weight <- 1
-    weight      <- "weight"
-  } 
-  if( missing(beta) ){
-    data$beta <- 1
-    beta      <- "beta"
-  } 
+  is_formula_missing(formula)
+  is_data_provided(formula)
+  is_lhs_valid(formula)
   
   all_params <- allLevelsList(formula, data)
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))
   y    <- lhs[1]
   id <- ifelse( length(lhs)==1 , "id", lhs[2])
+  if( length(lhs) == 1) data$id <- 1
   
-  if(missing(r)) r  <- setNames(rep(init_r, length(all_params)), all_params )
-  if(missing(rd)) rd <- setNames(rep(init_rd, length(all_params)), all_params )
-  if(missing(idlab)) idlab <- id
+  if(missing(r)) 
+    r  <- setNames(rep(init_r, length(all_params)), all_params )
+  if(missing(rd)) 
+    rd <- setNames(rep(init_rd, length(all_params)), all_params )
+  if(missing(idlab)) 
+    idlab <- id
+  if( missing(weight) ){
+    data$weight <- 1; weight      <- "weight" } 
+  if( missing(beta) ){
+    data$beta <- 1; beta      <- "beta" } 
   
   if(any(class(data)=="data.frame")) 
     data_list <- split( data[ c(rhs, beta, weight,idlab) ], data[[ lhs[2] ]] )   

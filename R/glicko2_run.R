@@ -36,39 +36,42 @@ NULL
 #' }
 #' @export
 glicko2_run <- function(formula, data, r, rd,sig, tau, weight, idlab, init_r = 1500, init_rd=350){
-  if(missing(formula)) stop("Formula is not specified")
-  if(missing(data)) stop("Data is not provided")
-  if( !length(all.vars(update(formula, .~0)) )  %in% c(1,2)) stop("Left hand side formula must contain two variables")
-  if( length(all.vars(update(formula, 0~.)) ) != 1) stop("Glicko2 expects only one variable which is ~ name")  
-  if( length(all.vars(update(formula, .~0)) ) == 1) data$id <- 1
+  is_formula_missing(formula)
+  is_data_provided(formula)
+  is_lhs_valid(formula)
+  is_rhs_valid1(formula, "glicko2_run")
   
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))
   y    <- lhs[1]
   x    <- rhs[1]
   id <- ifelse( length(lhs)==1 , "id", lhs[2])
+
+  
   
   if( missing(r) ){
-    player_names <- unique(data[[x]])
-    r   <- setNames( rep( init_r, length( player_names) ), player_names )
-  }
+    message(paste("rd is missing and will set to default="), init_r)
+    player_names <- unique(data[[x]]);
+    r   <- setNames( rep( init_r, length( player_names) ), player_names ) }
   if( missing(rd) ){
+    message(paste("rd is missing and will set to default="), init_rd)
     player_names <- unique(data[[x]])
-    rd  <- setNames( rep( init_rd , length( player_names) ), player_names )
-  }
+    rd  <- setNames( rep( init_rd , length( player_names) ), player_names ) }
   if( missing(sig) ){
     player_names <- unique(data[[x]])
     sig <- setNames( rep( 0.05, length( player_names) ), player_names )
   }
-  if( missing(weight) ){
-    data$weight <- 1
-    weight <- "weight"
-  } 
-  if(missing(idlab)) idlab <- id
-  
+  if( missing(weight) ){ 
+    data$weight <- 1; weight="weight"}
+  if( missing(idlab) )   
+    idlab <- id
+  if( !class(data[[x]]) %in% c("character","factor")) {
+    message(paste0("\nvariable '",x,"' is of class ",class(data[[x]])," and will be converted to character"))
+    data[[x]] <- as.character(data[[x]])
+  }
   if(any(class(data)=="data.frame")) 
-    data_list <- split( data[ unique(c(y,id,x, weight, idlab)) ], data[[ id ]] ) 
-  
+    data_list <- split(data[ unique(c(y,id,x, weight,idlab))], data[[ id ]] )
+
   j <- 0
   n <- length(data_list)
   pb <- txtProgressBar(min=0, max=n, width=20, initial=0, style=3)

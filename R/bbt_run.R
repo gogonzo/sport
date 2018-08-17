@@ -36,36 +36,34 @@ NULL
 #' }
 #' @export
 bbt_run <- function(formula, data, r,rd, sig, weight,beta=25/6, gamma, idlab, init_r = 25, init_rd=25/3){
-  if(missing(formula)) stop("Formula is not specified")
-  if(missing(data)) stop("Data is not provided")
-  if(missing(gamma)) gamma <- 999
-  if( !length(all.vars(update(formula, .~0)) )  %in% c(1,2)) stop("Left hand side formula must contain two variables")
-  if( length(all.vars(update(formula, 0~.)) ) != 1) stop("BBT expects only one variable which is ~ name")  
-  if( length(all.vars(update(formula, .~0)) ) == 1) data$id <- 1
-  if( missing(sig) ){
-    data$sig <- 1
-    sig <- "sig"
-  } 
-  if( missing(weight) ){
-    data$weight <- 1
-    weight <- "weight"
-  } 
-  
+  is_formula_missing(formula)
+  is_data_provided(formula)
+  is_lhs_valid(formula)
+  is_rhs_valid1(formula, "bbt_run")
+
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))
   y    <- lhs[1]
   x    <- rhs[1]
   id <- ifelse( length(lhs)==1 , "id", lhs[2])
+  if( length(lhs) == 1) data$id <- 1
   
   if(missing(r)){
+    message(paste("r is missing and will set to default="), init_r)
     names <- unique( data[[ x ]] )
-    r <- as.matrix( setNames( rep(init_r, length(names)), names ) )
-  }
+    r <- as.matrix( setNames( rep(init_r, length(names)), names ) ) }
   if(missing(rd)){
+    message(paste("rd is missing and will set to default="), init_rd)
     names <- unique( data[[ x ]] )
-    rd<- as.matrix( setNames( rep(init_rd, length(names)), names ) )
-  }
-  if(missing(idlab)) idlab <- id 
+    rd<- as.matrix( setNames( rep(init_rd, length(names)), names ) ) }
+  if( missing(sig) ){
+    data$sig <- 1; sig <- "sig" } 
+  if( missing(weight) ){
+    data$weight <- 1; weight <- "weight" } 
+  if(missing(gamma)) 
+    gamma <- 999
+  if(missing(idlab)) 
+    idlab <- id 
   if(class(r)!="matrix")   r <- as.matrix(r)
   if(class(rd)!="matrix") rd <- as.matrix(rd)
   
