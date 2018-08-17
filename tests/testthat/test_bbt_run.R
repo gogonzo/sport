@@ -5,10 +5,12 @@ rd    <- setNames( rep(350,4), c("A","B","C","D") )
 
 test_that("valid bbt computation",{
   expect_equal(
-    c(1499.921841, 1399.680003, 1550.401084, 1699.997072),
-    bbt_run( rank ~ name, data = data, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ) )$final_r
+    c(22.52807, 14.06973, 19.57436, 30.46640),
+    round(bbt_run( rank ~ name, data = data, r = c( 25, 20, 15, 30 ) , rd    = c( 6,  7,   5,  20 ) )$final_r,5)
   )
 })
+
+
 
 test_that("init r passed",{
   expect_true( all(

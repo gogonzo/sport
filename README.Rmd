@@ -11,8 +11,8 @@ output:
 [![Coverage status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)](https://codecov.io/github/gogonzo/sport?branch=master)
 
 # About
-Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate players ratings and their evolution in time, also able to predict output of challange. 
-Algorithms are based on Bayesian Approximation Method, and they don't involve any martix inversions nor likelihood estimation. Weights (parameters) are updated iteratively, and computation doesn't require any additional RAM to make estimation feasible. Additionaly, base of the package is writen in `C++` what makes `sport` computation even faster. 
+Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challange. 
+Algorithms are based on Bayesian Approximation Method, and they don't involve any martix inversions nor likelihood estimation. Weights (parameters) are updated sequentionaly, and computation doesn't require any additional RAM to make estimation feasible. Additionaly, base of the package is writen in `C++` what makes `sport` computation even faster. 
 
 # Theory
 Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preferrence of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preffered to win over worst. As player/event and alternative/experiment can be used interchangeably, for ease of use sport nomenclature is adapted (player/event).  
@@ -66,15 +66,15 @@ $${RD'}_i = RD_i * [ 1 - \frac{RD_{ij}^2}{RD_i^2}\sum_j{ \gamma_j * (\frac{RD_i}
 
 
 ## Dynamic Bayesian Logit
-DBL implements Extended Kalman Filter learning rule, and allows to estimate multiple parameters additional to player ratings. DBL is a logit extended to usage in pairwise comparisons by modeling differences of skills.
+Following algorithm gives some advantages over mentioned rating systems, adding other important factors to estimation process making final ratings unbiased. Algorithm perform better in disciples where other variables can make a difference in result eg. home field advantage. DBL implements Extended Kalman Filter learning rule, and allows to estimate multiple parameters in addition to player ratings. DBL is a Dynamic Logit extended to usage in pairwise comparisons by modeling differences in players characteristics. Classic Bradley-Terry model is enriched by moderation element $K(s_t)$ which adds prior uncertainty to output prediction.
 
-$$Y_t = \frac{ e^{w _t^Tx_t} }{1+e^{w _t^Tx_t}}$$
+$$\hat{Y_{ij}} = \frac{ e^{-K(s_t)w _t^T(x_{it}-x_{jt})} }{1+e^{-K(s_t)w _t^T(x_{it}-x_{jt})}}$$
+Parameters for player `i` competing with player `j` are estimated using EKF update rule.
+$$\hat{\omega}_{it} = \hat{\omega}_{i(t-1)} + \frac{RD^2_{i(t-1)}}{1+\hat{Y_{ij}}  (1-\hat{Y_{ij}})}  x_t (Y_{ij} - \hat{Y_{ij}})$$
+$$RD^2_{i t} = RD^2_{i(t-1)} - \frac{\hat{Y_{ij}}(1-\hat{Y_{ij}})}{1+\hat{Y_{ij}}  (1-\hat{Y_{ij}})s_t^2}(RD^2_{i(t-1)}x_i)(RD^2_{i(t-1)}x_i)^T$$
 
-$$x_t = x_{it} - x_{jt}$$
 
-
-For further knowledge read  *William D. Penny and Stephen J. Roberts (1999): Dynamic Logistic Regression, Departament of Electrical and Electronic Engineering, Imperial College*
-
+For further knowledge read [Stephen J. Roberts, William Penny (2011)](https://www.researchgate.net/publication/2465226_Dynamic_Logistic_Regression)
 
 # Package Usage
 
@@ -88,55 +88,37 @@ library(sport)
 
 ## Available Data
 Package contains actual data from Speedway Grand-Prix. There are two data.frames: 
-1. `gpheats` - results of each race in all SGP events. Column `rank` is a numeric version of column `position` - rider position in race.
+
+1. `gpheats` - results SGP heats. Column `rank` is a numeric version of column `position` - rider position in race.
 2. `gpsquads` - summarized results of the events, with sum of point and final position.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 str(gpheats)
 ```
 
+Data used in `sport` package must be in so called long format. Typicaly data.frame contains at least `id`, `name` and `rank`, with one row for one player within specific match. Package allows for any number of players within event and allows ties also. For all games, *output needs to be a rank/position in event*. Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output for two player game is 1-winner 2-looser. Below example of two matches with 4 players each.
+
+```{r echo=FALSE}
+gpheats[1:8,c("id","rider","rank")]
+```
+
+
+
 ## Estimate dynamic ratings
 
-To compute ratings using each algorithms one has to specify formula. Following manner is required - `formula = rank|id ~ name` - which estimates `name` (of a player) abilities, with observed outputs `rank` nested within particular event `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
+To compute ratings using each algorithms one has to specify formula. Following manner is required, which estimates `name` (of a player) abilities, with observed outputs `rank` nested within particular event `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
+`formula = rank|id ~ name` 
 
-Glicko uses only one parameter `name` to describe player overall abilities. Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge estimates `r` and `rd`. By default `r=1500` and `rd=350`
-```{r message=FALSE, warning=FALSE}
-list_glicko  <- glicko_run(  formula = rank|id ~ rider , data = gpheats )
+```{r message=FALSE, warning=FALSE, include=FALSE}
+glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats[1:1002,] )
+glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats[1:1002,] )
+bbt     <- bbt_run(     formula = rank|id~rider  , data = gpheats[1:1002,] )
+dbl     <- dbl_run(     formula = rank|id~rider+field  , data = gpheats[1:1002,] )
 ```
 
-Glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=350`, `sig=0.05`.
-```{r message=FALSE, warning=FALSE}
-list_glicko2 <- glicko2_run( formula = rank|id ~ rider , data = gpheats, date="date" )
-```
+Output objects are of class `sport` have their own `print` and `summary` which provides most important informations. `print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.   
 
-
-```{r message=FALSE, warning=FALSE}
-library(magrittr)
-unique_riders <- unique(gpheats$rider)
-r   <- rep(1500, length(unique_riders) ) %>% setNames(unique_riders)
-rd  <- rep(1500, length(unique_riders) ) %>% setNames(unique_riders)
-sig <- rep(0.05, length(unique_riders) ) %>% setNames(unique_riders)
-
-list_glicko  <- glicko_run( 
-  formula = rank|id ~ rider , 
-  r = r, rd = rd, 
-  data = gpheats)
-
-list_glicko2 <- glicko2_run( 
-  formula = rank|id ~ rider , 
-  r = r, rd = rd, sig = sig ,
-  data = gpheats)
-
-```
-
-
-```{r message=FALSE, warning=FALSE}
-list_bbt <- bbt_run( formula = rank|id~rider,  data = gpheats )
-```
-
-
-
-```{r message=FALSE, warning=FALSE}
-library(tidyverse);library(magrittr)
-
+```{r paged.print=FALSE}
+print(glicko)
+summary(glicko)
 ```
