@@ -7,6 +7,12 @@ formula      <- rank|id ~ rider + field + field_f
 r  <- dbl_run( formula, data = gpheats[1:16,])$final_r
 rd <- dbl_run( formula, data = gpheats[1:16,])$final_rd
 
+test_that("final parameters list match all variables.levels ",{
+  expect_identical(
+    sport:::allLevelsList( rank|id ~ rider + field + field:name+rider:name + beta:weight , gpheats[1:32,]),
+    names(        dbl_run( rank|id ~ rider + field + field:name+rider:name + beta:weight , data = gpheats[1:32,])$final_r)
+  )
+})
 
 test_that("only factor, character, numeric and integer allowed",{
   expect_error(
@@ -33,8 +39,6 @@ test_that("only factor, character, numeric and integer allowed",{
     "Variables can be only of following classes: factor, character, numeric, integer."
   )
 })
-
-
 
 test_that("passing prior estimates",{
   expect_true(
