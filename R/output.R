@@ -1,5 +1,8 @@
 #' @import data.table
+#' @import ggplot2
+#' @importFrom stats reorder
 NULL
+
 #' Summarizing sport objects
 #' 
 #' Summarizing sport objects
@@ -84,4 +87,28 @@ print.sport <- function(x,...){
   invisible(0)
 }
 
+#' Plot sport object
+#' 
+#' @export
+plot_sport <- function(object,n=10,...){
+  data <- data.frame( 
+    name = names(object$final_r), 
+    r = object$final_r, 
+    rd = object$final_rd, 
+    row.names = NULL,
+    stringsAsFactors = F)
+  
+  data <- data[order(data$r),]
+  data$rank <- 1:nrow(data)
+  data$name <- reorder(data$name, 1:nrow(data))
+  
 
+  ggplot( data[1:n,] , aes(x=name, y=r)) + 
+    ggtitle('Actual ratings') + 
+    geom_linerange(aes(ymin=r-rd*1.98, ymax= r+rd*1.98), size=1*0.8, alpha=0.4)  + 
+    geom_point(colour="grey20", size=1) + 
+    coord_flip() + 
+    scale_x_discrete("Name") + 
+    scale_y_continuous("Name") + 
+    theme_bw()
+}

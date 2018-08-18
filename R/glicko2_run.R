@@ -40,7 +40,7 @@ NULL
 #'                     rank = c( 3, 4, 1, 2 ))
 #' glicko2 <- glicko2_run( rank ~ name, data )
 #' @export
-glicko2_run <- function(formula, data, r, rd,sig, tau, weight, idlab, init_r = 1500, init_rd=350){
+glicko2_run <- function(formula, data, r, rd,sig, tau=0.5, weight, idlab, init_r = 1500, init_rd=350){
   is_formula_missing(formula)
   is_data_provided(data)
   is_lhs_valid(formula)
@@ -54,7 +54,7 @@ glicko2_run <- function(formula, data, r, rd,sig, tau, weight, idlab, init_r = 1
   if( length(lhs) == 1) data$id <- 1
   
   if( missing(r) ){
-    message(paste("rd is missing and will set to default="), init_r)
+    message(paste("r is missing and will set to default="), init_r)
     player_names <- unique(data[[x]]);
     r   <- setNames( rep( init_r, length( player_names) ), player_names ) }
   if( missing(rd) ){
@@ -90,6 +90,7 @@ glicko2_run <- function(formula, data, r, rd,sig, tau, weight, idlab, init_r = 1
       r      = r[ player_names ] ,  
       rd     = rd[ player_names ] , 
       sig    = sig[ player_names ] , 
+      tau    = tau,
       weight = data_list[[ i ]][[ weight ]],
       identifier = as.character( data_list[[ i ]][[ idlab ]] ), 
       init_r = init_r,
@@ -119,8 +120,9 @@ glicko2_run <- function(formula, data, r, rd,sig, tau, weight, idlab, init_r = 1
          r        = structure( model_r, identifier = identifier),
          pairs    = structure( model_P, identifier = identifierp)),
     class="sport",
-    method = "glicko",
-    formula = formula
+    method = "glicko2",
+    formula = formula,
+    settings = list(tau=tau, weight=weight, idlab=idlab, init_r=init_r, init_rd=init_rd)
   )
   
   return( out )

@@ -1,5 +1,6 @@
 #' @importFrom data.table rbindlist
 #' @importFrom stats setNames terms update
+#' @importFrom utils setTxtProgressBar txtProgressBar
 NULL
 
 #' Glicko rating algorithm
@@ -110,9 +111,10 @@ glicko_run <- function(formula, data, r, rd, sig, weight, idlab, init_r=1500, in
          final_rd = rd,
          r        = structure( model_r, identifier = identifier),
          pairs    = structure( model_P, identifier = identifierp)),
-    class="sport",
-    method = "glicko",
-    formula = formula
+    class    = "sport",
+    method   = "glicko",
+    formula  = formula,
+    settings = list(init_r = init_r, init_rd = init_rd, sig=sig, weight=weight, idlab=idlab)
   )
   
   return( out )

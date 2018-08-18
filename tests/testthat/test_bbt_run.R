@@ -70,9 +70,12 @@ test_that("valid bbt output names",{
 })
 
 test_that("valid bbt attr names",{
-  expect_identical(
+  expect_equal(
     list(names = c("final_r","final_rd","r","pairs"),
-         class = "sport", method = "bbt",formula = rank | id ~name),
+         class = "sport", 
+         method = "bbt",
+         formula = rank | id ~name,
+         settings=list(sig="sig",weight="weight",beta=25/6,gamma=999,idlab="id",init_r=1000,init_rd=200)),
     attributes( bbt_run( rank | id ~ name, data = data, weight="weight", sig = "sig", init_r=1000, init_rd=200) )
   )
 })

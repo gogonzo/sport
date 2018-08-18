@@ -118,7 +118,8 @@ bbt_run <- function(formula, data, r,rd, sig, weight,beta=25/6, gamma, idlab, in
          pairs    = structure( model_P, identifier = identifierp)),
     class="sport",
     method = "bbt",
-    formula = formula
+    formula = formula,
+    settings = list(sig=sig, weight=weight,beta=beta, gamma=gamma, idlab=idlab, init_r=init_r, init_rd=init_rd)
   )
   
   return( out )

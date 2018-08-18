@@ -108,21 +108,19 @@ Data used in `sport` package must be in so called long format. Typicaly data.fra
 gpheats[1:8,c("id","rider","rank")]
 ```
 
-
-
 ## Estimate dynamic ratings
 
-To compute ratings using each algorithms one has to specify formula. Following manner is required, which estimates `name` (of a player) abilities, with observed outputs `rank` nested within particular event `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
+To compute ratings using each algorithms one has to specify formula. Form `rank | id ~ name` is required, which estimates `name` - rating of a player, by observing outputs - `rank`, nested within particular event - `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
 `formula = rank|id ~ name` 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
-glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats[1:1002,] )
-glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats[1:1002,] )
-bbt     <- bbt_run(     formula = rank|id~rider  , data = gpheats[1:1002,] )
-dbl     <- dbl_run(     formula = rank|id~rider+field  , data = gpheats[1:1002,] )
+glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats )
+glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats )
+bbt     <- bbt_run(     formula = rank|id~rider  , data = gpheats )
+dbl     <- dbl_run(     formula = rank|id~rider+field, data = gpheats )
 ```
 
-Output objects are of class `sport` have their own `print` and `summary` which provides most important informations. `print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.   
+Output objects are of class `sport` have their own `print` and `summary` which provides most important informations. `print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.
 
 ```{r paged.print=FALSE}
 print(glicko)

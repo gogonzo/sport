@@ -8,7 +8,6 @@ createTermMatrix <- function(formula, data){
     if(any( !class_i %in% c("character","factor","numeric","integer")) )
       stop("Variables can be only of following classes: factor, character, numeric, integer.")
     
-    
     if( length(class_i) == 1 )  {
       
       if(class_i == 'factor'){

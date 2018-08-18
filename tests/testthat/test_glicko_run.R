@@ -61,9 +61,6 @@ test_that("missing r message",{
     "variable 'field' is of class integer and will be converted to character")
 })
 
-
-
-
 test_that("valid glicko computation",{
   expect_identical(
     c(1464.2973571629759135, 1396.0386597041820096, 1606.5214821882570959, 1674.8363617318223078),
@@ -117,9 +114,10 @@ test_that("valid glicko output names",{
 })
 
 test_that("valid glicko attr names",{
-  expect_identical(
+  expect_equal(
     list(names = c("final_r","final_rd","r","pairs"),
-         class = "sport", method = "glicko",formula = rank | id ~name),
+         class = "sport", method = "glicko",formula = rank | id ~name,
+         settings = list(init_r = 1000, init_rd = 200, sig="sig", weight="weight", idlab="id")),
     attributes( glicko_run( rank | id ~ name, data = data, weight="weight", sig = "sig", init_r=1000, init_rd=200) )
   )
 })
