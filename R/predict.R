@@ -5,9 +5,10 @@
 #' @param new_data data.frame with data to predict
 #' @return probabilities of winning challange by player over his opponent in all provided events.
 #' @examples
-#'
+#' glicko <- glicko_run(rank|id~rider, gpheats[1:16,])
+#' predict(glicko,gpheats[17:20,])
 #' @export
-predict.sport <- function(object,new_data,...){
+predict.sport <- function(object,new_data){
   method   <- attr(object,"method")
   formula <- attr(object,"formula")
   

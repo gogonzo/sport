@@ -37,7 +37,7 @@ test_that("bigger rating change for higher sigma",{
 test_that("bigger rating change for higher weight",{
   expect_true( all(
     abs( 25 - bbt_run(formula = rank | id ~ name, data=data, weight="weight")$final_r ) >
-      abs( 25 - bbt_run(formula = rank | id ~ name, data=data                 )$final_r )
+    abs( 25 - bbt_run(formula = rank | id ~ name, data=data                 )$final_r )
   ))
 })
 

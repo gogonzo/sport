@@ -69,7 +69,7 @@ Rcpp::List
         Ks = 1/sqrt( 1 + pi * s2/8 );
         
         // probability and output
-        p = 1/( 1 + exp( -Ks * (sum(x_i * h_i) - sum(x_q * h_q))  ) );
+        p = 1/( 1 + exp( -Ks * (sum(x_i * h_i) + sum(x_q * h_q))  ) );
         y = dlr_calc_y( rank( i ) , rank( q ) );
         error = y - p;
         
@@ -100,9 +100,9 @@ Rcpp::List
     if(  -delta_ > RD(i)*tau) 
       delta_ = RD(i) * tau * delta_/std::abs(delta_);
     RD(i) += delta_; 
-    R(i)  +=  sum( OMEGA(_,i) * weight ) / 2;
+    R(i)  += sum( OMEGA(_,i) * weight ) / 2;
   }
-  
+
   // UPDATE according to mapping
 
   r_update.names()  = colnames(X);
@@ -111,8 +111,6 @@ Rcpp::List
   return Rcpp::List::create(
     Rcpp::Named("r") = R,
     Rcpp::Named("rd") = RD,
-    Rcpp::Named("OMEGA") = OMEGA,
-    Rcpp::Named("DELTA") = DELTA,
     
     Rcpp::Named("r_df") = DataFrame::create(
       Rcpp::Named("name") = colnames(X),

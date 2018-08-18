@@ -38,7 +38,7 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=
   is_lhs_valid(formula)
   is_interactions_valid(formula)
   
-  all_params <- sport:::allLevelsList(formula, data)
+  all_params <- allLevelsList(formula, data)
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))
   y    <- lhs[1]
@@ -52,9 +52,9 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=
   if(missing(idlab)) 
     idlab <- id
   if( missing(weight) ){
-    data$weight <- 1; weight      <- "weight" } 
+    data$weight <- 1.0; weight      <- "weight" } 
   if( missing(beta) ){
-    data$beta <- 1; beta      <- "beta" } 
+    data$beta <- 1.0; beta      <- "beta" } 
   
   if(any(class(data)=="data.frame")) 
     data_list <- split( data[ c(rhs, beta, weight,idlab) ], data[[ id ]] )   
@@ -68,8 +68,8 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=
   models <- list()
   for(i in names(data_list)){
     j <- j + 1
-    terms <- sport:::createTermMatrix( formula, data_list[[ i ]][ rhs ] ) 
-    model <- sport:::dbl(
+    terms <- createTermMatrix( formula, data_list[[ i ]][ rhs ] ) 
+    model <- dbl(
       rider_list[[ i ]],
       rank    = rank_list[[ i ]],
       X       = as.matrix(terms),

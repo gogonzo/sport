@@ -4,7 +4,7 @@
 \alias{predict.sport}
 \title{Predict sport model}
 \usage{
-\method{predict}{sport}(object, new_data, ...)
+\method{predict}{sport}(object, new_data)
 }
 \arguments{
 \item{object}{of class sport}
@@ -18,5 +18,6 @@ probabilities of winning challange by player over his opponent in all provided e
 Predict sport model
 }
 \examples{
-
+glicko <- glicko_run(rank|id~rider, gpheats[1:16,])
+predict(glicko,gpheats[17:20,])
 }

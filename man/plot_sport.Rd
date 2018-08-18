@@ -6,6 +6,11 @@
 \usage{
 plot_sport(object, n = 10, ...)
 }
+\arguments{
+\item{object}{of class sport}
+
+\item{n}{number of players to be plotted}
+}
 \description{
 Plot sport object
 }

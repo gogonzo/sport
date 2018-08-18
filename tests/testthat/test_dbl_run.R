@@ -1,7 +1,8 @@
 context("dbl")
 gpheats$field_f <- as.factor(gpheats$field)
 gpheats$beta   <- 100
-gpheats$weight  <- 1.01
+gpheats$weight   <- 1.1
+gpheats$weight2  <- 1.0
 
 formula      <- rank|id ~ rider + field + field_f
 r  <- dbl_run( formula, data = gpheats[1:16,])$final_r
@@ -53,11 +54,10 @@ test_that("beta changes calculation",{
   ))
 })
 
-
 test_that("bigger rating change for higher weight",{
   expect_true( all(
-    abs(r-dbl_run( formula, gpheats[17:32,], r=r, rd=rd, weight = "weight"  )$final_r) >
-    abs(r-dbl_run( formula, gpheats[17:32,], r=r, rd=rd )$final_r)
+    abs(r-dbl_run( formula, gpheats[17:20,], r=r, rd=rd, weight = "weight"  )$final_r) >=
+    abs(r-dbl_run( formula, gpheats[17:20,], r=r, rd=rd, weight = "weight2" )$final_r)
   ))
 })
 
