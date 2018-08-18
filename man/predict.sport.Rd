@@ -4,12 +4,14 @@
 \alias{predict.sport}
 \title{Predict sport model}
 \usage{
-\method{predict}{sport}(object, new_data)
+\method{predict}{sport}(object, newdata, ...)
 }
 \arguments{
 \item{object}{of class sport}
 
-\item{new_data}{data.frame with data to predict}
+\item{newdata}{data.frame with data to predict}
+
+\item{...}{optional arguments}
 }
 \value{
 probabilities of winning challange by player over his opponent in all provided events.

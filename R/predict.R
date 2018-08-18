@@ -2,13 +2,14 @@
 #' 
 #' Predict sport model
 #' @param object of class sport
-#' @param new_data data.frame with data to predict
+#' @param newdata data.frame with data to predict
+#' @param ... optional arguments
 #' @return probabilities of winning challange by player over his opponent in all provided events.
 #' @examples
 #' glicko <- glicko_run(rank|id~rider, gpheats[1:16,])
 #' predict(glicko,gpheats[17:20,])
 #' @export
-predict.sport <- function(object,new_data){
+predict.sport <- function(object,newdata,...){
   method   <- attr(object,"method")
   formula <- attr(object,"formula")
   
@@ -17,7 +18,7 @@ predict.sport <- function(object,new_data){
   y    <- lhs[1]
   x    <- rhs[1]
   id <- ifelse( length(lhs)==1 , "id", lhs[2])
-  if( length(lhs) == 1) new_data$id <- 1
+  if( length(lhs) == 1) newdata$id <- 1
   
   r       <- object$final_r
   rd      <- object$final_rd
@@ -29,10 +30,10 @@ predict.sport <- function(object,new_data){
     init_r <- attr(object,"settings")$init_r
     init_rd<- attr(object,"settings")$init_rd
     
-    if( !weight %in% colnames(new_data) ) new_data[[weight]] <- 1
-    if( !sig    %in% colnames(new_data) ) new_data[[sig]]    <- 1
+    if( !weight %in% colnames(newdata) ) newdata[[weight]] <- 1
+    if( !sig    %in% colnames(newdata) ) newdata[[sig]]    <- 1
     
-    data_list <- split(new_data[ unique(c(y,id,x, sig, weight,idlab))], new_data[[ id ]] )
+    data_list <- split(newdata[ unique(c(y,id,x, sig, weight,idlab))], newdata[[ id ]] )
     
     models <- list()
     for(i in names(data_list)){
@@ -60,8 +61,8 @@ predict.sport <- function(object,new_data){
     init_r <- attr(object,"settings")$init_r
     init_rd<- attr(object,"settings")$init_rd
     
-    if( !weight %in% colnames(new_data) ) new_data[[weight]] <- 1
-    data_list <- split(new_data[ unique(c(y,id,x, weight,idlab))], new_data[[ id ]] )
+    if( !weight %in% colnames(newdata) ) newdata[[weight]] <- 1
+    data_list <- split(newdata[ unique(c(y,id,x, weight,idlab))], newdata[[ id ]] )
     
     models <- list()
     for(i in names(data_list)){
@@ -93,10 +94,10 @@ predict.sport <- function(object,new_data){
     init_r <- attr(object,"settings")$init_r
     init_rd<- attr(object,"settings")$init_rd
     
-    if( !weight %in% colnames(new_data) ) new_data[[weight]] <- 1
-    if( !sig    %in% colnames(new_data) ) new_data[[sig]]    <- 1
+    if( !weight %in% colnames(newdata) ) newdata[[weight]] <- 1
+    if( !sig    %in% colnames(newdata) ) newdata[[sig]]    <- 1
     
-    data_list <- split(new_data[ unique(c(y,id,x, sig, weight,idlab))], new_data[[ id ]] )
+    data_list <- split(newdata[ unique(c(y,id,x, sig, weight,idlab))], newdata[[ id ]] )
     
     models <- list()
     for(i in names(data_list)){
@@ -119,7 +120,7 @@ predict.sport <- function(object,new_data){
   }
   
   if(method == "dbl"){
-    all_params <- allLevelsList(formula, new_data)
+    all_params <- allLevelsList(formula, newdata)
     weight <- attr(object,"settings")$weight
     beta   <- attr(object,"settings")$beta
     tau    <- attr(object, "settings")$tau
@@ -127,13 +128,13 @@ predict.sport <- function(object,new_data){
     init_r <- attr(object,"settings")$init_r
     init_rd<- attr(object,"settings")$init_rd
     
-    if( !weight %in% colnames(new_data) ) new_data[[weight]] <- 1
-    if( !beta    %in% colnames(new_data) ) new_data[[beta]]  <- 1
+    if( !weight %in% colnames(newdata) ) newdata[[weight]] <- 1
+    if( !beta    %in% colnames(newdata) ) newdata[[beta]]  <- 1
     
-    data_list <- split( new_data[ c(rhs, beta, weight,idlab) ], new_data[[ id ]] )   
-    unique_id  <- unique(new_data[[ id ]]) 
-    rank_list  <- split( new_data[[ lhs[1] ]] , new_data[[ id ]])
-    rider_list <- split( new_data[[ rhs[1] ]] , new_data[[ id ]])
+    data_list <- split( newdata[ c(rhs, beta, weight,idlab) ], newdata[[ id ]] )   
+    unique_id  <- unique(newdata[[ id ]]) 
+    rank_list  <- split( newdata[[ lhs[1] ]] , newdata[[ id ]])
+    rider_list <- split( newdata[[ rhs[1] ]] , newdata[[ id ]])
     
     models <- list()
     for(i in names(data_list)){
@@ -157,7 +158,7 @@ predict.sport <- function(object,new_data){
   }
   
   model_P <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["pairs"]] ) , use.names=T, idcol="id" ) )
-  class( model_P[[ id ]] ) <- class( new_data[[ id ]] ) 
+  class( model_P[[ id ]] ) <- class( newdata[[ id ]] ) 
   
   return(model_P[,1:4])
 }

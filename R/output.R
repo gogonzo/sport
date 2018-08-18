@@ -91,6 +91,7 @@ print.sport <- function(x,...){
 #' 
 #' @param object of class sport
 #' @param n number of players to be plotted
+#' @param ... optional arguments
 #' @export
 plot_sport <- function(object,n=10,...){
   data <- data.frame( 
