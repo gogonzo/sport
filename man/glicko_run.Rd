@@ -50,9 +50,6 @@ Wrapper arround `glicko` update algorithm. Wrapper allows user to simplify calcu
 \examples{
 # Example from Glickman
 data <- data.frame( name = c( "A", "B", "C", "D" ), 
-                    rank  = c( 3, 4, 1, 2 ))
-glicko_list <- glicko_run( rank ~ name, 
-                           data = data, 
-                           r    = c( 1500, 1400, 1550, 1700 ) , 
-                           rd   = c( 200,  30,   100,  300 ) )
+                    rank = c( 3, 4, 1, 2 ))
+glicko <- glicko_run( rank ~ name, data )
 }

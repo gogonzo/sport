@@ -52,3 +52,9 @@ A "sport" object is returned
 BBT rating algorithm
 Wrapper arround `bbt` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
 }
+\examples{
+# Example from Glickman
+data <- data.frame( name = c( "A", "B", "C", "D" ), 
+                    rank = c( 3, 4, 1, 2 ))
+bbt <- bbt_run( rank ~ name, data )
+}

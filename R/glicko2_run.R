@@ -34,20 +34,24 @@ NULL
 #'   \item \code{method} type of algorithm used
 #'   \item \code{formula} modelled formula
 #' }
+#' @examples
+#' # Example from Glickman
+#' data <- data.frame( name = c( "A", "B", "C", "D" ), 
+#'                     rank = c( 3, 4, 1, 2 ))
+#' glicko2 <- glicko2_run( rank ~ name, data )
 #' @export
 glicko2_run <- function(formula, data, r, rd,sig, tau, weight, idlab, init_r = 1500, init_rd=350){
   is_formula_missing(formula)
-  is_data_provided(formula)
+  is_data_provided(data)
   is_lhs_valid(formula)
-  is_rhs_valid1(formula, "glicko2_run")
+  is_rhs_valid(formula, "glicko2_run")
   
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))
   y    <- lhs[1]
   x    <- rhs[1]
   id <- ifelse( length(lhs)==1 , "id", lhs[2])
-
-  
+  if( length(lhs) == 1) data$id <- 1
   
   if( missing(r) ){
     message(paste("rd is missing and will set to default="), init_r)

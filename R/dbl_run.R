@@ -27,11 +27,17 @@ NULL
 #'   \item \code{method} type of algorithm used
 #'   \item \code{formula} modelled formula
 #' }
+#' @examples
+#' data <- data.frame( name = c( "A", "B", "C", "D" ), 
+#'                     rank = c( 3, 4, 1, 2 ))
+#' dbl <- dbl_run( rank ~ name, data)
 #' @export
 dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=0, init_rd=1){
   is_formula_missing(formula)
-  is_data_provided(formula)
+  is_data_provided(data)
   is_lhs_valid(formula)
+  is_interactions_valid(formula)
+  
   
   all_params <- allLevelsList(formula, data)
   lhs  <- all.vars(update(formula, .~0))
@@ -52,10 +58,10 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=
     data$beta <- 1; beta      <- "beta" } 
   
   if(any(class(data)=="data.frame")) 
-    data_list <- split( data[ c(rhs, beta, weight,idlab) ], data[[ lhs[2] ]] )   
-  unique_id  <- unique(data[[ lhs[2] ]]) 
-  rank_list  <- split( data[[ lhs[1] ]] , data[[ lhs[2] ]])
-  rider_list <- split( data[[ rhs[1] ]] , data[[ lhs[2] ]])
+    data_list <- split( data[ c(rhs, beta, weight,idlab) ], data[[ id ]] )   
+  unique_id  <- unique(data[[ id ]]) 
+  rank_list  <- split( data[[ lhs[1] ]] , data[[ id ]])
+  rider_list <- split( data[[ rhs[1] ]] , data[[ id ]])
   
   j <- 0
   n <- length(data_list)

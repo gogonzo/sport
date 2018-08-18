@@ -34,19 +34,15 @@ NULL
 #' @examples
 #' # Example from Glickman
 #' data <- data.frame( name = c( "A", "B", "C", "D" ), 
-#'                     rank  = c( 3, 4, 1, 2 ))
-#' glicko_list <- glicko_run( rank ~ name, 
-#'                            data = data, 
-#'                            r    = c( 1500, 1400, 1550, 1700 ) , 
-#'                            rd   = c( 200,  30,   100,  300 ) )
+#'                     rank = c( 3, 4, 1, 2 ))
+#' glicko <- glicko_run( rank ~ name, data )
 #' @export
 glicko_run <- function(formula, data, r, rd, sig, weight, idlab, init_r=1500, init_rd=350){
   is_formula_missing(formula)
-  is_data_provided(formula)
+  is_data_provided(data)
   is_lhs_valid(formula)
-  is_rhs_valid1(formula, "glicko_run")
+  is_rhs_valid(formula, "glicko_run")
 
-  
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))
   y    <- lhs[1]
@@ -55,7 +51,7 @@ glicko_run <- function(formula, data, r, rd, sig, weight, idlab, init_r=1500, in
   if( length(lhs) == 1) data$id <- 1
   
   if( missing(r) ){
-    message(paste("rd is missing and will set to default="), init_r)
+    message(paste("r is missing and will set to default="), init_r)
     player_names <- unique(data[[x]]);
     r   <- setNames( rep( init_r, length( player_names) ), player_names ) }
   if( missing(rd) ){

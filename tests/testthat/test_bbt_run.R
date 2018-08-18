@@ -1,87 +1,85 @@
-context("bbt")
-data <- data.frame( name = c( "A", "B", "C", "D" ), rank  = c( 3, 4, 1, 2 ), sig=rep(1.1,4), weight=rep(1.01,4), date=c("a","b","c","d"))
+context("bbt_run")
+data <- data.frame( id = 1,name = c( "A", "B", "C", "D" ), rank  = c( 3, 4, 1, 2 ), sig=rep(1.1,4), weight=rep(1.01,4), date=c("a","b","c","d"))
 sig  <- setNames( rep(1,4), c("A","B","C","D"))
 rd    <- setNames( rep(350,4), c("A","B","C","D") )
 
 test_that("valid bbt computation",{
   expect_equal(
     c(22.52807, 14.06973, 19.57436, 30.46640),
-    round(bbt_run( rank ~ name, data = data, r = c( 25, 20, 15, 30 ) , rd    = c( 6,  7,   5,  20 ) )$final_r,5)
+    round(bbt_run( rank | id ~ name, data = data, r = c( 25, 20, 15, 30 ) , rd    = c( 6,  7,   5,  20 ) )$final_r,5)
   )
 })
 
-
-
 test_that("init r passed",{
   expect_true( all(
-    sum(bbt_run(formula = rank ~ name, data=data, init_r = 1000)$final_r)==4000
+    sum(bbt_run(formula = rank | id ~ name, data=data, init_r = 1000)$final_r)==4000
   ))
 })
 
 test_that("init rd passed",{
-  expect_true(all(bbt_run(formula = rank ~ name, data=data, init_rd = 100)$final_rd<100))
+  expect_true(all(bbt_run(formula = rank | id ~ name, data=data, init_rd = 100)$final_rd<100))
 })
 
 test_that("bigger rating change for higher deviation",{
   expect_true( all(
-    abs( 25 - bbt_run(formula = rank~name, data=data  ,gamma=1.001, rd = setNames( rep(26/6,4), c("A","B","C","D")))$final_r ) >
-    abs( 25 - bbt_run(formula = rank~name, data=data, gamma=1.001,   rd = setNames( rep(25/6,4), c("A","B","C","D")))$final_r )
+    abs( 25 - bbt_run(formula = rank | id ~name, data=data  ,gamma=1.001, rd = setNames( rep(26/6,4), c("A","B","C","D")))$final_r ) >
+    abs( 25 - bbt_run(formula = rank | id ~name, data=data, gamma=1.001,   rd = setNames( rep(25/6,4), c("A","B","C","D")))$final_r )
   ))
 })
 
 test_that("bigger rating change for higher sigma",{
   expect_true( all(
-    abs( 25 - bbt_run(formula = rank ~ name, data=data, rd = rep(3,4), sig="sig")$final_r ) >
-    abs( 25 - bbt_run(formula = rank ~ name, data=data, rd = rep(3,4)           )$final_r )
+    abs( 25 - bbt_run(formula = rank | id ~ name, data=data, rd = rep(3,4), sig="sig")$final_r ) >
+    abs( 25 - bbt_run(formula = rank | id ~ name, data=data, rd = rep(3,4)           )$final_r )
   ))
 })
 
 test_that("bigger rating change for higher weight",{
   expect_true( all(
-    abs( 25 - bbt_run(formula = rank ~ name, data=data, weight="weight")$final_r ) >
-      abs( 25 - bbt_run(formula = rank ~ name, data=data                 )$final_r )
+    abs( 25 - bbt_run(formula = rank | id ~ name, data=data, weight="weight")$final_r ) >
+      abs( 25 - bbt_run(formula = rank | id ~ name, data=data                 )$final_r )
   ))
 })
 
 test_that("smaller rating change for higher beta",{
   expect_true( all(
-    abs( 25 - bbt_run(formula = rank ~ name, beta = 25/3, data=data)$final_r ) <
-      abs( 25 - bbt_run(formula = rank ~ name, beta = 25/4,data=data)$final_r )
+    abs( 25 - bbt_run(formula = rank | id ~ name, beta = 25/3, data=data)$final_r ) <
+      abs( 25 - bbt_run(formula = rank | id ~ name, beta = 25/4,data=data)$final_r )
   ))
 })
 
 test_that("bigger rd change for higher gamma",{
   expect_true( all(
-    bbt_run(formula = rank ~ name,   gamma = 1.1, data=data)$final_rd  <
-    bbt_run(formula = rank ~ name, gamma = 1,data=data)$final_rd 
+    bbt_run(formula = rank | id ~ name,   gamma = 1.1, data=data)$final_rd  <
+    bbt_run(formula = rank | id ~ name, gamma = 1,data=data)$final_rd 
   ))
 })
 
 test_that("identifier passed succesfuly",{
   expect_equal(
     as.character(data$date),
-    attr(bbt_run(formula = rank~name, data=data, idlab = "date")$r,"identifier")
+    attr(bbt_run(formula = rank | id ~name, data=data, idlab = "date")$r,"identifier")
   )
 })
 
-test_that("valid glicko output names",{
+test_that("valid bbt output names",{
   expect_identical(
     c("final_r","final_rd","r","pairs"),
-    names( bbt_run( rank ~ name, data = data) )
+    names( bbt_run( rank | id ~ name, data = data) )
   )
 })
 
-test_that("valid glicko attr names",{
+test_that("valid bbt attr names",{
   expect_identical(
     list(names = c("final_r","final_rd","r","pairs"),
-         class = "sport", method = "bbt",formula = rank~name),
-    attributes( bbt_run( rank ~ name, data = data, weight="weight", sig = "sig", init_r=1000, init_rd=200) )
+         class = "sport", method = "bbt",formula = rank | id ~name),
+    attributes( bbt_run( rank | id ~ name, data = data, weight="weight", sig = "sig", init_r=1000, init_rd=200) )
   )
 })
 
 test_that("r object has date labels attribute",{
   expect_identical(
     list(names = c("id","name","r","rd"), row.names=1:4, class=c("data.table","data.frame"),identifier=as.character(c(1,1,1,1))),
-    attributes(glicko_run( rank ~ name, data = data, weight="weight", sig = "sig", init_r=1000, init_rd=200)$r)[-3]
+    attributes(bbt_run( rank | id ~ name, data = data, weight="weight", sig = "sig", init_r=1000, init_rd=200)$r)[-3]
   )
 })

@@ -5,13 +5,13 @@ rd    <- setNames( rep(350,4), c("A","B","C","D") )
 
 test_that("init r passed",{
   expect_true( all(
-    sum(glicko2_run(formula = rank ~ name, data=data, init_r = 1000)$final_r)==4000
+    sum(glicko2_run(formula = rank | id ~ name, data=data, init_r = 1000)$final_r)==4000
   ))
 })
 
 test_that("init rd passed",{
   expect_true( 
-    all(glicko2_run(formula = rank ~ name, data=data, init_rd = 100)$final_rd<100)
+    all(glicko2_run(formula = rank | id ~ name, data=data, init_rd = 100)$final_rd<100)
   )
 })
 

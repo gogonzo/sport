@@ -51,3 +51,9 @@ A "sport" object is returned
 Glicko2 rating algorithm
 Wrapper arround `glicko2` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
 }
+\examples{
+# Example from Glickman
+data <- data.frame( name = c( "A", "B", "C", "D" ), 
+                    rank = c( 3, 4, 1, 2 ))
+glicko2 <- glicko2_run( rank ~ name, data )
+}

@@ -34,12 +34,17 @@ NULL
 #'   \item \code{method} type of algorithm used
 #'   \item \code{formula} modelled formula
 #' }
+#' @examples
+#' # Example from Glickman
+#' data <- data.frame( name = c( "A", "B", "C", "D" ), 
+#'                     rank = c( 3, 4, 1, 2 ))
+#' bbt <- bbt_run( rank ~ name, data )
 #' @export
 bbt_run <- function(formula, data, r,rd, sig, weight,beta=25/6, gamma, idlab, init_r = 25, init_rd=25/3){
   is_formula_missing(formula)
-  is_data_provided(formula)
+  is_data_provided(data)
   is_lhs_valid(formula)
-  is_rhs_valid1(formula, "bbt_run")
+  is_rhs_valid(formula, "bbt_run")
 
   lhs  <- all.vars(update(formula, .~0))
   rhs  <- all.vars(update(formula, 0~.))

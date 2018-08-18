@@ -44,3 +44,8 @@ A "sport" object is returned
 DBL rating algorithm
 Wrapper arround `dbl` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
 }
+\examples{
+data <- data.frame( name = c( "A", "B", "C", "D" ), 
+                    rank = c( 3, 4, 1, 2 ))
+dbl <- dbl_run( rank ~ name, data)
+}

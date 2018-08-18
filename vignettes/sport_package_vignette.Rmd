@@ -1,5 +1,5 @@
 ---
-title: "`sport` an R package for online update algorithms"
+title: "`sport` The R package for online update algorithms"
 author: "Dawid Kałędkowski"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -122,7 +122,7 @@ bbt     <- bbt_run(     formula = rank|id~rider  , data = gpheats[1:1002,] )
 dbl     <- dbl_run(     formula = rank|id~rider+field  , data = gpheats[1:1002,] )
 ```
 
-Output objects are of class `sport` 
+Output objects are of class `sport` have their own `print` and `summary` which provides most important informations. `print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.   
 
 ```{r paged.print=FALSE}
 print(glicko)

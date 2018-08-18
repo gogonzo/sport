@@ -1,10 +1,4 @@
 createTermMatrix <- function(formula, data){
-  if(missing(formula)) stop("Formula is not specified")
-  if(missing(data)) warning("No data provided")
-  if( !any( class(data) == "data.frame") ) stop("Only data.frame allowed")
-  if( length(all.vars(update(formula, .~0)) ) != 2) 
-    stop("Left hand side formula must contain two variables. Observed and partitioning (id) variable")
-  
   vars <- extractTermNames(formula, lapply(data, class))
   terms <- NULL
   
@@ -53,13 +47,6 @@ createTermMatrix <- function(formula, data){
 
 
 allLevelsList <- function(formula, data){
-  # library(magrittr);library(dplyr);formula <- Sepal.Length|Species ~ Species + Petal.Length + Petal.Length : Species + Species:Species2; data <- iris %>% mutate(Species2 = sample(Species))
-  if(missing(formula)) stop("Formula is not specified")
-  if(missing(data)) warning("No data provided")
-  if( !any( class(data) == "data.frame") ) stop("Only data.frame allowed")
-  if( length(all.vars(update(formula, .~0)) ) != 2) 
-    stop("Left hand side formula must contain two variables. Observed and partitioning (id) variable")
-  
   vars <- extractTermNames(formula, lapply(data, class))
   params <- NULL
   
