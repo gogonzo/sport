@@ -5,6 +5,9 @@ createTermMatrix <- function(formula, data){
   for(i in 1:length(vars)){
     class_i <- vars[[ i ]]
     names_i <- names( vars[[ i ]] )
+    if(any( !class_i %in% c("character","factor","numeric","integer")) )
+      stop("Variables can be only of following classes: factor, character, numeric, integer.")
+    
     
     if( length(class_i) == 1 )  {
       
@@ -18,9 +21,7 @@ createTermMatrix <- function(formula, data){
         
       } else if(class_i %in% c("numeric","integer") ) {
         term_i <- data[ names_i ]
-      } else
-        stop("Variables can be only of following classes: factor, character, numeric, integer.")
-    
+      }
       
     } else if( length(class_i) == 2 ){
       
@@ -36,9 +37,7 @@ createTermMatrix <- function(formula, data){
       } else if( all(class_i %in% c("numeric","integer") ) ){
         term_i <- matrix(data[[ names_i[1] ]] * data[[ names_i[2] ]], ncol=1)
         colnames(term_i) <- paste0( names_i[1],":",names_i[2])
-      } else
-        stop("Variables can be only of following classes: factor, character, numeric, integer.")
-      
+      } 
     }
     terms <- cbind(terms,term_i)
   }
@@ -53,7 +52,10 @@ allLevelsList <- function(formula, data){
   for(i in 1:length(vars)){
     class_i <- vars[[ i ]]
     names_i <- names( vars[[ i ]] )
+    if(any( !class_i %in% c("character","factor","numeric","integer")) )
+      stop("Variables can be only of following classes: factor, character, numeric, integer.")
     
+      
     if( length(class_i) == 1 )  {
       
       if(class_i == 'factor'){
@@ -66,9 +68,7 @@ allLevelsList <- function(formula, data){
         
       } else if(class_i %in% c("numeric","integer") ) {
         param_i <- names_i
-      } else
-        stop("Variables can be only of following classes: factor, character, numeric, integer.")
-      
+      } 
       
     } else if( length(class_i) == 2 ){
       
@@ -84,8 +84,7 @@ allLevelsList <- function(formula, data){
       } else if( all(class_i %in% c("numeric","integer") ) ){
         param_i <- paste( names_i[1] , names_i[2], sep=":")
         
-      } else
-        stop("Variables can be only of following classes: factor, character, numeric, integer.")
+      }
       
     }
     params <- c(params,param_i)

@@ -4,6 +4,7 @@ data <- data.frame(
   name = c( "A", "B", "C", "D" ), 
   rank  = c( 3, 4, 1, 2 ),
   field = 1:4,
+  date = seq(Sys.Date()-3, Sys.Date(), by="1 day"),
   sig=rep(2,4), 
   weight=rep(1.01,4), date=c("a","b","c","d"))
 sig  <- setNames( rep(1,4), c("A","B","C","D"))

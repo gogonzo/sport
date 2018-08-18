@@ -23,8 +23,3 @@ is_interactions_valid <- function(formula)
 is_rhs_valid <- function(formula, model)
   if( length(all.vars(update(formula, 0~.)) ) != 1) 
     stop(paste(model,"expects only one variable which is `~ name`"), call. = F ) 
-
-
-is_player_class_valid <- function()
-  if(class(data[[x]]) != c("character")) 
-    warning(paste0("variable ",x," is of class ",class(x),". Will be converted to character"))
