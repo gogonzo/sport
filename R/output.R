@@ -3,11 +3,11 @@
 #' @importFrom stats reorder
 NULL
 
-#' Summarizing sport objects
+#' Summarizing rating objects
 #' 
-#' Summarizing sport objects
-#' Summary for object of class `sport`
-#' @param object of class sport
+#' Summarizing rating objects
+#' Summary for object of class `rating`
+#' @param object of class rating
 #' @param ... optional arguments
 #' @return 
 #' List with following elements \itemize{
@@ -29,8 +29,8 @@ NULL
 #' model <- glicko_run(rank|id~rider, gpheats[1:100,]) 
 #' summary(model)
 #' @export
-summary.sport <- function(object,...){
-  if(!"sport" %in% class(object) ) stop("Function summary() needs object of class sport")
+summary.rating <- function(object,...){
+  if(!"rating" %in% class(object) ) stop("Function summary() needs object of class sport")
   if(!any(c("glicko","glicko2","bbt","dbl") %in% attr(object,"method") )) stop("Function summary() needs object of class sport")
   
   model_probs_players <- object$pairs[,.( `Model probability` = mean(P),
@@ -63,7 +63,7 @@ summary.sport <- function(object,...){
 
 
 #' @export
-print.sport <- function(x,...){
+print.rating <- function(x,...){
   
   model_probs_intervals <- x$pairs[,.(
     `Model probability` = mean(P),
@@ -87,31 +87,42 @@ print.sport <- function(x,...){
   invisible(0)
 }
 
-#' Plot sport object
+#' Plot rating object
 #' 
-#' @param object of class sport
+#' @param x of class rating
 #' @param n number of players to be plotted
+#' @param players optional vector with names of the players (coefficients) to plot their evolution in time.
 #' @param ... optional arguments
 #' @export
-plot_sport <- function(object,n=10,...){
-  data <- data.frame( 
-    name = names(object$final_r), 
-    r = object$final_r, 
-    rd = object$final_rd, 
-    row.names = NULL,
-    stringsAsFactors = F)
-  
-  data <- data[order(data$r),]
-  data$rank <- 1:nrow(data)
-  data$name <- reorder(data$name, 1:nrow(data))
-  
-
-  ggplot( data[1:n,] , aes(x=name, y=r)) + 
-    ggtitle('Actual ratings') + 
-    geom_linerange(aes(ymin=r-rd*1.98, ymax= r+rd*1.98), size=1*0.8, alpha=0.4)  + 
-    geom_point(colour="grey20", size=1) + 
-    coord_flip() + 
-    scale_x_discrete("Name") + 
-    scale_y_continuous("Name") + 
-    theme_bw()
+plot.rating <- function(x,n=10,players,...){
+  if(!missing(players)){
+    
+   data <- x$r
+   data <- data[data$name %in% players,]
+   ggplot(data, aes_string(x=attr(x,"settings")$idlab, y="r", group="name", color="name")) +
+     geom_line() + 
+     theme_bw()
+    
+  } else {
+    
+    data <- data.frame( 
+      name = names(x$final_r), 
+      r = x$final_r, 
+      rd = x$final_rd, 
+      row.names = NULL,
+      stringsAsFactors = F)
+    
+    data <- data[order(data$r, decreasing = T),][1:n,]
+    data$name <- reorder(data$name, nrow(data):1)
+    
+    ggplot( data , aes(x=name, y=r)) + 
+      ggtitle('Actual ratings') + 
+      geom_linerange(aes(ymin=r-rd*1.98, ymax= r+rd*1.98), size=1*0.8, alpha=0.4)  + 
+      geom_point(colour="grey20", size=1) + 
+      coord_flip() + 
+      scale_x_discrete("Name") + 
+      scale_y_continuous("Name") + 
+      theme_bw()
+    
+  }
 }

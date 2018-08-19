@@ -17,7 +17,7 @@ NULL
 #' @param init_r initial values for `r` if not provided. Default `r=0`
 #' @param init_rd initial values for `rd` if not provided. Default `rd=1`
 #' @return 
-#' A "sport" object is returned
+#' A "rating" object is returned
 #' \itemize{
 #'   \item \code{final_r} named vector containing players ratings.
 #'   \item \code{final_rd} named vector containing players ratings deviations.
@@ -100,7 +100,7 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=
          final_rd = rd,
          r        = structure( model_r, identifier = identifier),
          pairs    = structure( model_P, identifier = identifierp)),
-    class="sport",
+    class="rating",
     method = "dbl",
     formula = formula,
     settings = list(beta=beta, weight=weight, idlab=idlab, tau=tau, init_r=init_r, init_rd=init_rd)

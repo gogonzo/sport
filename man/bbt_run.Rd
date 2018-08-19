@@ -37,7 +37,7 @@ bbt_run(formula, data, r, rd, sig, weight, beta = 25/6, gamma, idlab,
 \item{init_rd}{initial values for `r` if not provided. Default = 25/3}
 }
 \value{
-A "sport" object is returned
+A "ratings" object is returned
 \itemize{
   \item \code{final_r} named vector containing players ratings.
   \item \code{final_rd} named vector containing players ratings deviations.

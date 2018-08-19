@@ -23,7 +23,7 @@ NULL
 #' @param init_r initial values for `r` if not provided. Default = 1500
 #' @param init_rd initial values for `r` if not provided. Default = 350
 #' @return 
-#' A "sport" object is returned
+#' A "rating" object is returned
 #' \itemize{
 #'   \item \code{final_r} named vector containing players ratings.
 #'   \item \code{final_rd} named vector containing players ratings deviations.
@@ -119,7 +119,7 @@ glicko2_run <- function(formula, data, r, rd,sig, tau=0.5, weight, idlab, init_r
          final_sig = sig,
          r        = structure( model_r, identifier = identifier),
          pairs    = structure( model_P, identifier = identifierp)),
-    class="sport",
+    class="rating",
     method = "glicko2",
     formula = formula,
     settings = list(tau=tau, weight=weight, idlab=idlab, init_r=init_r, init_rd=init_rd)

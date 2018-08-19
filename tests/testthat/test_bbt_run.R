@@ -72,7 +72,7 @@ test_that("valid bbt output names",{
 test_that("valid bbt attr names",{
   expect_equal(
     list(names = c("final_r","final_rd","r","pairs"),
-         class = "sport", 
+         class = "rating", 
          method = "bbt",
          formula = rank | id ~name,
          settings=list(sig="sig",weight="weight",beta=25/6,gamma=999,idlab="id",init_r=1000,init_rd=200)),

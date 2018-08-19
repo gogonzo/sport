@@ -24,7 +24,7 @@ NULL
 #' @param init_r initial values for `r` if not provided. Default = 25
 #' @param init_rd initial values for `r` if not provided. Default = 25/3
 #' @return 
-#' A "sport" object is returned
+#' A "ratings" object is returned
 #' \itemize{
 #'   \item \code{final_r} named vector containing players ratings.
 #'   \item \code{final_rd} named vector containing players ratings deviations.
@@ -116,7 +116,7 @@ bbt_run <- function(formula, data, r,rd, sig, weight,beta=25/6, gamma, idlab, in
          final_rd = setNames(as.vector(rd), rownames(rd)),
          r        = structure( model_r, identifier = identifier),
          pairs    = structure( model_P, identifier = identifierp)),
-    class="sport",
+    class="rating",
     method = "bbt",
     formula = formula,
     settings = list(sig=sig, weight=weight,beta=beta, gamma=gamma, idlab=idlab, init_r=init_r, init_rd=init_rd)

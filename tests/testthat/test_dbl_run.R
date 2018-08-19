@@ -79,7 +79,7 @@ test_that("valid glicko output names",{
 test_that("valid dbl attr names",{
   expect_equal(
     list(names = c("final_r","final_rd","r","pairs"),
-         class = "sport", method = "dbl",formula = rank|id~rider,
+         class = "rating", method = "dbl",formula = rank|id~rider,
          settings=list(beta="beta",weight="weight",idlab="id",tau=0.05,init_r=0, init_rd=1)),
     attributes( dbl_run( rank|id ~ rider, data = gpheats[1:32,], weight="weight", beta = "beta") )
   )

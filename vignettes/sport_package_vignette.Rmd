@@ -116,20 +116,19 @@ To compute ratings using each algorithms one has to specify formula. Form `rank 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats )
 glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats )
-bbt     <- bbt_run(     formula = rank|id~rider  , data = gpheats )
-dbl     <- dbl_run(     formula = rank|id~rider+field, data = gpheats )
+bbt     <- bbt_run(     formula = rank|id ~ rider, data = gpheats )
+dbl     <- dbl_run(     formula = rank|id ~ rider, data = gpheats )
 ```
 
-Output objects are of class `sport` have their own `print` and `summary` which provides most important informations. `print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.
+Output objects are of class `rating` have their own `print` `summary` which provides most important informations. -`print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.
 
 ```{r paged.print=FALSE}
-print(glicko)
-summary(glicko)
+print(dbl)
+summary(dbl)
 ```
 
-
-
-# Advanced `sport`
-
-Glicko uses only one parameter `name` to describe player overall abilities. Ouput is a ranking within specified event (`rank|id`). One can also specify initial parameters based on prior knowledge estimates `r` and `rd`. By default `r=1500` and `rd=350`
-Glicko2 has additional `sig` parameter, measuring volitality. If not specified, by default `r=1500`, `rd=350`, `sig=0.05`.
+To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coeficients are presented not necessarily ratings.  
+```{r}
+plot(glicko)
+plot(glicko, players = c("Tony Rickardsson","Hans Nielsen"))
+```

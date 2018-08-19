@@ -1,7 +1,7 @@
-#' Predict sport model
+#' Predict rating model
 #' 
-#' Predict sport model
-#' @param object of class sport
+#' Predict rating model
+#' @param object of class rating
 #' @param newdata data.frame with data to predict
 #' @param ... optional arguments
 #' @return probabilities of winning challange by player over his opponent in all provided events.
@@ -9,7 +9,7 @@
 #' glicko <- glicko_run(rank|id~rider, gpheats[1:16,])
 #' predict(glicko,gpheats[17:20,])
 #' @export
-predict.sport <- function(object,newdata,...){
+predict.rating <- function(object,newdata,...){
   method   <- attr(object,"method")
   formula <- attr(object,"formula")
   

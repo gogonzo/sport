@@ -29,7 +29,7 @@ dbl_run(formula, data, r, rd, beta, weight, idlab, tau = 0.05,
 \item{init_rd}{initial values for `rd` if not provided. Default `rd=1`}
 }
 \value{
-A "sport" object is returned
+A "rating" object is returned
 \itemize{
   \item \code{final_r} named vector containing players ratings.
   \item \code{final_rd} named vector containing players ratings deviations.

@@ -33,7 +33,7 @@ glicko_run(formula, data, r, rd, sig, weight, idlab, init_r = 1500,
 \item{init_rd}{initial values for `r` if not provided. Default = 350}
 }
 \value{
-A "sport" object is returned: \itemize{
+A "rating" object is returned: \itemize{
 \item \code{final_r} named vector containing players ratings.
 \item \code{final_rd} named vector containing players ratings deviations.
 \item \code{r} data.frame with evolution of the ratings and ratings deviations estimated at each event.
