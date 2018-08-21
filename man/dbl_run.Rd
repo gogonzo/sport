@@ -4,8 +4,8 @@
 \alias{dbl_run}
 \title{DBL rating algorithm}
 \usage{
-dbl_run(formula, data, r, rd, beta, weight, idlab, tau = 0.05,
-  init_r = 0, init_rd = 1)
+dbl_run(formula, data, r, rd, beta, weight, idlab, kappa = 0.5,
+  init_r = 0, init_rd = 1, pb = FALSE)
 }
 \arguments{
 \item{formula}{formula specifying model. DBL allows multiple variables in formula, also two-way interaction are available specified by `:`. `dbl` formula require first variable to be player name or identifier. LHS needs `rank|id`, to specify competitors order and event `id`.}
@@ -22,11 +22,13 @@ dbl_run(formula, data, r, rd, beta, weight, idlab, tau = 0.05,
 
 \item{idlab}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in}
 
-\item{tau}{parameter controlling `rd` to avoid quick decreasing to zero. Is the proportion of `rd` which is maximum change size.}
+\item{kappa}{parameter controlling `rd` to avoid quick decreasing to zero. Is the proportion of `rd` which is maximum change size.}
 
 \item{init_r}{initial values for `r` if not provided. Default `r=0`}
 
 \item{init_rd}{initial values for `rd` if not provided. Default `rd=1`}
+
+\item{pb}{logical, if TRUE progress bar will appear in console. Default = FALSE}
 }
 \value{
 A "rating" object is returned

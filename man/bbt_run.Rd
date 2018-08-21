@@ -4,8 +4,8 @@
 \alias{bbt_run}
 \title{BBT rating algorithm}
 \usage{
-bbt_run(formula, data, r, rd, sig, weight, beta = 25/6, gamma, idlab,
-  init_r = 25, init_rd = 25/3)
+bbt_run(formula, data, r, rd, sigma, weight, beta = 25/6, kappa = 0.5,
+  gamma, idlab, init_r = 25, init_rd = 25/3, pb = FALSE)
 }
 \arguments{
 \item{formula}{formula specifying model. BBT algorithm allows only player ranking parameter and should be specified by following manner: 
@@ -16,17 +16,19 @@ bbt_run(formula, data, r, rd, sig, weight, beta = 25/6, gamma, idlab,
  \item name of player.
 }}
 
-\item{data}{data.frame which contains columns specified in formula, and optionaly columns defined by `sig`, `weight` or `date`.}
+\item{data}{data.frame which contains columns specified in formula, and optionaly columns defined by `sigma`, `weight` or `date`.}
 
 \item{r}{named vector of initial rating estimates. In there is no assumption, initial ratings is set to be r=25 Names of vector should correspond with `name` in formula.}
 
 \item{rd}{named vector of initial rating deviation estimates. In there is no assumption, initial is set to be r=25/3 Names of vector should correspond with `name` in formula.}
 
-\item{sig}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.}
+\item{sigma}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sigma > 0` then prior `rd` increases, making estimate of `r` more uncertain.}
 
 \item{weight}{name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.}
 
 \item{beta}{The additional variance of performance. As beta increases, the performance is more uncertain and update change is smaller. By default `beta = 25/6`.}
+
+\item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1-kappa)`. `kappa=1` means that `rd` will not be decreased.}
 
 \item{gamma}{can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slows decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.}
 
@@ -35,6 +37,8 @@ bbt_run(formula, data, r, rd, sig, weight, beta = 25/6, gamma, idlab,
 \item{init_r}{initial values for `r` if not provided. Default = 25}
 
 \item{init_rd}{initial values for `r` if not provided. Default = 25/3}
+
+\item{pb}{logical, if TRUE progress bar will appear in console. Default = FALSE}
 }
 \value{
 A "ratings" object is returned
