@@ -9,7 +9,7 @@ List
     std::vector<int> rank,
     NumericVector r, 
     NumericVector rd,
-    NumericVector sig,
+    NumericVector sigma,
     NumericVector weight,
     CharacterVector identifier,
     double init_r  = 1500.00,
@@ -38,11 +38,9 @@ List
     for(int i = 0; i < n; i++){
       if( NumericVector::is_na(r[i]) ) 
         r[i] = init_r, rd[i] = init_rd;
-      
-      
       // modification - rd + time since last event 
-      if( (rd[i] * sig[i]) < init_rd ) 
-        rd[i] = rd[i] * sig[i]; else rd[i] = init_rd;
+      if( ( sqrt( pow(rd[i],2) + pow(sigma[i],2)) ) < init_rd ) 
+        rd[i] = sqrt( pow(rd[i],2) + pow(sigma[i],2)); else rd[i] = init_rd;
       g_rd[i] = calcGRd( rd[i] );
       
     }
@@ -79,7 +77,7 @@ List
     for(int i = 0; i < n; i++){
       r[i]     = r[i] + q/( 1/pow(rd[i],2) + 1/delta_i[i] ) * err_i[i] * weight[i];
       rd[i]    = sqrt(  1/( 1/pow(rd[i],2) + 1/delta_i[i] * weight[i] ));
-    }    
+    }
     
     Rcpp::List dimnms = Rcpp::List::create(name, name);
     r.names()  = name;
@@ -111,7 +109,7 @@ List
     std::vector<int> rank,
     NumericVector r, 
     NumericVector rd,
-    NumericVector sig,
+    NumericVector sigma,
     NumericVector weight,
     CharacterVector identifier,
     double tau = .5,
@@ -169,10 +167,10 @@ List
     // update parameters
     for(int i = 0; i < n; i++){
       // Rcpp::Rcout << "----- i =" << i <<  std::endl;
-      A = optimSigma(delta_i[i], sig[i], phi[i], var_i[i], tau);
-      sig[i] = exp( A/2 );
+      A = optimSigma(delta_i[i], sigma[i], phi[i], var_i[i], tau);
+      sigma[i] = exp( A/2 );
       
-      phi[i] = updatePhi(phi[i], var_i[i], sig[i], weight[i]);
+      phi[i] = updatePhi(phi[i], var_i[i], sigma[i], weight[i]);
       if(phi[i]>(init_rd/173.7178)) phi[i] = init_rd/173.7178;
       
       mu[i]  = updateMu( mu[i], phi[i], err_i[i], weight[i]);
@@ -189,11 +187,12 @@ List
     return List::create(
       _["r"]     = r,
       _["rd"]    = rd,
-      _["sigma"] = sig,
+      _["sigma"] = sigma,
       _["r_df"]  = DataFrame::create(
         _["name"] = name,
         _["r"]    = r,
         _["rd"]   = rd,
+        _["sigma"] = sigma,
         _["stringsAsFactors"] = false
       ),
       _["pairs"] = DataFrame::create(
