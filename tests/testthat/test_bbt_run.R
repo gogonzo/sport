@@ -1,11 +1,11 @@
 context("bbt_run")
-data <- data.frame( id = 1,name = c( "A", "B", "C", "D" ), rank  = c( 3, 4, 1, 2 ), sig=rep(1.1,4), weight=rep(1.01,4), date=c("a","b","c","d"))
-sig  <- setNames( rep(1,4), c("A","B","C","D"))
+data <- data.frame( id = 1,name = c( "A", "B", "C", "D" ), rank  = c( 3, 4, 1, 2 ), sigma=rep(1.1,4), weight=rep(1.01,4), date=c("a","b","c","d"))
+sigma  <- setNames( rep(1,4), c("A","B","C","D"))
 rd    <- setNames( rep(350,4), c("A","B","C","D") )
 
 test_that("valid bbt computation",{
   expect_equal(
-    c(22.52807, 14.06973, 19.57436, 30.46640),
+    c(22.45941, 13.94870, 19.75734, 30.46640),
     round(bbt_run( rank | id ~ name, data = data, r = c( 25, 20, 15, 30 ) , rd    = c( 6,  7,   5,  20 ) )$final_r,5)
   )
 })
@@ -29,7 +29,7 @@ test_that("bigger rating change for higher deviation",{
 
 test_that("bigger rating change for higher sigma",{
   expect_true( all(
-    abs( 25 - bbt_run(formula = rank | id ~ name, data=data, rd = rep(3,4), sig="sig")$final_r ) >
+    abs( 25 - bbt_run(formula = rank | id ~ name, data=data, rd = rep(3,4), sigma="sigma")$final_r ) >
     abs( 25 - bbt_run(formula = rank | id ~ name, data=data, rd = rep(3,4)           )$final_r )
   ))
 })
@@ -75,14 +75,14 @@ test_that("valid bbt attr names",{
          class = "rating", 
          method = "bbt",
          formula = rank | id ~name,
-         settings=list(sig="sig",weight="weight",beta=25/6,gamma=999,idlab="id",init_r=1000,init_rd=200)),
-    attributes( bbt_run( rank | id ~ name, data = data, weight="weight", sig = "sig", init_r=1000, init_rd=200) )
+         settings=list(sigma="sigma",weight="weight",beta=25/6,kappa=.5,gamma=999,idlab="id",init_r=1000,init_rd=200)),
+    attributes( bbt_run( rank | id ~ name, data = data, weight="weight", sigma = "sigma", init_r=1000, init_rd=200) )
   )
 })
 
 test_that("r object has date labels attribute",{
   expect_identical(
     list(names = c("id","name","r","rd"), row.names=1:4, class=c("data.table","data.frame"),identifier=as.character(c(1,1,1,1))),
-    attributes(bbt_run( rank | id ~ name, data = data, weight="weight", sig = "sig", init_r=1000, init_rd=200)$r)[-3]
+    attributes(bbt_run( rank | id ~ name, data = data, weight="weight", sigma = "sigma", init_r=1000, init_rd=200)$r)[-3]
   )
 })

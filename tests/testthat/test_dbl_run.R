@@ -1,4 +1,4 @@
-context("dbl")
+context("dbl_run")
 gpheats$field_f <- as.factor(gpheats$field)
 gpheats$beta   <- 100
 gpheats$weight   <- 1.1
@@ -64,7 +64,7 @@ test_that("bigger rating change for higher weight",{
 test_that("identifier passed succesfuly",{
   expect_identical(
     as.character(gpheats$date[1:32]),
-    attr( dbl_run(formula = rank|id~rider,r=r,rd=rd, data=gpheats[1:32,], idlab = "date")$r,"identifier")
+    attr( dbl_run(formula = rank|id~rider+field+field_f,r=r,rd=rd, data=gpheats[1:32,], idlab = "date")$r,"identifier")
   )
 })
 
@@ -75,12 +75,11 @@ test_that("valid glicko output names",{
   )
 })
 
-
 test_that("valid dbl attr names",{
   expect_equal(
     list(names = c("final_r","final_rd","r","pairs"),
          class = "rating", method = "dbl",formula = rank|id~rider,
-         settings=list(beta="beta",weight="weight",idlab="id",tau=0.05,init_r=0, init_rd=1)),
+         settings=list(init_r=0, init_rd=1,beta="beta",weight="weight",kappa=0.5,idlab="id")),
     attributes( dbl_run( rank|id ~ rider, data = gpheats[1:32,], weight="weight", beta = "beta") )
   )
 })

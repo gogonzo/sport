@@ -25,28 +25,30 @@ predict.rating <- function(object,newdata,...){
   
   if(method == "glicko"){
     weight <- attr(object,"settings")$weight
-    sig    <- attr(object,"settings")$sig
+    sigma    <- attr(object,"settings")$sigma
     idlab  <- attr(object,"settings")$idlab
     init_r <- attr(object,"settings")$init_r
     init_rd<- attr(object,"settings")$init_rd
+    kappa  <- attr(object,"settings")$kappa
     
     if( !weight %in% colnames(newdata) ) newdata[[weight]] <- 1
-    if( !sig    %in% colnames(newdata) ) newdata[[sig]]    <- 1
+    if( !sigma    %in% colnames(newdata) ) newdata[[sigma]]    <- 1
     
-    data_list <- split(newdata[ unique(c(y,id,x, sig, weight,idlab))], newdata[[ id ]] )
+    data_list <- split(newdata[ unique(c(y,id,x, sigma, weight,idlab))], newdata[[ id ]] )
     
     models <- list()
     for(i in names(data_list)){
       player_names <- data_list[[ i ]][[ x ]]
-      model      <- glicko( 
+      model        <- glicko( 
         name   = player_names , 
         rank   = data_list[[ i ]][[ y ]], 
         r      = r[player_names ], 
         rd     = rd[player_names ], 
-        sig    = data_list[[ i ]][[ sig ]] ,
+        sigma  = data_list[[ i ]][[ sigma ]] ,
         weight = data_list[[ i ]][[ weight ]],
+        kappa  = kappa,
         identifier = as.character( data_list[[ i ]][[ idlab ]] ),
-        init_r = init_r,
+        init_r  = init_r,
         init_rd = init_rd
       )    
       models[[ i ]] <- model   
@@ -54,12 +56,13 @@ predict.rating <- function(object,newdata,...){
   }
   
   if(method == "glicko2"){
-    sig    <- object$final_sig
-    weight <- attr(object,"settings")$weight
-    tau    <- attr(object,"settings")$tau
-    idlab  <- attr(object,"settings")$idlab
+    sigma    <- object$final_sigma
     init_r <- attr(object,"settings")$init_r
     init_rd<- attr(object,"settings")$init_rd
+    weight <- attr(object,"settings")$weight
+    tau    <- attr(object,"settings")$tau
+    kappa  <- attr(object,"settings")$kappa
+    idlab  <- attr(object,"settings")$idlab
     
     if( !weight %in% colnames(newdata) ) newdata[[weight]] <- 1
     data_list <- split(newdata[ unique(c(y,id,x, weight,idlab))], newdata[[ id ]] )
@@ -72,9 +75,10 @@ predict.rating <- function(object,newdata,...){
         rank   = data_list[[ i ]][[ y ]], 
         r      = r[ player_names ] ,  
         rd     = rd[ player_names ] , 
-        sig    = sig[ player_names ] , 
+        sigma    = sigma[ player_names ] , 
         tau    = tau,
         weight = data_list[[ i ]][[ weight ]],
+        kappa    = kappa,
         identifier = as.character( data_list[[ i ]][[ idlab ]] ), 
         init_r = init_r,
         init_rd = init_rd
@@ -87,17 +91,18 @@ predict.rating <- function(object,newdata,...){
     r      <- as.matrix(r)
     rd     <- as.matrix(rd)
     weight <- attr(object,"settings")$weight
-    sig    <- attr(object,"settings")$sig
+    sigma    <- attr(object,"settings")$sigma
     beta   <- attr(object,"settings")$beta
     gamma  <- attr(object,"settings")$gamma
+    kappa  <- attr(object,"settings")$kappa
     idlab  <- attr(object,"settings")$idlab
     init_r <- attr(object,"settings")$init_r
     init_rd<- attr(object,"settings")$init_rd
     
     if( !weight %in% colnames(newdata) ) newdata[[weight]] <- 1
-    if( !sig    %in% colnames(newdata) ) newdata[[sig]]    <- 1
+    if( !sigma    %in% colnames(newdata) ) newdata[[sigma]]    <- 1
     
-    data_list <- split(newdata[ unique(c(y,id,x, sig, weight,idlab))], newdata[[ id ]] )
+    data_list <- split(newdata[ unique(c(y,id,x, sigma, weight,idlab))], newdata[[ id ]] )
     
     models <- list()
     for(i in names(data_list)){
@@ -107,10 +112,11 @@ predict.rating <- function(object,newdata,...){
         rank    = data_list[[ i ]][[ y ]], 
         r       = r[ team_name,,drop=FALSE], 
         rd      = rd[ team_name,,drop=FALSE],
-        sig     = data_list[[ i ]][[ sig ]],
+        sigma     = data_list[[ i ]][[ sigma ]],
         weight  = data_list[[ i ]][[ weight ]],
         beta = beta,
         gamma = gamma,
+        kappa    = kappa,
         identifier = as.character( data_list[[ i ]][[ idlab ]] ),
         init_r = init_r,
         init_rd = init_rd
@@ -123,7 +129,7 @@ predict.rating <- function(object,newdata,...){
     all_params <- allLevelsList(formula, newdata)
     weight <- attr(object,"settings")$weight
     beta   <- attr(object,"settings")$beta
-    tau    <- attr(object, "settings")$tau
+    kappa  <- attr(object, "settings")$kappa
     idlab  <- attr(object,"settings")$idlab
     init_r <- attr(object,"settings")$init_r
     init_rd<- attr(object,"settings")$init_rd
@@ -145,10 +151,10 @@ predict.rating <- function(object,newdata,...){
         X       = as.matrix(terms),
         R       = r[ colnames(terms) ], 
         RD      = rd[ colnames(terms) ],
-        beta     = data_list[[ i ]][[ beta ]],
+        beta    = data_list[[ i ]][[ beta ]],
         weight  = data_list[[ i ]][[ weight ]],
-        identifier = as.character( data_list[[ i ]][[ idlab ]] ),
-        tau = tau
+        kappa    = kappa,
+        identifier = as.character( data_list[[ i ]][[ idlab ]] )
       )
   
       models[[ i ]] <- model

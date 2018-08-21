@@ -33,17 +33,17 @@ summary.rating <- function(object,...){
   if(!"rating" %in% class(object) ) stop("Function summary() needs object of class sport")
   if(!any(c("glicko","glicko2","bbt","dbl") %in% attr(object,"method") )) stop("Function summary() needs object of class sport")
   
-  model_probs_players <- object$pairs[,.( `Model probability` = mean(P),
-                                          `True probability` = mean(Y),
-                                          `Accuracy`   = mean( (P>.5) == Y ), 
+  model_probs_players <- object$pairs[,.( `Model probability` = round( mean(P), 3),
+                                          `True probability`  = round( mean(Y), 3),
+                                          `Accuracy`   = round(mean( (P>.5) == Y ),3), 
                                           `pairings` = length(P)),
                                       name]
   
   acc <- object$pairs[,.(`acc`   = mean( (P>.5) == Y ), `pairings` = length(P)),]
   
   players_ratings <- data.table( name = names(object$final_r),
-                                 r = object$final_r, 
-                                 rd = object$final_rd )
+                                 r  = round( object$final_r, 3), 
+                                 rd = round( object$final_rd, 3))
   
 
   
@@ -66,9 +66,9 @@ summary.rating <- function(object,...){
 print.rating <- function(x,...){
   
   model_probs_intervals <- x$pairs[,.(
-    `Model probability` = mean(P),
-    `True probability` = mean(Y),
-    `Accuracy`   = mean( (P>.5) == Y ), 
+    `Model probability` = round( mean(P),3),
+    `True probability`  = round( mean(Y),3),
+    `Accuracy`   = round( mean( (P>.5) == Y ),3), 
     `n` = length(P)),
     list( Interval = cut(P, breaks = seq(0,1,by=0.1), include.lowest = T))
     ][order(Interval)]
@@ -97,10 +97,10 @@ print.rating <- function(x,...){
 plot.rating <- function(x,n=10,players,...){
   if(!missing(players)){
     
-   data <- x$r
-   data <- data[data$name %in% players,]
+   data <- x$r[x$r$name %in% players,]
    ggplot(data, aes_string(x=attr(x,"settings")$idlab, y="r", group="name", color="name")) +
      geom_line() + 
+     ggtitle("Ratings evolution") +
      theme_bw()
     
   } else {

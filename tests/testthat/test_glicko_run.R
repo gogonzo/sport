@@ -5,9 +5,9 @@ data <- data.frame(
   rank  = c( 3, 4, 1, 2 ),
   field = 1:4,
   date = seq(Sys.Date()-3, Sys.Date(), by="1 day"),
-  sig=rep(2,4), 
+  sigma=rep(2,4), 
   weight=rep(1.01,4), date=c("a","b","c","d"))
-sig  <- setNames( rep(1,4), c("A","B","C","D"))
+sigma  <- setNames( rep(1,4), c("A","B","C","D"))
 rd    <- setNames( rep(350,4), c("A","B","C","D") )
 r     <- setNames( rep(1500,4), c("A","B","C","D") )
 
@@ -63,8 +63,8 @@ test_that("missing r message",{
 
 test_that("valid glicko computation",{
   expect_identical(
-    c(1464.2973571629759135, 1396.0386597041820096, 1606.5214821882570959, 1674.8363617318223078),
-    glicko_run( rank | id ~ name, data = data, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ) )$final_r
+    c(1464.297, 1396.039, 1606.521, 1674.836),
+    round(glicko_run( rank | id ~ name, data = data, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ) )$final_r,3)
   )
 })
 
@@ -94,7 +94,7 @@ test_that("higher rating change for higher weight",{
 
 test_that("higher rating change for higher sigma",{
   expect_true( all(
-    abs( 1500 - glicko_run(formula = rank | id ~ name, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ),data=data, sig="sig")$final_r ) >
+    abs( 1500 - glicko_run(formula = rank | id ~ name, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ),data=data, sigma="sigma")$final_r ) >
     abs( 1500 - glicko_run(formula = rank | id ~ name, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ),data=data)$final_r )
   ))
 })
@@ -117,14 +117,14 @@ test_that("valid glicko attr names",{
   expect_equal(
     list(names = c("final_r","final_rd","r","pairs"),
          class = "rating", method = "glicko",formula = rank | id ~name,
-         settings = list(init_r = 1000, init_rd = 200, sig="sig", weight="weight", idlab="id")),
-    attributes( glicko_run( rank | id ~ name, data = data, weight="weight", sig = "sig", init_r=1000, init_rd=200) )
+         settings = list(init_r = 1000, init_rd = 200, sigma="sigma", weight="weight",kappa=0.5, idlab="id")),
+    attributes( glicko_run( rank | id ~ name, data = data, weight="weight", sigma = "sigma", init_r=1000, init_rd=200) )
   )
 })
 
 test_that("r object has date labels attribute",{
   expect_identical(
     list(names = c("id","name","r","rd"), row.names=1:4, class=c("data.table","data.frame"),identifier=as.character(c(1,1,1,1))),
-    attributes( glicko_run( rank | id ~ name, data = data, weight="weight", sig = "sig", init_r=1000, init_rd=200)$r )[-3]
+    attributes( glicko_run( rank | id ~ name, data = data, weight="weight", sigma = "sigma", init_r=1000, init_rd=200)$r )[-3]
   )
 })
