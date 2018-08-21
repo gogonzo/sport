@@ -13,16 +13,18 @@ NULL
 #'  \item id event identifier in which pairwise comparison is assessed.
 #'  \item name of player.
 #' }
-#' @param data data.frame which contains columns specified in formula, and optionaly columns defined by `sig`, `weight` or `date`.
+#' @param data data.frame which contains columns specified in formula, and optionaly columns defined by `sigma`, `weight` or `date`.
 #' @param r named vector of initial rating estimates. In there is no assumption, initial ratings is set to be r=25 Names of vector should correspond with `name` in formula. 
 #' @param rd named vector of initial rating deviation estimates. In there is no assumption, initial is set to be r=25/3 Names of vector should correspond with `name` in formula.
-#' @param sig name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sig > 1` then prior `rd` increases, making estimate of `r` more uncertain.
+#' @param sigma name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sigma > 0` then prior `rd` increases, making estimate of `r` more uncertain.
 #' @param weight name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.
 #' @param idlab name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`
 #' @param beta The additional variance of performance. As beta increases, the performance is more uncertain and update change is smaller. By default `beta = 25/6`.
+#' @param kappa controls `rd` shrinkage not to be greater than `rd*(1-kappa)`. `kappa=1` means that `rd` will not be decreased.
 #' @param gamma can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slows decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.
 #' @param init_r initial values for `r` if not provided. Default = 25
 #' @param init_rd initial values for `r` if not provided. Default = 25/3
+#' @param pb logical, if TRUE progress bar will appear in console. Default = FALSE
 #' @return 
 #' A "ratings" object is returned
 #' \itemize{
@@ -40,7 +42,7 @@ NULL
 #'                     rank = c( 3, 4, 1, 2 ))
 #' bbt <- bbt_run( rank ~ name, data )
 #' @export
-bbt_run <- function(formula, data, r,rd, sig, weight,beta=25/6, gamma, idlab, init_r = 25, init_rd=25/3){
+bbt_run <- function(formula, data, r,rd, sigma, weight,beta=25/6,kappa=0.5, gamma, idlab, init_r = 25, init_rd=25/3, pb=FALSE){
   is_formula_missing(formula)
   is_data_provided(data)
   is_lhs_valid(formula)
@@ -61,34 +63,34 @@ bbt_run <- function(formula, data, r,rd, sig, weight,beta=25/6, gamma, idlab, in
     message(paste("rd is missing and will set to default="), init_rd)
     names <- unique( data[[ x ]] )
     rd<- as.matrix( setNames( rep(init_rd, length(names)), names ) ) }
-  if( missing(sig) ){
-    data$sig <- 1; sig <- "sig" } 
+  if( missing(sigma) ){
+    data$sigma <- 1; sigma <- "sigma" } 
   if( missing(weight) ){
     data$weight <- 1; weight <- "weight" } 
   if(missing(gamma)) 
     gamma <- 999
   if(missing(idlab)) 
     idlab <- id 
+  if(kappa==0) kappa=0.0001
   if(class(r)!="matrix")   r <- as.matrix(r)
   if(class(rd)!="matrix") rd <- as.matrix(rd)
   
   if(any(class(data)=="data.frame")) 
-    data_list <- split(data[ unique(c(y,id,x, sig, weight, idlab))], data[[ id ]] ) 
+    data_list <- split(data[ unique(c(y,id,x, sigma, weight, idlab))], data[[ id ]] ) 
   
-  j <- 0
   n <- length(data_list)
-  pb <- txtProgressBar(min=0, max=n, width=20, initial=0, style=3)
+  if(pb){  j <- 0; pb <- txtProgressBar(min=0, max=n, width=20, initial=0, style=3) }
   models <- list()
   for(i in names(data_list)){
-    j <- j + 1
     team_name <- data_list[[ i ]][[ x ]]
     model     <- bbt( 
       team_name, 
       rank    = data_list[[ i ]][[ y ]], 
       r       = r[ team_name,,drop=FALSE], 
       rd      = rd[ team_name,,drop=FALSE],
-      sig     = data_list[[ i ]][[ sig ]],
+      sigma     = data_list[[ i ]][[ sigma ]],
       weight  = data_list[[ i ]][[ weight ]],
+      kappa = kappa,
       beta = beta,
       gamma = gamma,
       identifier = as.character( data_list[[ i ]][[ idlab ]] ),
@@ -100,7 +102,7 @@ bbt_run <- function(formula, data, r,rd, sig, weight,beta=25/6, gamma, idlab, in
     rd[ team_name, ] <- model$rd[ team_name, ]
     
     models[[ i ]] <- model
-    setTxtProgressBar(pb,j)
+    if(pb){ j <- j + 1; setTxtProgressBar(pb,j) }
   }
   
   model_r <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["r_df"]] ) , use.names=T, idcol="id" ) )
@@ -119,7 +121,7 @@ bbt_run <- function(formula, data, r,rd, sig, weight,beta=25/6, gamma, idlab, in
     class="rating",
     method = "bbt",
     formula = formula,
-    settings = list(sig=sig, weight=weight,beta=beta, gamma=gamma, idlab=idlab, init_r=init_r, init_rd=init_rd)
+    settings = list(sigma=sigma, weight=weight, beta=beta,kappa=kappa, gamma=gamma, idlab=idlab, init_r=init_r, init_rd=init_rd)
   )
   
   return( out )

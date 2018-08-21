@@ -9,10 +9,10 @@ List
     IntegerVector rank,
     NumericMatrix r, 
     NumericMatrix rd,
-    NumericVector sig,
+    NumericVector sigma,
     NumericVector weight,
     CharacterVector identifier,
-    double kappa=0.0001,
+    double kappa = 0.5,
     double gamma = 999,
     double beta = 25/6,
     double init_r = 25,
@@ -23,7 +23,7 @@ List
     int idx = 0;
 
     NumericVector mi  = rowSums(r);
-    NumericVector sig2 = rowSums( pow_mat_elems(rd) );
+    NumericVector sigma2 = rowSums( pow_mat_elems(rd) );
     NumericMatrix rd_share(n,j);
     NumericVector omega(n,0.0);
     NumericVector delta(n,0.0);
@@ -33,17 +33,19 @@ List
     NumericVector P(n*n-n);
     NumericVector Y(n*n-n);
     double c;
+
     
     for(int i = 0; i < n; i++){
-      if( (rd[i] * sig[i]) < init_rd ) rd[i] = rd[i] * sig[i]; else rd[i] = init_rd;
+      if( ( sqrt( pow(rd[i],2) + pow(sigma[i],2)) ) < init_rd ) 
+        rd[i] = sqrt( pow(rd[i],2) + pow(sigma[i],2)); else rd[i] = init_rd;
     }
     
     for(int i = 0; i < n; i++){
       for(int q = 0; q<n; q++ ){
         if(i!=q){
 
-          c = sqrt( sig2(i) + sig2(q) + pow(beta,2) );
-          if(gamma==999) gamma = sqrt( sig2(i) ) / c;
+          c = sqrt( sigma2(i) + sigma2(q) + pow(beta,2) );
+          if(gamma==999) gamma = sqrt( sigma2(i) ) / c;
         
           idx += 1;
           identifierp( idx - 1 ) = identifier[i];
@@ -51,29 +53,29 @@ List
           team2( idx - 1 ) = name[q];
           
           Y( idx - 1 ) = calc_s( rank(i), rank(q) );
-          P( idx - 1 )  = exp( mi(i)/c ) / ( exp( mi(i)/c ) + exp( mi(q)/c) );
+          P( idx - 1 ) = exp( mi(i)/c ) / ( exp( mi(i)/c ) + exp( mi(q)/c) );
           
           omega(i) = 
             omega(i) + 
-            sig2(i)/c * 
+            sigma2(i)/c * 
             ( Y( idx - 1 ) - P( idx - 1 ) );
           
           delta(i) = 
             delta(i) + 
             gamma * 
-            pow( sqrt( sig2(i) ) / c, 2.0 ) * 
+            pow( sqrt( sigma2(i) ) / c, 2.0 ) * 
             ( P(idx - 1) * ( 1-P(idx - 1) ) );
         }
       }
     }
 
     for(int i = 0; i < n; i++){
-      rd_share(i,_) = pow(rd(i,_),2.0) / sig2(i);
+      rd_share(i,_) = pow(rd(i,_),2.0) / sigma2(i);
       
       r(i,_) = r(i,_) + rd_share(i,_) * omega(i) * weight(i);
       rd(i,_) = sqrt( 
           pow(rd(i,_),2.0) * 
-          pmax( 1 - rd_share(i,_) * delta(i) , kappa ) 
+          pmax( 1 - rd_share(i,_) * delta(i) , kappa )
         );
     }
 

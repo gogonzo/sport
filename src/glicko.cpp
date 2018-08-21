@@ -14,7 +14,8 @@ List
     CharacterVector identifier,
     double init_r  = 1500.00,
     double init_rd = 350.00,
-    double gamma = 1
+    double gamma = 1,
+    double kappa = .5
   ) {
     
     int n = name.size();
@@ -23,7 +24,8 @@ List
     double 
       q   = log(10)/400,
       var  = 0.0,
-      err = 0.0;
+      err = 0.0, 
+      new_rd_;
     NumericVector g_rd(n);
     NumericVector var_i(n);
     NumericVector err_i(n);
@@ -38,7 +40,6 @@ List
     for(int i = 0; i < n; i++){
       if( NumericVector::is_na(r[i]) ) 
         r[i] = init_r, rd[i] = init_rd;
-      // modification - rd + time since last event 
       if( ( sqrt( pow(rd[i],2) + pow(sigma[i],2)) ) < init_rd ) 
         rd[i] = sqrt( pow(rd[i],2) + pow(sigma[i],2)); else rd[i] = init_rd;
       g_rd[i] = calcGRd( rd[i] );
@@ -76,7 +77,11 @@ List
     // update parameters 
     for(int i = 0; i < n; i++){
       r[i]     = r[i] + q/( 1/pow(rd[i],2) + 1/delta_i[i] ) * err_i[i] * weight[i];
-      rd[i]    = sqrt(  1/( 1/pow(rd[i],2) + 1/delta_i[i] * weight[i] ));
+      
+      new_rd_ = sqrt(  1/( 1/pow(rd[i],2) + 1/( delta_i[i] * weight[i]) ));
+      if( new_rd_ < rd(i) * kappa ) 
+        new_rd_ = rd(i) * kappa;
+      rd[i]    = new_rd_;
     }
     
     Rcpp::List dimnms = Rcpp::List::create(name, name);
@@ -111,6 +116,7 @@ List
     NumericVector rd,
     NumericVector sigma,
     NumericVector weight,
+    double kappa,
     CharacterVector identifier,
     double tau = .5,
     double init_r  = 1500.00,
@@ -119,7 +125,7 @@ List
     
     int n = name.size();
     int idx = 0;
-    double err  = 0.0, var = 0.0, A  = 0.0;
+    double err  = 0.0, var = 0.0, A  = 0.0, new_rd_;
     NumericVector mu(n);
     NumericVector phi(n);
     NumericVector g_phi(n);
@@ -172,11 +178,13 @@ List
       
       phi[i] = updatePhi(phi[i], var_i[i], sigma[i], weight[i]);
       if(phi[i]>(init_rd/173.7178)) phi[i] = init_rd/173.7178;
-      
       mu[i]  = updateMu( mu[i], phi[i], err_i[i], weight[i]);
       
       r[i]   = mu2r( mu[i] );
-      rd[i]  = phi2rd( phi[i] ); 
+      new_rd_ = phi2rd( phi[i] );
+      if( new_rd_ < rd(i) * kappa ) new_rd_ = rd(i) * kappa;
+      rd[i]    = new_rd_;
+    
     }
     
     

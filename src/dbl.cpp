@@ -13,18 +13,13 @@ Rcpp::List
     NumericVector beta,
     NumericVector weight,
     CharacterVector identifier,
-    double tau = 0.05
+    double kappa = 0.95
   ) {
   int n = X.nrow();
   int k = X.ncol();
   int idx = 0;
   double pi = 3.1415926535;
-  double s2;
-  double Ks;
-  double p;
-  double y;
-  double y_var;
-  double error;
+  double s2, Ks, p, y, y_var, error, delta_;
   
   CharacterVector team2(n*n-n);
   CharacterVector team1(n*n-n);
@@ -39,14 +34,8 @@ Rcpp::List
   NumericVector h_q(k);
   NumericVector s_i(k);
   NumericVector s_q(k);
-  double delta_;
-  
   NumericMatrix OMEGA( n , k );
   NumericMatrix DELTA( n , k );
-  
-  // state transition apriori assumption about R and RD, related to `F` and `R` parameters
-  //R = R * F;
-  //RD = RD * R;
   
   for(int i = 0; i < n; i++){
     x_i = R;
@@ -97,8 +86,8 @@ Rcpp::List
   
   for(int i = 0; i < k; i++){
     delta_ = -sum( DELTA(_,i) * weight ) / 2 / (k*1.0 - 1.0);
-    if(  -delta_ > RD(i)*tau) 
-      delta_ = RD(i) * tau * delta_/std::abs(delta_);
+    if(  delta_ < -RD(i) * (1-kappa) ) 
+         delta_ = -RD(i) * (1- kappa);
     RD(i) += delta_; 
     R(i)  += sum( OMEGA(_,i) * weight ) / 2;
   }
@@ -111,7 +100,6 @@ Rcpp::List
   return Rcpp::List::create(
     Rcpp::Named("r") = R,
     Rcpp::Named("rd") = RD,
-    
     Rcpp::Named("r_df") = DataFrame::create(
       Rcpp::Named("name") = colnames(X),
       Rcpp::Named("r") = R,
@@ -126,6 +114,6 @@ Rcpp::List
       Rcpp::Named("stringsAsFactors") = false
     ),
     Rcpp::Named("identifierp") = identifierp,
-    Rcpp::Named("identifier") = identifier
+    Rcpp::Named("identifier")  = identifier
   );
 }

@@ -13,9 +13,10 @@ NULL
 #' @param beta The additional variance of performance. As beta increases, the performance is more uncertain and update change is smaller. By default `beta = 25/6`.
 #' @param weight name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.
 #' @param idlab name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time in
-#' @param tau parameter controlling `rd` to avoid quick decreasing to zero. Is the proportion of `rd` which is maximum change size.
+#' @param kappa parameter controlling `rd` to avoid quick decreasing to zero. Is the proportion of `rd` which is maximum change size.
 #' @param init_r initial values for `r` if not provided. Default `r=0`
 #' @param init_rd initial values for `rd` if not provided. Default `rd=1`
+#' @param pb logical, if TRUE progress bar will appear in console. Default = FALSE
 #' @return 
 #' A "rating" object is returned
 #' \itemize{
@@ -32,7 +33,7 @@ NULL
 #'                     rank = c( 3, 4, 1, 2 ))
 #' dbl <- dbl_run( rank ~ name, data)
 #' @export
-dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=0, init_rd=1){
+dbl_run <- function(formula, data, r, rd, beta, weight, idlab, kappa=0.5, init_r=0, init_rd=1, pb=FALSE){
   is_formula_missing(formula)
   is_data_provided(data)
   is_lhs_valid(formula)
@@ -52,22 +53,21 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=
   if(missing(idlab)) 
     idlab <- id
   if( missing(weight) ){
-    data$weight <- 1.0; weight      <- "weight" } 
+    data$weight <- 1.0; weight <- "weight" } 
   if( missing(beta) ){
-    data$beta <- 1.0; beta      <- "beta" } 
+    data$beta <- 1.0; beta <- "beta" } 
+  if(kappa==0) kappa=0.0001
   
   if(any(class(data)=="data.frame")) 
     data_list <- split( data[ c(rhs, beta, weight,idlab) ], data[[ id ]] )   
   unique_id  <- unique(data[[ id ]]) 
   rank_list  <- split( data[[ lhs[1] ]] , data[[ id ]])
   rider_list <- split( data[[ rhs[1] ]] , data[[ id ]])
-  
-  j <- 0
+
   n <- length(data_list)
-  pb <- txtProgressBar(min=0, max=n, width=20, initial=0, style=3)
+  if(pb){  j <- 0; pb <- txtProgressBar(min=0, max=n, width=20, initial=0, style=3) }
   models <- list()
   for(i in names(data_list)){
-    j <- j + 1
     terms <- createTermMatrix( formula, data_list[[ i ]][ rhs ] ) 
     model <- dbl(
       rider_list[[ i ]],
@@ -75,17 +75,20 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=
       X       = as.matrix(terms),
       R       = r[ colnames(terms) ], 
       RD      = rd[ colnames(terms) ],
-      beta     = data_list[[ i ]][[ beta ]],
+      beta    = data_list[[ i ]][[ beta ]],
       weight  = data_list[[ i ]][[ weight ]],
-      identifier = as.character( data_list[[ i ]][[ idlab ]] ),
-      tau = tau
+      kappa   = kappa,
+      identifier = as.character( data_list[[ i ]][[ idlab ]] )
     )
     
-    r[names(model$r)]  <- model$r
+    if(any(!is.finite(model$rd) | !is.finite(model$r) | model$rd < 0))
+      break;
+      
+    r[names(model$r)]   <- model$r
     rd[names(model$rd)] <- model$rd
     
     models[[ i ]] <- model
-    setTxtProgressBar(pb,j)
+    if(pb){ j <- j + 1; setTxtProgressBar(pb,j) }
   }
   
   model_r <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["r_df"]] ) , use.names=T, idcol="id" ) )
@@ -103,7 +106,7 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, tau=0.05, init_r=
     class="rating",
     method = "dbl",
     formula = formula,
-    settings = list(beta=beta, weight=weight, idlab=idlab, tau=tau, init_r=init_r, init_rd=init_rd)
+    settings = list(init_r=init_r, init_rd=init_rd, beta=beta, weight=weight, kappa=kappa, idlab=idlab)
   )
   
   return( out )

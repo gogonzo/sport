@@ -73,7 +73,7 @@ double funX( double X, double delta, double phi, double var, double a, double ta
   
   return(result);
 }
-double optimSigma( double delta, double sig, double phi, double var, double tau){
+double optimSigma( double delta, double sigma, double phi, double var, double tau){
   double 
   a  = 0.0,
     A  = 0.0,
@@ -85,7 +85,7 @@ double optimSigma( double delta, double sig, double phi, double var, double tau)
     k  = 0.0,
     e = 0.000001;
   
-  A = a = log( pow( sig, 2 ) );
+  A = a = log( pow( sigma, 2 ) );
   if(delta > phi + var) {
     B = log( pow(delta, 2) - pow(phi, 2) - var);
   } else {
@@ -117,13 +117,13 @@ double optimSigma( double delta, double sig, double phi, double var, double tau)
   return(A);
 }
 
-double updatePhi( double phi, double var, double sig, double w) {
+double updatePhi( double phi, double var, double sigma, double w) {
   double
   prerating_phi,
   updated_phi;
   
-  prerating_phi = sqrt( pow(phi, 2) + pow(sig, 2));
-  updated_phi   = 1 / sqrt( 1/pow(prerating_phi,2) + 1/var * w );
+  prerating_phi = sqrt( pow(phi, 2) + pow(sigma, 2))  * w ;
+  updated_phi   = 1 / sqrt( 1/pow(prerating_phi,2) + 1/var);
   
   return(updated_phi);
 }
