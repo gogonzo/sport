@@ -2,6 +2,17 @@ createTermMatrix <- function(formula, data){
   vars <- extractTermNames(formula, lapply(data, class))
   terms <- NULL
   
+  if(length(vars)==1 & length(vars[[1]])==1)
+    if(vars[[1]] == 'factor'){
+      return( factor2dummy( factor = as.character(data[[ names(vars[[1]]) ]] ) ) )
+      
+    } else if(vars[[1]] %in% c("character")){
+      return( factor2dummy( factor = data[[ names(vars[[1]]) ]] ) )
+      
+    } else if(vars[[1]] %in% c("numeric","integer") ) {
+      return( data[ names(vars[[1]]) ] )
+    }
+  
   for(i in 1:length(vars)){
     class_i <- vars[[ i ]]
     names_i <- names( vars[[ i ]] )
@@ -47,6 +58,19 @@ createTermMatrix <- function(formula, data){
 allLevelsList <- function(formula, data){
   vars <- extractTermNames(formula, lapply(data, class))
   params <- NULL
+  
+  if(length(vars)==1 & length(vars[[1]])==1)
+    if(vars[[1]] == 'factor'){
+      return( unique( as.character(data[[ names(vars[[1]]) ]]) ) )
+      
+    } else if(vars[[1]] %in% c("character")){
+      return( unique( as.character(data[[ names(vars[[1]]) ]]) ) )
+      
+    } else if(vars[[1]] %in% c("numeric","integer") ) {
+      return( names(vars[[1]]))
+    } 
+    
+
   
   for(i in 1:length(vars)){
     class_i <- vars[[ i ]]
