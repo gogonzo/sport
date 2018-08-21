@@ -1,4 +1,7 @@
+\.o$
+\.so$
+\.dll$
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^.*elo.R
 ^data-raw$
+README.md

@@ -14,5 +14,8 @@ LazyData: true
 RoxygenNote: 6.1.0
 Suggests: knitr,
     rmarkdown,
-    testthat
+    testthat,
+    magrittr,
+    dplyr,
+    car
 VignetteBuilder: knitr
