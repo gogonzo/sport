@@ -226,7 +226,8 @@ glicko2 <- glicko2_run(rank|id~rider,gpheats, sigma=sigma)
 # bbt example
 gpheats %<>%
   group_by(rider) %>%
-  mutate( days_scaled = car::recode(as.integer(date - lag(date))+30,"90:hi=90")/30 ) %>%
+  mutate( days_scaled = as.integer(date - lag(date))/90,
+          days_scaled = if_else(days_scaled>1,1.0, days_scaled)) %>%
   filter( !is.na(days_scaled) )
 
 bbt <- bbt_run( rank|id ~ rider, data=gpheats, sigma="days_scaled")
