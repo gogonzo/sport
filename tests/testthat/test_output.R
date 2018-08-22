@@ -9,3 +9,9 @@ test_that("summary",{
     names(summary(glicko))
   )
 })
+
+test_that("",{
+  expect_output(
+    print(glicko)
+  )
+})

@@ -41,6 +41,15 @@ test_that("only factor, character, numeric and integer allowed",{
   )
 })
 
+
+test_that("Error with NA parameters",{
+  gpheats$weight[17] <- NaN
+  expect_error(
+    dbl_run( formula,data=gpheats[17:21,] , r=r, rd=rd, weight = "weight"  ),
+    paste0("Parameters error after evaluating id=", gpheats$id[17])
+  )
+})
+
 test_that("passing prior estimates",{
   expect_true(
     all( !is.na(dbl_run( formula, gpheats[17:32,], r=r, rd=rd  )$final_r) )

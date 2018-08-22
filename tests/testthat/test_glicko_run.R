@@ -55,7 +55,16 @@ test_that("missing r message",{
     "r is missing and will set to default=1500")
 })
 
-test_that("missing r message",{
+test_that("Error with NA parameters",{
+  gpheats$weight   <- 1.1
+  gpheats$weight[17] <- NaN
+  expect_error(
+    glicko_run( rank|id~rider,data=gpheats[17:21,] , weight = "weight"  ),
+    paste0("Parameters error after evaluating id=", gpheats$id[17])
+  )
+})
+
+test_that("variable conversion to character",{
   expect_message( 
     glicko_run(rank|id~field, data=data, r=r, rd=rd),
     "variable 'field' is of class integer and will be converted to character")
@@ -96,6 +105,12 @@ test_that("higher rating change for higher sigma",{
   expect_true( all(
     abs( 1500 - glicko_run(formula = rank | id ~ name, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ),data=data, sigma="sigma")$final_r ) >
     abs( 1500 - glicko_run(formula = rank | id ~ name, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ),data=data)$final_r )
+  ))
+})
+
+test_that("kappa is working",{
+  expect_true(all( 
+    glicko_run(rank|id~name, data=data, kappa=.99)$final_rd == 350*.99
   ))
 })
 

@@ -1,7 +1,16 @@
 context("glicko2_run")
-data <- data.frame( id = 1,name = c( "A", "B", "C", "D" ), rank  = c( 3, 4, 1, 2 ), weight=1.01, date=c("a","b","c","d"))
-sigma  <- setNames( rep(1,4), c("A","B","C","D"))
+data  <- data.frame( id = 1,name = c( "A", "B", "C", "D" ), rank  = c( 3, 4, 1, 2 ), weight=1.01, date=c("a","b","c","d"))
+sigma <- setNames( rep(1,4), c("A","B","C","D"))
 rd    <- setNames( rep(350,4), c("A","B","C","D") )
+
+test_that("Error with NA parameters",{
+  gpheats$weight   <- 1.1
+  gpheats$weight[17] <- NaN
+  expect_error(
+    glicko2_run( rank|id~rider,data=gpheats[17:21,] , weight = "weight"  ),
+    paste0("Parameters error after evaluating id=", gpheats$id[17])
+  )
+})
 
 test_that("init r passed",{
   expect_true( all(
@@ -33,6 +42,12 @@ test_that("higher deviation for higher sigma",{
   expect_true( all(
     glicko2_run(formula = rank|id~name, data=data, sigma = setNames( rep(0.11,4), c("A","B","C","D")))$final_rd >
     glicko2_run(formula = rank|id~name, data=data, sigma = setNames( rep(0.1,4), c("A","B","C","D")))$final_rd
+  ))
+})
+
+test_that("kappa is working",{
+  expect_true(all( 
+    glicko2_run(rank|id~name, data=data, kappa=.99)$final_rd == 350*.99
   ))
 })
 
