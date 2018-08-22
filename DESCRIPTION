@@ -3,12 +3,12 @@ Type: Package
 Title: Online ranking methods
 Version: 0.1.0
 Depends: R (>= 2.10)
-Author: Dawid Kałędkowski
-Maintainer: Dawid Kałędkowski <dawid.kaledkowski@protonmail.com>
-Description: Most popular online rating methods including, Elo, Glicko, Glicko2, BBT, DBL. Package designed to estimate players abilities and analyse competition in sport events.
+Authors@R: person("Dawid", "Kałędkowski", email = "dawid.kaledkowski@gmail.com", role = c("aut", "cre"))
+Maintainer: Dawid Kałędkowski <dawid.kaledkowski@gmail.com>
+Description: Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challange. Algorithms are based on Bayesian Approximation Method, and they don't involve any martix inversions nor likelihood estimation. Weights (parameters) are updated sequentionaly, and computation doesn't require any additional RAM to make estimation feasible. Additionaly, base of the package is writen in `C++` what makes `sport` computation even faster. 
 Imports: Rcpp (>= 0.12.8), data.table (>= 1.11.0), ggplot2 (>= 3.0.0)
 LinkingTo: Rcpp, RcppArmadillo
-License: MIT + file LICENSE
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.0
