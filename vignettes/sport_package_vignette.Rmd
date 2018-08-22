@@ -238,7 +238,8 @@ bbt <- bbt_run( rank|id ~ rider, data=gpheats, sigma="days_scaled")
 To increase/decrease uncertainty of challange output one can define `beta`. Increasing `beta` flatten probabilities of winning challange equalizing competitors chances. This element differs from `sigma` by not affecting `rd` directly but to adjust prediction. This argument can be used in bbt and dbl by identifying column in input data where beta is stored. It is worth to specify `beta` in events when level of competition is higher than usual e.g. derby, knock-out phase, decisive matches, exhibitions and friendlies. Let's assume that beta follows the same rule as `weight` previously set.
 
 ```{r}
-dbl <- dbl_run(rank|id~rider, beta="weight", data=gpheats) 
+gpheats %<>% mutate(sigma = ifelse(heat >= (max(heat)-3),2,1) )
+dbl <- dbl_run(rank|id~rider, beta="sigma", data=gpheats) 
 ```
 
 
