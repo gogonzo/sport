@@ -100,6 +100,10 @@ glicko2_run <- function(formula, data, r, rd,sigma, tau=0.5, weight,kappa=0.5, i
       init_r = init_r,
       init_rd = init_rd
     )  
+    
+    if(any(!is.finite(model$rd) | !is.finite(model$r) | !is.finite(model$sigma) | model$rd < 0))
+      stop(paste0("Parameters error after evaluating ", id,"=",i),call. = F)
+    
     r [ player_names ] <- model$r[  player_names ]
     rd[ player_names ] <- model$rd[ player_names ]
     sigma[ player_names ] <- model$sigma[ player_names ]

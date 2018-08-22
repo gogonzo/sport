@@ -64,7 +64,7 @@ bbt_run <- function(formula, data, r,rd, sigma, weight,beta=25/6,kappa=0.5, gamm
     names <- unique( data[[ x ]] )
     rd<- as.matrix( setNames( rep(init_rd, length(names)), names ) ) }
   if( missing(sigma) ){
-    data$sigma <- 1; sigma <- "sigma" } 
+    data$sigma <- 0; sigma <- "sigma" } 
   if( missing(weight) ){
     data$weight <- 1; weight <- "weight" } 
   if(missing(gamma)) 
@@ -86,7 +86,7 @@ bbt_run <- function(formula, data, r,rd, sigma, weight,beta=25/6,kappa=0.5, gamm
     model     <- bbt( 
       team_name, 
       rank    = data_list[[ i ]][[ y ]], 
-      r       = r[ team_name,,drop=FALSE], 
+      r       =  r[ team_name,,drop=FALSE], 
       rd      = rd[ team_name,,drop=FALSE],
       sigma     = data_list[[ i ]][[ sigma ]],
       weight  = data_list[[ i ]][[ weight ]],
@@ -97,6 +97,9 @@ bbt_run <- function(formula, data, r,rd, sigma, weight,beta=25/6,kappa=0.5, gamm
       init_r = init_r,
       init_rd = init_rd
     )
+    
+    if(any(!is.finite(model$rd) | !is.finite(model$r) | model$rd < 0))
+      stop(paste0("Parameters error after evaluating ", id,"=",i),call. = F)
     
     r [ team_name, ] <- model$r[  team_name, ]
     rd[ team_name, ] <- model$rd[ team_name, ]

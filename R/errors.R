@@ -23,3 +23,10 @@ is_interactions_valid <- function(formula)
 is_rhs_valid <- function(formula, model)
   if( length(all.vars(update(formula, 0~.)) ) != 1) 
     stop(paste(model,"expects only one variable which is `~ name`"), call. = F ) 
+
+is_newdata_consistent <- function(vars, newnames)
+  if( !all( vars %in% newnames) )
+    stop(paste0(
+      "Variables (", 
+      paste(setdiff(vars,newnames),collapse=","),
+      ") are not present in newdata. Provide colnames identical to specified in model formula"), call.=F)

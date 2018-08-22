@@ -10,6 +10,7 @@
 #' predict(glicko,gpheats[17:20,])
 #' @export
 predict.rating <- function(object,newdata,...){
+  if(missing(newdata)) stop("newdata is requested to predict", call.=F)
   method   <- attr(object,"method")
   formula <- attr(object,"formula")
   
@@ -23,6 +24,8 @@ predict.rating <- function(object,newdata,...){
   r       <- object$final_r
   rd      <- object$final_rd
   
+  is_newdata_consistent( c(lhs,rhs), colnames(newdata) )
+  
   if(method == "glicko"){
     weight <- attr(object,"settings")$weight
     sigma    <- attr(object,"settings")$sigma
@@ -31,8 +34,8 @@ predict.rating <- function(object,newdata,...){
     init_rd<- attr(object,"settings")$init_rd
     kappa  <- attr(object,"settings")$kappa
     
-    if( !weight %in% colnames(newdata) ) newdata[[weight]] <- 1
-    if( !sigma    %in% colnames(newdata) ) newdata[[sigma]]    <- 1
+    if( !weight %in% colnames(newdata) ) newdata[[weight]]  <- 1
+    if( !sigma    %in% colnames(newdata) ) newdata[[sigma]] <- 0
     
     data_list <- split(newdata[ unique(c(y,id,x, sigma, weight,idlab))], newdata[[ id ]] )
     
@@ -100,7 +103,7 @@ predict.rating <- function(object,newdata,...){
     init_rd<- attr(object,"settings")$init_rd
     
     if( !weight %in% colnames(newdata) ) newdata[[weight]] <- 1
-    if( !sigma    %in% colnames(newdata) ) newdata[[sigma]]    <- 1
+    if( !sigma    %in% colnames(newdata) ) newdata[[sigma]]<- 0
     
     data_list <- split(newdata[ unique(c(y,id,x, sigma, weight,idlab))], newdata[[ id ]] )
     
@@ -129,13 +132,13 @@ predict.rating <- function(object,newdata,...){
     all_params <- allLevelsList(formula, newdata)
     weight <- attr(object,"settings")$weight
     beta   <- attr(object,"settings")$beta
-    kappa  <- attr(object, "settings")$kappa
+    kappa  <- attr(object,"settings")$kappa
     idlab  <- attr(object,"settings")$idlab
     init_r <- attr(object,"settings")$init_r
     init_rd<- attr(object,"settings")$init_rd
     
     if( !weight %in% colnames(newdata) ) newdata[[weight]] <- 1
-    if( !beta    %in% colnames(newdata) ) newdata[[beta]]  <- 1
+    if( !beta    %in% colnames(newdata) )newdata[[beta]]  <- 1
     
     data_list <- split( newdata[ c(rhs, beta, weight,idlab) ], newdata[[ id ]] )   
     unique_id  <- unique(newdata[[ id ]]) 
