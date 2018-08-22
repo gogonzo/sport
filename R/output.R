@@ -30,9 +30,6 @@ NULL
 #' summary(model)
 #' @export
 summary.rating <- function(object,...){
-  if(!"rating" %in% class(object) ) stop("Function summary() needs object of class sport")
-  if(!any(c("glicko","glicko2","bbt","dbl") %in% attr(object,"method") )) stop("Function summary() needs object of class sport")
-  
   model_probs_players <- object$pairs[,.( `Model probability` = round( mean(P), 3),
                                           `True probability`  = round( mean(Y), 3),
                                           `Accuracy`   = round(mean( (P>.5) == Y ),3), 
