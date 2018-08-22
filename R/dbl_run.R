@@ -81,7 +81,6 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, kappa=0.5, init_r
       identifier = as.character( data_list[[ i ]][[ idlab ]] )
     )
     
-    print(model$rd)
     if(any(!is.finite(model$rd) | !is.finite(model$r) | model$rd < 0))
       stop(paste0("Parameters error after evaluating ", id,"=",i),call. = F)
 
