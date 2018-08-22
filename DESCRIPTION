@@ -16,6 +16,5 @@ Suggests: knitr,
     rmarkdown,
     testthat,
     magrittr,
-    dplyr,
-    car
+    dplyr
 VignetteBuilder: knitr
