@@ -20,25 +20,22 @@ test_that("only factor, character, numeric and integer allowed",{
     sport:::allLevelsList( rank|id~rider+date , gpheats[1:32,]),
     "Variables can be only of following classes: factor, character, numeric, integer."
   )
-})
-test_that("only factor, character, numeric and integer allowed",{
+  
   expect_error(
     sport:::allLevelsList( rank|id~rider:date , gpheats[1:32,]),
     "Variables can be only of following classes: factor, character, numeric, integer."
   )
-})
-
-test_that("only factor, character, numeric and integer allowed",{
+  
   expect_error(
     sport:::createTermMatrix( rank|id~rider+date , gpheats[1:32,]),
     "Variables can be only of following classes: factor, character, numeric, integer."
   )
-})
-test_that("only factor, character, numeric and integer allowed",{
+  
   expect_error(
     sport:::createTermMatrix( rank|id~rider:date , gpheats[1:32,]),
     "Variables can be only of following classes: factor, character, numeric, integer."
   )
+  
 })
 
 

@@ -10,3 +10,4 @@ inst/doc
 .*.Rnb.cached
 man/.Rapp.history
 .DS_Store
+cran-comments.md
