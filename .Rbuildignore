@@ -4,4 +4,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
-README.md
+README.Rmd
+^cran_comments\.md$
+.travis.yml
+codecov.yml
