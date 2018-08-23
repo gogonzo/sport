@@ -6,12 +6,12 @@
 About
 =====
 
-Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challange. Algorithms are based on Bayesian Approximation Method, and they don't involve any martix inversions nor likelihood estimation. Weights (parameters) are updated sequentionaly, and computation doesn't require any additional RAM to make estimation feasible. Additionaly, base of the package is writen in `C++` what makes `sport` computation even faster.
+Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challenge. Algorithms are based on Bayesian Approximation Method, and they don't involve any matrix inversions nor likelihood estimation. Weights (parameters) are updated sequentially, and computation doesn't require any additional RAM to make estimation feasible. Additionally, base of the package is written in `C++` what makes `sport` computation even faster.
 
 Theory
 ======
 
-Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preferrence of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preffered to win over worst. As player/event and alternative/experiment can be used interchangeably, for ease of use sport nomenclature is adapted (player/event).
+Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preference of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preferred to win over worst. As player/event and alternative/experiment can be used interchangeably, for ease of use sport nomenclature is adapted (player/event).
 
 Algorithms implemented in a `sport` package works similarly, as all using Bayesian Approximation Method. Algorithms works as follows: At the moment player `i` competes with player `j` while both have initial ![R\_i](https://latex.codecogs.com/png.latex?R_i "R_i") and ![R\_j](https://latex.codecogs.com/png.latex?R_j "R_j") ratings. Prior to event, probability that player `i` win over player `j` is ![\\hat{Y\_i}](https://latex.codecogs.com/png.latex?%5Chat%7BY_i%7D "\hat{Y_i}"). After event is finished when true result ![Y\_{ij}](https://latex.codecogs.com/png.latex?Y_%7Bij%7D "Y_{ij}") is observed, initial believe about rating is changed ![R\_i^{'} \\leftarrow R\_i](https://latex.codecogs.com/png.latex?R_i%5E%7B%27%7D%20%5Cleftarrow%20R_i "R_i^{'} \leftarrow R_i") according to the prediction error ![( Y\_{ij} - \\hat{Y\_{ij}} )](https://latex.codecogs.com/png.latex?%28%20Y_%7Bij%7D%20-%20%5Chat%7BY_%7Bij%7D%7D%20%29 "( Y_{ij} - \hat{Y_{ij}} )") and some constant ![K](https://latex.codecogs.com/png.latex?K "K"). Updates are summed as player can compete with more than one player in particular event.
 
@@ -119,7 +119,7 @@ str(gpheats)
     ##  $ position: chr  "2" "4" "1" "3" ...
     ##  $ rank    : num  2 4 1 3 1 4 3 2 4 2 ...
 
-Data used in `sport` package must be in so called long format. Typicaly data.frame contains at least `id`, `name` and `rank`, with one row for one player within specific match. Package allows for any number of players within event and allows ties also. For all games, *output needs to be a rank/position in event*. Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output for two player game is 1-winner 2-looser. Below example of two matches with 4 players each.
+Data used in `sport` package must be in so called long format. Typically data.frame contains at least `id`, `name` and `rank`, with one row for one player within specific match. Package allows for any number of players within event and allows ties also. For all games, *output needs to be a rank/position in event*. Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output for two player game is 1-winner 2-looser. Below example of two matches with 4 players each.
 
     ##   id             rider rank
     ## 1  1     Tomasz Gollob    2
@@ -134,104 +134,152 @@ Data used in `sport` package must be in so called long format. Typicaly data.fra
 Estimate dynamic ratings
 ------------------------
 
-To compute ratings using each algorithms one has to specify formula. Following manner is required, which estimates `name` (of a player) abilities, with observed outputs `rank` nested within particular event `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`. `formula = rank|id ~ name`
-
-Output objects are of class `sport` have their own `print` and `summary` which provides most important informations. `print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.
+To compute ratings using each algorithms one has to specify formula. Form `rank | id ~ name` is required, which estimates `name` - rating of a player, by observing outputs - `rank`, nested within particular event - `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`. `formula = rank|id ~ name`
 
 ``` r
-print(glicko)
+glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats )
+```
+
+    ## r is missing and will set to default=1500
+
+    ## rd is missing and will set to default=350
+
+``` r
+glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats )
+```
+
+    ## r is missing and will set to default=1500
+
+    ## rd is missing and will set to default=350
+
+    ## sigma is missing and will set to default=0.05
+
+``` r
+bbt     <- bbt_run(     formula = rank|id ~ rider, data = gpheats )
+```
+
+    ## r is missing and will set to default=25
+
+    ## rd is missing and will set to default=8.33333333333333
+
+``` r
+dbl     <- dbl_run(     formula = rank|id ~ rider, data = gpheats )
+print(dbl)
 ```
 
     ## 
     ## Call: rank | id ~ rider
     ## 
-    ## Number of unique pairs: 1500
+    ## Number of unique pairs: 31081
     ## 
-    ## Accuracy of the model: 0.63
+    ## Accuracy of the model: 0.62
     ## 
     ## True probabilities and Accuracy in predicted intervals:
-    ##      Interval Model probability True probability  Accuracy   n
-    ##  1:   [0,0.1]        0.06574276        0.1956522 0.8043478  92
-    ##  2: (0.1,0.2]        0.15201026        0.3045267 0.6954733 243
-    ##  3: (0.2,0.3]        0.25075788        0.2943144 0.7056856 299
-    ##  4: (0.3,0.4]        0.34996827        0.4242788 0.5745192 416
-    ##  5: (0.4,0.5]        0.45374289        0.4480249 0.5488565 481
-    ##  6: (0.5,0.6]        0.55310184        0.5596659 0.5560859 419
-    ##  7: (0.6,0.7]        0.65003173        0.5757212 0.5745192 416
-    ##  8: (0.7,0.8]        0.74924212        0.7056856 0.7056856 299
-    ##  9: (0.8,0.9]        0.84798974        0.6954733 0.6954733 243
-    ## 10:   (0.9,1]        0.93425724        0.8043478 0.8043478  92
+    ##      Interval Model probability True probability Accuracy     n
+    ##  1:   [0,0.1]             0.076            0.164    0.835   436
+    ##  2: (0.1,0.2]             0.158            0.252    0.747  2217
+    ##  3: (0.2,0.3]             0.257            0.300    0.699  5447
+    ##  4: (0.3,0.4]             0.353            0.372    0.626 10113
+    ##  5: (0.4,0.5]             0.450            0.454    0.545 12911
+    ##  6: (0.5,0.6]             0.550            0.546    0.545 12825
+    ##  7: (0.6,0.7]             0.647            0.628    0.626 10113
+    ##  8: (0.7,0.8]             0.743            0.700    0.699  5447
+    ##  9: (0.8,0.9]             0.842            0.748    0.747  2217
+    ## 10:   (0.9,1]             0.924            0.836    0.835   436
+
+Output
+------
+
+Objects returned by `method_run` are of class `rating` and have their own `print` `summary` which provides most important informations. -`print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.
 
 ``` r
-summary(glicko)
+summary(dbl)
 ```
 
     ## $formula
     ## rank | id ~ rider
     ## 
     ## $method
-    ## [1] "glicko"
+    ## [1] "dbl"
     ## 
     ## $`Overall Accuracy`
-    ## [1] 0.6276667
+    ## [1] 0.6167273
     ## 
     ## $`Number of pairs`
-    ## [1] 3000
+    ## [1] 62162
     ## 
     ## $r
-    ##                  name        r        rd Model probability
-    ##  1:     Tomasz Gollob 1562.326  31.96461         0.4981824
-    ##  2:     Gary Havelock 1535.574  36.07222         0.3876544
-    ##  3:       Chris Louis 1575.082  28.31770         0.5392178
-    ##  4:  Tony Rickardsson 1704.619  29.73239         0.6623543
-    ##  5:     Sam Ermolenko 1573.429  28.21369         0.5512214
-    ##  6:    Jan Staechmann 1246.821  55.56176         0.2441970
-    ##  7:     Tommy Knudsen 1704.262  37.44257         0.6662263
-    ##  8: Henrik Gustafsson 1625.992  28.20670         0.5260341
-    ##  9:   Mikael Karlsson 1245.190  61.99332         0.1694434
-    ## 10:      Hans Nielsen 1781.379  33.81743         0.7905322
-    ## 11:        Andy Smith 1389.424  31.63832         0.3353383
-    ## 12:        Mark Loram 1514.087  28.19171         0.4837638
-    ## 13:      Greg Hancock 1643.684  28.29307         0.5114290
-    ## 14:        Marvyn Cox 1404.498  29.48348         0.3853776
-    ## 15:     Dariusz Śledź 1459.486 110.21924         0.4066321
-    ## 16:       Craig Boyce 1479.722  30.07608         0.4123869
-    ## 17:      Billy Hamill 1696.884  29.76935         0.6170499
-    ## 18:    Peter Karlsson 1585.646  36.59011         0.4850580
-    ## 19:     Franz Leitner 1406.367  99.02141         0.3846200
-    ## 20:         Gerd Riss 1615.527  64.31768         0.6407864
-    ## 21:       Josh Larsen 1121.785 106.05383         0.1999891
-    ## 22:    Lars Gunnestad 1445.625  89.65285         0.3996265
-    ## 23:       Jason Crump 1467.898  43.82568         0.4602013
-    ## 24:       Leigh Adams 1512.791  48.44582         0.3942940
-    ## 25:        Joe Screen 1455.754  42.99367         0.3516820
-    ## 26:   Stefano Alfonso 1424.647  85.49851         0.5690259
-    ##                  name        r        rd Model probability
-    ##     True probability  Accuracy pairings
-    ##  1:       0.50657895 0.5986842      152
-    ##  2:       0.47619048 0.6349206      126
-    ##  3:       0.52925532 0.5585106      188
-    ##  4:       0.66137566 0.6349206      189
-    ##  5:       0.52688172 0.5215054      186
-    ##  6:       0.22222222 0.7777778       72
-    ##  7:       0.65447154 0.6097561      123
-    ##  8:       0.58064516 0.6559140      186
-    ##  9:       0.19444444 0.7916667       72
-    ## 10:       0.75668449 0.7326203      187
-    ## 11:       0.31578947 0.6374269      171
-    ## 12:       0.44444444 0.6243386      189
-    ## 13:       0.59259259 0.5925926      189
-    ## 14:       0.33333333 0.6888889      180
-    ## 15:       0.46666667 0.6666667       15
-    ## 16:       0.41470588 0.6176471      170
-    ## 17:       0.64804469 0.6145251      179
-    ## 18:       0.50980392 0.5588235      102
-    ## 19:       0.38888889 0.5555556       18
-    ## 20:       0.55555556 0.5277778       36
-    ## 21:       0.05555556 0.8888889       18
-    ## 22:       0.38888889 0.6666667       18
-    ## 23:       0.38461538 0.5641026       78
-    ## 24:       0.43333333 0.6166667       60
-    ## 25:       0.35897436 0.6923077       78
-    ## 26:       0.33333333 0.3333333       18
-    ##     True probability  Accuracy pairings
+    ##                  name      r    rd Model probability True probability
+    ##   1:    Tomasz Gollob  1.329 0.005             0.572            0.587
+    ##   2:    Gary Havelock  0.696 0.111             0.410            0.476
+    ##   3:      Chris Louis  0.205 0.023             0.523            0.505
+    ##   4: Tony Rickardsson  1.793 0.012             0.684            0.703
+    ##   5:    Sam Ermolenko  0.552 0.064             0.534            0.546
+    ##  ---                                                                 
+    ## 209:   Justin Sedgmen -0.508 0.511             0.347            0.267
+    ## 210:    Rohan Tungate  2.880 0.712             0.537            1.000
+    ## 211:    Maksym Drabik  0.693 0.731             0.297            0.429
+    ## 212:       Dan Bewley -0.271 0.837             0.307            0.250
+    ## 213:       Joel Kling  0.644 0.831             0.305            0.500
+    ##      Accuracy pairings
+    ##   1:    0.591     2718
+    ##   2:    0.659      126
+    ##   3:    0.580      605
+    ##   4:    0.699     1313
+    ##   5:    0.523      216
+    ##  ---                  
+    ## 209:    0.800       15
+    ## 210:    0.625        8
+    ## 211:    0.714        7
+    ## 212:    0.750        4
+    ## 213:    0.500        4
+
+To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coefficients are presented not necessarily ratings. It's also possible to examine ratings evolution in time, by specifying `players` argument.
+
+``` r
+plot(glicko, n=15)
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+
+``` r
+plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-6-2.png)
+
+Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analyzed. `rating` object contains following elements:
+
+``` r
+names(glicko)
+```
+
+    ## [1] "final_r"  "final_rd" "r"        "pairs"
+
+-   `rating$final_r` and `rating$final_rd` contains ratings and ratings deviations estimations.
+-   `r` contains data.frame with sequential ratings estimations from first event to the last. Number of rows in `r` equals number of rows in input data.
+-   `pairs` pairwise combinations of players in analyzed events with prior probability and result of a challenge.
+
+``` r
+tail(glicko$r)
+```
+
+    ##      id             name        r        rd
+    ## 1: 5154   Martin Vaculik 1556.186 15.598332
+    ## 2: 5154     Patryk Dudek 1668.852 19.472240
+    ## 3: 5155      Matej Žagar 1587.954  9.007093
+    ## 4: 5155 Fredrik Lindgren 1588.903  8.318461
+    ## 5: 5155   Martin Vaculik 1554.414 15.552804
+    ## 6: 5155   Nicki Pedersen 1652.299  6.677019
+
+``` r
+tail(glicko$pairs)
+```
+
+    ##      id           name         opponent         P Y
+    ## 1: 5155 Martin Vaculik      Matej Žagar 0.4548475 0
+    ## 2: 5155 Martin Vaculik Fredrik Lindgren 0.4528676 0
+    ## 3: 5155 Martin Vaculik   Nicki Pedersen 0.3656971 0
+    ## 4: 5155 Nicki Pedersen      Matej Žagar 0.5914313 1
+    ## 5: 5155 Nicki Pedersen Fredrik Lindgren 0.5895059 1
+    ## 6: 5155 Nicki Pedersen   Martin Vaculik 0.6343029 1

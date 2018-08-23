@@ -10,12 +10,13 @@ output:
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Coverage status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)](https://codecov.io/github/gogonzo/sport?branch=master)
 
+
 # About
-Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challange. 
-Algorithms are based on Bayesian Approximation Method, and they don't involve any martix inversions nor likelihood estimation. Weights (parameters) are updated sequentionaly, and computation doesn't require any additional RAM to make estimation feasible. Additionaly, base of the package is writen in `C++` what makes `sport` computation even faster. 
+Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challenge. 
+Algorithms are based on Bayesian Approximation Method, and they don't involve any matrix inversions nor likelihood estimation. Weights (parameters) are updated sequentially, and computation doesn't require any additional RAM to make estimation feasible. Additionally, base of the package is written in `C++` what makes `sport` computation even faster. 
 
 # Theory
-Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preferrence of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preffered to win over worst. As player/event and alternative/experiment can be used interchangeably, for ease of use sport nomenclature is adapted (player/event).  
+Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preference of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preferred to win over worst. As player/event and alternative/experiment can be used interchangeably, for ease of use sport nomenclature is adapted (player/event).  
 
 Algorithms implemented in a `sport` package works similarly, as all using Bayesian Approximation Method. Algorithms works as follows:
 At the moment player `i` competes with player `j` while both have initial $R_i$ and $R_j$ ratings. Prior to event, probability that player `i` win over player `j` is $\hat{Y_i}$. After event is finished when true result $Y_{ij}$ is observed, initial believe about rating is changed $R_i^{'} \leftarrow R_i$ according to the prediction error $( Y_{ij} - \hat{Y_{ij}}  )$ and some constant $K$. Updates are summed as player can compete with more than one player in particular event.
@@ -81,7 +82,7 @@ For further knowledge read [Stephen J. Roberts, William Penny (2011)](https://ww
 ## Installation
 Install package from github.
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 # devtools::install_github("gogonzo/sport")
 library(sport)
 ```
@@ -96,29 +97,53 @@ Package contains actual data from Speedway Grand-Prix. There are two data.frames
 str(gpheats)
 ```
 
-Data used in `sport` package must be in so called long format. Typicaly data.frame contains at least `id`, `name` and `rank`, with one row for one player within specific match. Package allows for any number of players within event and allows ties also. For all games, *output needs to be a rank/position in event*. Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output for two player game is 1-winner 2-looser. Below example of two matches with 4 players each.
+Data used in `sport` package must be in so called long format. Typically data.frame contains at least `id`, `name` and `rank`, with one row for one player within specific match. Package allows for any number of players within event and allows ties also. For all games, *output needs to be a rank/position in event*. Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output for two player game is 1-winner 2-looser. Below example of two matches with 4 players each.
 
 ```{r echo=FALSE}
 gpheats[1:8,c("id","rider","rank")]
 ```
 
-
-
 ## Estimate dynamic ratings
 
-To compute ratings using each algorithms one has to specify formula. Following manner is required, which estimates `name` (of a player) abilities, with observed outputs `rank` nested within particular event `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
+To compute ratings using each algorithms one has to specify formula. Form `rank | id ~ name` is required, which estimates `name` - rating of a player, by observing outputs - `rank`, nested within particular event - `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
 `formula = rank|id ~ name` 
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
-glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats[1:1002,] )
-glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats[1:1002,] )
-bbt     <- bbt_run(     formula = rank|id~rider  , data = gpheats[1:1002,] )
-dbl     <- dbl_run(     formula = rank|id~rider+field  , data = gpheats[1:1002,] )
+```{r}
+glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats )
+glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats )
+bbt     <- bbt_run(     formula = rank|id ~ rider, data = gpheats )
+dbl     <- dbl_run(     formula = rank|id ~ rider, data = gpheats )
+print(dbl)
 ```
 
-Output objects are of class `sport` have their own `print` and `summary` which provides most important informations. `print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.   
+## Output
 
-```{r paged.print=FALSE}
-print(glicko)
-summary(glicko)
+Objects returned by `method_run` are of class `rating` and have their own `print` `summary` which provides most important informations. -`print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.
+
+```{r}
+summary(dbl)
+```
+
+To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coefficients are presented not necessarily ratings. It's also possible to examine ratings evolution in time, by specifying `players` argument.
+
+<div class="col2">
+```{r}
+plot(glicko, n=15)
+plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
+```
+</div>
+
+Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analyzed. `rating` object contains following elements:
+
+```{r}
+names(glicko)
+```
+
+* `rating$final_r` and `rating$final_rd` contains ratings and ratings deviations estimations.
+* `r` contains data.frame with sequential ratings estimations from first event to the last. Number of rows in `r` equals number of rows in input data.
+* `pairs` pairwise combinations of players in analyzed events with prior probability and result of a challenge. 
+
+```{r}
+tail(glicko$r)
+tail(glicko$pairs)
 ```
