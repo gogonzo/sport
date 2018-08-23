@@ -1,5 +1,5 @@
 ---
-title: "`sport` an R package for online update algorithms"
+title: "`sport` an R package for Online Ranking Methods"
 output:
   github_document:
     pandoc_args: --webtex
