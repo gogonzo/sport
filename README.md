@@ -104,32 +104,31 @@ Package contains actual data from Speedway Grand-Prix. There are two data.frames
 
 ``` r
 str(gpheats)
+#> 'data.frame':    20649 obs. of  11 variables:
+#>  $ id      : num  1 1 1 1 2 2 2 2 3 3 ...
+#>  $ season  : int  1995 1995 1995 1995 1995 1995 1995 1995 1995 1995 ...
+#>  $ date    : POSIXct, format: "1995-05-20 21:00:00" "1995-05-20 21:00:00" ...
+#>  $ round   : int  1 1 1 1 1 1 1 1 1 1 ...
+#>  $ name    : chr  "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" ...
+#>  $ heat    : int  1 1 1 1 2 2 2 2 3 3 ...
+#>  $ field   : int  1 2 3 4 1 2 3 4 1 2 ...
+#>  $ rider   : chr  "Tomasz Gollob" "Gary Havelock" "Chris Louis" "Tony Rickardsson" ...
+#>  $ points  : int  2 0 3 1 3 0 1 2 0 2 ...
+#>  $ position: chr  "2" "4" "1" "3" ...
+#>  $ rank    : num  2 4 1 3 1 4 3 2 4 2 ...
 ```
-
-    ## 'data.frame':    20649 obs. of  11 variables:
-    ##  $ id      : num  1 1 1 1 2 2 2 2 3 3 ...
-    ##  $ season  : int  1995 1995 1995 1995 1995 1995 1995 1995 1995 1995 ...
-    ##  $ date    : POSIXct, format: "1995-05-20 21:00:00" "1995-05-20 21:00:00" ...
-    ##  $ round   : int  1 1 1 1 1 1 1 1 1 1 ...
-    ##  $ name    : chr  "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" ...
-    ##  $ heat    : int  1 1 1 1 2 2 2 2 3 3 ...
-    ##  $ field   : int  1 2 3 4 1 2 3 4 1 2 ...
-    ##  $ rider   : chr  "Tomasz Gollob" "Gary Havelock" "Chris Louis" "Tony Rickardsson" ...
-    ##  $ points  : int  2 0 3 1 3 0 1 2 0 2 ...
-    ##  $ position: chr  "2" "4" "1" "3" ...
-    ##  $ rank    : num  2 4 1 3 1 4 3 2 4 2 ...
 
 Data used in `sport` package must be in so called long format. Typically data.frame contains at least `id`, `name` and `rank`, with one row for one player within specific match. Package allows for any number of players within event and allows ties also. For all games, *output needs to be a rank/position in event*. Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output for two player game is 1-winner 2-looser. Below example of two matches with 4 players each.
 
-    ##   id             rider rank
-    ## 1  1     Tomasz Gollob    2
-    ## 2  1     Gary Havelock    4
-    ## 3  1       Chris Louis    1
-    ## 4  1  Tony Rickardsson    3
-    ## 5  2     Sam Ermolenko    1
-    ## 6  2    Jan Staechmann    4
-    ## 7  2     Tommy Knudsen    3
-    ## 8  2 Henrik Gustafsson    2
+    #>   id             rider rank
+    #> 1  1     Tomasz Gollob    2
+    #> 2  1     Gary Havelock    4
+    #> 3  1       Chris Louis    1
+    #> 4  1  Tony Rickardsson    3
+    #> 5  2     Sam Ermolenko    1
+    #> 6  2    Jan Staechmann    4
+    #> 7  2     Tommy Knudsen    3
+    #> 8  2 Henrik Gustafsson    2
 
 Estimate dynamic ratings
 ------------------------
@@ -138,54 +137,37 @@ To compute ratings using each algorithms one has to specify formula. Form `rank 
 
 ``` r
 glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats )
-```
-
-    ## r is missing and will set to default=1500
-
-    ## rd is missing and will set to default=350
-
-``` r
+#> r is missing and will set to default=1500
+#> rd is missing and will set to default=350
 glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats )
-```
-
-    ## r is missing and will set to default=1500
-
-    ## rd is missing and will set to default=350
-
-    ## sigma is missing and will set to default=0.05
-
-``` r
+#> r is missing and will set to default=1500
+#> rd is missing and will set to default=350
+#> sigma is missing and will set to default=0.05
 bbt     <- bbt_run(     formula = rank|id ~ rider, data = gpheats )
-```
-
-    ## r is missing and will set to default=25
-
-    ## rd is missing and will set to default=8.33333333333333
-
-``` r
+#> r is missing and will set to default=25
+#> rd is missing and will set to default=8.33333333333333
 dbl     <- dbl_run(     formula = rank|id ~ rider, data = gpheats )
 print(dbl)
+#> 
+#> Call: rank | id ~ rider
+#> 
+#> Number of unique pairs: 31081
+#> 
+#> Accuracy of the model: 0.62
+#> 
+#> True probabilities and Accuracy in predicted intervals:
+#>      Interval Model probability True probability Accuracy     n
+#>  1:   [0,0.1]             0.076            0.164    0.835   436
+#>  2: (0.1,0.2]             0.158            0.252    0.747  2217
+#>  3: (0.2,0.3]             0.257            0.300    0.699  5447
+#>  4: (0.3,0.4]             0.353            0.372    0.626 10113
+#>  5: (0.4,0.5]             0.450            0.454    0.545 12911
+#>  6: (0.5,0.6]             0.550            0.546    0.545 12825
+#>  7: (0.6,0.7]             0.647            0.628    0.626 10113
+#>  8: (0.7,0.8]             0.743            0.700    0.699  5447
+#>  9: (0.8,0.9]             0.842            0.748    0.747  2217
+#> 10:   (0.9,1]             0.924            0.836    0.835   436
 ```
-
-    ## 
-    ## Call: rank | id ~ rider
-    ## 
-    ## Number of unique pairs: 31081
-    ## 
-    ## Accuracy of the model: 0.62
-    ## 
-    ## True probabilities and Accuracy in predicted intervals:
-    ##      Interval Model probability True probability Accuracy     n
-    ##  1:   [0,0.1]             0.076            0.164    0.835   436
-    ##  2: (0.1,0.2]             0.158            0.252    0.747  2217
-    ##  3: (0.2,0.3]             0.257            0.300    0.699  5447
-    ##  4: (0.3,0.4]             0.353            0.372    0.626 10113
-    ##  5: (0.4,0.5]             0.450            0.454    0.545 12911
-    ##  6: (0.5,0.6]             0.550            0.546    0.545 12825
-    ##  7: (0.6,0.7]             0.647            0.628    0.626 10113
-    ##  8: (0.7,0.8]             0.743            0.700    0.699  5447
-    ##  9: (0.8,0.9]             0.842            0.748    0.747  2217
-    ## 10:   (0.9,1]             0.924            0.836    0.835   436
 
 Output
 ------
@@ -194,45 +176,44 @@ Objects returned by `method_run` are of class `rating` and have their own `print
 
 ``` r
 summary(dbl)
+#> $formula
+#> rank | id ~ rider
+#> 
+#> $method
+#> [1] "dbl"
+#> 
+#> $`Overall Accuracy`
+#> [1] 0.6167273
+#> 
+#> $`Number of pairs`
+#> [1] 62162
+#> 
+#> $r
+#>                  name      r    rd Model probability True probability
+#>   1:    Tomasz Gollob  1.329 0.005             0.572            0.587
+#>   2:    Gary Havelock  0.696 0.111             0.410            0.476
+#>   3:      Chris Louis  0.205 0.023             0.523            0.505
+#>   4: Tony Rickardsson  1.793 0.012             0.684            0.703
+#>   5:    Sam Ermolenko  0.552 0.064             0.534            0.546
+#>  ---                                                                 
+#> 209:   Justin Sedgmen -0.508 0.511             0.347            0.267
+#> 210:    Rohan Tungate  2.880 0.712             0.537            1.000
+#> 211:    Maksym Drabik  0.693 0.731             0.297            0.429
+#> 212:       Dan Bewley -0.271 0.837             0.307            0.250
+#> 213:       Joel Kling  0.644 0.831             0.305            0.500
+#>      Accuracy pairings
+#>   1:    0.591     2718
+#>   2:    0.659      126
+#>   3:    0.580      605
+#>   4:    0.699     1313
+#>   5:    0.523      216
+#>  ---                  
+#> 209:    0.800       15
+#> 210:    0.625        8
+#> 211:    0.714        7
+#> 212:    0.750        4
+#> 213:    0.500        4
 ```
-
-    ## $formula
-    ## rank | id ~ rider
-    ## 
-    ## $method
-    ## [1] "dbl"
-    ## 
-    ## $`Overall Accuracy`
-    ## [1] 0.6167273
-    ## 
-    ## $`Number of pairs`
-    ## [1] 62162
-    ## 
-    ## $r
-    ##                  name      r    rd Model probability True probability
-    ##   1:    Tomasz Gollob  1.329 0.005             0.572            0.587
-    ##   2:    Gary Havelock  0.696 0.111             0.410            0.476
-    ##   3:      Chris Louis  0.205 0.023             0.523            0.505
-    ##   4: Tony Rickardsson  1.793 0.012             0.684            0.703
-    ##   5:    Sam Ermolenko  0.552 0.064             0.534            0.546
-    ##  ---                                                                 
-    ## 209:   Justin Sedgmen -0.508 0.511             0.347            0.267
-    ## 210:    Rohan Tungate  2.880 0.712             0.537            1.000
-    ## 211:    Maksym Drabik  0.693 0.731             0.297            0.429
-    ## 212:       Dan Bewley -0.271 0.837             0.307            0.250
-    ## 213:       Joel Kling  0.644 0.831             0.305            0.500
-    ##      Accuracy pairings
-    ##   1:    0.591     2718
-    ##   2:    0.659      126
-    ##   3:    0.580      605
-    ##   4:    0.699     1313
-    ##   5:    0.523      216
-    ##  ---                  
-    ## 209:    0.800       15
-    ## 210:    0.625        8
-    ## 211:    0.714        7
-    ## 212:    0.750        4
-    ## 213:    0.500        4
 
 To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coefficients are presented not necessarily ratings. It's also possible to examine ratings evolution in time, by specifying `players` argument.
 
@@ -240,21 +221,20 @@ To visualize top n ratings with their 95% confidence interval one can use dedica
 plot(glicko, n=15)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](man/figures/README-unnamed-chunk-7-1.png)
 
 ``` r
 plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-6-2.png)
+![](man/figures/README-unnamed-chunk-7-2.png)
 
 Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analyzed. `rating` object contains following elements:
 
 ``` r
 names(glicko)
+#> [1] "final_r"  "final_rd" "r"        "pairs"
 ```
-
-    ## [1] "final_r"  "final_rd" "r"        "pairs"
 
 -   `rating$final_r` and `rating$final_rd` contains ratings and ratings deviations estimations.
 -   `r` contains data.frame with sequential ratings estimations from first event to the last. Number of rows in `r` equals number of rows in input data.
@@ -262,24 +242,19 @@ names(glicko)
 
 ``` r
 tail(glicko$r)
-```
-
-    ##      id             name        r        rd
-    ## 1: 5154   Martin Vaculik 1556.186 15.598332
-    ## 2: 5154     Patryk Dudek 1668.852 19.472240
-    ## 3: 5155      Matej Žagar 1587.954  9.007093
-    ## 4: 5155 Fredrik Lindgren 1588.903  8.318461
-    ## 5: 5155   Martin Vaculik 1554.414 15.552804
-    ## 6: 5155   Nicki Pedersen 1652.299  6.677019
-
-``` r
+#>      id             name        r        rd
+#> 1: 5154   Martin Vaculik 1556.186 15.598332
+#> 2: 5154     Patryk Dudek 1668.852 19.472240
+#> 3: 5155      Matej Žagar 1587.954  9.007093
+#> 4: 5155 Fredrik Lindgren 1588.903  8.318461
+#> 5: 5155   Martin Vaculik 1554.414 15.552804
+#> 6: 5155   Nicki Pedersen 1652.299  6.677019
 tail(glicko$pairs)
+#>      id           name         opponent         P Y
+#> 1: 5155 Martin Vaculik      Matej Žagar 0.4548475 0
+#> 2: 5155 Martin Vaculik Fredrik Lindgren 0.4528676 0
+#> 3: 5155 Martin Vaculik   Nicki Pedersen 0.3656971 0
+#> 4: 5155 Nicki Pedersen      Matej Žagar 0.5914313 1
+#> 5: 5155 Nicki Pedersen Fredrik Lindgren 0.5895059 1
+#> 6: 5155 Nicki Pedersen   Martin Vaculik 0.6343029 1
 ```
-
-    ##      id           name         opponent         P Y
-    ## 1: 5155 Martin Vaculik      Matej Žagar 0.4548475 0
-    ## 2: 5155 Martin Vaculik Fredrik Lindgren 0.4528676 0
-    ## 3: 5155 Martin Vaculik   Nicki Pedersen 0.3656971 0
-    ## 4: 5155 Nicki Pedersen      Matej Žagar 0.5914313 1
-    ## 5: 5155 Nicki Pedersen Fredrik Lindgren 0.5895059 1
-    ## 6: 5155 Nicki Pedersen   Martin Vaculik 0.6343029 1
