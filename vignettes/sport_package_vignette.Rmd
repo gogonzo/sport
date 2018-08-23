@@ -25,11 +25,11 @@ knitr::opts_chunk$set(
 ```
 
 # About
-Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challange. 
-Algorithms are based on Bayesian Approximation Method, and they don't involve any martix inversions nor likelihood estimation. Weights (parameters) are updated sequentionaly, and computation doesn't require any additional RAM to make estimation feasible. Additionaly, base of the package is writen in `C++` what makes `sport` computation even faster. 
+Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challenge. 
+Algorithms are based on Bayesian Approximation Method, and they don't involve any matrix inversions nor likelihood estimation. Weights (parameters) are updated sequentially, and computation doesn't require any additional RAM to make estimation feasible. Additionally, base of the package is written in `C++` what makes `sport` computation even faster. 
 
 # Theory
-Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preferrence of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preffered to win over worst. As player/event and alternative/experiment can be used interchangeably, for ease of use sport nomenclature is adapted (player/event).  
+Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preference of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preferred to win over worst. As player/event and alternative/experiment can be used interchangeably, for ease of use sport nomenclature is adapted (player/event).  
 
 Algorithms implemented in a `sport` package works similarly, as all using Bayesian Approximation Method. Algorithms works as follows:
 At the moment player `i` competes with player `j` while both have initial $R_i$ and $R_j$ ratings. Prior to event, probability that player `i` win over player `j` is $\hat{Y_i}$. After event is finished when true result $Y_{ij}$ is observed, initial believe about rating is changed $R_i^{'} \leftarrow R_i$ according to the prediction error $( Y_{ij} - \hat{Y_{ij}}  )$ and some constant $K$. Updates are summed as player can compete with more than one player in particular event.
@@ -110,7 +110,7 @@ Package contains actual data from Speedway Grand-Prix. There are two data.frames
 str(gpheats)
 ```
 
-Data used in `sport` package must be in so called long format. Typicaly data.frame contains at least `id`, `name` and `rank`, with one row for one player within specific match. Package allows for any number of players within event and allows ties also. For all games, *output needs to be a rank/position in event*. Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output for two player game is 1-winner 2-looser. Below example of two matches with 4 players each.
+Data used in `sport` package must be in so called long format. Typically data.frame contains at least `id`, `name` and `rank`, with one row for one player within specific match. Package allows for any number of players within event and allows ties also. For all games, *output needs to be a rank/position in event*. Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output for two player game is 1-winner 2-looser. Below example of two matches with 4 players each.
 
 ```{r echo=FALSE}
 gpheats[1:8,c("id","rider","rank")]
@@ -137,7 +137,7 @@ Objects returned by `method_run` are of class `rating` and have their own `print
 summary(dbl)
 ```
 
-To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coeficients are presented not necessarily ratings. It's also possible to examine ratings evolution in time, by specifying `players` argument.
+To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coefficients are presented not necessarily ratings. It's also possible to examine ratings evolution in time, by specifying `players` argument.
 
 <div class="col2">
 ```{r}
@@ -146,15 +146,15 @@ plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
 ```
 </div>
 
-Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analysed. `rating` object contains following elements:
+Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analyzed. `rating` object contains following elements:
 
 ```{r}
 names(glicko)
 ```
 
 * `rating$final_r` and `rating$final_rd` contains ratings and ratings deviations estimations.
-* `r` contains data.frame with sequentional ratings estimations from first event to the last. Number of rows in `r` equals number of rows in input data.
-* `pairs` pairwise combinations of players in analysed events with prior probability and result of a challange. 
+* `r` contains data.frame with sequential ratings estimations from first event to the last. Number of rows in `r` equals number of rows in input data.
+* `pairs` pairwise combinations of players in analyzed events with prior probability and result of a challenge. 
 
 ```{r}
 tail(glicko$r)
@@ -162,7 +162,7 @@ tail(glicko$pairs)
 ```
 
 # Advanced sport
-Examples presented in package overview might be sufficient in most cases, but sometimes it is necessary to adjust algorithms to fit data better. One characteristic of the online update algorithms is that variance othe parameters quickly drops to zero. Especially, when the number of events for the player is big ($\small n_i>100 $), after hundreds iterations rating parameters are very difficult to change, and output probabilities are so extreme. To avoid these mistakes some additional controls should be applied, which is explained in this section with easy to learn examples.
+Examples presented in package overview might be sufficient in most cases, but sometimes it is necessary to adjust algorithms to fit data better. One characteristic of the online update algorithms is that variance other parameters quickly drops to zero. Especially, when the number of events for the player is big ($\small n_i>100 $), after hundreds iterations rating parameters are very difficult to change, and output probabilities are so extreme. To avoid these mistakes some additional controls should be applied, which is explained in this section with easy to learn examples.
 
 ## Prior beliefs about `r` and `rd`
 Main functionality which is common between all algorithms is to specify prior `r` and `rd`. Both parameters can be set by creating named vectors. Let's suppose we have 4 players `c("A","B","C","D")` competing in an event, and we have players prior `r` and `rd` estimates. It's important to have `r` and `rd` names corresponding with levels of `name` variable. One can run algorithm, to obtain new estimates.
@@ -188,7 +188,7 @@ rd    <- model$final_rd
 glicko_run(rank|id ~ name, data, r=r, rd=rd)$final_r
 ```
 
-## Tunning update size by `weight`
+## Tuning update size by `weight`
 
 All algorithms have a weight argument which increases or decreases update change. Higher weight increasing impact of corresponding event. Effect of the weight on update size can be expressed directly by following formula - $\small R_i^{'} \leftarrow R_i + weight \sum_{j \neq i}{ K ( Y_{ij} - \hat{Y_{ij}}}  )$. To specify weight one needs to add create additional column in input data, and name a column in `weight` argument. For example weight could depend on importance of competition. In speedway Grand-Prix last three heats determine event winner and thus have higher weight.
 
@@ -210,7 +210,7 @@ all(bbt1$final_rd > bbt2$final_rd)
 
 ## Control output uncertainty by `beta`
 
-To increase/decrease uncertainty of challange output one can define `beta`. Increasing `beta` flatten probabilities of winning challange equalizing competitors chances. This element differs from `sigma` by not affecting `rd` directly but to adjust prediction. This argument can be used in bbt and dbl by identifying column in input data where beta is stored. It is worth to specify `beta` in events when level of competition is higher than usual e.g. derby, knock-out phase, decisive matches, exhibitions and friendlies. Let's assume that `beta` follows the same rule as previously set `weight`.
+To increase/decrease uncertainty of challenge output one can define `beta`. Increasing `beta` flatten probabilities of winning challenge equalizing competitors chances. This element differs from `sigma` by not affecting `rd` directly but to adjust prediction. This argument can be used in bbt and dbl by identifying column in input data where beta is stored. It is worth to specify `beta` in events when level of competition is higher than usual e.g. derby, knock-out phase, decisive matches, exhibitions and friendlies. Let's assume that `beta` follows the same rule as previously set `weight`.
 
 ```{r}
 gpheats %<>% mutate(beta = ifelse(heat >= (max(heat)-3),2,1)  )
@@ -218,10 +218,10 @@ dbl <- dbl_run(rank|id~rider, beta="beta", data=gpheats)
 ```
 
 
-## Influence ratings volitality by `sigma`
+## Influence ratings volatility by `sigma`
 
-In some periods player ratings tends to fluctuate more, when players form is more unstable. Sigma is na additional parameter controlling volitality of the ratings, making update bigger for higher values of sigma. Strictly, sigma can be expressed by $\small rd_i' = \sqrt{rd_i^2+\sigma_i^2}$. Sigma can be specified in two ways:
-- In glicko2 `sigma` is another parameter per player estimated simultaneously with `r` and `rd`. One can specify prior sigma in the same manner as `r` and `rd` by creating named vector of positive values. Sigma values depends on a particular application, and priors should be choosen by user.
+In some periods player ratings tends to fluctuate more, when players form is more unstable. Sigma is na additional parameter controlling volatility of the ratings, making update bigger for higher values of sigma. Strictly, sigma can be expressed by $\small rd_i' = \sqrt{rd_i^2+\sigma_i^2}$. Sigma can be specified in two ways:
+- In glicko2 `sigma` is another parameter per player estimated simultaneously with `r` and `rd`. One can specify prior sigma in the same manner as `r` and `rd` by creating named vector of positive values. Sigma values depends on a particular application, and priors should be chosen by user.
 
 ```{r}
 sigma   <- unique(gpheats$rider) %>% setNames( runif(0.1,0.5, n = length(.)) , . )
@@ -229,7 +229,7 @@ glicko2 <- glicko2_run(rank|id~rider,gpheats, sigma=sigma)
 ```
 
 
-- In glicko and bbt `sigma` needs to be fixed before iteration by adding new column to input data. For example sigma can be column of time difference between events in which player participated - The longer break in competing, the higher sigma is. It is recomended to keep values close to `data$sigma`.
+- In glicko and bbt `sigma` needs to be fixed before iteration by adding new column to input data. For example sigma can be column of time difference between events in which player participated - The longer break in competing, the higher sigma is. It is recommended to keep values close to `data$sigma`.
 
 ```{r}
 # bbt example
