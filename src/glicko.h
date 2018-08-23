@@ -100,7 +100,7 @@ double optimSigma( double delta, double sigma, double phi, double var, double ta
   fA = funX(A, delta, phi, var, a, tau);
   fB = funX(B, delta, phi, var, a, tau);
   
-  while( std::abs(B) - std::abs(A) > e & k < 20 ){
+  while( ( (std::abs(B) - std::abs(A) ) > e) & (k < 20) ){
     //Rcpp::Rcout << "fA("<< k << ")" << fA << " A=" << A <<  std::endl;
     k++;
     C = A + (A- B) * fA / (fB - fA);
