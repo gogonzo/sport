@@ -5,7 +5,7 @@
 ^\.Rproj\.user$
 ^data-raw$
 README.Rmd
-^cran_comments\.md$
-.travis.yml
-codecov.yml
-.gitignore
+^cran-comments\.md$
+\.travis\.yml
+codecov\.yml
+\.gitignore
