@@ -93,10 +93,11 @@ For further knowledge read [Stephen J. Roberts, William Penny (2011)](https://ww
 # Package Usage
 
 ## Installation
-Install package from github.
+Install package from CRAN or development version from github.
 
 ```{r message=FALSE, warning=FALSE}
 # devtools::install_github("gogonzo/sport")
+# install.packages("sport")
 library(sport)
 ```
 
@@ -197,7 +198,7 @@ gpheats %<>% mutate(weight = ifelse(heat >= (max(heat)-3),2,1) )
 glicko  <- glicko_run(rank|id ~ rider, gpheats, weight="weight")
 ```
 
-## Avoiding RD to shrink to much with `kappa`
+## Avoiding excessive RD shringe with `kappa`
 
 In situation when games are playing very frequently by a player, `rd` can quickly decrease to zero, making further changes limited. Setting `kappa` disallows deviation decrease to be lower than specified fraction of `rd`. In other words final `rd` can't be lower than initial `RD` times `kappa` $\small RD' \geq RD * kappa$.
 

@@ -86,11 +86,12 @@ For further knowledge read [Stephen J. Roberts, William Penny (2011)](https://ww
 # Package Usage
 
 ## Installation
-Install package from github.
+Install package from CRAN or development version from github.
 
-```{r message=FALSE, warning=FALSE}
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 # devtools::install_github("gogonzo/sport")
-library(sport)
+# install.packages("sport")
+library(sport) 
 ```
 
 ## Available Data
