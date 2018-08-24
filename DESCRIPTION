@@ -1,11 +1,22 @@
 Package: sport
 Type: Package
-Title: Online Ranking Methods
+Title: Sequential Pairwise Online Rating Techniques
 Version: 0.1.0
 Depends: R (>= 3.0)
 Authors@R: person("Dawid", "Kałędkowski", email = "dawid.kaledkowski@gmail.com", role = c("aut", "cre"))
 Maintainer: Dawid Kałędkowski <dawid.kaledkowski@gmail.com>
-Description: Package contains functions calculating ratings for two-player or multi-player challanges. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challenge. Algorithms are based on Bayesian Approximation Method, and they don't involve any matrix inversions nor likelihood estimation. Weights (parameters) are updated sequentially, and computation doesn't require any additional RAM to make estimation feasible. Additionally, base of the package is written in `C++` what makes `sport` computation even faster. 
+Description: Package contains functions calculating ratings for two-player or 
+  multi-player challenges. Methods included in package such as are able to 
+  estimate ratings (players strengths) and their evolution in time, also able to 
+  predict output of challenge. Algorithms are based on Bayesian Approximation 
+  Method, and they don't involve any matrix inversions nor likelihood estimation. 
+  Parameters are updated sequentially, and computation doesn't require any 
+  additional RAM to make estimation feasible. Additionally, base of the package 
+  is written in C++ what makes sport computation even faster. Methods used in the 
+  package refers to Glickman (1999)  <http://www.glicko.net/research/glicko.pdf>; 
+  Glickman (2001) <doi:10.1080/02664760120059219>; 
+  Weng (2011) <http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf>; 
+  Penny, Roberts  (1999) <doi:10.1109/IJCNN.1999.832603>.
 BugReports: https://github.com/gogonzo/sport/issues
 Imports: Rcpp (>= 0.12.8), data.table (>= 1.11.0), ggplot2 (>= 3.0.0)
 LinkingTo: Rcpp, RcppArmadillo
