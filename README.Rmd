@@ -88,10 +88,9 @@ For further knowledge read [Stephen J. Roberts, William Penny (2011)](https://ww
 ## Installation
 Install package from CRAN or development version from github.
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE}
 # devtools::install_github("gogonzo/sport")
-# install.packages("sport")
-library(sport) 
+install.packages("sport")
 ```
 
 ## Available Data
@@ -101,6 +100,7 @@ Package contains actual data from Speedway Grand-Prix. There are two data.frames
 2. `gpsquads` - summarized results of the events, with sum of point and final position.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(sport) 
 str(gpheats)
 ```
 
@@ -115,7 +115,7 @@ gpheats[1:8,c("id","rider","rank")]
 To compute ratings using each algorithms one has to specify formula. Form `rank | id ~ name` is required, which estimates `name` - rating of a player, by observing outputs - `rank`, nested within particular event - `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
 `formula = rank|id ~ name` 
 
-```{r}
+```{r, warning=FALSE}
 glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats )
 glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats )
 bbt     <- bbt_run(     formula = rank|id ~ rider, data = gpheats )
