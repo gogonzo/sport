@@ -93,7 +93,7 @@ test_that("valid bbt attr names",{
 
 test_that("r object has date labels attribute",{
   expect_identical(
-    list(names = c("id","name","r","rd"), row.names=1:4, class=c("data.table","data.frame"),identifier=as.character(c(1,1,1,1))),
-    attributes(bbt_run( rank | id ~ name, data = data, weight="weight", sigma = "sigma", init_r=1000, init_rd=200)$r)[-3]
+    list(names = c("id","name","r","rd","p_win"),class=c("data.table","data.frame"),row.names=1:4,identifier=as.character(c(1,1,1,1))),
+    attributes(bbt_run( rank | id ~ name, data = data, weight="weight", sigma = "sigma", init_r=1000, init_rd=200)$r)[-4]
   )
 })

@@ -116,6 +116,11 @@ bbt_run <- function(formula, data, r,rd, sigma, weight,beta=25/6,kappa=0.5, gamm
   # Output, class and attributes ----
   class( model_r[[ id ]] ) <- class( model_P[[ id ]] ) <- class( data[[ id ]] )
   
+  # add winning probability to data    
+  p <- model_P[,.(p_win = prod(P)), by=c("id","name")][,
+                    p_win := p_win/sum(p_win), by = "id"]
+  model_r <- merge(model_r, p, all.x=T, by=c("id","name"),sort=F)
+  
   out <- structure(
     list(final_r  = setNames(as.vector(r), rownames(r)),
          final_rd = setNames(as.vector(rd), rownames(rd)),
