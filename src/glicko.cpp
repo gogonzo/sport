@@ -94,13 +94,15 @@ List
       _["r_df"] = DataFrame::create(
         _["name"] = name,
         _["r"]    = r,
-        _["rd"]   = rd
+        _["rd"]   = rd,
+        _["stringsAsFactors"] = false
       ),
       _["pairs"] = DataFrame::create(
         _["name"] = team1,
         _["opponent"] = team2,
         _["P"] = P,
-        _["Y"] = Y
+        _["Y"] = Y,
+        _["stringsAsFactors"] = false
       ),
       _["identifierp"] = identifierp,
       _["identifier"] = identifier

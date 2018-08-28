@@ -101,13 +101,11 @@ glicko_run <- function(formula, data, r, rd, sigma, weight, kappa=0.5, idlab, in
     rd[ player_names ] <- model$rd[ player_names ]
 
     models[[ i ]] <- model
-    
-    
     if(pb){ j <- j + 1; setTxtProgressBar(pb,j) }
   }
   
   model_r <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["r_df"]] ) , use.names=T, idcol="id" ) )
-  model_P <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["pairs"]] ) , use.names=T, idcol="id" ) )
+  model_P <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["pairs"]] ), use.names=T, idcol="id" ) )
   identifierp <- unlist( lapply(models,`[[`,"identifierp"), FALSE, FALSE )
   identifier  <- unlist( lapply(models,`[[`,"identifier"), FALSE, FALSE )
   
