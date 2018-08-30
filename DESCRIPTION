@@ -5,7 +5,7 @@ Version: 0.1.0
 Depends: R (>= 3.0)
 Authors@R: person("Dawid", "Kałędkowski", email = "dawid.kaledkowski@gmail.com", role = c("aut", "cre"))
 Maintainer: Dawid Kałędkowski <dawid.kaledkowski@gmail.com>
-Description: Package contains functions calculating ratings for two-player or 
+Description: Calculates ratings for two-player or 
   multi-player challenges. Methods included in package such as are able to 
   estimate ratings (players strengths) and their evolution in time, also able to 
   predict output of challenge. Algorithms are based on Bayesian Approximation 

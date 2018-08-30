@@ -85,8 +85,10 @@ glicko2_run <- function(formula, data, r, rd,sigma, tau=0.5, weight,kappa=0.5, i
   if(pb){  j <- 0; pb <- txtProgressBar(min=0, max=n, width=20, initial=0, style=3) }
   models <- list()
   for(i in names(data_list)){
+    player_names <- data_list[[ i ]][[ x ]]
+    
     model <- glicko2( 
-      data_list[[ i ]][[ x ]] , 
+      player_names , 
       rank   = data_list[[ i ]][[ y ]], 
       r      = r[ player_names ] ,  
       rd     = rd[ player_names ] , 
