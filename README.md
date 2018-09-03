@@ -1,7 +1,7 @@
 `sport` an R package for Online Ranking Methods
 ================
 
-[![Travis-CI Build Status](https://travis-ci.org/gogonzo/sport.svg?branch=master)](https://travis-ci.org/gogonzo/sport) [![Project Status](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active) [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) [![Coverage status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)](https://codecov.io/github/gogonzo/sport?branch=master)
+![Cran badge](https://www.r-pkg.org/badges/version/runner) ![Travis-CI Build Status](https://travis-ci.org/gogonzo/sport.svg?branch=master)\](<https://travis-ci.org/gogonzo/sport>) ![Project Status](http://www.repostatus.org/badges/latest/active.svg)\](<http://www.repostatus.org/#active>) ![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)\](<https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html>) ![Coverage status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)\](<https://codecov.io/github/gogonzo/sport?branch=master>)
 
 About
 =====
@@ -90,9 +90,8 @@ Installation
 Install package from CRAN or development version from github.
 
 ``` r
-# devtools::install_github("gogonzo/sport")
-# install.packages("sport")
-library(sport) 
+# devtools::install_github("gogonzo/runner")
+install.packages("runner",repos = "https://cloud.r-project.org/")
 ```
 
 Available Data
@@ -104,6 +103,7 @@ Package contains actual data from Speedway Grand-Prix. There are two data.frames
 2.  `gpsquads` - summarized results of the events, with sum of point and final position.
 
 ``` r
+library(sport) 
 str(gpheats)
 #> 'data.frame':    20649 obs. of  11 variables:
 #>  $ id      : num  1 1 1 1 2 2 2 2 3 3 ...
@@ -243,13 +243,13 @@ names(glicko)
 
 ``` r
 tail(glicko$r)
-#>      id             name        r        rd
-#> 1: 5154   Martin Vaculik 1556.186 15.598332
-#> 2: 5154     Patryk Dudek 1668.852 19.472240
-#> 3: 5155      Matej Žagar 1587.954  9.007093
-#> 4: 5155 Fredrik Lindgren 1588.903  8.318461
-#> 5: 5155   Martin Vaculik 1554.414 15.552804
-#> 6: 5155   Nicki Pedersen 1652.299  6.677019
+#>      id             name        r        rd     p_win
+#> 1: 5154   Martin Vaculik 1556.186 15.598332 0.1134510
+#> 2: 5154     Patryk Dudek 1668.852 19.472240 0.4256283
+#> 3: 5155      Matej Žagar 1587.954  9.007093 0.2132507
+#> 4: 5155 Fredrik Lindgren 1588.903  8.318461 0.2167572
+#> 5: 5155   Martin Vaculik 1554.414 15.552804 0.1448214
+#> 6: 5155   Nicki Pedersen 1652.299  6.677019 0.4251707
 tail(glicko$pairs)
 #>      id           name         opponent         P Y
 #> 1: 5155 Martin Vaculik      Matej Žagar 0.4548475 0
