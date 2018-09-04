@@ -22,7 +22,7 @@ List
     int idx = 0;
     
     double 
-      q   = log(10)/400,
+      q   = log(10.0)/400.0,
       var  = 0.0,
       err = 0.0, 
       new_rd_;

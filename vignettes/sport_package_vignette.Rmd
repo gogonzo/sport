@@ -7,7 +7,7 @@
 
 </style>
 ---
-title: "`sport` The R package for online update algorithms"
+title: "sport an R package for online update algorithms"
 author: "Dawid Kałędkowski"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette

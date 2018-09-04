@@ -10,24 +10,24 @@ double rd2phi(double rd){
 }
 double calcGRd( double rd){
   double 
-  pi = std::atan(1)*4,
-  q   = log(10)/400,
-  g_rd;
+    pi = std::atan(1)*4,
+    q   = log(10.0)/400.0,
+    g_rd;
   
-  g_rd =   1/sqrt(1 + 3 * pow(q,2) * pow(rd, 2) / pow(pi,2) );
+  g_rd =   1.0/sqrt(1.0 + 3.0 * pow(q,2.0) * pow(rd, 2.0) / pow(pi,2.0) );
   return(g_rd);
 }
 double calcGPhi( double phi ){
   double 
-  pi = std::atan(1)*4,
+  pi = std::atan(1)*4.0,
     g_phi;
   
-  g_phi = 1 / sqrt( 1 + 3 * pow(phi, 2) / pow(pi, 2) );
+  g_phi = 1 / sqrt( 1.0 + 3.0 * pow(phi, 2.0) / pow(pi, 2.0) );
   return(g_phi);
 }
 double calcPGlicko( double g_rd_j, double r_i, double r_j){
   double P;
-  P = 1/(1 + pow(10, -g_rd_j * (r_i - r_j)/400));
+  P = 1/(1 + pow(10.0, -g_rd_j * (r_i - r_j)/400));
   return(P);
 }
 double calcPGlicko2( double g_phi_j, double mu_i, double mu_j){
@@ -67,15 +67,15 @@ double calcZ( double rank_i, double rank_j){
 double funX( double X, double delta, double phi, double var, double a, double tau) {
   double result;
   result = 
-    ( exp(X) * ( pow(delta, 2) - pow(phi, 2) - var - exp(X) ) ) / 
-    ( 2 * pow( pow(phi, 2) + var + exp(X),2) ) - 
-    (X - a)/pow(tau, 2);
+    ( exp(X) * ( pow(delta, 2.0) - pow(phi, 2.0) - var - exp(X) ) ) / 
+    ( 2 * pow( pow(phi, 2.0) + var + exp(X),2.0) ) - 
+    (X - a)/pow(tau, 2.0);
   
   return(result);
 }
 double optimSigma( double delta, double sigma, double phi, double var, double tau){
   double 
-  a  = 0.0,
+    a  = 0.0,
     A  = 0.0,
     B  = 0.0,
     C  = 0.0,
@@ -85,9 +85,9 @@ double optimSigma( double delta, double sigma, double phi, double var, double ta
     k  = 0.0,
     e = 0.000001;
   
-  A = a = log( pow( sigma, 2 ) );
+  A = a = log( pow( sigma, 2.0 ) );
   if(delta > phi + var) {
-    B = log( pow(delta, 2) - pow(phi, 2) - var);
+    B = log( pow(delta, 2.0) - pow(phi, 2.0 ) - var);
   } else {
     k = 1;
     while( funX(a - k * tau,  delta, phi, var, a, tau) < 0) 
@@ -122,7 +122,7 @@ double updatePhi( double phi, double var, double sigma, double w) {
   prerating_phi,
   updated_phi;
   
-  prerating_phi = sqrt( pow(phi, 2) + pow(sigma, 2))  * w ;
+  prerating_phi = sqrt( pow(phi, 2.0) + pow(sigma, 2.0))  * w ;
   updated_phi   = 1 / sqrt( 1/pow(prerating_phi,2) + 1/var);
   
   return(updated_phi);
@@ -130,7 +130,7 @@ double updatePhi( double phi, double var, double sigma, double w) {
 
 double updateMu( double mu, double phi, double err, double w) {
   double updated_mu;
-  updated_mu = mu + pow(phi,2) * err * w;
+  updated_mu = mu + pow(phi,2.0) * err * w;
   return(updated_mu);
 }
 
