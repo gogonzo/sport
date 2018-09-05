@@ -19,7 +19,7 @@ Description: Calculates ratings for two-player or
   W. Penny, Stephen J. Roberts (1999) <doi:10.1109/IJCNN.1999.832603>.
 BugReports: https://github.com/gogonzo/sport/issues
 Imports: Rcpp (>= 0.12.8), data.table (>= 1.11.0), ggplot2 (>= 3.0.0)
-LinkingTo: Rcpp, RcppArmadillo
+LinkingTo: Rcpp
 License: GPL-2
 Encoding: UTF-8
 URL: https://github.com/gogonzo/sport
