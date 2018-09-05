@@ -13,10 +13,10 @@ knitr::opts_chunk$set(
 ```
 
 ![Cran badge](https://www.r-pkg.org/badges/version/sport)
-![Travis-CI Build Status](https://travis-ci.org/gogonzo/sport.svg?branch=master)](https://travis-ci.org/gogonzo/sport)
-![Project Status](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
-![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
-![Coverage status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)](https://codecov.io/github/gogonzo/sport?branch=master)
+![Travis-CI Build Status](https://travis-ci.org/gogonzo/sport.svg?branch=master)
+![Project Status](http://www.repostatus.org/badges/latest/active.svg)
+![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)
+![Coverage status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)
 
 # About
 Name `sport` is an abbreviation for Sequential Pairwise Online Rating Techniques. Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challenge. 

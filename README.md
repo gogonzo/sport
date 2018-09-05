@@ -1,7 +1,7 @@
 `sport` an R package for Online Ranking Methods
 ================
 
-![Cran badge](https://www.r-pkg.org/badges/version/runner) ![Travis-CI Build Status](https://travis-ci.org/gogonzo/sport.svg?branch=master)\](<https://travis-ci.org/gogonzo/sport>) ![Project Status](http://www.repostatus.org/badges/latest/active.svg)\](<http://www.repostatus.org/#active>) ![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)\](<https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html>) ![Coverage status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)\](<https://codecov.io/github/gogonzo/sport?branch=master>)
+![Cran badge](https://www.r-pkg.org/badges/version/sport) ![Travis-CI Build Status](https://travis-ci.org/gogonzo/sport.svg?branch=master) ![Project Status](http://www.repostatus.org/badges/latest/active.svg) ![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg) ![Coverage status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)
 
 About
 =====
@@ -90,8 +90,8 @@ Installation
 Install package from CRAN or development version from github.
 
 ``` r
-# devtools::install_github("gogonzo/runner")
-install.packages("runner",repos = "https://cloud.r-project.org/")
+# devtools::install_github("gogonzo/sport")
+install.packages("sport",repos = "https://cloud.r-project.org/")
 ```
 
 Available Data
