@@ -13,9 +13,9 @@ test_that("Error with NA parameters",{
 })
 
 test_that("init r passed",{
-  expect_true( all(
+  expect_true(
     sum(glicko2_run(formula = rank | id ~ name, data=data, init_r = 1000)$final_r)==4000
-  ))
+  )
 })
 
 test_that("init rd passed",{
