@@ -85,11 +85,11 @@ Rcpp::List
   }
   
   for(int i = 0; i < k; i++){
-    delta_ = -sum( DELTA(_,i) * weight ) / 2 / (k*1.0 - 1.0);
+    delta_ = -sum( DELTA(_,i) * weight ) / 2.0 / (k*1.0 - 1.0);
     if(  delta_ < -RD(i) * (1-kappa) ) 
          delta_ = -RD(i) * (1-kappa);
     RD(i) += delta_; 
-    R(i)  += sum( OMEGA(_,i) * weight ) / 2;
+    R(i)  += sum( OMEGA(_,i) * weight ) / 2.0;
   }
 
   r_update.names()  = colnames(X);

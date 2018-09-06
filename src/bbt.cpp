@@ -13,9 +13,9 @@ List
     NumericVector weight,
     CharacterVector identifier,
     double kappa = 0.5,
-    double gamma = 999,
+    double gamma = 999.0,
     double beta = 25/6,
-    double init_r = 25,
+    double init_r = 25.0,
     double init_rd = 25/3
   ) {
     int n = rank.size();
@@ -36,15 +36,15 @@ List
 
     
     for(int i = 0; i < n; i++){
-      if( ( sqrt( pow(rd[i],2) + pow(sigma[i],2)) ) < init_rd ) 
-        rd[i] = sqrt( pow(rd[i],2) + pow(sigma[i],2)); else rd[i] = init_rd;
+      if( ( sqrt( pow(rd[i],2) + pow(sigma[i],2.0)) ) < init_rd ) 
+        rd[i] = sqrt( pow(rd[i],2) + pow(sigma[i],2.0)); else rd[i] = init_rd;
     }
     
     for(int i = 0; i < n; i++){
       for(int q = 0; q<n; q++ ){
         if(i!=q){
 
-          c = sqrt( sigma2(i) + sigma2(q) + pow(beta,2) );
+          c = sqrt( sigma2(i) + sigma2(q) + pow(beta,2.0) );
           if(gamma==999) gamma = sqrt( sigma2(i) ) / c;
         
           idx += 1;
