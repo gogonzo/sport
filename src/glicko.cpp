@@ -43,7 +43,6 @@ List
       if( ( sqrt( pow(rd[i],2) + pow(sigma[i],2.0)) ) < init_rd ) 
         rd[i] = sqrt( pow(rd[i],2) + pow(sigma[i],2.0)); else rd[i] = init_rd;
         g_rd[i] = calcGRd( rd[i] );
-        
     }
     
     // GLICKO RATING
@@ -61,8 +60,8 @@ List
           
           P( idx - 1 ) = calcPGlicko( calcGRd( sqrt( pow(rd[i],2) + pow( rd[j], 2 ) ) ) , r[i] , r[j] );
           Y( idx - 1 ) = calcZ( rank[i], rank[j] );
-          var = calcVar( var, g_rd[j], P( idx - 1) );
-          err = calcErr( err, g_rd[j], P( idx - 1 ), rank[i], rank[j]);
+          var += calcVar( g_rd[j], P( idx - 1) );
+          err += calcErr( g_rd[j], P( idx - 1 ), rank[i], rank[j]);
           
         } else { continue; }
       }
@@ -162,12 +161,12 @@ List
           Y( idx - 1 ) = calcZ( rank[i], rank[j] );
           P( idx - 1 ) = calcPGlicko2( sqrt( pow(g_phi[i],2.0) + pow(g_phi[j],2.0) ) , mu[i] , mu[j] );
           
-          var = calcVar(var, g_phi[j], P( idx - 1 ) );
-          err = calcErr(err, g_phi[j], P( idx - 1 ), rank[i], rank[j]);
+          var += calcVar( g_phi[j], P( idx - 1 ) );
+          err += calcErr( g_phi[j], P( idx - 1 ), rank[i], rank[j]);
         } else { continue; }
       }
       var_i[i]  = 1/var;
-      err_i[i] = err;
+      err_i[i]  = err;
       delta_i[i] = 1/var * err;
     }
     

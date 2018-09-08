@@ -19,20 +19,20 @@ double calcPGlicko( double g_rd_j, double r_i, double r_j){
 double calcPGlicko2( double g_phi_j, double mu_i, double mu_j){
   return 1/(1 + exp(-g_phi_j * (mu_i - mu_j)));
 }
-double calcVar(double var, double g_rd_j, double E_s_ij){
-  return var + pow(g_rd_j,2) * E_s_ij * ( 1 - E_s_ij );
+double calcVar( double g_rd_j, double E_s_ij){
+  return pow(g_rd_j,2) * E_s_ij * ( 1 - E_s_ij );
 }
-double calcErr( double err,  double g_rd_j, double E_s_ij,double rank_i, double rank_j){
+double calcErr( double g_rd_j, double E_s_ij,double rank_i, double rank_j){
   
   if( rank_i < rank_j ) {
-    return err + g_rd_j * ( 1.0 - E_s_ij );
+    return g_rd_j * ( 1.0 - E_s_ij );
   } else if( rank_i == rank_j ) { 
-    return err + g_rd_j * ( .5 - E_s_ij ); 
+    return g_rd_j * ( .5 - E_s_ij ); 
   } else {
-    return err + g_rd_j * ( - E_s_ij ); 
+    return g_rd_j * ( - E_s_ij ); 
   }
   
-  return err;
+  return 0;
 }
 
 double calcZ( double rank_i, double rank_j){
