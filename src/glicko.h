@@ -5,7 +5,8 @@ double rd2phi(double rd){
   return rd / 173.7178;
 }
 double calcGRd( double rd){
-  double pi = std::atan(1)*4, q   = log(10.0)/400.0;
+  double pi = std::atan(1)*4, 
+         q  = log(10.0)/400.0;
   return 1.0/sqrt(1.0 + 3.0 * pow(q,2.0) * pow(rd, 2.0) / pow(pi,2.0) );
 }
 double calcGPhi( double phi ){
@@ -49,7 +50,7 @@ double funX( double X, double delta, double phi, double var, double a, double ta
   return 
     ( exp(X) * ( pow(delta, 2.0) - pow(phi, 2.0) - var - exp(X) ) ) / 
     ( 2 * pow( pow(phi, 2.0) + var + exp(X),2.0) ) - 
-    (X - a)/pow(tau, 2.0);
+    ( X - a )/pow( tau, 2.0 );
   
 }
 double optimSigma( double delta, double sigma, double phi, double var, double tau){
