@@ -75,7 +75,7 @@ List
     
     // update parameters 
     for(int i = 0; i < n; i++){
-      r[i]     = r[i] + q/( 1/pow(rd[i],2.0) + 1/delta_i[i] ) * err_i[i] * weight[i];
+      r[i]   += q/( 1/pow(rd[i],2.0) + 1/delta_i[i] ) * err_i[i] * weight[i];
       
       new_rd_ = sqrt(  1/( 1/pow(rd[i],2.0) + 1/( delta_i[i] * weight[i]) ));
       if( new_rd_ < rd(i) * kappa ) 
@@ -126,7 +126,7 @@ List
     
     int n = name.size();
     int idx = 0;
-    double err, var, A, new_rd_;
+    double err, var, A;
     NumericVector mu(n);
     NumericVector phi(n);
     NumericVector g_phi(n);
@@ -173,26 +173,23 @@ List
     
     // update parameters
     for(int i = 0; i < n; i++){
-      // Rcpp::Rcout << "----- i =" << i <<  std::endl;
       A = optimSigma(delta_i[i], sigma[i], phi[i], var_i[i], tau);
       sigma[i] = exp( A/2 );
       
       phi[i] = updatePhi(phi[i], var_i[i], sigma[i], weight[i]);
       if(phi[i]>(init_rd/173.7178)) phi[i] = init_rd/173.7178;
-      mu[i]  = updateMu( mu[i], phi[i], err_i[i], weight[i]);
       
-      r[i]   = mu2r( mu[i] );
-      new_rd_ = phi2rd( phi[i] );
-      if( new_rd_ < rd(i) * kappa ) new_rd_ = rd(i) * kappa;
-      rd[i]    = new_rd_;
-      
+      r[i]  = mu2r( mu[i] + pow(phi[i],2.0) * err_i[i] * weight[i] );
+      if( phi2rd( phi[i] ) < (rd(i) * kappa) ){
+        rd[i] = rd(i) * kappa;
+      } else {
+        rd[i] = phi2rd( phi[i] );
+      }
     }
-    
     
     Rcpp::List dimnms = Rcpp::List::create(name, name);
     r.names()  = name;
     rd.names() = name;
-    
     return List::create(
       _["r"]     = r,
       _["rd"]    = rd,
