@@ -75,12 +75,13 @@ List
     
     // update parameters 
     for(int i = 0; i < n; i++){
-      r[i]   += q/( 1/pow(rd[i],2.0) + 1/delta_i[i] ) * err_i[i] * weight[i];
-      
+      r[i]   += q/( 1/pow(rd[i],2.0) + 1/delta_i[i] ) * err_i[i] * weight[i]; 
       new_rd_ = sqrt(  1/( 1/pow(rd[i],2.0) + 1/( delta_i[i] * weight[i]) ));
-      if( new_rd_ < rd(i) * kappa ) 
-        new_rd_ = rd(i) * kappa;
-      rd[i]    = new_rd_;
+      if( new_rd_ < (rd(i) * kappa) ) {
+        rd(i) = rd(i) * kappa;
+      } else {
+        rd(i) = new_rd_;
+      }
     }
     
     Rcpp::List dimnms = Rcpp::List::create(name, name);
