@@ -23,6 +23,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+Sys.setenv("DISPLAY"=":0.0")
 ```
 
 # About
