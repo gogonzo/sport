@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 
 ![Cran badge](https://www.r-pkg.org/badges/version/sport)
 ![Travis-CI Build Status](https://travis-ci.org/gogonzo/sport.svg?branch=master)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/elo2zero/sport?branch=master&svg=true)](https://ci.appveyor.com/project/elo2zero/sport)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/gogonzo/sport?branch=master&svg=true)](https://ci.appveyor.com/project/gogonzo/sport)
 ![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)
 ![Coverage status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)
 
