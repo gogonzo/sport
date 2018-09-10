@@ -1,29 +1,18 @@
-<style>
-  .col2 {
-    columns: 2 200px;
-    -webkit-columns: 2 200px;
-    -moz-columns: 2 200px;
-  }
-
-</style>
-
 ---
 title: "sport an R package for online update algorithms"
 author: "Dawid Kałędkowski"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  \VignetteIndexEntry{sport an R package for online update algorithms}
+  \VignetteEngine{knitr::knitr}
+  \VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
+  
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-Sys.setenv("DISPLAY"=":0.0")
+knitr::opts_chunk$set( collapse = TRUE, comment = "#>" )
 ```
 
 # About
@@ -142,12 +131,10 @@ summary(dbl)
 
 To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coefficients are presented not necessarily ratings. It's also possible to examine ratings evolution in time, by specifying `players` argument.
 
-<div class="col2">
 ```{r}
 plot(glicko, n=15)
 plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
 ```
-</div>
 
 Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analyzed. `rating` object contains following elements:
 
