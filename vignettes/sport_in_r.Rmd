@@ -7,7 +7,6 @@ vignette: >
   %\VignetteIndexEntry{sport an R package for online update algorithms}
   %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
-  \usepackage[utf8]{inputenc}
 ---
 
 ```{r setup, include = FALSE}

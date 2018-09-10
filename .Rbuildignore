@@ -4,19 +4,13 @@
 
 ^.*\.Rproj$
 ^\.Rproj\.user$
-
 ^data-raw$
-
 ^README\.md$
 ^README\.Rmd$
 ^README-.*\.png$
-
 ^\.travis\.yml$
 ^codecov\.yml$
-
 \.gitignore
-
 ^cran-comments\.md$
 TODO
-
-
+^appveyor\.yml$
