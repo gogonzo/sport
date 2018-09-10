@@ -4,9 +4,9 @@ author: "Dawid Kałędkowski"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{sport an R package for online update algorithms}
-  %\VignetteEngine{knitr::knitr}
-  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{ %\VignetteIndexEntry{sport an R package for online update algorithms}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r setup, include = FALSE}
