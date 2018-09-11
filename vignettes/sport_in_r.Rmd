@@ -111,7 +111,7 @@ gpheats[1:8,c("id","rider","rank")]
 To compute ratings using each algorithms one has to specify formula. Form `rank | id ~ name` is required, which estimates `name` - rating of a player, by observing outputs - `rank`, nested within particular event - `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
 `formula = rank|id ~ name` 
 
-```{r}
+```{r message=FALSE}
 glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats )
 glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats )
 bbt     <- bbt_run(     formula = rank|id ~ rider, data = gpheats )
@@ -129,7 +129,7 @@ summary(dbl)
 
 To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coefficients are presented not necessarily ratings. It's also possible to examine ratings evolution in time, by specifying `players` argument.
 
-```{r}
+```{r eval=FALSE}
 plot(glicko, n=15)
 plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
 ```
@@ -155,7 +155,7 @@ Examples presented in package overview might be sufficient in most cases, but so
 ## Prior beliefs about `r` and `rd`
 Main functionality which is common between all algorithms is to specify prior `r` and `rd`. Both parameters can be set by creating named vectors. Let's suppose we have 4 players `c("A","B","C","D")` competing in an event, and we have players prior `r` and `rd` estimates. It's important to have `r` and `rd` names corresponding with levels of `name` variable. One can run algorithm, to obtain new estimates.
 
-```{r}
+```{r message=FALSE}
 library(dplyr); library(magrittr) # for examples purpose 
 data <- data.frame( id = 1, name = c( "A", "B", "C", "D" ),  rank  = c( 3, 4, 1, 2 ))
 r     <- setNames( c(1500, 1400, 1550, 1700), c("A","B","C","D") )
