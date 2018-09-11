@@ -116,7 +116,7 @@ gpheats[1:8,c("id","rider","rank")]
 To compute ratings using each algorithms one has to specify formula. Form `rank | id ~ name` is required, which estimates `name` - rating of a player, by observing outputs - `rank`, nested within particular event - `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
 `formula = rank|id ~ name` 
 
-```{r, warning=FALSE}
+```{r warning=FALSE, message=FALSE}
 glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats )
 glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats )
 bbt     <- bbt_run(     formula = rank|id ~ rider, data = gpheats )
@@ -128,14 +128,14 @@ print(dbl)
 
 Objects returned by `method_run` are of class `rating` and have their own `print` `summary` which provides most important informations. -`print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.
 
-```{r}
+```{r message=FALSE}
 summary(dbl)
 ```
 
 To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coefficients are presented not necessarily ratings. It's also possible to examine ratings evolution in time, by specifying `players` argument.
 
 <div class="col2">
-```{r}
+```{r message=FALSE}
 plot(glicko, n=15)
 plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
 ```
@@ -143,7 +143,7 @@ plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
 
 Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analyzed. `rating` object contains following elements:
 
-```{r}
+```{r message=FALSE}
 names(glicko)
 ```
 
@@ -151,7 +151,7 @@ names(glicko)
 * `r` contains data.frame with sequential ratings estimations from first event to the last. Number of rows in `r` equals number of rows in input data.
 * `pairs` pairwise combinations of players in analyzed events with prior probability and result of a challenge. 
 
-```{r}
+```{r message=FALSE}
 tail(glicko$r)
 tail(glicko$pairs)
 ```

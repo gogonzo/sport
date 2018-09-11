@@ -138,15 +138,8 @@ To compute ratings using each algorithms one has to specify formula. Form `rank 
 
 ``` r
 glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats )
-#> r is missing and will set to default=1500
-#> rd is missing and will set to default=350
 glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats )
-#> r is missing and will set to default=1500
-#> rd is missing and will set to default=350
-#> sigma is missing and will set to default=0.05
 bbt     <- bbt_run(     formula = rank|id ~ rider, data = gpheats )
-#> r is missing and will set to default=25
-#> rd is missing and will set to default=8.33333333333333
 dbl     <- dbl_run(     formula = rank|id ~ rider, data = gpheats )
 print(dbl)
 #> 

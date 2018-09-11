@@ -10,7 +10,7 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 7, fig.align = "center")
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
 # About
@@ -123,7 +123,7 @@ print(dbl)
 
 Objects returned by `method_run` are of class `rating` and have their own `print` `summary` which provides most important informations. -`print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.
 
-```{r}
+```{r message=FALSE}
 summary(dbl)
 ```
 
@@ -136,7 +136,7 @@ plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
 
 Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analyzed. `rating` object contains following elements:
 
-```{r}
+```{r message=FALSE}
 names(glicko)
 ```
 
@@ -144,7 +144,7 @@ names(glicko)
 * `r` contains data.frame with sequential ratings estimations from first event to the last. Number of rows in `r` equals number of rows in input data.
 * `pairs` pairwise combinations of players in analyzed events with prior probability and result of a challenge. 
 
-```{r}
+```{r message=FALSE}
 tail(glicko$r)
 tail(glicko$pairs)
 ```
@@ -168,7 +168,7 @@ print(model$final_r)
 
 We can also run models using previously estimated parameters from `model$final_r` and `model$final_rd` in next event.
 
-```{r}
+```{r message=FALSE}
 data2 <- data.frame( id = 2, name = c( "A", "B", "C", "D" ),  rank  = 1:4 )
 r     <- model$final_r
 rd    <- model$final_rd
@@ -180,7 +180,7 @@ glicko_run(rank|id ~ name, data, r=r, rd=rd)$final_r
 
 All algorithms have a weight argument which increases or decreases update change. Higher weight increasing impact of corresponding event. Effect of the weight on update size can be expressed directly by following formula - $\small R_i^{'} \leftarrow R_i + weight \sum_{j \neq i}{ K ( Y_{ij} - \hat{Y_{ij}}}  )$. To specify weight one needs to add create additional column in input data, and name a column in `weight` argument. For example weight could depend on importance of competition. In speedway Grand-Prix last three heats determine event winner and thus have higher weight.
 
-```{r}
+```{r message=FALSE}
 gpheats %<>% mutate(weight = ifelse(heat >= (max(heat)-3),2,1) )
 glicko  <- glicko_run(rank|id ~ rider, gpheats, weight="weight")
 ```
@@ -189,7 +189,7 @@ glicko  <- glicko_run(rank|id ~ rider, gpheats, weight="weight")
 
 In situation when games are playing very frequently by a player, `rd` can quickly decrease to zero, making further changes limited. Setting `kappa` disallows deviation decrease to be lower than specified fraction of `rd`. In other words final `rd` can't be lower than initial `RD` times `kappa` $\small RD' \geq RD * kappa$.
 
-```{r}
+```{r message=FALSE}
 bbt1 <- bbt_run(rank|id~rider, gpheats,kappa=0.9)
 bbt2 <- bbt_run(rank|id~rider, gpheats,kappa=0.5)
 
@@ -200,7 +200,7 @@ all(bbt1$final_rd > bbt2$final_rd)
 
 To increase/decrease uncertainty of challenge output one can define `beta`. Increasing `beta` flatten probabilities of winning challenge equalizing competitors chances. This element differs from `sigma` by not affecting `rd` directly but to adjust prediction. This argument can be used in bbt and dbl by identifying column in input data where beta is stored. It is worth to specify `beta` in events when level of competition is higher than usual e.g. derby, knock-out phase, decisive matches, exhibitions and friendlies. Let's assume that `beta` follows the same rule as previously set `weight`.
 
-```{r}
+```{r message=FALSE}
 gpheats %<>% mutate(beta = ifelse(heat >= (max(heat)-3),2,1)  )
 dbl <- dbl_run(rank|id~rider, beta="beta", data=gpheats) 
 ```
@@ -211,7 +211,7 @@ dbl <- dbl_run(rank|id~rider, beta="beta", data=gpheats)
 In some periods player ratings tends to fluctuate more, when players form is more unstable. Sigma is na additional parameter controlling volatility of the ratings, making update bigger for higher values of sigma. Strictly, sigma can be expressed by $\small rd_i' = \sqrt{rd_i^2+\sigma_i^2}$. Sigma can be specified in two ways:
 - In glicko2 `sigma` is another parameter per player estimated simultaneously with `r` and `rd`. One can specify prior sigma in the same manner as `r` and `rd` by creating named vector of positive values. Sigma values depends on a particular application, and priors should be chosen by user.
 
-```{r}
+```{r message=FALSE}
 sigma   <- unique(gpheats$rider) %>% setNames( runif(0.1,0.5, n = length(.)) , . )
 glicko2 <- glicko2_run(rank|id~rider,gpheats, sigma=sigma)
 ```
@@ -219,7 +219,7 @@ glicko2 <- glicko2_run(rank|id~rider,gpheats, sigma=sigma)
 
 - In glicko and bbt `sigma` needs to be fixed before iteration by adding new column to input data. For example sigma can be column of time difference between events in which player participated - The longer break in competing, the higher sigma is. It is recommended to keep values close to `data$sigma`.
 
-```{r}
+```{r message=FALSE}
 # bbt example
 gpheats %<>%
   group_by(rider) %>%
