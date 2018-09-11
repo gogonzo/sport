@@ -4,7 +4,7 @@ author: "Dawid Kałędkowski"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Programming with dplyr}
+  %\VignetteIndexEntry{sport an R package for online update algorithms}
   %\VignetteEngine{knitr::rmarkdown}
   %\usepackage[utf8]{inputenc}
 ---
@@ -84,7 +84,7 @@ For further knowledge read [Stephen J. Roberts, William Penny (2011)](https://ww
 ## Installation
 Install package from CRAN or development version from github.
 
-```{r message=FALSE, warning=FALSE}
+```{r ,message=FALSE, warning=FALSE}
 # devtools::install_github("gogonzo/sport")
 # install.packages("sport")
 library(sport)
@@ -96,7 +96,7 @@ Package contains actual data from Speedway Grand-Prix. There are two data.frames
 1. `gpheats` - results SGP heats. Column `rank` is a numeric version of column `position` - rider position in race.
 2. `gpsquads` - summarized results of the events, with sum of point and final position.
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=TRUE}
 str(gpheats)
 ```
 
@@ -123,20 +123,20 @@ print(dbl)
 
 Objects returned by `method_run` are of class `rating` and have their own `print` `summary` which provides most important informations. -`print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.
 
-```{r message=FALSE}
+```{r}
 summary(dbl)
 ```
 
 To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coefficients are presented not necessarily ratings. It's also possible to examine ratings evolution in time, by specifying `players` argument.
 
-```{r eval=FALSE}
+```{r}
 plot(glicko, n=15)
 plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
 ```
 
 Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analyzed. `rating` object contains following elements:
 
-```{r message=FALSE}
+```{r}
 names(glicko)
 ```
 
@@ -144,7 +144,7 @@ names(glicko)
 * `r` contains data.frame with sequential ratings estimations from first event to the last. Number of rows in `r` equals number of rows in input data.
 * `pairs` pairwise combinations of players in analyzed events with prior probability and result of a challenge. 
 
-```{r message=FALSE}
+```{r}
 tail(glicko$r)
 tail(glicko$pairs)
 ```
@@ -155,7 +155,7 @@ Examples presented in package overview might be sufficient in most cases, but so
 ## Prior beliefs about `r` and `rd`
 Main functionality which is common between all algorithms is to specify prior `r` and `rd`. Both parameters can be set by creating named vectors. Let's suppose we have 4 players `c("A","B","C","D")` competing in an event, and we have players prior `r` and `rd` estimates. It's important to have `r` and `rd` names corresponding with levels of `name` variable. One can run algorithm, to obtain new estimates.
 
-```{r message=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(dplyr); library(magrittr) # for examples purpose 
 data <- data.frame( id = 1, name = c( "A", "B", "C", "D" ),  rank  = c( 3, 4, 1, 2 ))
 r     <- setNames( c(1500, 1400, 1550, 1700), c("A","B","C","D") )
@@ -168,7 +168,7 @@ print(model$final_r)
 
 We can also run models using previously estimated parameters from `model$final_r` and `model$final_rd` in next event.
 
-```{r message=FALSE}
+```{r}
 data2 <- data.frame( id = 2, name = c( "A", "B", "C", "D" ),  rank  = 1:4 )
 r     <- model$final_r
 rd    <- model$final_rd
@@ -180,7 +180,7 @@ glicko_run(rank|id ~ name, data, r=r, rd=rd)$final_r
 
 All algorithms have a weight argument which increases or decreases update change. Higher weight increasing impact of corresponding event. Effect of the weight on update size can be expressed directly by following formula - $\small R_i^{'} \leftarrow R_i + weight \sum_{j \neq i}{ K ( Y_{ij} - \hat{Y_{ij}}}  )$. To specify weight one needs to add create additional column in input data, and name a column in `weight` argument. For example weight could depend on importance of competition. In speedway Grand-Prix last three heats determine event winner and thus have higher weight.
 
-```{r message=FALSE}
+```{r}
 gpheats %<>% mutate(weight = ifelse(heat >= (max(heat)-3),2,1) )
 glicko  <- glicko_run(rank|id ~ rider, gpheats, weight="weight")
 ```
@@ -189,7 +189,7 @@ glicko  <- glicko_run(rank|id ~ rider, gpheats, weight="weight")
 
 In situation when games are playing very frequently by a player, `rd` can quickly decrease to zero, making further changes limited. Setting `kappa` disallows deviation decrease to be lower than specified fraction of `rd`. In other words final `rd` can't be lower than initial `RD` times `kappa` $\small RD' \geq RD * kappa$.
 
-```{r message=FALSE}
+```{r}
 bbt1 <- bbt_run(rank|id~rider, gpheats,kappa=0.9)
 bbt2 <- bbt_run(rank|id~rider, gpheats,kappa=0.5)
 
@@ -200,7 +200,7 @@ all(bbt1$final_rd > bbt2$final_rd)
 
 To increase/decrease uncertainty of challenge output one can define `beta`. Increasing `beta` flatten probabilities of winning challenge equalizing competitors chances. This element differs from `sigma` by not affecting `rd` directly but to adjust prediction. This argument can be used in bbt and dbl by identifying column in input data where beta is stored. It is worth to specify `beta` in events when level of competition is higher than usual e.g. derby, knock-out phase, decisive matches, exhibitions and friendlies. Let's assume that `beta` follows the same rule as previously set `weight`.
 
-```{r message=FALSE}
+```{r}
 gpheats %<>% mutate(beta = ifelse(heat >= (max(heat)-3),2,1)  )
 dbl <- dbl_run(rank|id~rider, beta="beta", data=gpheats) 
 ```
@@ -211,15 +211,14 @@ dbl <- dbl_run(rank|id~rider, beta="beta", data=gpheats)
 In some periods player ratings tends to fluctuate more, when players form is more unstable. Sigma is na additional parameter controlling volatility of the ratings, making update bigger for higher values of sigma. Strictly, sigma can be expressed by $\small rd_i' = \sqrt{rd_i^2+\sigma_i^2}$. Sigma can be specified in two ways:
 - In glicko2 `sigma` is another parameter per player estimated simultaneously with `r` and `rd`. One can specify prior sigma in the same manner as `r` and `rd` by creating named vector of positive values. Sigma values depends on a particular application, and priors should be chosen by user.
 
-```{r message=FALSE}
+```{r}
 sigma   <- unique(gpheats$rider) %>% setNames( runif(0.1,0.5, n = length(.)) , . )
 glicko2 <- glicko2_run(rank|id~rider,gpheats, sigma=sigma)
 ```
 
+In glicko and bbt `sigma` needs to be fixed before iteration by adding new column to input data. For example sigma can be column of time difference between events in which player participated - The longer break in competing, the higher sigma is. It is recommended to keep values close to `data$sigma`.
 
-- In glicko and bbt `sigma` needs to be fixed before iteration by adding new column to input data. For example sigma can be column of time difference between events in which player participated - The longer break in competing, the higher sigma is. It is recommended to keep values close to `data$sigma`.
-
-```{r message=FALSE}
+```{r}
 # bbt example
 gpheats %<>%
   group_by(rider) %>%
