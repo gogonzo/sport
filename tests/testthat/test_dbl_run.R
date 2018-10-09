@@ -1,7 +1,7 @@
 context("dbl_run")
 gpheats$field_f <- as.factor(gpheats$field)
 gpheats$beta   <- 100
-gpheats$weight   <- 1.1
+gpheats$weight   <- .9
 gpheats$weight2  <- 1.0
 
 formula      <- rank|id ~ rider + field + field_f
@@ -60,11 +60,18 @@ test_that("beta changes calculation",{
   ))
 })
 
-test_that("bigger rating change for higher weight",{
+test_that("R and RD exacltly proportional to weight",{
+  model1 <- dbl_run( formula, gpheats[1:4,], weight = "weight"  )
+  model2 <- dbl_run( formula, gpheats[1:4,], weight = "weight2" )
+  
   expect_true( all(
-    abs(r-dbl_run( formula, gpheats[17:20,], r=r, rd=rd, weight = "weight"  )$final_r) >=
-    abs(r-dbl_run( formula, gpheats[17:20,], r=r, rd=rd, weight = "weight2" )$final_r)
+    round(abs(0-model1$final_r)/abs(0-model2$final_r),2) == .9
   ))
+  
+  expect_true( all(
+    round(abs(1-model1$final_rd)/abs(1-model2$final_rd),2) == .9
+  ))
+  
 })
 
 test_that("identifier passed succesfuly",{

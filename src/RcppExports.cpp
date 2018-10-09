@@ -58,13 +58,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // glicko
-List glicko(CharacterVector name, std::vector<int> rank, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector weight, CharacterVector identifier, double init_r, double init_rd, double gamma, double kappa);
+List glicko(CharacterVector name, IntegerVector rank, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector weight, CharacterVector identifier, double init_r, double init_rd, double gamma, double kappa);
 RcppExport SEXP _sport_glicko(SEXP nameSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP weightSEXP, SEXP identifierSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP gammaSEXP, SEXP kappaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< CharacterVector >::type name(nameSEXP);
-    Rcpp::traits::input_parameter< std::vector<int> >::type rank(rankSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type r(rSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type rd(rdSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type sigma(sigmaSEXP);
@@ -79,13 +79,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // glicko2
-List glicko2(CharacterVector name, std::vector<int> rank, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector weight, double kappa, CharacterVector identifier, double tau, double init_r, double init_rd);
+List glicko2(CharacterVector name, IntegerVector rank, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector weight, double kappa, CharacterVector identifier, double tau, double init_r, double init_rd);
 RcppExport SEXP _sport_glicko2(SEXP nameSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP weightSEXP, SEXP kappaSEXP, SEXP identifierSEXP, SEXP tauSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< CharacterVector >::type name(nameSEXP);
-    Rcpp::traits::input_parameter< std::vector<int> >::type rank(rankSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type r(rSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type rd(rdSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type sigma(sigmaSEXP);

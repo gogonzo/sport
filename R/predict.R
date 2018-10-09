@@ -130,6 +130,10 @@ predict.rating <- function(object,newdata,...){
   
   if(method == "dbl"){
     all_params <- allLevelsList(formula, newdata)
+    lhs  <- all.vars(update(formula, .~0))
+    rhs  <- all.vars(update(formula, 0~.))
+    y    <- lhs[1]
+    
     weight <- attr(object,"settings")$weight
     beta   <- attr(object,"settings")$beta
     kappa  <- attr(object,"settings")$kappa

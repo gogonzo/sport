@@ -32,6 +32,7 @@ List
     CharacterVector team2(n*n-n);
     NumericVector P(n*n-n);
     NumericVector Y(n*n-n);
+    NumericVector rd_update(j);
     double c;
 
     
@@ -73,10 +74,13 @@ List
       rd_share(i,_) = pow(rd(i,_),2.0) / sigma2(i);
       
       r(i,_) = r(i,_) + rd_share(i,_) * omega(i) * weight(i);
-      rd(i,_) = sqrt( 
-          pow(rd(i,_),2.0) * 
-          pmax( 1 - rd_share(i,_) * delta(i) , kappa )
-        );
+      rd_update = ( rd(i,_) - 
+                    sqrt(  pow(rd(i,_),2.0) * ( 1 - rd_share(i,_) * delta(i)))
+                  ) * weight(i);
+
+      
+      // kappa for all participants
+      rd(i,_) = pmax( rd(i,_) - rd_update , rd(i,_) * kappa );
     }
 
     return List::create(

@@ -1,5 +1,5 @@
 context("bbt_run")
-data <- data.frame( id = 1,name = c( "A", "B", "C", "D" ), rank  = c( 3, 4, 1, 2 ), sigma=rep(1.1,4), weight=rep(1.01,4), date=c("a","b","c","d"))
+data <- data.frame( id = 1,name = c( "A", "B", "C", "D" ), rank  = c( 3, 4, 1, 2 ), sigma=rep(1.1,4), weight=rep(1.05,4), date=c("a","b","c","d"))
 sigma  <- setNames( rep(1,4), c("A","B","C","D"))
 rd    <- setNames( rep(350,4), c("A","B","C","D") )
 gpheats$beta   <- 100
@@ -45,11 +45,18 @@ test_that("bigger rating change for higher sigma",{
   ))
 })
 
-test_that("bigger rating change for higher weight",{
-  expect_true( all(
-    abs( 25 - bbt_run(formula = rank | id ~ name, data=data, weight="weight")$final_r ) >
-    abs( 25 - bbt_run(formula = rank | id ~ name, data=data                 )$final_r )
+test_that("R and RD exacltly proportional to weight",{
+  model1 <- bbt_run(formula = rank | id ~ name, data=data, weight="weight")
+  model2 <- bbt_run(formula = rank | id ~ name, data=data)
+  
+  expect_true(all( 
+    round(abs( 25 - model1$final_r ) / (abs( 25 - model2$final_r )),2)==1.05
   ))
+  
+  expect_true( all(
+    round(abs( 25/3 - model1$final_rd ) / (abs( 25/3 - model2$final_rd )),2)==1.05
+  ))
+  
 })
 
 test_that("smaller rating change for higher beta",{

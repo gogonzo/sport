@@ -8,9 +8,10 @@
 ^README\.md$
 ^README\.Rmd$
 ^README-.*\.png$
+\.gitignore
+TODO
 ^\.travis\.yml$
 ^codecov\.yml$
-\.gitignore
-^cran-comments\.md$
-TODO
 ^appveyor\.yml$
+^cran-comments\.md$
+\.xcf

@@ -6,7 +6,7 @@ using namespace Rcpp;
 List 
   glicko(
     CharacterVector name, 
-    std::vector<int> rank,
+    IntegerVector rank,
     NumericVector r, 
     NumericVector rd,
     NumericVector sigma,
@@ -25,7 +25,7 @@ List
       q   = log(10.0)/400.0,
       var,
       err, 
-      new_rd_;
+      rd_update;
     NumericVector g_rd(n);
     NumericVector var_i(n);
     NumericVector err_i(n);
@@ -40,8 +40,11 @@ List
     for(int i = 0; i < n; i++){
       if( NumericVector::is_na(r[i]) ) 
         r[i] = init_r, rd[i] = init_rd;
-      if( ( sqrt( pow(rd[i],2) + pow(sigma[i],2.0)) ) < init_rd ) 
-        rd[i] = sqrt( pow(rd[i],2) + pow(sigma[i],2.0)); else rd[i] = init_rd;
+      if( ( sqrt( pow(rd[i],2) + pow(sigma[i],2.0)) ) < init_rd ) {
+        rd[i] = sqrt( pow(rd[i],2) + pow(sigma[i],2.0));
+      } else{ 
+        rd[i] = init_rd;
+      }
         g_rd[i] = calcGRd( rd[i] );
     }
     
@@ -59,9 +62,9 @@ List
           team2( idx - 1 ) = name[j];
           
           P( idx - 1 ) = calcPGlicko( calcGRd( sqrt( pow(rd[i],2) + pow( rd[j], 2 ) ) ) , r[i] , r[j] );
-          Y( idx - 1 ) = calcZ( rank[i], rank[j] );
+          Y( idx - 1 ) = calcZ( rank(i), rank(j) );
           var += calcVar( g_rd[j], P( idx - 1) );
-          err += calcErr( g_rd[j], P( idx - 1 ), rank[i], rank[j]);
+          err += calcErr( g_rd[j], P( idx - 1 ), rank(i), rank(j));
           
         } else { continue; }
       }
@@ -76,11 +79,11 @@ List
     // update parameters 
     for(int i = 0; i < n; i++){
       r[i]   += q/( 1/pow(rd[i],2.0) + 1/delta_i[i] ) * err_i[i] * weight[i]; 
-      new_rd_ = sqrt(  1/( 1/pow(rd[i],2.0) + 1/( delta_i[i] * weight[i]) ));
-      if( new_rd_ < (rd(i) * kappa) ) {
+      rd_update = ( rd[i] - sqrt(  1/( 1/pow(rd[i],2.0) + 1/( delta_i[i]) )) ) * weight[i];
+      if( rd_update > (rd(i) * (1-kappa)) ) {
         rd(i) = rd(i) * kappa;
       } else {
-        rd(i) = new_rd_;
+        rd(i) -= rd_update;
       }
     }
     
@@ -113,7 +116,7 @@ List
 List 
   glicko2(
     CharacterVector name, 
-    std::vector<int> rank,
+    IntegerVector rank,
     NumericVector r, 
     NumericVector rd,
     NumericVector sigma,
@@ -127,7 +130,7 @@ List
     
     int n = name.size();
     int idx = 0;
-    double err, var, A;
+    double err, var, A, rd_update;
     NumericVector mu(n);
     NumericVector phi(n);
     NumericVector g_phi(n);
@@ -159,11 +162,11 @@ List
           team1( idx - 1 ) = name[i];
           team2( idx - 1 ) = name[j];
           
-          Y( idx - 1 ) = calcZ( rank[i], rank[j] );
+          Y( idx - 1 ) = calcZ( rank(i), rank(j) );
           P( idx - 1 ) = calcPGlicko2( sqrt( pow(g_phi[i],2.0) + pow(g_phi[j],2.0) ) , mu[i] , mu[j] );
           
           var += calcVar( g_phi[j], P( idx - 1 ) );
-          err += calcErr( g_phi[j], P( idx - 1 ), rank[i], rank[j]);
+          err += calcErr( g_phi[j], P( idx - 1 ), rank(i), rank(j));
         } else { continue; }
       }
       var_i[i]  = 1/var;
@@ -177,14 +180,15 @@ List
       A = optimSigma(delta_i[i], sigma[i], phi[i], var_i[i], tau);
       sigma[i] = exp( A/2 );
       
-      phi[i] = updatePhi(phi[i], var_i[i], sigma[i], weight[i]);
+      phi[i] = updatePhi(phi[i], var_i[i], sigma[i]);
       if(phi[i]>(init_rd/173.7178)) phi[i] = init_rd/173.7178;
       
       r[i]  = mu2r( mu[i] + pow(phi[i],2.0) * err_i[i] * weight[i] );
-      if( phi2rd( phi[i] ) < (rd(i) * kappa) ){
+      rd_update = ( rd[i] - phi2rd( phi[i] ) ) * weight[i];
+      if(  rd_update > (rd(i) * (1-kappa)) ){
         rd[i] = rd(i) * kappa;
       } else {
-        rd[i] = phi2rd( phi[i] );
+        rd[i] = rd[i] - rd_update;
       }
     }
     

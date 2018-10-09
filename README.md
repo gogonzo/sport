@@ -1,7 +1,10 @@
 `sport` an R package for Online Ranking Methods
 ================
 
-![Cran badge](https://www.r-pkg.org/badges/version/sport) ![Travis-CI Build Status](https://travis-ci.org/gogonzo/sport.svg?branch=master) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/gogonzo/sport?branch=master&svg=true)](https://ci.appveyor.com/project/gogonzo/sport) ![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg) ![Coverage status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)
+sport <img src="man/figures/hexlogo.png" align="right" />
+=========================================================
+
+[![Cran badge](https://cranlogs.r-pkg.org/badges/sport)](https://cran.r-project.org/web/packages/sport/index.html) [![Travis-CI Build Status](https://travis-ci.org/gogonzo/sport.svg?branch=master)](https://travis-ci.org/gogonzo/sport) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/gogonzo/sport?branch=master&svg=true)](https://ci.appveyor.com/project/gogonzo/sport) ![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg) ![Coverage status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)
 
 About
 =====

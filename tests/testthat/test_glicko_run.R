@@ -6,7 +6,9 @@ data <- data.frame(
   field = 1:4,
   date = seq(Sys.Date()-3, Sys.Date(), by="1 day"),
   sigma=rep(2,4), 
-  weight=rep(1.01,4), date=c("a","b","c","d"))
+  weight=rep(1.05,4),
+  weight2= rep(0.9, 4),
+  date=c("a","b","c","d"))
 sigma  <- setNames( rep(1,4), c("A","B","C","D"))
 rd    <- setNames( rep(350,4), c("A","B","C","D") )
 r     <- setNames( rep(1500,4), c("A","B","C","D") )
@@ -94,11 +96,20 @@ test_that("higher rating change for higher deviation",{
   ))
 })
 
-test_that("higher rating change for higher weight",{
+test_that("R and RD exacltly proportional to weight",{
+  r  <- c( 1500, 1400, 1550, 1700 ) 
+  rd <- c( 200,  30,   100,  300 )
+  model1 <- glicko_run( rank | id ~ name, data = data, r = r ,rd = rd, weight="weight" )
+  model2 <- glicko_run( rank | id ~ name, data = data, r = r ,rd = rd )
+  
   expect_true( all(
-    abs( 1500 - glicko_run(formula = rank | id ~ name, data=data, weight="weight")$final_r ) >
-    abs( 1500 - glicko_run(formula = rank | id ~ name, data=data)$final_r )
+    round((r - model1$final_r)/(r-model2$final_r),10)==1.05
   ))
+  
+  expect_true( all(
+    round((rd - model1$final_rd)/(rd-model2$final_rd),10)==1.05
+  ))
+  
 })
 
 test_that("higher rating change for higher sigma",{
