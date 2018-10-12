@@ -77,7 +77,6 @@ List
       rd_update = ( rd(i,_) - 
                     sqrt(  pow(rd(i,_),2.0) * ( 1 - rd_share(i,_) * delta(i)))
                   ) * weight(i);
-
       
       // kappa for all participants
       rd(i,_) = pmax( rd(i,_) - rd_update , rd(i,_) * kappa );

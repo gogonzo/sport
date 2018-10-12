@@ -59,6 +59,12 @@ test_that("R and RD exacltly proportional to weight",{
   
 })
 
+test_that("kappa is working",{
+  expect_true(all( 
+    bbt_run(rank|id~name, data=data, kappa=.99)$final_rd == 25/3*.99
+  ))
+})
+
 test_that("smaller rating change for higher beta",{
   expect_true( all(
     abs( 25 - bbt_run(formula = rank | id ~ name, beta = 25/3, data=data)$final_r ) <
