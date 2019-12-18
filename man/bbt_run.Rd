@@ -4,8 +4,21 @@
 \alias{bbt_run}
 \title{BBT rating algorithm}
 \usage{
-bbt_run(formula, data, r, rd, sigma, weight, beta = 25/6, kappa = 0.5,
-  gamma, idlab, init_r = 25, init_rd = 25/3, pb = FALSE)
+bbt_run(
+  formula,
+  data,
+  r,
+  rd,
+  sigma,
+  weight,
+  beta = 25/6,
+  kappa = 0.5,
+  gamma,
+  idlab,
+  init_r = 25,
+  init_rd = 25/3,
+  pb = FALSE
+)
 }
 \arguments{
 \item{formula}{formula specifying model. BBT algorithm allows only player ranking parameter and should be specified by following manner: 

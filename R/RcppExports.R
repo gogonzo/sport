@@ -13,11 +13,23 @@ factor2dummy <- function(factor) {
     .Call('_sport_factor2dummy', PACKAGE = 'sport', factor)
 }
 
-glicko <- function(name, rank, r, rd, sigma, weight, identifier, init_r = 1500.00, init_rd = 350.00, gamma = 1, kappa = .5) {
-    .Call('_sport_glicko', PACKAGE = 'sport', name, rank, r, rd, sigma, weight, identifier, init_r, init_rd, gamma, kappa)
+#' Glicko
+#' @examples
+#' x <- data.frame(id = 0, name = "a", rank = 1, r = 2, rd = 3, sigma = 4, weight = 5, identifier = 6)
+#' glicko(
+#'   id = x[["id"]], 
+#'   name = x[["name"]], 
+#'   rank = x[["rank"]], 
+#'   r = x[["rank"]], 
+#'   rd = x[["rd"]], 
+#'   sigma = x[["sigma"]], 
+#'   weight = x[["weight"]], 
+#'   identifier = x[["identifier"]])
+glicko <- function(id, rank, name, r, rd, sigma, weight, init_r = 1500.00, init_rd = 350.00, gamma = 1.0, kappa = .5) {
+    .Call('_sport_glicko', PACKAGE = 'sport', id, rank, name, r, rd, sigma, weight, init_r, init_rd, gamma, kappa)
 }
 
-glicko2 <- function(name, rank, r, rd, sigma, weight, kappa, identifier, tau = .5, init_r = 1500.00, init_rd = 350.00) {
-    .Call('_sport_glicko2', PACKAGE = 'sport', name, rank, r, rd, sigma, weight, kappa, identifier, tau, init_r, init_rd)
+glicko2 <- function(name, rank, r, rd, sigma, weight, kappa, tau = .5, init_r = 1500.00, init_rd = 350.00) {
+    .Call('_sport_glicko2', PACKAGE = 'sport', name, rank, r, rd, sigma, weight, kappa, tau, init_r, init_rd)
 }
 

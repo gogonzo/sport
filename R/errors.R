@@ -2,9 +2,12 @@ is_data_provided <- function(data)
   if(missing(data)) stop("Data is not provided", call. = F)
 
 is_formula_missing <- function(formula)
-  if(missing(formula)) 
-    stop("Formula is not specified",call. = F) else if(class(formula)!="formula")
-    stop("Formula is not specified",call. = F)
+  if (missing(formula)) {
+    stop("Formula is not specified",call. = F) 
+  } else if (!inherits(formula, "formula")) {
+    stop("Formula incorrectly specified", call. = F)
+  }
+
 
 is_lhs_valid <- function(formula)
   if( length(all.vars(update(formula, .~0)) )  == 1 ) {

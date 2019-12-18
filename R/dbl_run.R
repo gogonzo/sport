@@ -58,8 +58,10 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, kappa=0.5, init_r
     data$beta <- 1.0; beta <- "beta" } 
   if(kappa==0) kappa=0.0001
   
-  if(any(class(data)=="data.frame")) 
-    data_list <- split( data[ c(rhs, beta, weight,idlab) ], data[[ id ]] )   
+  if(is.data.frame(data)) {
+    data_list <- split( data[ c(rhs, beta, weight,idlab) ], data[[ id ]] )
+  } 
+       
   unique_id  <- unique(data[[ id ]]) 
   rank_list  <- split( data[[ lhs[1] ]] , data[[ id ]])
   rider_list <- split( data[[ rhs[1] ]] , data[[ id ]])

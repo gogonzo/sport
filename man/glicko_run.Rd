@@ -4,10 +4,23 @@
 \alias{glicko_run}
 \title{Glicko rating algorithm}
 \usage{
-glicko_run(formula, data, r, rd, sigma, weight, kappa = 0.5, idlab,
-  init_r = 1500, init_rd = 350, pb = FALSE)
+glicko_run(
+  data,
+  formula,
+  r = numeric(0),
+  rd = numeric(0),
+  sigma = NULL,
+  weight = NULL,
+  kappa = 0.5,
+  idlab,
+  init_r = 1500,
+  init_rd = 350,
+  pb = FALSE
+)
 }
 \arguments{
+\item{data}{data.frame which contains columns specified in formula, and optionaly columns defined by `sigma`, `weight` or `date`.}
+
 \item{formula}{formula specifying model. Glicko algorithm allows only player ranking parameter and should be specified by following manner: 
 `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same:
 \itemize{
@@ -15,8 +28,6 @@ glicko_run(formula, data, r, rd, sigma, weight, kappa = 0.5, idlab,
  \item {id} event identifier in which pairwise comparison is assessed.
  \item {name} of player.
 }}
-
-\item{data}{data.frame which contains columns specified in formula, and optionaly columns defined by `sigma`, `weight` or `date`.}
 
 \item{r}{named vector of initial players ratings estimates. In there is no assumption, initial ratings are set be r=1500. Names of vector should correspond with `name` in formula.}
 
@@ -53,7 +64,7 @@ Wrapper arround `glicko` update algorithm. Wrapper allows user to simplify calcu
 }
 \examples{
 # Example from Glickman
-data <- data.frame( name = c( "A", "B", "C", "D" ), 
-                    rank = c( 3, 4, 1, 2 ))
-glicko <- glicko_run( rank ~ name, data )
+data <- data.frame(name = c( "A", "B", "C", "D"), 
+                   rank = c( 3, 4, 1, 2 ))
+glicko <- glicko_run(data, rank ~ name)
 }
