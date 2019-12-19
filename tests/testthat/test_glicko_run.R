@@ -8,7 +8,7 @@ data <- data.frame(
   sigma = rep(2, 4), 
   weight = rep(1.05, 4),
   weight2 = rep(0.9, 4),
-  date=c("a","b","c","d"))
+  date = c("a","b","c","d"))
 sigma <- setNames(rep(1, 4), c("A","B","C","D"))
 rd    <- setNames(rep(350, 4), c("A","B","C","D"))
 r     <- setNames(rep(1500, 4), c("A","B","C","D"))
@@ -134,7 +134,7 @@ test_that("R and RD exacltly proportional to weight",{
 test_that("higher rating change for higher sigma",{
   expect_true( all(
     abs(1500 - glicko_run(formula = rank | id ~ name, 
-                           r     = c( 1500, 1400, 1550, 1700 ) , 
+                           r     = c(1500, 1400, 1550, 1700 ) , 
                            rd    = c( 200,  30,   100,  300 ),
                            data  = data,
                            sigma = "sigma")$final_r) >

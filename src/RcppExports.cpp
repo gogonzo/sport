@@ -6,13 +6,14 @@
 using namespace Rcpp;
 
 // bbt
-List bbt(CharacterVector name, IntegerVector rank, NumericMatrix r, NumericMatrix rd, NumericVector sigma, NumericVector weight, CharacterVector identifier, double kappa, double gamma, double beta, double init_r, double init_rd);
-RcppExport SEXP _sport_bbt(SEXP nameSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP weightSEXP, SEXP identifierSEXP, SEXP kappaSEXP, SEXP gammaSEXP, SEXP betaSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
+List bbt(IntegerVector id, IntegerVector rank, CharacterVector name, NumericMatrix r, NumericMatrix rd, NumericVector sigma, NumericVector weight, CharacterVector identifier, double kappa, double gamma, double beta, double init_r, double init_rd);
+RcppExport SEXP _sport_bbt(SEXP idSEXP, SEXP rankSEXP, SEXP nameSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP weightSEXP, SEXP identifierSEXP, SEXP kappaSEXP, SEXP gammaSEXP, SEXP betaSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterVector >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type id(idSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type name(nameSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type r(rSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type rd(rdSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type sigma(sigmaSEXP);
@@ -23,7 +24,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< double >::type init_r(init_rSEXP);
     Rcpp::traits::input_parameter< double >::type init_rd(init_rdSEXP);
-    rcpp_result_gen = Rcpp::wrap(bbt(name, rank, r, rd, sigma, weight, identifier, kappa, gamma, beta, init_r, init_rd));
+    rcpp_result_gen = Rcpp::wrap(bbt(id, rank, name, r, rd, sigma, weight, identifier, kappa, gamma, beta, init_r, init_rd));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -79,32 +80,34 @@ BEGIN_RCPP
 END_RCPP
 }
 // glicko2
-List glicko2(StringVector name, IntegerVector rank, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector weight, double kappa, double tau, double init_r, double init_rd);
-RcppExport SEXP _sport_glicko2(SEXP nameSEXP, SEXP rankSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP weightSEXP, SEXP kappaSEXP, SEXP tauSEXP, SEXP init_rSEXP, SEXP init_rdSEXP) {
+List glicko2(IntegerVector id, IntegerVector rank, StringVector name, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector weight, double init_r, double init_rd, double init_sigma, double kappa, double tau);
+RcppExport SEXP _sport_glicko2(SEXP idSEXP, SEXP rankSEXP, SEXP nameSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP weightSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP init_sigmaSEXP, SEXP kappaSEXP, SEXP tauSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< StringVector >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type id(idSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type name(nameSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type r(rSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type rd(rdSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type sigma(sigmaSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type weight(weightSEXP);
-    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
-    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< double >::type init_r(init_rSEXP);
     Rcpp::traits::input_parameter< double >::type init_rd(init_rdSEXP);
-    rcpp_result_gen = Rcpp::wrap(glicko2(name, rank, r, rd, sigma, weight, kappa, tau, init_r, init_rd));
+    Rcpp::traits::input_parameter< double >::type init_sigma(init_sigmaSEXP);
+    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
+    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
+    rcpp_result_gen = Rcpp::wrap(glicko2(id, rank, name, r, rd, sigma, weight, init_r, init_rd, init_sigma, kappa, tau));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_sport_bbt", (DL_FUNC) &_sport_bbt, 12},
+    {"_sport_bbt", (DL_FUNC) &_sport_bbt, 13},
     {"_sport_dbl", (DL_FUNC) &_sport_dbl, 9},
     {"_sport_factor2dummy", (DL_FUNC) &_sport_factor2dummy, 1},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 11},
-    {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 10},
+    {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 12},
     {NULL, NULL, 0}
 };
 

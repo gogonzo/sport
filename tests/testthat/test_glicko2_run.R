@@ -1,7 +1,11 @@
 context("glicko2_run")
-data  <- data.frame( id = 1,name = c( "A", "B", "C", "D" ), rank  = c( 3, 4, 1, 2 ), weight=1.05, date=c("a","b","c","d"))
-sigma <- setNames( rep(1,4), c("A","B","C","D"))
-rd    <- setNames( rep(350,4), c("A","B","C","D") )
+data  <- data.frame(id = 1, 
+                    name = c( "A", "B", "C", "D"), 
+                    rank  = c( 3, 4, 1, 2 ), 
+                    weight = 1.05, 
+                    date = c("a","b","c","d"))
+sigma <- setNames(rep(1, 4), c("A", "B", "C", "D"))
+rd    <- setNames(rep(350, 4), c("A", "B", "C", "D"))
 
 test_that("Error with NA parameters",{
   gpheats$weight   <- 1.1
@@ -33,17 +37,17 @@ test_that("higher rating change for higher deviation",{
 })
 
 test_that("R and RD exacltly proportional to weight",{
-  r  <- c( 1500, 1400, 1550, 1700 ) 
-  rd <- c( 200,  30,   100,  300 )
-  model1 <- glicko2_run( rank | id ~ name, data = data, r = r ,rd = rd, weight="weight" )
-  model2 <- glicko2_run( rank | id ~ name, data = data, r = r ,rd = rd )
+  r  <- setNames(c(1500, 1400, 1550, 1700), c("A", "B", "C", "D"))
+  rd <- setNames(c( 200,  30,   100,  300), c("A", "B", "C", "D"))
+  model1 <- glicko2_run(rank | id ~ name, data = data, r = r, rd = rd, weight = "weight")
+  model2 <- glicko2_run(rank | id ~ name, data = data, r = r, rd = rd)
   
   expect_true( all(
-    round((r - model1$final_r)/(r-model2$final_r),10)==1.05
+    round((r - model1$final_r) / (r-model2$final_r), 10) == 1.05
   ))
   
   expect_true( all(
-    round((rd - model1$final_rd)/(rd-model2$final_rd),10)==1.05
+    round((rd - model1$final_rd) / (rd-model2$final_rd), 10) == 1.05
   ))
   
 })

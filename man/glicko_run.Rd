@@ -9,13 +9,13 @@ glicko_run(
   formula,
   r = numeric(0),
   rd = numeric(0),
-  sigma = NULL,
-  weight = NULL,
-  kappa = 0.5,
-  idlab,
   init_r = 1500,
   init_rd = 350,
-  pb = FALSE
+  sigma = NULL,
+  weight = NULL,
+  idlab = NULL,
+  kappa = 0.5,
+  gamma = 1
 )
 }
 \arguments{
@@ -33,17 +33,17 @@ glicko_run(
 
 \item{rd}{named vector of initial rating deviation estimates. In there is no assumption, initial ratings are set be r=300 Names of vector should correspond with `name` in formula.}
 
+\item{init_r}{initial values for `r` if not provided. Default = 1500}
+
+\item{init_rd}{initial values for `r` if not provided. Default = 350}
+
 \item{sigma}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sigma > 0` then prior `rd` increases, making estimate of `r` more uncertain.}
 
 \item{weight}{name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.}
 
-\item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1-kappa)`. `kappa=1` means that `rd` will not be decreased.}
-
 \item{idlab}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`.}
 
-\item{init_r}{initial values for `r` if not provided. Default = 1500}
-
-\item{init_rd}{initial values for `r` if not provided. Default = 350}
+\item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1-kappa)`. `kappa=1` means that `rd` will not be decreased.}
 
 \item{pb}{logical, if TRUE progress bar will appear in console. Default = FALSE}
 }

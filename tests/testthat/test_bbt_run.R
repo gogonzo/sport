@@ -1,15 +1,29 @@
 context("bbt_run")
-data <- data.frame( id = 1,name = c( "A", "B", "C", "D" ), rank  = c( 3, 4, 1, 2 ), sigma=rep(1.1,4), weight=rep(1.05,4), date=c("a","b","c","d"))
-sigma  <- setNames( rep(1,4), c("A","B","C","D"))
-rd    <- setNames( rep(350,4), c("A","B","C","D") )
-gpheats$beta   <- 100
-gpheats$weight   <- 1.1
-gpheats$weight2  <- 1.0
+data <- data.frame( 
+  id = 1,
+  name = c( "A", "B", "C", "D" ), 
+  rank  = c( 3, 4, 1, 2 ),
+  field = 1:4,
+  date = seq(Sys.Date()-3, Sys.Date(), by="1 day"),
+  sigma = rep(2,4), 
+  beta = 100.0,
+  weight = rep(1.05,4),
+  weight2 = 1.0)
+
+#data <- rbind(data, data)
+#data[5:8, "id"] <- 2
+sigma  <- setNames( rep(1,4), c("A", "B", "C", "D"))
+r  <- setNames(rep(25, 4), c("A", "B", "C", "D") )
+rd <- setNames(rep(25, 4), c("A", "B", "C", "D") )
 
 test_that("Error with NA parameters",{
   gpheats$weight[17] <- NaN
   expect_error(
-    bbt_run( rank|id~rider,data=gpheats[17:21,] , weight = "weight"  ),
+    bbt_run(
+      rank | id ~ rider,
+      data = gpheats[17:21, ],
+      weight = "weight" 
+    ),
     paste0("Parameters error after evaluating id=", gpheats$id[17])
   )
 })
@@ -17,7 +31,15 @@ test_that("Error with NA parameters",{
 test_that("valid bbt computation",{
   expect_equal(
     c(22.52807, 14.06973, 19.57436, 30.46640),
-    round(bbt_run( rank | id ~ name, data = data, r = c( 25, 20, 15, 30 ) , rd    = c( 6,  7,   5,  20 ) )$final_r,5)
+    round(
+      bbt_run(
+        rank | id ~ name, 
+        data = data, 
+        r  = c(25, 20, 15, 30) , 
+        rd = c(6, 7, 5, 20)
+      )$final_r,
+      5
+    )
   )
 })
 

@@ -40,22 +40,21 @@ NULL
 #'                    rank = c( 3, 4, 1, 2 ))
 #' glicko <- glicko_run(data, rank ~ name)
 #' @export
-glicko_run <- function(data, 
-                       formula, 
-                       r = numeric(0), 
-                       rd = numeric(0), 
-                       sigma = NULL, 
-                       weight = NULL,
-                       kappa = 0.5, 
+glicko_run <- function(data, formula, 
+                       r = numeric(0), rd = numeric(0), 
+                       init_r = 1500, init_rd = 350, 
+                       sigma = NULL, weight = NULL,
                        idlab = NULL, 
-                       init_r = 1500, 
-                       init_rd = 350, 
-                       pb = FALSE) {
+                       kappa = 0.5, gamma = 1.0) {
   is_formula_missing(formula)
   is_data_provided(data)
   is_lhs_valid(formula)
   is_rhs_valid(formula, "glicko_run")
+  is_vector_named(r, "r")
+  is_vector_named(rd, "rd")
+  is_vector_named(sigma, "sigma")
 
+  browser()
   # formula
   lhs  <- all.vars(update(formula, .~0));
   rhs  <- all.vars(update(formula, 0~.));
@@ -70,13 +69,21 @@ glicko_run <- function(data,
   weight_vec <- if (is.null(weight)) rep(1.0, nrow(data)) else data[[weight]]
   
   # default rating
-  if (length(r) == 0 || length(rd) == 0) {
-    unique_names <- unique(names_vec)
-    if (length(r) == 0)   r <- setNames(rep(init_r, length(unique_names)), unique_names)
-    if (length(rd) == 0) rd <- setNames(rep(init_rd, length(unique_names)), unique_names)
+  unique_names <- unique(names_vec)
+  if (length(r) == 0) {
+    r <- setNames(rep(init_r, length(unique_names)), unique_names)
+  } else if (length(r) != length(unique_names)) {
+    stop(sprintf("All elements in r should have a name which match %s argument in formula",
+                 name_var))
   }
   
-  browser()
+  if (length(rd) == 0) {
+    rd <- setNames(rep(init_rd, length(unique_names)), unique_names)
+  } else if (length(rd) != length(unique_names)) {
+    stop(sprintf("All elements in rd should have a name which match %s argument in formula",
+                 name_var))
+  }
+  
   g <- glicko(
     id = id_vec, 
     rank = rank_vec, 
@@ -85,14 +92,14 @@ glicko_run <- function(data,
     rd = rd,
     sigma = sigma_vec, 
     weight = weight_vec, 
+    gamma = gamma,
     kappa = kappa, 
     init_r = init_r, 
     init_rd = init_rd)
-
-  ratings <- do.call(rbind, g$r)
-  pairs <- do.call(cbind, g$p)
   
-  browser()
+  ratings <- rbindlist(g$r)
+  pairs <- rbindlist(g$p)
+  
   out <- structure(
     list(final_r  = structure(g$final_r),
          final_rd = structure(g$final_rd),
@@ -100,7 +107,7 @@ glicko_run <- function(data,
          pairs    = pairs
     ),
     class = "rating",
-    method = "glicko2",
+    method = "glicko",
     formula = formula,
     settings = list(
       init_r = init_r, 
@@ -156,100 +163,90 @@ glicko_run <- function(data,
 #'                     rank = c( 3, 4, 1, 2 ))
 #' glicko2 <- glicko2_run( rank ~ name, data )
 #' @export
-glicko2_run <- function(formula, data, r, rd,sigma, tau=0.5, weight,kappa=0.5, idlab, init_r = 1500, init_rd=350, pb=FALSE){
+glicko2_run <- function(formula, data, 
+                        r = numeric(0), rd = numeric(0), sigma = numeric(0), 
+                        weight = NULL, idlab = NULL,
+                        init_r = 1500, init_rd = 350, init_sigma = 0.05,
+                        tau = 0.5, kappa = 0.5) {
+  
   is_formula_missing(formula)
   is_data_provided(data)
   is_lhs_valid(formula)
-  is_rhs_valid(formula, "glicko2_run")
+  is_rhs_valid(formula, "glicko_run")
+  is_vector_named(r, "r")
+  is_vector_named(rd, "rd")
+  is_vector_named(sigma, "sigma")
   
-  lhs  <- all.vars(update(formula, .~0))
-  rhs  <- all.vars(update(formula, 0~.))
-  y    <- lhs[1]
-  x    <- rhs[1]
-  id <- ifelse( length(lhs)==1 , "id", lhs[2])
-  if( length(lhs) == 1) data$id <- 1
+  # formula
+  lhs  <- all.vars(update(formula, .~0));
+  rhs  <- all.vars(update(formula, 0~.));
   
-  if( missing(r) ){
-    message(paste("r is missing and will set to default="), init_r)
-    player_names <- unique(data[[x]]);
-    r   <- setNames( rep( init_r, length( player_names) ), player_names ) }
-  if( missing(rd) ){
-    message(paste("rd is missing and will set to default="), init_rd)
-    player_names <- unique(data[[x]])
-    rd  <- setNames( rep( init_rd , length( player_names) ), player_names ) }
-  if( missing(sigma) ){
-    message("sigma is missing and will set to default=0.05")
-    player_names <- unique(data[[x]])
-    sigma <- setNames( rep( 0.05, length( player_names) ), player_names )
-  }
-  if( missing(weight) ){ 
-    data$weight <- 1; weight="weight"}
-  if( missing(idlab) )   
-    idlab <- id
-  if(kappa==0) kappa=0.0001
-  if (!is.character(data[[x]])) {
-    message(paste0("\nvariable '",x,"' is of class ",class(data[[x]])," and will be converted to character"))
-    data[[x]] <- as.character(data[[x]])
-  }
-  if(is.data.frame(data))
-    data_list <- split(data[ unique(c(y,id,x, weight,idlab))], data[[ id ]] )
+  rank_var <- lhs[1]
+  name_var <- rhs[1]
   
+  rank_vec <- data[[rank_var]]
+  names_vec <- as.character(data[[name_var]])
+  id_vec <- if (length(lhs) == 1) rep(1.0, nrow(data)) else data[[lhs[2]]]  
+  weight_vec <- if (is.null(weight)) rep(1.0, nrow(data)) else data[[weight]]
   
-  n <- length(data_list)
-  if(pb){  j <- 0; pb <- txtProgressBar(min=0, max=n, width=20, initial=0, style=3) }
-  models <- list()
-  for(i in names(data_list)){
-    player_names <- data_list[[ i ]][[ x ]]
-    
-    model <- glicko2( 
-      player_names , 
-      rank   = data_list[[ i ]][[ y ]], 
-      r      = r[ player_names ] ,  
-      rd     = rd[ player_names ] , 
-      sigma    = sigma[ player_names ] , 
-      tau    = tau,
-      weight = data_list[[ i ]][[ weight ]],
-      kappa = kappa,
-      identifier = as.character( data_list[[ i ]][[ idlab ]] ), 
-      init_r = init_r,
-      init_rd = init_rd
-    )  
-    
-    if(any(!is.finite(model$rd) | !is.finite(model$r) | !is.finite(model$sigma) | model$rd < 0))
-      stop(paste0("Parameters error after evaluating ", id,"=",i),call. = F)
-    
-    r [ player_names ] <- model$r[  player_names ]
-    rd[ player_names ] <- model$rd[ player_names ]
-    sigma[ player_names ] <- model$sigma[ player_names ]
-    
-    models[[ i ]] <- model
-    if(pb){ j <- j + 1; setTxtProgressBar(pb,j) }
+  # default rating
+  unique_names <- unique(names_vec)
+  if (length(r) == 0) {
+    r <- setNames(rep(init_r, length(unique_names)), unique_names)
+  } else if (length(r) != length(unique_names)) {
+    stop(sprintf("All elements in r should have a name which match %s argument in formula",
+                 name_var))
   }
   
-  model_r <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["r_df"]] ) , use.names=T, idcol="id" ) )
-  model_P <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["pairs"]] ) , use.names=T, idcol="id" ) )
-  identifierp <- unlist( lapply(models,`[[`,"identifierp"), FALSE, FALSE )
-  identifier  <- unlist( lapply(models,`[[`,"identifier"), FALSE, FALSE )
+  if (length(rd) == 0) {
+    rd <- setNames(rep(init_rd, length(unique_names)), unique_names)
+  } else if (length(rd) != length(unique_names)) {
+    stop(sprintf("All elements in rd should have a name which match %s argument in formula",
+                 name_var))
+  }
   
-  # Output, class and attributes ----
-  class( model_r[[ id ]] ) <- class( model_P[[ id ]] )  <- class( data[[ id ]] )
+  if (length(sigma) == 0) {
+    sigma <- setNames(rep(init_sigma, length(unique_names)), unique_names)
+  } else if (length(sigma) != length(unique_names)) {
+    stop(sprintf("All elements in sigma should have a name which match %s argument in formula",
+                 name_var))
+  }
   
-  # add winning probability to data    
-  p <- model_P[,.(p_win = prod(P)), by=c("id","name")][,
-                                                       p_win := p_win/sum(p_win), by = "id"]
-  model_r <- merge(model_r, p, all.x=T, by=c("id","name"),sort=F)
+  g <- glicko2(
+    id = id_vec, 
+    rank = rank_vec, 
+    name = names_vec, 
+    weight = weight_vec,     
+    r = r, 
+    rd = rd,
+    sigma = sigma, 
+    kappa = kappa, 
+    tau = tau,
+    init_r = init_r, 
+    init_rd = init_rd)
+  
+  ratings <- rbindlist(g$r)
+  pairs   <- rbindlist(g$p)
   
   out <- structure(
-    list(final_r  = r,
-         final_rd = rd,
-         final_sigma = sigma,
-         r        = structure( model_r, identifier = identifier),
-         pairs    = structure( model_P, identifier = identifierp)),
-    class="rating",
+    list(final_r  = structure(g$final_r),
+         final_rd = structure(g$final_rd),
+         r        = ratings,
+         pairs    = pairs
+    ),
+    class = "rating",
     method = "glicko2",
     formula = formula,
-    settings = list(init_r=init_r, init_rd=init_rd, tau=tau, weight=weight, kappa=kappa, idlab=idlab)
+    settings = list(
+      init_r = init_r, 
+      init_rd = init_rd, 
+      weight = weight,
+      sigma = sigma,
+      idlab = idlab,
+      kappa = kappa, 
+      idlab = idlab
+    )
   )
   
-  return( out )
+  return(out)
 }

@@ -42,95 +42,68 @@ NULL
 #'                     rank = c( 3, 4, 1, 2 ))
 #' bbt <- bbt_run( rank ~ name, data )
 #' @export
-bbt_run <- function(formula, data, r,rd, sigma, weight,beta=25/6,kappa=0.5, gamma, idlab, init_r = 25, init_rd=25/3, pb=FALSE){
+bbt_run <- function(formula, data, 
+                    r = numeric(0), rd = numeric(0),
+                    init_r = 25, init_rd = 25 / 3,
+                    sigma = NULL, weight = NULL, 
+                    beta = 25 / 6, kappa = 0.5, gamma = 999) {
   is_formula_missing(formula)
   is_data_provided(data)
   is_lhs_valid(formula)
   is_rhs_valid(formula, "bbt_run")
 
-  lhs  <- all.vars(update(formula, .~0))
-  rhs  <- all.vars(update(formula, 0~.))
-  y    <- lhs[1]
-  x    <- rhs[1]
-  id <- ifelse( length(lhs)==1 , "id", lhs[2])
-  if( length(lhs) == 1) data$id <- 1
+  lhs  <- all.vars(update(formula, . ~ 0))
+  rhs  <- all.vars(update(formula, 0 ~ .))
   
-  if(missing(r)){
-    message(paste("r is missing and will set to default="), init_r)
-    names <- unique( data[[ x ]] )
-    r <- as.matrix( setNames( rep(init_r, length(names)), names ) ) }
-  if(missing(rd)){
-    message(paste("rd is missing and will set to default="), init_rd)
-    names <- unique( data[[ x ]] )
-    rd<- as.matrix( setNames( rep(init_rd, length(names)), names ) ) }
-  if( missing(sigma) ){
-    data$sigma <- 0; sigma <- "sigma" } 
-  if( missing(weight) ){
-    data$weight <- 1; weight <- "weight" } 
-  if(missing(gamma)) 
-    gamma <- 999
-  if(missing(idlab)) 
-    idlab <- id 
-  if(kappa==0) kappa=0.0001
-  if(is.matrix(r))   r <- as.matrix(r)
-  if(is.matrix(rd)) rd <- as.matrix(rd)
+  rank_var <- lhs[1]
+  name_var <- rhs[1]
   
-  if(is.data.frame(data))
-    data_list <- split(data[ unique(c(y,id,x, sigma, weight, idlab))], data[[ id ]] ) 
+  id_vec <- if (length(lhs) == 1) rep(1.0, nrow(data)) else data[[lhs[2]]]
+  rank_vec <- data[[rank_var]]
+  names_vec <- as.character(data[[name_var]])
+  weight_vec <- if (is.null(weight)) rep(1.0, nrow(data)) else data[[weight]]
+  sigma_vec <- if (is.null(sigma)) rep(1.0, nrow(data)) else data[[sigma]]
   
-  n <- length(data_list)
-  if(pb){  j <- 0; pb <- txtProgressBar(min=0, max=n, width=20, initial=0, style=3) }
-  models <- list()
-  for(i in names(data_list)){
-    team_name <- data_list[[ i ]][[ x ]]
-    model     <- bbt( 
-      team_name, 
-      rank    = data_list[[ i ]][[ y ]], 
-      r       =  r[ team_name,,drop=FALSE], 
-      rd      = rd[ team_name,,drop=FALSE],
-      sigma     = data_list[[ i ]][[ sigma ]],
-      weight  = data_list[[ i ]][[ weight ]],
-      kappa = kappa,
-      beta = beta,
-      gamma = gamma,
-      identifier = as.character( data_list[[ i ]][[ idlab ]] ),
-      init_r = init_r,
-      init_rd = init_rd
-    )
-    
-    if(any(!is.finite(model$rd) | !is.finite(model$r) | model$rd < 0))
-      stop(paste0("Parameters error after evaluating ", id,"=",i),call. = F)
-    
-    r [ team_name, ] <- model$r[  team_name, ]
-    rd[ team_name, ] <- model$rd[ team_name, ]
-    
-    models[[ i ]] <- model
-    if(pb){ j <- j + 1; setTxtProgressBar(pb,j) }
+  # default rating
+  unique_names <- unique(names_vec)
+  
+  if (missing(r)) {
+    r <- matrix(init_r, nrow = length(unique_names), ncol = 1, dimnames = list(unique_names, NULL)) 
+  } else if (!is.matrix(r)) {
+    r <- as.matrix(r, ncol = 1)
+  } else if (nrow(r) != unique_names) {
+    stop(sprintf("All elements in r should have a name which match %s argument in formula",
+                 name_var))
   }
   
-  model_r <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["r_df"]] ) , use.names=T, idcol="id" ) )
-  model_P <- suppressWarnings( data.table::rbindlist( lapply(models,function(x) x[["pairs"]] ) , use.names=T, idcol="id" ) )
-  identifierp <- unlist( lapply(models,`[[`,"identifierp"), FALSE, FALSE )
-  identifier  <- unlist( lapply(models,`[[`,"identifier"), FALSE, FALSE )
+  if (missing(rd)) {
+    rd <- matrix(init_rd, nrow = length(unique_names), ncol = 1, 
+                 dimnames = list(unique_names, NULL))
+  } else if (!is.matrix(r)) {
+    rd <- as.matrix(rd, ncol = 1)
+  } else if (nrow(rd) != unique_names) {
+    stop(sprintf("All elements in rd should have a name which match %s argument in formula",
+                 name_var))
+  }
+
+  if (kappa == 0) kappa = 0.0001
   
-  # Output, class and attributes ----
-  class( model_r[[ id ]] ) <- class( model_P[[ id ]] ) <- class( data[[ id ]] )
+  browser()
   
-  # add winning probability to data    
-  p <- model_P[,.(p_win = prod(P)), by=c("id","name")][,
-                    p_win := p_win/sum(p_win), by = "id"]
-  model_r <- merge(model_r, p, all.x=T, by=c("id","name"),sort=F)
-  
-  out <- structure(
-    list(final_r  = setNames(as.vector(r), rownames(r)),
-         final_rd = setNames(as.vector(rd), rownames(rd)),
-         r        = structure( model_r, identifier = identifier),
-         pairs    = structure( model_P, identifier = identifierp)),
-    class="rating",
-    method = "bbt",
-    formula = formula,
-    settings = list(sigma=sigma, weight=weight, beta=beta,kappa=kappa, gamma=gamma, idlab=idlab, init_r=init_r, init_rd=init_rd)
+  ratings <- bbt( 
+    id = id_vec, 
+    rank = rank_vec, 
+    name = names_vec,
+    r =  r, 
+    rd = rd,
+    sigma = sigma_vec,
+    weight  = weight_vec,
+    kappa = kappa,
+    beta = beta,
+    gamma = gamma,
+    init_r = init_r,
+    init_rd = init_rd
   )
-  
-  return( out )
+   
+  return(ratings)
 }

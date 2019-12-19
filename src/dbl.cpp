@@ -1,7 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 #include "dbl.h"
-
 // [[Rcpp::export]]
 Rcpp::List 
   dbl(

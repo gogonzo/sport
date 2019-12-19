@@ -30,23 +30,26 @@ NULL
 #' summary(model)
 #' @export
 summary.rating <- function(object,...){
-  model_probs_players <- object$pairs[,.( `Model probability` = round( mean(P), 3),
-                                          `True probability`  = round( mean(Y), 3),
-                                          `Accuracy`   = round(mean( (P>.5) == Y ),3), 
-                                          `pairings` = length(P)),
-                                      name]
+  model_probs_players <- object$pairs[,.(`Model probability` = round( mean(P), 3),
+                                         `True probability`  = round( mean(Y), 3),
+                                         `Accuracy`   = round(mean( (P>.5) == Y ),3), 
+                                         `pairings` = length(P)
+                                         ),
+                                         name]
   
-  acc <- object$pairs[,.(`acc`   = mean( (P>.5) == Y ), `pairings` = length(P)),]
+  acc <- object$pairs[, .(`acc` = mean((P > .5) == Y), `pairings` = length(P)), ]
   
-  players_ratings <- data.table( name = names(object$final_r),
-                                 r  = round( object$final_r, 3), 
-                                 rd = round( object$final_rd, 3))
+  players_ratings <- data.table(
+    name = names(object$final_r),
+    r  = round( object$final_r, 3), 
+    rd = round( object$final_rd, 3)
+  )
   
-
-  
-  if( length(all.vars(update(attr(object,"formula"), 0~.)))==1 )
-    r = players_ratings[model_probs_players, on = 'name']  else
-    r = players_ratings
+  r <- if (length(all.vars(update(attr(object, "formula"), 0 ~ .))) == 1) {
+    players_ratings[model_probs_players, on = 'name']    
+  } else {
+    players_ratings 
+  }
   
   out <- list( 
     formula = attr(object, "formula"),
@@ -63,11 +66,11 @@ summary.rating <- function(object,...){
 print.rating <- function(x,...){
   
   model_probs_intervals <- x$pairs[,.(
-    `Model probability` = round( mean(P),3),
-    `True probability`  = round( mean(Y),3),
-    `Accuracy`   = round( mean( (P>.5) == Y ),3), 
+    `Model probability` = round(mean(P), 3),
+    `True probability`  = round(mean(Y), 3),
+    `Accuracy`   = round(mean((P > .5) == Y), 3), 
     `n` = length(P)),
-    list( Interval = cut(P, breaks = seq(0,1,by=0.1), include.lowest = T))
+    list(Interval = cut(P, breaks = seq(0, 1, by = 0.1), include.lowest = TRUE))
     ][order(Interval)]
   
   
