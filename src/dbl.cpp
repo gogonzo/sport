@@ -4,14 +4,14 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 Rcpp::List 
   dbl(
-    CharacterVector name,
+    StringVector name,
     IntegerVector rank,
     NumericMatrix X,
     NumericVector R, 
     NumericVector RD,
     NumericVector beta,
     NumericVector weight,
-    CharacterVector identifier,
+    StringVector identifier,
     double kappa = 0.95
   ) {
   int n = X.nrow();
@@ -20,9 +20,9 @@ Rcpp::List
   double pi = 3.1415926535;
   double s2, Ks, p, y, y_var, error, delta_;
   
-  CharacterVector team2(n*n-n);
-  CharacterVector team1(n*n-n);
-  CharacterVector identifierp(n*n-n);
+  StringVector team2(n*n-n);
+  StringVector team1(n*n-n);
+  StringVector identifierp(n*n-n);
   NumericVector P(n*n-n);
   NumericVector Y(n*n-n);
   NumericVector r_update(k);

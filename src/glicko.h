@@ -99,7 +99,7 @@ double optimSigma( double delta, double sigma, double phi, double var, double ta
 
 double updatePhi( double phi, double var, double sigma) {
   double prerating_phi;
-  prerating_phi = sqrt( pow(phi, 2.0) + pow(sigma, 2.0));
+  prerating_phi = sqrt(pow(phi, 2.0) + pow(sigma, 2.0));
   return 1 / sqrt( 1/pow(prerating_phi,2.0) + 1/var);
 }
 

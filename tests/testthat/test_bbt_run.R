@@ -1,20 +1,37 @@
 context("bbt_run")
+library(dplyr)
 data <- data.frame( 
   id = 1,
-  name = c( "A", "B", "C", "D" ), 
-  rank  = c( 3, 4, 1, 2 ),
+  rank  = as.integer(c(3, 4, 1, 2)),
+  team = c("A", "B", "C", "D"), 
   field = 1:4,
-  date = seq(Sys.Date()-3, Sys.Date(), by="1 day"),
-  sigma = rep(2,4), 
+  date = seq(Sys.Date() - 3, Sys.Date(), by="1 day"),
+  sigma = rep(1.0, 4), 
   beta = 100.0,
-  weight = rep(1.05,4),
-  weight2 = 1.0)
+  weight = rep(1.05, 4),
+  weight2 = 1.0,
+  stringsAsFactors = FALSE)
 
-#data <- rbind(data, data)
-#data[5:8, "id"] <- 2
-sigma  <- setNames( rep(1,4), c("A", "B", "C", "D"))
-r  <- setNames(rep(25, 4), c("A", "B", "C", "D") )
-rd <- setNames(rep(25, 4), c("A", "B", "C", "D") )
+team_df <- data.frame(team = c("A", "A", "A", "B", "B" , "C", "C", "D", "D", "D"), 
+                      player = sample(letters, 10, replace = TRUE),
+                      stringsAsFactors = FALSE)
+
+data <- left_join(data, team_df)
+data <- lapply(1:5, function(x) data)
+data <- dplyr::bind_rows(data, .id = "id")
+data$id <- as.integer(data$id)
+sigma  <- setNames(rep(1, 26), letters)
+r  <- setNames(as.numeric(rep(25, 26)), letters)
+rd <- setNames(rep(25/3, 26), letters)
+
+
+test_that("bbt", {
+  system.time(
+    sport:::bbt(id = data$id, rank = data$rank, 
+                team = data$team , player = data$player, 
+                r_val = r, rd_val = rd, lambda = data$sigma, weight = data$weight)    
+  )
+})
 
 test_that("Error with NA parameters",{
   gpheats$weight[17] <- NaN

@@ -54,7 +54,7 @@ public:
   
   void calc_glicko(int id_i_val) {
     id_i = id_i_val;
-    idx_rows = utils::find<int>(id_vec, id_i);
+    idx_rows = utils::find<int>(id_i, id_vec);
     id_vec_current = id_vec[idx_rows];
     rank_vec_current = rank_vec[idx_rows];
     name_vec_current = name_vec[idx_rows];
@@ -64,14 +64,7 @@ public:
     idx_rating = Rcpp::match(name_vec_current, r_names) - 1;
     r_current = r[idx_rating];
     rd_current = rd[idx_rating];
-
-    Rcpp::DataFrame out_r_i = Rcpp::DataFrame::create(
-      _["name"] = name_vec_current,
-      _["r"]    = r_current,
-      _["rd"]   = rd_current,
-      _["stringsAsFactors"] = false
-    );
-
+    
     int n = name_vec_current.size();
     int idx = 0;
     
@@ -90,13 +83,20 @@ public:
       if (NumericVector::is_na(r[i])) 
         r_current[i] = init_r, 
           rd_current[i] = init_rd;
-      if((sqrt(pow(rd_current[i], 2.0) + pow(sigma_vec_current[i],2.0))) < init_rd) {
-        rd_current[i] = sqrt(pow(rd_current[i], 2.0) + pow(sigma_vec_current[i],2.0));
+      if((sqrt(pow(rd_current[i], 2.0) + pow(sigma_vec_current[i], 2.0))) < init_rd) {
+        rd_current[i] = sqrt(pow(rd_current[i], 2.0) + pow(sigma_vec_current[i], 2.0));
       } else{ 
         rd_current[i] = init_rd;
       }
       g_rd[i] = calcGRd(rd_current[i]);
     }
+    
+    Rcpp::DataFrame out_r_i = Rcpp::DataFrame::create(
+      _["name"] = name_vec_current,
+      _["r"]    = r_current,
+      _["rd"]   = rd_current,
+      _["stringsAsFactors"] = false
+    );
     
     // GLICKO RATING
     for (int i = 0; i < n; i++) {
@@ -111,7 +111,7 @@ public:
           team2( idx - 1 ) = name_vec_current[j];
           
           P(idx - 1) = calcPGlicko(calcGRd(sqrt(pow(rd_current[i], 2.0) + 
-                        pow(rd_current[j], 2.0))), r_current[i], r_current[j]);
+            pow(rd_current[j], 2.0))), r_current[i], r_current[j]);
           Y(idx - 1) = calcZ(rank_vec_current(i), rank_vec_current(j));
           var += calcVar(g_rd[j], P(idx - 1));
           err += calcErr(g_rd[j], P(idx - 1), rank_vec_current(i), rank_vec_current(j)); 
@@ -154,7 +154,7 @@ public:
   void calc_glicko2(int id_i_val) {
     
     id_i = id_i_val;
-    idx_rows = utils::find<int>(id_vec, id_i);
+    idx_rows = utils::find<int>(id_i, id_vec);
     id_vec_current = id_vec[idx_rows];
     rank_vec_current = rank_vec[idx_rows];
     name_vec_current = name_vec[idx_rows];
@@ -166,14 +166,14 @@ public:
     sigma_current = sigma[idx_rating];
     
     Rcpp::DataFrame out_r_i = Rcpp::DataFrame::create(
-      _["id"] = id_i,
-      _["name"] = name_vec_current,
-      _["r"]    = r[idx_rating],
-      _["rd"]   = rd[idx_rating],
-      _["sigma"]   = sigma[idx_rating],
+      _["id"]    = id_i,
+      _["name"]  = name_vec_current,
+      _["r"]     = r[idx_rating],
+      _["rd"]    = rd[idx_rating],
+      _["sigma"] = sigma[idx_rating],
       _["stringsAsFactors"] = false
     );
-
+    
     int n = name_vec_current.size();
     int idx = 0;
     
@@ -209,15 +209,15 @@ public:
           Y(idx - 1) = calcZ(rank_vec_current(i), rank_vec_current(j));
           P(idx - 1) = calcPGlicko2(sqrt(pow(g_phi(i), 2.0) + pow(g_phi(j), 2.0)), mu(i), mu(j));
           
-          var += calcVar(g_phi(j), P( idx - 1 ));
-          err += calcErr(g_phi(j), P( idx - 1 ), rank_vec_current(i), rank_vec_current(j));
+          var += calcVar(g_phi(j), P(idx - 1));
+          err += calcErr(g_phi(j), P(idx - 1), rank_vec_current(i), rank_vec_current(j));
         } else { 
           continue; 
         }
       }
-      var_i(i)  = 1/var;
+      var_i(i)  = 1 / var;
       err_i(i)  = err;
-      delta_i(i) = 1/var * err;
+      delta_i(i) = 1 / var * err;
     }
     
     // update parameters
@@ -228,8 +228,8 @@ public:
       phi[i] = updatePhi(phi(i), var_i(i), sigma_current(i));
       if(phi[i] > (init_rd / 173.7178)) phi[i] = init_rd / 173.7178;
       
-      r[i]  = mu2r( mu(i) + pow(phi(i),2.0) * err_i(i) * weight_vec_current(i));
-      rd_update = ( rd(i) - phi2rd(phi(i))) * weight_vec_current(i);
+      r[i]  = mu2r(mu(i) + pow(phi(i), 2.0) * err_i(i) * weight_vec_current(i));
+      rd_update = (rd(i) - phi2rd(phi(i))) * weight_vec_current(i);
       if(rd_update > (rd(i) * (1 - kappa))) {
         rd_current(i) = rd_current(i) * kappa;
       } else {
@@ -366,7 +366,7 @@ Ratings::Ratings(
   rank_vec = rank_vec_val;
   name_vec = name_vec_val;
   weight_vec = weight_vec_val;
-
+  
   r_names = r_names_val;
   r = clone(r_val);
   rd = clone(rd_val);
@@ -403,12 +403,12 @@ List
     double init_rd = 350.00,
     double gamma = 1.0,
     double kappa = .5) {
-
+    
     
     int id_i;
     IntegerVector id_uniq = utils::unique(id);
     StringVector player_names = r.names();
-
+    
     Ratings ratings{
       id, rank, name, sigma, weight,                      // match vectors
       player_names, r, rd, init_r, init_rd, gamma, kappa  // ratings
@@ -418,13 +418,13 @@ List
       id_i = id_uniq(i);
       ratings.calc_glicko(id_i);
     }
-   
-   return Rcpp::List::create(
-     _["r"] = ratings.out_r,
-     _["p"] = ratings.out_p,
-     _["final_r"] = ratings.r,
-     _["final_rd"] = ratings.rd
-   );
+    
+    return Rcpp::List::create(
+      _["r"] = ratings.out_r,
+      _["p"] = ratings.out_p,
+      _["final_r"] = ratings.r,
+      _["final_rd"] = ratings.rd
+    );
   }
 
 
@@ -465,7 +465,7 @@ List
       _["final_r"] = ratings.r,
       _["final_rd"] = ratings.rd
     );
-  
+    
     
   }
 
@@ -474,10 +474,11 @@ List
 Rcpp::List bbt(
     Rcpp::IntegerVector id,
     Rcpp::IntegerVector rank,
-    Rcpp::CharacterVector name,
-    Rcpp::NumericMatrix r, 
-    Rcpp::NumericMatrix rd,
-    Rcpp::NumericVector sigma,
+    Rcpp::StringVector team,
+    Rcpp::StringVector player,
+    Rcpp::NumericVector r_val, 
+    Rcpp::NumericVector rd_val,
+    Rcpp::NumericVector lambda,
     Rcpp::NumericVector weight,
     double kappa = 0.5,
     double gamma = 999.0,
@@ -485,105 +486,147 @@ Rcpp::List bbt(
     double init_r = 25.0,
     double init_rd = 25 / 3) {
   
-  Rcpp::IntegerVector idx_rows;
-  Rcpp::IntegerVector id_vec_current;
-  Rcpp::IntegerVector rank_vec_current;
-  Rcpp::StringVector name_vec_current;
-  Rcpp::NumericVector sigma_vec_current;
-  Rcpp::NumericVector beta_vec_current;
-  Rcpp::NumericVector weight_vec_current;
-  
-  Rcpp::IntegerVector idx_rating;
-  Rcpp::NumericMatrix r_current;
-  Rcpp::NumericMatrix rd_current;
-  
+  Rcpp::NumericVector r = clone(r_val);
+  Rcpp::NumericVector rd = clone(rd_val);
   
   int n = rank.size();
-  int idx = 0;
   
+  Rcpp::List out_r;
+  Rcpp::List out_p;  
+  
+  Rcpp::IntegerVector idx_i;
+  Rcpp::IntegerVector idx_it;
+  Rcpp::IntegerVector id_vec_i;
+  Rcpp::IntegerVector rank_vec_i;
+  Rcpp::StringVector team_vec_i;
+  Rcpp::StringVector player_vec_i;
+  
+  Rcpp::StringVector player_vec_it;
+  Rcpp::IntegerVector idx_rating_it;
+  Rcpp::NumericVector r_it;
+  Rcpp::NumericVector rd_it;
+  
+  int idx, idx_r, idx_df;
   int id_i;
-  IntegerVector id_uniq = utils::unique(id);
-  StringVector player_names = r.names();
+  std::string team_t;  
+  Rcpp::IntegerVector unique_id = utils::unique(id); // delegate unique_id to R - or find better solution
   
-  for (int i = 0; i < id_uniq.size(); i++) {
-    id_i = id_uniq(i);
+  Rcpp::StringVector unique_team_i;
+  Rcpp::StringVector player_names = r.names();
+
+  double c, r_sum, rd_ssq;
+  
+  for (int i = 0; i < unique_id.size(); i++) {
+    id_i = unique_id(i);
     
-    idx_rows = utils::find<int>(id, id_i);
-    id_vec_current = id[idx_rows];
-    rank_vec_current = rank[idx_rows];
-    name_vec_current = name[idx_rows];
-    sigma_vec_current = sigma[idx_rows];
-    weight_vec_current = weight[idx_rows];
+    // player specific variables
+    idx_i = utils::find<int>(id_i, id);
+    team_vec_i = team[idx_i];
+  
+    // team specific variables
+    unique_team_i = utils::unique(team_vec_i);
+    int k = unique_team_i.size();
+    Rcpp::IntegerVector rank_vec_it(k);
+    Rcpp::NumericVector r_it(k);
+    Rcpp::NumericVector rd_it(k);
     
-    idx_rating = Rcpp::match(name_vec_current, player_names) - 1;
-    r_current = subset_rows(r, idx_rating);
-    rd_current = subset_rows(rd, idx_rating);
-    
-    Rcpp::DataFrame out_r_i = Rcpp::DataFrame::create(
-      _["name"] = name_vec_current,
-      _["r"]    = r_current,
-      _["rd"]   = rd_current,
-      _["stringsAsFactors"] = false
-    );
-    
-    NumericVector mi  = r_current;
-    NumericVector sigma2 = pow_mat_elems(rd);
-    NumericVector omega(n, 0.0);
-    NumericVector delta(n, 0.0);
-    CharacterVector identifierp(n*n-n);
-    CharacterVector team1(n*n-n);
-    CharacterVector team2(n*n-n);
-    NumericVector P(n*n-n);
-    NumericVector Y(n*n-n);
-    NumericVector rd_update(j);
-    double c;
-    
-    
-    for(int i = 0; i < n; i++){
-      if((sqrt(pow(rd[i],2) + pow(sigma[i],2.0)) ) < init_rd ) {
-        rd[i] = sqrt(pow(rd[i], 2.0) + pow(sigma[i], 2.0));   
-      } else {
-        rd[i] = init_rd; 
+    for (int t = 0; t < k; t++) {
+      team_t = unique_team_i(t);
+      idx_it = utils::find<std::string>(team_t, team_vec_i) + idx_i(0);
+      
+      player_vec_it = player[idx_it];
+      idx_rating_it = Rcpp::match(player_vec_it, player_names) - 1;
+      
+      r_sum = 0;
+      rd_ssq = 0;
+      for (int p = 0; p < idx_rating_it.size(); p++) {
+        idx_r = idx_rating_it(p);
+        idx_df = idx_it(p);
+        r_sum += r(idx_r);
+        rd_ssq += pow(rd(idx_r) * lambda(idx_df), 2.0);
       }
+      
+      rank_vec_it(t) = rank(idx_df);
+      r_it(t)  = r_sum;
+      rd_it(t) = sqrt(rd_ssq);
     }
     
-    for (int i = 0; i < n; i++) {
-      for (int q = 0; q<n; q++ ) {
-        if (i!=q) {
-          c = sqrt(sigma2(i) + sigma2(q) + pow(beta,2.0));
-          if (gamma == 999) gamma = sqrt(sigma2(i)) / c;
+    // calculate update for teams
+    CharacterVector team1(k * k - k);
+    CharacterVector team2(k * k - k);
+    NumericVector P(k * k - k);
+    NumericVector Y(k * k - k);
+    NumericVector omega(k, 0.0);
+    NumericVector delta(k, 0.0);
+    
+    idx = 0;
+    for (int p = 0; p < k; p++) {
+      for (int q = 0; q < k; q++) {
+        if (p != q) {
+          c = sqrt(pow(rd_it(p), 2.0) + pow(rd_it(q), 2.0) + pow(beta, 2.0));
+          if (gamma == 999) gamma = rd_it(p) / c;
           
-          idx += 1;
-          team1( idx - 1 ) = name[i];
-          team2( idx - 1 ) = name[q];
+          team1(idx) = unique_team_i(p);
+          team2(idx) = unique_team_i(q);
+          Y(idx) = calc_s(rank_vec_it(p), rank_vec_it(q));
+          P(idx) = exp(r_it(p) / c) / 
+            (exp(r_it(p) / c) +  exp(r_it(q) / c));
           
-          Y(idx - 1) = calc_s(rank(i), rank(q));
-          P(idx - 1) = exp(mi(i) / c) / (exp(mi(i) / c) + exp(mi(q) / c));
+          omega(p) = omega(p) +
+            pow(rd_it(p), 2.0) / c *
+            (Y(idx) - P(idx));
           
-          omega(i) = 
-            omega(i) + 
-            sigma2(i) / c * 
-            (Y(idx - 1) - P(idx - 1 ));
+          delta(p) = 
+            delta(p) +
+            gamma *
+            pow(rd_it(p) / c, 2.0) *
+            (P(idx) * (1 - P(idx)));
           
-          delta(i) = 
-            delta(i) + 
-            gamma * 
-            pow(sqrt(sigma2(i)) / c, 2.0) * 
-            (P(idx - 1) * (1 - P(idx - 1)));
+          idx += 1;   
         }
       }
     }
     
-    for (int i = 0; i < n; i++) {
-      rd_share(i,_) = pow(rd(i,_), 2.0) / sigma2(i);
+    Rcpp::Rcout << "omega: " << omega << std::endl;
+    Rcpp::Rcout << "delta: " << delta << std::endl;
+    
+    // update player ratings
+    for (int t = 0; t < k; t++) {
+      team_t = unique_team_i(t);
+      idx_it = utils::find<std::string>(team_t, team_vec_i) + idx_i(0);
       
-      r(i,_) = r(i,_) + rd_share(i,_) * omega(i) * weight(i);
-      rd_update = ( rd(i,_) - 
-        sqrt(  pow(rd(i,_),2.0) * ( 1 - rd_share(i,_) * delta(i)))
-      ) * weight(i);
-      
-      // kappa for all participants
-      rd(i,_) = pmax( rd(i,_) - rd_update , rd(i,_) * kappa );
+      player_vec_it = player[idx_it];
+      idx_rating_it = Rcpp::match(player_vec_it, player_names) - 1;
+  
+      for (int p = 0; p < idx_rating_it.size(); p++) {
+        idx_r = idx_rating_it(p);
+        idx_df = idx_it(p);
+        
+        r(idx) = r(idx_r) + 
+          rd(idx_r) / sum(rd_it) * omega(t) * weight(idx_df);
+        
+        rd(idx_r) = rd(idx_r) - 
+          sqrt(pow(rd(idx_r), 2.0) * (1 - rd(idx_r) / sum(rd_it) * delta(t)) * weight(idx_df));
+        
+      }
     }
+    
+    
+    
+    
+    out_r = Rcpp::List::create(
+      _["r"] = r, 
+      _["rd"] = rd
+    );
+    out_p = Rcpp::DataFrame::create(
+      _["team"] = team1,
+      _["opponent"] = team2,
+      _["Y"] = Y,
+      _["P"] = P
+    );
   }
+  
+  return Rcpp::List::create(
+    _["r"] = out_r, _["p"] = out_p
+  );
 } 

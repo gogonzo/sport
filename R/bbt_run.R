@@ -65,7 +65,7 @@ bbt_run <- function(formula, data,
   sigma_vec <- if (is.null(sigma)) rep(1.0, nrow(data)) else data[[sigma]]
   
   # default rating
-  unique_names <- unique(names_vec)
+  unique_names <- unique(unlist(names_vec))
   
   if (missing(r)) {
     r <- matrix(init_r, nrow = length(unique_names), ncol = 1, dimnames = list(unique_names, NULL)) 
@@ -87,8 +87,6 @@ bbt_run <- function(formula, data,
   }
 
   if (kappa == 0) kappa = 0.0001
-  
-  browser()
   
   ratings <- bbt( 
     id = id_vec, 
