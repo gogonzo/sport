@@ -1,7 +1,6 @@
 context("bbt_run")
 library(dplyr)
 data <- data.frame( 
-  id = 1,
   rank  = as.integer(c(3, 4, 1, 2)),
   team = c("A", "B", "C", "D"), 
   field = 1:4,
@@ -12,25 +11,24 @@ data <- data.frame(
   weight2 = 1.0,
   stringsAsFactors = FALSE)
 
-team_df <- data.frame(team = c("A", "A", "A", "B", "B" , "C", "C", "D", "D", "D"), 
-                      player = sample(letters, 10, replace = TRUE),
+team_df <- data.frame(team = c("A", "B", "C", "D"), player = sample(letters, 4, replace = FALSE))
+team_df <- data.frame(team = c("A", "A", "B", "B" , "C", "C", "D", "D"), 
+                      player = sample(letters, 8, replace = FALSE),
                       stringsAsFactors = FALSE)
 
 data <- left_join(data, team_df)
-data <- lapply(1:5, function(x) data)
+data <- lapply(1:3, function(x) data)
 data <- dplyr::bind_rows(data, .id = "id")
 data$id <- as.integer(data$id)
+
 sigma  <- setNames(rep(1, 26), letters)
 r  <- setNames(as.numeric(rep(25, 26)), letters)
 rd <- setNames(rep(25/3, 26), letters)
-
-
+# 
 test_that("bbt", {
-  system.time(
-    sport:::bbt(id = data$id, rank = data$rank, 
+  sport:::bbt(id = as.integer(data$id), rank = data$rank, 
                 team = data$team , player = data$player, 
-                r_val = r, rd_val = rd, lambda = data$sigma, weight = data$weight)    
-  )
+                r_val = r, rd_val = rd, lambda = data$sigma, weight = data$weight)
 })
 
 test_that("Error with NA parameters",{

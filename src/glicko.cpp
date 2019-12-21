@@ -522,9 +522,14 @@ Rcpp::List bbt(
     // player specific variables
     idx_i = utils::find<int>(id_i, id);
     team_vec_i = team[idx_i];
+    
+    Rcpp::Rcout << "idx_i: " << idx_i << std::endl;
+    Rcpp::Rcout << "team_vec_i: " << team_vec_i << std::endl;
   
     // team specific variables
     unique_team_i = utils::unique(team_vec_i);
+    Rcpp::Rcout << "unique_team_i: " << unique_team_i << std::endl;
+    
     int k = unique_team_i.size();
     Rcpp::IntegerVector rank_vec_it(k);
     Rcpp::NumericVector r_it(k);
@@ -551,6 +556,9 @@ Rcpp::List bbt(
       rd_it(t) = sqrt(rd_ssq);
     }
     
+    Rcpp::Rcout << "\nr_it: " << r_it << std::endl;
+    Rcpp::Rcout << "rd_it: " << rd_it << std::endl;
+    
     // calculate update for teams
     CharacterVector team1(k * k - k);
     CharacterVector team2(k * k - k);
@@ -571,7 +579,7 @@ Rcpp::List bbt(
           Y(idx) = calc_s(rank_vec_it(p), rank_vec_it(q));
           P(idx) = exp(r_it(p) / c) / 
             (exp(r_it(p) / c) +  exp(r_it(q) / c));
-          
+        
           omega(p) = omega(p) +
             pow(rd_it(p), 2.0) / c *
             (Y(idx) - P(idx));
@@ -587,7 +595,10 @@ Rcpp::List bbt(
       }
     }
     
-    Rcpp::Rcout << "omega: " << omega << std::endl;
+    Rcpp::Rcout << "\nY: " << Y << std::endl;
+    Rcpp::Rcout << "P: " << P << std::endl;
+    
+    Rcpp::Rcout << "\nomega: " << omega << std::endl;
     Rcpp::Rcout << "delta: " << delta << std::endl;
     
     // update player ratings

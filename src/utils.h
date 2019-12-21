@@ -27,10 +27,10 @@ namespace utils {
     bool duplicated = false;
     Rcpp::Vector<ITYPE> res;
     
-    for (int i = 1; i < n; i++) {
+    for (int i = 0; i < n; i++) {
       duplicated = false;
-      j = k - 1;
       
+      j = k - 1;
       while (!duplicated && j >= 0) {
         if (x(i) == res(j)) duplicated = true;
         j--;
