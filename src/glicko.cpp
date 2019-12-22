@@ -199,12 +199,6 @@ public:
         idx_r = idx_rating_it(p);
         idx_df = idx_it(p);
         
-        double temp1 = rd(idx_r);
-        double temp2 = rv_it(t);
-        Rcpp::Rcout << "current rd: " << temp1 << std::endl;
-        Rcpp::Rcout << "current rv: " << temp2 << std::endl;
-        
-        
         r(idx_r) = r(idx_r) + 
           q / (1 / pow(rd(idx_r), 2.0) + 
           1 / delta(t)) * 
@@ -253,7 +247,6 @@ public:
       err = 0.0;
       for (int o = 0; o < k; o++) {
         if (o != p) {
-          
           team1(idx) = unique_team_i[p];
           team2(idx) = unique_team_i[o];
           
@@ -277,9 +270,58 @@ public:
       idx += 1;
     }
     
-    Rcpp::Rcout << "error: " << error << std::endl;
-    Rcpp::Rcout << "variance: " << variance << std::endl;
-    Rcpp::Rcout << "delta: " << delta << std::endl;
+    // update parameters
+    std::string team_t;
+    int idx_r, idx_df;
+    double rd_update, A;
+    for (int t = 0; t < k; t++) {
+      team_t = unique_team_i(t);
+      idx_it = utils::find<std::string>(team_t, team_vec_i) + idx_i(0);
+      
+      player_vec_it = player_vec[idx_it];
+      idx_rating_it = Rcpp::match(player_vec_it, player_names) - 1;
+      
+      // sigma should be sum of sq -> sigma_it
+      // rd should be 
+        
+      for (int p = 0; p < idx_rating_it.size(); p++) {
+        idx_r = idx_rating_it(p);
+        idx_df = idx_it(p);
+        
+        A = optimSigma(delta(t), sigma(idx_r), sqrt(rv_it(t)), variance(t), tau);
+        sigma(idx_r) = exp(A / 2);
+        Rcpp::Rcout << "optim sigma: " << A << std::endl;
+        
+        rd(idx_r) = updatePhi(sqrt(rv_it(t)), variance(t), sigma(idx_r));
+        
+        if (rd(idx_r) > (init_rd / 173.7178)) {
+          rd(idx_r) = init_rd / 173.7178; 
+        }
+        
+        r(idx_r) = mu2r(
+          r_it(t) + 
+          pow(rd(idx_r), 2.0) * 
+          error(t) * 
+          (pow(rd(idx_r), 2.0) / rv_it(t)) *
+          weight_vec(idx_df) *
+          share_vec(idx_df)
+        );
+        
+        rd_update = (
+          rd(idx_r) - 
+            phi2rd(sqrt(rv_it(t)))) * 
+            (pow(rd(idx_r), 2.0) / rv_it(t)) *
+            weight_vec(idx_df) *
+            share_vec(idx_df);
+        
+        if(rd_update > (rd(idx_r) * (1 - kappa))) {
+          rd(idx_r) = rd(idx_r) * kappa;
+        } else {
+          rd(idx_r) = rd(idx_r) - rd_update;
+        }
+        
+      }
+    }
     
   }
   
