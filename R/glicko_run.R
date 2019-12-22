@@ -50,8 +50,6 @@ glicko_run <- function(data, formula,
                        lambda = numeric(0), 
                        kappa = 0.5, 
                        gamma = 1.0) {
-  
-  browser()
   check_single_argument(init_r, "init_r", min = 0)
   check_single_argument(init_rd, "init_rd", min = 0)
   check_single_argument(kappa, "kappa", min = 0.00000000001)

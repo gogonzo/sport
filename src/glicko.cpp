@@ -18,9 +18,9 @@ private:
   Rcpp::IntegerVector rank_vec;
   Rcpp::StringVector team_vec;
   Rcpp::StringVector player_vec;
-  Rcpp::NumericVector share_vec;
-  Rcpp::NumericVector lambda_vec;
   Rcpp::NumericVector beta_vec;
+  Rcpp::NumericVector lambda_vec;
+  Rcpp::NumericVector share_vec;
   Rcpp::NumericVector weight_vec;
   
   // rating arguments
@@ -49,6 +49,7 @@ private:
   Rcpp::IntegerVector idx_rating_it;
   Rcpp::NumericVector r_it;
   Rcpp::NumericVector rv_it;
+  Rcpp::NumericVector rd_it;
   Rcpp::NumericVector g_it; // just g instead of g_rd
   
 public:
@@ -120,25 +121,36 @@ public:
     // precalculate g
     int k = unique_team_i.size();
     Rcpp::NumericVector g_it_(k);
-    Rcpp::Rcout << "rv_it: " << rv_it << std::endl;
-    Rcpp::Rcout << "g_it: " << g_it << std::endl;
     
     for (int t = 0; t < k; t++) {
-      rv_it(t) = sqrt(rv_it(t));
-      g_it_(t) = calcGRd(rv_it(t));
+      g_it_(t) = calcGRd(sqrt(rv_it(t)));
     }
     
     this -> g_it = g_it_;
   };
+  void precalculateGlicko2() {
+    
+    // precalculate g
+    int k = unique_team_i.size();
+    Rcpp::NumericVector rd_it_(k);
+    Rcpp::NumericVector g_it_(k);
+    
+    for (int t = 0; t < k; t++) {
+      r_it(t) = r2mu(r_it(t));
+      rd_it_(t) = rd2phi(sqrt(rv_it(t)));
+      g_it_(t) = calcGRd(sqrt(rv_it(t)));
+    }
+    this -> rd_it = rd_it_;
+    this -> g_it = g_it_;
+  };
   void updateGlicko() {
     // GLICKO RATING
-    double var, err, q = log(10.0)/400.0;
+    double var, err, q = log(10.0) / 400.0;
     int idx = 0, k = unique_team_i.size();
     CharacterVector team1(k * k - k);
     CharacterVector team2(k * k - k);
     NumericVector P(k * k - k);
     NumericVector Y(k * k - k);
-    NumericVector omega(k, 0.0);
     NumericVector delta(k, 0.0);
     NumericVector error(k, 0.0);
     NumericVector variance(k, 0.0);
@@ -173,9 +185,6 @@ public:
       
       idx += 1;
     }
-    Rcpp::Rcout << "error: " << error << std::endl;
-    Rcpp::Rcout << "variance: " << variance << std::endl;
-    Rcpp::Rcout << "delta: " << delta << std::endl;
     
     // update parameters 
     std::string team_t;
@@ -192,12 +201,21 @@ public:
         idx_r = idx_rating_it(p);
         idx_df = idx_it(p);
         
-        r(idx_r) = q / (1 / pow(rd(idx_r), 2.0) + 
+        double temp1 = rd(idx_r);
+        double temp2 = rv_it(t);
+        Rcpp::Rcout << "current rd: " << temp1 << std::endl;
+        Rcpp::Rcout << "current rv: " << temp2 << std::endl;
+        
+        
+        r(idx_r) = r(idx_r) + 
+          q / (1 / pow(rd(idx_r), 2.0) + 
           1 / delta(t)) * 
           error(t) *
           (pow(rd(idx_r), 2.0) / rv_it(t)) *
           weight_vec(idx_df) *
           share_vec(idx_df);
+        
+        
         
         rd_update = (
           rd(idx_r) - 
@@ -221,7 +239,52 @@ public:
     
     out_p.push_back(out_p_i);
   }
-
+  void updateGlicko2() {
+    double var, err, q = log(10.0) / 400.0;
+    int idx = 0, k = unique_team_i.size();
+    CharacterVector team1(k * k - k);
+    CharacterVector team2(k * k - k);
+    NumericVector P(k * k - k);
+    NumericVector Y(k * k - k);
+    NumericVector delta(k, 0.0);
+    NumericVector error(k, 0.0);
+    NumericVector variance(k, 0.0);
+    
+    for (int p = 0; p < k; p++) {
+      var = 0.0;
+      err = 0.0;
+      for (int o = 0; o < k; o++) {
+        if (o != p) {
+          
+          team1(idx) = unique_team_i[p];
+          team2(idx) = unique_team_i[o];
+          
+          P(idx) = calcPGlicko2(
+            sqrt(pow(g_it(p), 2.0) + pow(g_it(o), 2.0)),
+            r_it(p),
+            r_it(o));
+          
+          Y(idx) = calcZ(rank_vec_it(p), rank_vec_it(o));
+          
+          var += calcVar(g_it(o), P(idx));
+          err += calcErr(g_it(o), P(idx), rank_vec_it(p), rank_vec_it(o)); 
+        } else { 
+          continue; 
+        }
+      }
+      // this event ratings
+      error(p)   = err;
+      variance(p)   = 1 / var;
+      delta(p) =  1 / var * err;
+      idx += 1;
+    }
+    
+    Rcpp::Rcout << "error: " << error << std::endl;
+    Rcpp::Rcout << "variance: " << variance << std::endl;
+    Rcpp::Rcout << "delta: " << delta << std::endl;
+    
+  }
+  
   // glicko {
   Ratings(Rcpp::IntegerVector& id_vec,
           Rcpp::IntegerVector& rank_vec,
@@ -229,8 +292,8 @@ public:
           Rcpp::StringVector& team_vec,
           Rcpp::StringVector& player_vec,
           
-          Rcpp::NumericVector& share_vec,
           Rcpp::NumericVector& lambda_vec,
+          Rcpp::NumericVector& share_vec,
           Rcpp::NumericVector& weight_vec,
           
           Rcpp::NumericVector r, 
@@ -248,8 +311,8 @@ public:
           Rcpp::StringVector& team_vec,
           Rcpp::StringVector& player_vec,
           
-          Rcpp::NumericVector& share_vec,
           Rcpp::NumericVector& lambda_vec,
+          Rcpp::NumericVector& share_vec,
           Rcpp::NumericVector& weight_vec,
           
           Rcpp::NumericVector r, 
@@ -268,8 +331,9 @@ public:
           
           Rcpp::StringVector& team_vec,
           Rcpp::StringVector& player_vec,
-          Rcpp::NumericVector& share_vec,
+          
           Rcpp::NumericVector& lambda_vec,
+          Rcpp::NumericVector& share_vec,
           Rcpp::NumericVector& weight_vec,
           
           Rcpp::StringVector& names,
@@ -278,15 +342,11 @@ public:
           Rcpp::NumericVector sigma,
           double init_r,
           double init_rd,
-          double kappa,
+          double beta,
           double gamma,
-          double beta);
+          double kappa);
   // }
-  // 
-  //dbl {
-  // } 
-  
-  
+
   void test() {
     DBG("r in Ratings class: %p", r);
   }
@@ -299,8 +359,8 @@ Ratings::Ratings(
   Rcpp::StringVector& team_vec_val, 
   Rcpp::StringVector& player_vec_val,
   
-  Rcpp::NumericVector& share_vec_val,
   Rcpp::NumericVector& lambda_vec_val,
+  Rcpp::NumericVector& share_vec_val,
   Rcpp::NumericVector& weight_vec_val,
 
   Rcpp::NumericVector r_val, 
@@ -318,8 +378,8 @@ Ratings::Ratings(
   
   // player specific vars
   this -> share_vec = share_vec_val;
-  this -> lambda_vec = lambda_vec_val;
   this -> weight_vec = weight_vec_val;
+  this -> lambda_vec = lambda_vec_val;
   
   // ratings and hyperparameters
   this -> player_names = r_val.names();
@@ -338,9 +398,9 @@ Ratings::Ratings(
 
   Rcpp::StringVector& team_vec_val, 
   Rcpp::StringVector& player_vec_val, 
-  Rcpp::NumericVector& share_vec_val,
   
   Rcpp::NumericVector& lambda_vec_val,
+  Rcpp::NumericVector& share_vec_val,
   Rcpp::NumericVector& weight_vec_val,
   
   Rcpp::NumericVector r_val, 
@@ -350,14 +410,16 @@ Ratings::Ratings(
   double init_r_val,
   double init_rd_val,
   double init_sigma_val,
-  double gamma_val,
-  double kappa_val) {
+  double kappa_val,
+  double tau_val) {
   
   // rank and name must be of length n
   this -> id_vec = id_vec_val;
   this -> rank_vec = rank_vec_val;
   this -> team_vec = team_vec_val;
   this -> player_vec = player_vec_val;
+  
+  this -> lambda_vec = lambda_vec_val;
   this -> share_vec = share_vec_val;
   this -> weight_vec = weight_vec_val;
   
@@ -367,8 +429,8 @@ Ratings::Ratings(
   this -> sigma = clone(sigma_val);
   this -> init_r = init_r_val;
   this -> init_rd = init_rd_val;
-  this -> gamma = gamma_val;
   this -> kappa = kappa_val;
+  this -> tau = tau_val;
 }
 
 //' Glicko
@@ -405,7 +467,7 @@ List
     StringVector player_names = r.names();
     
     Ratings ratings{
-      id, rank, team, player, share, lambda, weight, // match vectors
+      id, rank, team, player, lambda, share, weight, // match vectors
       r, rd, init_r, init_rd, gamma, kappa           // ratings
     };
     
@@ -436,8 +498,8 @@ List
     NumericVector r, 
     NumericVector rd,
     NumericVector sigma,
-    NumericVector share,
     NumericVector lambda,
+    NumericVector share,
     NumericVector weight,
     double init_r  = 1500.00,
     double init_rd = 350.00,
@@ -450,13 +512,15 @@ List
     StringVector player_names = r.names();
     
     Ratings ratings{
-      id, rank, team, player, share, lambda, weight,         // match vectors
+      id, rank, team, player, lambda, share, weight,         // match vectors
       r, rd, sigma, init_r, init_rd, init_sigma, kappa, tau  // ratings
     };
     
     for (int i = 0; i < unique_id.size(); i++) {
       id_i = unique_id(i);
       ratings.gatherTeams(id_i);
+      ratings.precalculateGlicko2();
+      ratings.updateGlicko2();
     }
     
     return Rcpp::List::create(

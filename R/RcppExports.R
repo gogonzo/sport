@@ -25,8 +25,8 @@ glicko <- function(unique_id, id, rank, team, player, r, rd, share, lambda, weig
     .Call('_sport_glicko', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, share, lambda, weight, init_r, init_rd, gamma, kappa)
 }
 
-glicko2 <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r = 1500.00, init_rd = 350.00, init_sigma = 0.05, kappa = 1.0, tau = .5) {
-    .Call('_sport_glicko2', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau)
+glicko2 <- function(unique_id, id, rank, team, player, r, rd, sigma, lambda, share, weight, init_r = 1500.00, init_rd = 350.00, init_sigma = 0.05, kappa = 1.0, tau = .5) {
+    .Call('_sport_glicko2', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, lambda, share, weight, init_r, init_rd, init_sigma, kappa, tau)
 }
 
 bbt <- function(unique_id, id, rank, team, player, r_val, rd_val, lambda, share, weight, kappa = 0.5, beta = 25 / 6, init_r = 25.0, init_rd = 25 / 3) {

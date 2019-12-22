@@ -60,8 +60,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // glicko2
-List glicko2(IntegerVector unique_id, IntegerVector id, IntegerVector rank, StringVector team, StringVector player, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector share, NumericVector lambda, NumericVector weight, double init_r, double init_rd, double init_sigma, double kappa, double tau);
-RcppExport SEXP _sport_glicko2(SEXP unique_idSEXP, SEXP idSEXP, SEXP rankSEXP, SEXP teamSEXP, SEXP playerSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP shareSEXP, SEXP lambdaSEXP, SEXP weightSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP init_sigmaSEXP, SEXP kappaSEXP, SEXP tauSEXP) {
+List glicko2(IntegerVector unique_id, IntegerVector id, IntegerVector rank, StringVector team, StringVector player, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector lambda, NumericVector share, NumericVector weight, double init_r, double init_rd, double init_sigma, double kappa, double tau);
+RcppExport SEXP _sport_glicko2(SEXP unique_idSEXP, SEXP idSEXP, SEXP rankSEXP, SEXP teamSEXP, SEXP playerSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP shareSEXP, SEXP weightSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP init_sigmaSEXP, SEXP kappaSEXP, SEXP tauSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -73,15 +73,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type r(rSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type rd(rdSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type share(shareSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type share(shareSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type weight(weightSEXP);
     Rcpp::traits::input_parameter< double >::type init_r(init_rSEXP);
     Rcpp::traits::input_parameter< double >::type init_rd(init_rdSEXP);
     Rcpp::traits::input_parameter< double >::type init_sigma(init_sigmaSEXP);
     Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
     Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
-    rcpp_result_gen = Rcpp::wrap(glicko2(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau));
+    rcpp_result_gen = Rcpp::wrap(glicko2(unique_id, id, rank, team, player, r, rd, sigma, lambda, share, weight, init_r, init_rd, init_sigma, kappa, tau));
     return rcpp_result_gen;
 END_RCPP
 }
