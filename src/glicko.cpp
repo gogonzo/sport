@@ -132,15 +132,13 @@ public:
     
     // precalculate g
     int k = unique_team_i.size();
-    Rcpp::NumericVector rd_it_(k);
     Rcpp::NumericVector g_it_(k);
     
     for (int t = 0; t < k; t++) {
       r_it(t) = r2mu(r_it(t));
-      rd_it_(t) = rd2phi(sqrt(rv_it(t)));
       g_it_(t) = calcGRd(sqrt(rv_it(t)));
     }
-    this -> rd_it = rd_it_;
+    Rcpp::Rcout <<  "g_phi(): " << g_it_ << std::endl;
     this -> g_it = g_it_;
   };
   void updateGlicko() {
