@@ -7,8 +7,8 @@ data <- data.frame(
   date = seq(Sys.Date() - 3, Sys.Date(), by="1 day"),
   sigma = rep(1.0, 4), 
   beta = 100.0,
-  weight = rep(1.05, 4),
-  weight2 = 1.0,
+  weight = rep(1.0, 4),
+  share = 0.5,
   stringsAsFactors = FALSE)
 
 team_df <- data.frame(team = c("A", "B", "C", "D"), player = sample(letters, 4, replace = FALSE))
@@ -26,10 +26,23 @@ r  <- setNames(as.numeric(rep(25, 26)), letters)
 rd <- setNames(rep(25/3, 26), letters)
 # 
 test_that("bbt", {
-  sport:::bbt(id = as.integer(data$id), rank = data$rank, 
-                team = data$team , player = data$player, 
-                r_val = r, rd_val = rd, lambda = data$sigma, weight = data$weight)
+  out <- sport:::bbt(
+    unique_id = unique(as.integer(data$id)),
+    id = as.integer(data$id), 
+    rank = data$rank, 
+    team = data$team,
+    player = data$player, 
+    r_val = r,
+    rd_val = rd,
+    lambda = data$sigma,
+    weight = data$weight,
+    share = data$share)
+  
+  identical(c("final_r", "final_rd", "r", "p"), names(out))
+  identical(length(out$r), 3L)
+  identical(length(out$p), 3L)
 })
+
 
 test_that("Error with NA parameters",{
   gpheats$weight[17] <- NaN

@@ -70,12 +70,21 @@ test_that("valid glicko computation",{
   expect_identical(
     c(1464.297, 1396.039, 1606.521, 1674.836),
     round(
-      glicko_run(
-        data = data, 
-        formula = rank | id ~ name, 
+      sport:::glicko(
+        unique_id = 1L,
+        id = c(1, 1, 1, 1),
+        rank = c(3, 4, 1, 2),
+        team = c("a", "b", "c", "d"),
+        player = c("A", "B", "C", "D"),
         r  = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")), 
-        rd = setNames(c(200.0,  30.0,   100.0,  300.0), c("A", "B", "C", "D"))
-      )$final_r, 
+        rd = setNames(c(200.0,  30.0,   100.0,  300.0), c("A", "B", "C", "D")),
+        share = c(1, 1, 1, 1),
+        lambda = c(1, 1, 1, 1), 
+        weight = c(1, 1, 1, 1),
+        init_r = 1500.0,
+        init_rd = 350.0,
+        gamma = 1.0,
+        kappa = 0.5)$final_r, 
       3
     )
   )

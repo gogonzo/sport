@@ -21,15 +21,15 @@ factor2dummy <- function(factor) {
 #'   sigma = x[["sigma"]], 
 #'   weight = x[["weight"]], 
 #'   identifier = x[["identifier"]])
-glicko <- function(id, rank, name, r, rd, sigma, weight, init_r = 1500.00, init_rd = 350.00, gamma = 1.0, kappa = .5) {
-    .Call('_sport_glicko', PACKAGE = 'sport', id, rank, name, r, rd, sigma, weight, init_r, init_rd, gamma, kappa)
+glicko <- function(unique_id, id, rank, team, player, r, rd, share, lambda, weight, init_r = 1500.00, init_rd = 350.00, gamma = 1.0, kappa = .5) {
+    .Call('_sport_glicko', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, share, lambda, weight, init_r, init_rd, gamma, kappa)
 }
 
-glicko2 <- function(id, rank, name, r, rd, sigma, weight, init_r = 1500.00, init_rd = 350.00, init_sigma = 0.05, kappa = 1.0, tau = .5) {
-    .Call('_sport_glicko2', PACKAGE = 'sport', id, rank, name, r, rd, sigma, weight, init_r, init_rd, init_sigma, kappa, tau)
+glicko2 <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r = 1500.00, init_rd = 350.00, init_sigma = 0.05, kappa = 1.0, tau = .5) {
+    .Call('_sport_glicko2', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau)
 }
 
-bbt <- function(id, rank, team, player, r_val, rd_val, lambda, weight, kappa = 0.5, gamma = 999.0, beta = 25 / 6, init_r = 25.0, init_rd = 25 / 3) {
-    .Call('_sport_bbt', PACKAGE = 'sport', id, rank, team, player, r_val, rd_val, lambda, weight, kappa, gamma, beta, init_r, init_rd)
+bbt <- function(unique_id, id, rank, team, player, r_val, rd_val, lambda, share, weight, kappa = 0.5, beta = 25 / 6, init_r = 25.0, init_rd = 25 / 3) {
+    .Call('_sport_bbt', PACKAGE = 'sport', unique_id, id, rank, team, player, r_val, rd_val, lambda, share, weight, kappa, beta, init_r, init_rd)
 }
 

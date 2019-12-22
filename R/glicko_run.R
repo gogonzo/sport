@@ -41,56 +41,81 @@ NULL
 #' glicko <- glicko_run(data, rank ~ name)
 #' @export
 glicko_run <- function(data, formula, 
-                       r = numeric(0), rd = numeric(0), 
-                       init_r = 1500, init_rd = 350, 
-                       sigma = NULL, weight = NULL,
-                       idlab = NULL, 
-                       kappa = 0.5, gamma = 1.0) {
+                       r = numeric(0),
+                       rd = numeric(0), 
+                       init_r = 1500, 
+                       init_rd = 350, 
+                       share = numeric(0),
+                       weight = numeric(0),
+                       lambda = numeric(0), 
+                       kappa = 0.5, 
+                       gamma = 1.0) {
+  
+  browser()
+  check_single_argument(init_r, "init_r", min = 0)
+  check_single_argument(init_rd, "init_rd", min = 0)
+  check_single_argument(kappa, "kappa", min = 0.00000000001)
+  check_single_argument(gamma, "gamma", min = 0)
   is_formula_missing(formula)
   is_data_provided(data)
   is_lhs_valid(formula)
   is_rhs_valid(formula, "glicko_run")
-  is_vector_named(r, "r")
-  is_vector_named(rd, "rd")
-  is_vector_named(sigma, "sigma")
-
-  browser()
-  # formula
-  lhs  <- all.vars(update(formula, .~0));
-  rhs  <- all.vars(update(formula, 0~.));
   
-  rank_var <- lhs[1]
-  name_var <- rhs[1]
+  lhs  <- all.vars(update(formula, . ~ 0))
+  rank <- lhs[1]
+  rank_vec <- as.integer(data[[rank]])
   
-  rank_vec <- data[[rank_var]]
-  names_vec <- as.character(data[[name_var]])
-  id_vec <- if (length(lhs) == 1) rep(1.0, nrow(data)) else data[[lhs[2]]]  
-  sigma_vec <- if (is.null(sigma)) rep(0.0, nrow(data)) else data[[sigma]]
-  weight_vec <- if (is.null(weight)) rep(1.0, nrow(data)) else data[[weight]]
+  if (length(lhs) == 1) {
+    id <- "id"
+    id_vec <- rep(1L, nrow(data)) 
+  } else {
+    id <- lhs[2]
+    id_vec <- data[[lhs[2]]]
+  } 
+  
+  rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
+  if (grepl("nest\\(", rhs_terms)) {
+    player <- gsub("^nest\\(([^ |]+)[ ]*\\|.*$", "\\1", rhs_terms)
+    team <- gsub("^nest\\(.+\\|[ ]*(.+)\\)$", "\\1", rhs_terms)    
+    team_vec <- as.character(data[[team]])
+    player_vec <- as.character(data[[player]])
+  } else {
+    player <- rhs_terms[1]
+    team <- "team"
+    player_vec <- as.character(data[[player]])
+    team_vec <- player_vec
+  }
+  
+  share_vec <- if (length(share) == 0) rep(1.0, nrow(data)) else data[[share]] # 1/n_it
+  weight_vec <- if (length(weight) == 0) rep(1.0, nrow(data)) else data[[weight]]
+  lambda_vec <- if (length(lambda) == 0) rep(1.0, nrow(data)) else data[[lambda]]
   
   # default rating
-  unique_names <- unique(names_vec)
-  if (length(r) == 0) {
-    r <- setNames(rep(init_r, length(unique_names)), unique_names)
-  } else if (length(r) != length(unique_names)) {
-    stop(sprintf("All elements in r should have a name which match %s argument in formula",
-                 name_var))
-  }
+  unique_names <- unique(unlist(player_vec))
+  unique_id    <- unique(id_vec)
   
-  if (length(rd) == 0) {
-    rd <- setNames(rep(init_rd, length(unique_names)), unique_names)
-  } else if (length(rd) != length(unique_names)) {
-    stop(sprintf("All elements in rd should have a name which match %s argument in formula",
-                 name_var))
-  }
+  r  <- init_check_r(r, init_r, unique_names, player)
+  rd <- init_check_r(rd, init_rd, unique_names, player)
+  
+  # check if lambda > 0
+  check_integer_argument(id_vec, id)
+  check_integer_argument(rank_vec, rank)
+  check_string_argument(player_vec, player)
+  check_string_argument(team_vec, team)
+  check_numeric_argument(lambda_vec, lambda)
+  check_numeric_argument(weight_vec, weight)
+  check_numeric_argument(share_vec, share, min = 0, max = 1)
   
   g <- glicko(
+    unique_id,
     id = id_vec, 
     rank = rank_vec, 
-    name = names_vec, 
+    team = team_vec, 
+    player = player_vec, 
     r = r, 
     rd = rd,
-    sigma = sigma_vec, 
+    share = share_vec, 
+    lambda = lambda_vec, 
     weight = weight_vec, 
     gamma = gamma,
     kappa = kappa, 
