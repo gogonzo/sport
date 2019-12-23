@@ -298,7 +298,7 @@ public:
     // update parameters
     std::string team_t;
     int idx_r, idx_df;
-    double r_update, rd_update, A, multiplier;
+    double phi_new, r_update, rd_update, A, multiplier;
 
     for (int t = 0; t < k; t++) {
       // r_it and rd_it is scaled to mu and phi, rd2_it is normal
@@ -311,23 +311,18 @@ public:
       A = optimSigma(delta(t), sqrt(sigma2_it(t)), rd_it(t), variance(t), tau);
       sigma2_it(t) = exp(A / 2);  
     
-      rd_update = updatePhi(rd_it(t), variance(t), sigma2_it(t));
-      if (rd_update > (init_rd/173.7178)) rd_update = init_rd/173.7178;
-      Rcpp::Rcout << "updated_phi: " << rd_update << std::endl; 
+      phi_new = updatePhi(rd_it(t), variance(t), sigma2_it(t));
+      if (phi_new > (init_rd/173.7178)) phi_new = init_rd/173.7178;
       
-      r_update = mu2r(r_it(t) + pow(r_it(t),2.0) * error(t));
+      r_update = pow(phi_new, 2.0) * error(t) * 173.7178;
+      rd_update = (rd_it(t) - phi2rd(phi_new));
+      Rcpp::Rcout << "rd_update: " << rd_update << std::endl;
       
-      Rcpp::Rcout << "r_update" << r_update << std::endl;
-      // rd_update = (rd[i] - phi2rd( phi[i] ) ) * weight[i];
-      // if(  rd_update > (rd(i) * (1-kappa)) ){
-      //   rd[i] = rd(i) * kappa;
-      // } else {
-      //   rd[i] = rd[i] - rd_update;
-      // }
-      
+      if (rd_update > (rd_it(t) * (1 - kappa))) {
+        rd_update = rd_it(t) * (1 - kappa);
+      } 
       
       for (int p = 0; p < idx_rating_it.size(); p++) {
-        
         idx_r = idx_rating_it(p);
         idx_df = idx_it(p);
         
@@ -335,25 +330,9 @@ public:
           weight_vec(idx_df) *
           share_vec(idx_df);
         
+        r(idx_r) = r(idx_r) + r_update;
+        rd(idx_r) = rd(idx_r) - rd_update;
         
-
-        
-        
-        //Rcpp::Rcout << r_it(t) << " + " << rd_it(t) << "*" << error(t) << std::endl;
-        
-        rd(idx_r) = updatePhi(
-          rd_it(t), 
-          variance(t), 
-          sigma(idx_r)
-        );
-        
-        r(idx_r) = mu2r( 
-          r_it(t) +
-            pow(rd_it(t), 2.0) * 
-            error(t)
-        );
-        
-
       }
     }
   }
@@ -766,7 +745,8 @@ Rcpp::List bbt(
           ) * weight(idx_df) * share(idx_df);
       
         rd(idx_r) = ((rd(idx_r) - rd_update) <  (rd(idx_r) * kappa)) ?
-          rd(idx_r) * kappa : rd(idx_r) - rd_update;
+          rd(idx_r) * kappa : 
+          rd(idx_r) - rd_update;
       }
     }
     
