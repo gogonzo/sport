@@ -90,6 +90,30 @@ test_that("valid glicko computation",{
   )
 })
 
+test_that("valid glicko computation",{
+  expect_identical(
+    c(1464.297, 1396.039, 1606.521, 1674.836),
+    round(
+      sport:::glicko(
+        unique_id = 1L,
+        id = c(1, 1, 1, 1, 1, 1, 1, 1),
+        rank = c(3, 3, 4, 4, 1, 1, 2, 2),
+        team = c("a", "a", "b", "b", "c", "c", "d", "d"),
+        player = LETTERS[1:8],
+        r  = setNames(rep(c(1500.0, 1400.0, 1550.0, 1700.0), each = 2), LETTERS[1:8]), 
+        rd = setNames(rep(c(200.0,  30.0,   100.0,  300.0), each = 2), LETTERS[1:8]),
+        share = rep(1, 8),
+        lambda = rep(1, 8), 
+        weight = rep(1, 8),
+        init_r = 1500.0,
+        init_rd = 350.0,
+        gamma = 1.0,
+        kappa = 0.5)$final_r, 
+      3
+    )
+  )
+})
+
 test_that("init r passed",{
   expect_identical(
     sum(
