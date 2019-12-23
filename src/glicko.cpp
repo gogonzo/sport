@@ -73,6 +73,7 @@ public:
     int k = unique_team_i.size();
     Rcpp::IntegerVector rank_vec_it_(k);
     Rcpp::NumericVector r_it_(k);
+    Rcpp::NumericVector rd_it_(k);
     Rcpp::NumericVector rd2_it_(k);
     Rcpp::NumericVector sigma2_it_(k);
     double r_sum, rd_ssq, sigma_ssq, idx_r, idx_df;
@@ -104,6 +105,7 @@ public:
       rank_vec_it_(t) = rank_vec(idx_df);
 
       r_it_(t)  = r_sum;
+      rd_it_(t) = sqrt(rd_ssq);
       rd2_it_(t) = rd_ssq;
       if (sigma.size() > 0) {
         sigma2_it_(t) = sigma_ssq;          
@@ -111,6 +113,7 @@ public:
     }
     
     this -> r_it = r_it_;
+    this -> rd_it = rd_it_;
     this -> rd2_it = rd2_it_;
     this -> sigma2_it = sigma2_it_;
     this -> rank_vec_it = rank_vec_it_;
@@ -146,7 +149,8 @@ public:
     
     for (int t = 0; t < k; t++) {
       r_it(t) = r2mu(r_it(t));
-      g_it_(t) = calcGRd(sqrt(rd2_it(t)));
+      rd_it(t) = rd2phi(rd_it(t));
+      g_it_(t) = calcGRd(rd_it(t));
     }
     this -> g_it = g_it_;
   };
@@ -283,6 +287,11 @@ public:
     std::string team_t;
     int idx_r, idx_df;
     double r_update, rd_update, A, multiplier;
+    Rcpp::Rcout << "variance: " << variance << std::endl;
+    Rcpp::Rcout << "delta: " << delta << std::endl;
+    Rcpp::Rcout << "sigma2_it: " << sigma2_it << std::endl;
+    Rcpp::Rcout << "phi_it: " << rd_it << std::endl; // phi
+    
     for (int t = 0; t < k; t++) {
       Rcpp::Rcout << "t: " << t << std::endl;
       team_t = unique_team_i(t);
@@ -290,13 +299,8 @@ public:
       
       player_vec_it = player_vec[idx_it];
       idx_rating_it = Rcpp::match(player_vec_it, player_names) - 1;
-      
-      Rcpp::Rcout << "\ndelta: " << delta << std::endl;
-      Rcpp::Rcout << "sigma2_it: " << sigma2_it << std::endl;
-      Rcpp::Rcout << "rd2_it: " << rd2_it << std::endl;
-      Rcpp::Rcout << "variance: " << variance << std::endl;
-      
-      A = optimSigma(delta(t), sqrt(sigma2_it(t)), sqrt(rd2_it(t)), variance(t), tau);
+  
+      A = optimSigma(delta(t), sqrt(sigma2_it(t)), rd_it(t), variance(t), tau);
       Rcpp::Rcout << "A: " << A << std::endl;
       for (int p = 0; p < idx_rating_it.size(); p++) {
         
