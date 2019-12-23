@@ -136,7 +136,7 @@ public:
     Rcpp::NumericVector g_it_(k);
     
     for (int t = 0; t < k; t++) {
-      g_it_(t) = calcGRd(sqrt(rd2_it(t)));
+      g_it_(t) = calcGRd(rd_it(t));
     }
     
     this -> g_it = g_it_;
@@ -150,8 +150,9 @@ public:
     for (int t = 0; t < k; t++) {
       r_it(t) = r2mu(r_it(t));
       rd_it(t) = rd2phi(rd_it(t));
-      g_it_(t) = calcGRd(rd_it(t));
+      g_it_(t) = calcGPhi(rd_it(t));
     }
+    
     this -> g_it = g_it_;
   };
   void updateGlicko() {
@@ -282,23 +283,25 @@ public:
       delta(p) =  1 / var * err;
       idx += 1;
     }
+    Rcpp::DataFrame out_p_i = Rcpp::DataFrame::create(
+      _["id"] = id_i,
+      _["team"] = team1,
+      _["opponent"] = team2,
+      _["Y"] = Y,
+      _["P"] = P,
+      _["stringsAsFactors"] = false
+    );
+    
+    out_p.push_back(out_p_i);
+    
     
     // update parameters
     std::string team_t;
     int idx_r, idx_df;
     double r_update, rd_update, A, multiplier;
-    
-    Rcpp::Rcout << "\nmu_it: " << r_it << std::endl;
-    Rcpp::Rcout << "phi_it: " << rd_it << std::endl; // phi
-    Rcpp::Rcout << "sigma2_it: " << sigma2_it << std::endl;
-    Rcpp::Rcout << "g_it: " << g_it << std::endl;
 
-    Rcpp::Rcout << "\nerror: " << error << std::endl;
-    Rcpp::Rcout << "variance: " << variance << std::endl;
-    Rcpp::Rcout << "delta: " << delta << std::endl;
-
-    
     for (int t = 0; t < k; t++) {
+      // r_it and rd_it is scaled to mu and phi, rd2_it is normal
       team_t = unique_team_i(t);
       idx_it = utils::find<std::string>(team_t, team_vec_i) + idx_i(0);
       
@@ -306,7 +309,8 @@ public:
       idx_rating_it = Rcpp::match(player_vec_it, player_names) - 1;
   
       A = optimSigma(delta(t), sqrt(sigma2_it(t)), rd_it(t), variance(t), tau);
-      Rcpp::Rcout << "A: " << A << std::endl;
+      
+      
       for (int p = 0; p < idx_rating_it.size(); p++) {
         
         idx_r = idx_rating_it(p);
@@ -320,10 +324,20 @@ public:
         sigma(idx_r) = exp(A / 2) * 
           multiplier;  
         
-        rd(idx_r) = updatePhi(sqrt(rd2_it(t)), variance(t), sigma(idx_r));
+        r(idx_r) = mu2r( 
+          r_it(t) +
+            pow(rd_it(t), 2.0) * 
+            error(t) * 
+            multiplier
+        );
+        
+        rd(idx_r) = updatePhi(
+          rd_it(t), 
+          variance(t), 
+          sigma(idx_r)
+        );
       }
     }
-    
   }
   
   // glicko {
