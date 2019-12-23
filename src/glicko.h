@@ -103,13 +103,13 @@ double updatePhi( double phi, double var, double sigma) {
   return 1 / sqrt( 1/pow(prerating_phi,2.0) + 1/var);
 }
 
-double updateMu( double mu, double phi, double err, double weight) {
+double updateMu(double mu, double phi, double err, double weight) {
   return mu + pow(phi,2.0) * err * weight;
 }
 
-double mu2r(double mu){
+double mu2r(double mu) {
   return mu * 173.7178 + 1500;
 }
-double phi2rd(double phi){
+double phi2rd(double phi) {
   return phi * 173.7178;
 }

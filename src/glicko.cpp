@@ -309,6 +309,21 @@ public:
       idx_rating_it = Rcpp::match(player_vec_it, player_names) - 1;
   
       A = optimSigma(delta(t), sqrt(sigma2_it(t)), rd_it(t), variance(t), tau);
+      sigma2_it(t) = exp(A / 2);  
+    
+      rd_update = updatePhi(rd_it(t), variance(t), sigma2_it(t));
+      if (rd_update > (init_rd/173.7178)) rd_update = init_rd/173.7178;
+      Rcpp::Rcout << "updated_phi: " << rd_update << std::endl; 
+      
+      r_update = mu2r(r_it(t) + pow(r_it(t),2.0) * error(t));
+      
+      Rcpp::Rcout << "r_update" << r_update << std::endl;
+      // rd_update = (rd[i] - phi2rd( phi[i] ) ) * weight[i];
+      // if(  rd_update > (rd(i) * (1-kappa)) ){
+      //   rd[i] = rd(i) * kappa;
+      // } else {
+      //   rd[i] = rd[i] - rd_update;
+      // }
       
       
       for (int p = 0; p < idx_rating_it.size(); p++) {
@@ -321,21 +336,24 @@ public:
           share_vec(idx_df);
         
         
-        sigma(idx_r) = exp(A / 2) * 
-          multiplier;  
+
         
-        r(idx_r) = mu2r( 
-          r_it(t) +
-            pow(rd_it(t), 2.0) * 
-            error(t) * 
-            multiplier
-        );
+        
+        //Rcpp::Rcout << r_it(t) << " + " << rd_it(t) << "*" << error(t) << std::endl;
         
         rd(idx_r) = updatePhi(
           rd_it(t), 
           variance(t), 
           sigma(idx_r)
         );
+        
+        r(idx_r) = mu2r( 
+          r_it(t) +
+            pow(rd_it(t), 2.0) * 
+            error(t)
+        );
+        
+
       }
     }
   }
