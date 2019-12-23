@@ -38,7 +38,7 @@ test_that("higher rating change for higher deviation",{
 
 test_that("", {
   expect_identical(
-    c(1464.297, 1396.039, 1606.521, 1674.836),
+    c(1468, 1396, 1606, 1601),
     round(
       sport:::glicko2(
         unique_id = 1L,
@@ -48,15 +48,14 @@ test_that("", {
         player = c("A", "B", "C", "D"),
         r  = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")), 
         rd = setNames(c(200.0,  30.0,   100.0,  300.0),  c("A", "B", "C", "D")),
-        sigma = setNames(c(0.06, 0.06, 0.06, 0.06),   c("A", "B", "C", "D")),
+        sigma = setNames(c(0.05, 0.05, 0.05, 0.05),   c("A", "B", "C", "D")),
         share = c(1, 1, 1, 1),
         lambda = c(1, 1, 1, 1), 
         weight = c(1, 1, 1, 1),
         init_r = 1500.0,
         init_rd = 350.0,
         tau = 0.5,
-        kappa = 0.5)$final_r, 
-      3
+        kappa = 0.5)$final_r
     )
   )
   

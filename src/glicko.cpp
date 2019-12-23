@@ -287,13 +287,18 @@ public:
     std::string team_t;
     int idx_r, idx_df;
     double r_update, rd_update, A, multiplier;
+    
+    Rcpp::Rcout << "\nmu_it: " << r_it << std::endl;
+    Rcpp::Rcout << "phi_it: " << rd_it << std::endl; // phi
+    Rcpp::Rcout << "sigma2_it: " << sigma2_it << std::endl;
+    Rcpp::Rcout << "g_it: " << g_it << std::endl;
+
+    Rcpp::Rcout << "\nerror: " << error << std::endl;
     Rcpp::Rcout << "variance: " << variance << std::endl;
     Rcpp::Rcout << "delta: " << delta << std::endl;
-    Rcpp::Rcout << "sigma2_it: " << sigma2_it << std::endl;
-    Rcpp::Rcout << "phi_it: " << rd_it << std::endl; // phi
+
     
     for (int t = 0; t < k; t++) {
-      Rcpp::Rcout << "t: " << t << std::endl;
       team_t = unique_team_i(t);
       idx_it = utils::find<std::string>(team_t, team_vec_i) + idx_i(0);
       
