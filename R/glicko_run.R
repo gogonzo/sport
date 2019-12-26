@@ -295,10 +295,18 @@ glicko_run <- function(data, formula,
 #' glicko2 <- glicko2_run( rank ~ name, data )
 #' @export
 glicko2_run <- function(formula, data, 
-                        r = numeric(0), rd = numeric(0), sigma = numeric(0),
-                        lambda = NULL, share = NULL, weight = NULL, idlab = NULL,
-                        init_r = 1500, init_rd = 350, init_sigma = 0.05,
-                        tau = 0.5, kappa = 0.5) {
+                        r = numeric(0), 
+                        rd = numeric(0),
+                        sigma = numeric(0),
+                        lambda = NULL,
+                        share = NULL, 
+                        weight = NULL, 
+                        idlab = NULL,
+                        init_r = 1500, 
+                        init_rd = 350, 
+                        init_sigma = 0.05,
+                        kappa = 0.5,
+                        tau = 0.5) {
   
   run_rating(
     method = "glicko2",
@@ -314,7 +322,7 @@ glicko2_run <- function(formula, data,
     weight = weight,
     lambda = lambda, 
     kappa = kappa, 
-    gamma = tau
+    tau = tau
   )
   
   ratings <- data.table::rbindlist(g$r)
@@ -345,11 +353,17 @@ glicko2_run <- function(formula, data,
   
 }
 
-bbt_run <- function(formula, data, 
-                    r = numeric(0), rd = numeric(0),
-                    init_r = 25, init_rd = 25 / 3,
-                    lambda = NULL, weight = NULL, share = NULL,
-                    beta = 25 / 6, kappa = 0.5) {
+bbt_run <- function(formula,
+                    data, 
+                    r = numeric(0), 
+                    rd = numeric(0),
+                    init_r = 25, 
+                    init_rd = 25 / 3,
+                    lambda = NULL, 
+                    weight = NULL, 
+                    share = NULL,
+                    beta = 25 / 6, 
+                    kappa = 0.5) {
   run_rating(
     method = "bbt",
     data = data, 
@@ -361,7 +375,7 @@ bbt_run <- function(formula, data,
     share = share,
     weight = weight,
     lambda = lambda, 
-    beta = beta ,
+    beta = beta,
     kappa = kappa
   )
   

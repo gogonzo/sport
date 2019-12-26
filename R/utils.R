@@ -71,19 +71,16 @@ names_not_matching <- function(name_var) {
   )
 }
 
-check_numeric_argument <- function(x, var_name, min = 0, max = Inf) {
+check_numeric_argument <- function(x, var_name, min = -Inf, max = Inf) {
   if (!is.numeric(x)) {
     stop(sprintf("Variable %s should be of type numeric.", var_name),
          call. = FALSE)
   } else if (any(!is.finite(x))) {
     stop(sprintf("Variable %s contains non-finite values. All elements should be finite.", var_name),
          call. = FALSE)
-  } else if (min == 0 && any(x < 0)) {
-    stop(sprintf("Variable %s contains negative values. All elements should be >= 0", var_name),
+  } else if (any(x < min | x > max)) {
+    stop(sprintf("All values in variable %s should be in range [%s, %s]", var_name, min, max),
          call. = FALSE)
-  } else if (max == 0 && max == 1 && any(x > 1 || x < 0)) {
-      stop(sprintf("All values in variable %s should be in range [0, 1]", var_name),
-           call. = FALSE)
   }
 }
 
@@ -94,11 +91,8 @@ check_integer_argument <- function(x, var_name, min = -Inf, max = Inf) {
   } else if (any(!is.finite(x))) {
     stop(sprintf("Variable %s contains non-finite values. All elements should be finite.", var_name),
          call. = FALSE)
-  } else if (min == 0 && any(x < 0)) {
-    stop(sprintf("Variable %s contains negative values. All elements should be >= 0", var_name),
-         call. = FALSE)
-  } else if (max == 0 && max == 1 && any(x > 1 || x < 0)) {
-    stop(sprintf("All values in variable %s should be in range [0, 1]", var_name),
+  } else if (any(x < min | x > max)) {
+    stop(sprintf("All values in variable %s should be in range [%s, %s]", var_name, min, max),
          call. = FALSE)
   }
 }

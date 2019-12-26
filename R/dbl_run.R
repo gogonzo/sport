@@ -29,9 +29,9 @@ NULL
 #'   \item \code{formula} modelled formula
 #' }
 #' @examples
-#' data <- data.frame( name = c( "A", "B", "C", "D" ), 
+#' data <- data.frame( name = c("A", "B", "C", "D"), 
 #'                     rank = c( 3, 4, 1, 2 ))
-#' dbl <- dbl_run( rank ~ name, data)
+#' dbl <- dbl_run(rank ~ name, data)
 #' @export
 dbl_run <- function(formula, data, r, rd, beta, weight, idlab, kappa=0.5, init_r=0, init_rd=1, pb=FALSE){
   is_formula_missing(formula)

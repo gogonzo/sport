@@ -1,121 +1,52 @@
 context("glicko_run")
-data <- data.frame( 
-  id = 1,
-  name = c("A", "B", "C", "D"), 
-  rank  = c(3, 4, 1, 2),
-  field = 1:4,
-  date = seq(Sys.Date() - 3, Sys.Date(), by = "1 day"),
-  sigma = rep(2, 4), 
-  weight = rep(1.05, 4),
-  weight2 = rep(0.9, 4),
-  date = c("a","b","c","d"))
-sigma <- setNames(rep(1, 4), c("A","B","C","D"))
-rd    <- setNames(rep(350, 4), c("A","B","C","D"))
-r     <- setNames(rep(1500, 4), c("A","B","C","D"))
 
-test_that("missing formula error",{
-  expect_error( 
-    glicko_run(data = data),
-    "Formula is not specified"
+test_that("valid glicko computation",{
+  expected_r  <- setNames(c(1464.297, 1396.039, 1606.521, 1674.836), c("A", "B", "C", "D"))
+  expected_rd <- setNames(c(150.847, 29.800, 92.544, 186.326), c("A", "B", "C", "D"))
+  
+  cpp_glicko <- sport:::glicko(
+    unique_id = 1L,
+    id = c(1, 1, 1, 1),
+    rank = c(3, 4, 1, 2),
+    team = c("a", "b", "c", "d"),
+    player = c("A", "B", "C", "D"),
+    r  = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")), 
+    rd = setNames(c(200.0,  30.0,   100.0,  300.0), c("A", "B", "C", "D")),
+    sigma = numeric(0),
+    share = c(1, 1, 1, 1),
+    lambda = c(1, 1, 1, 1), 
+    weight = c(1, 1, 1, 1),
+    init_r = 1500.0,
+    init_rd = 350.0,
+    init_sigma = 0,
+    beta = 25 / 6,
+    gamma = 1.0,
+    kappa = 0.5,
+    tau = 0.5)
+  
+  r_glicko <- glicko_run(
+    data = data.frame(
+      id = c(1, 1, 1, 1),
+      rank = c(3, 4, 1, 2),
+      team = c("a", "b", "c", "d"),
+      player = c("A", "B", "C", "D"),
+      stringsAsFactors = FALSE
+    ),
+    rank ~ player,
+    r  = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")), 
+    rd = setNames(c(200.0,  30.0,   100.0,  300.0), c("A", "B", "C", "D"))
   )
-})
-
-test_that("missing data error",{
-  expect_error( 
-    glicko_run(formula = rank | id ~ name),
-    "Data is not provided"
-  )
-})
-
-test_that("lhs formula message",{
-  expect_warning( 
-    glicko_run(rank ~ name, data = data, r = r, rd = rd),
-    "LHS of formula doesn't contain `| id` element.")
-})
-
-test_that("lhs formula message",{
-  expect_error( 
-    glicko_run(rank + id ~ name, data=data, r=r, rd=rd),
-    "LHS of formula must be seperated by `|` operator eg. `rank | id ~ .`")
-})
-
-test_that("lhs formula error ",{
-  expect_error( 
-    glicko_run(formula=rank|id + elo~name, data=data),
-    "LHS must contain 1 or 2 variables")
-})
-
-test_that("rhs formula error ",{
-  expect_error( 
-    glicko_run(formula = rank | id ~ name + field, data = data),
-    "glicko_run expects only one variable which is `~ name`")
-})
-
-test_that("Error with NA parameters", {
-  gpheats$weight   <- 1.1
-  gpheats$weight[17] <- NaN
-  expect_error(
-    glicko_run(rank | id ~ name, data = gpheats[17:21, ], weight = "weight"),
-    paste0("Parameters error after evaluating id=", gpheats$id[17])
-  )
-})
-
-test_that("variable conversion to character",{
-  expect_message( 
-    glicko_run(rank | id ~ field, data = data, r = r, rd = rd),
-    "variable 'field' is of class integer and will be converted to character")
+  
+  
+  expect_identical(expected_r, round(cpp_glicko$final_r, 3))
+  expect_identical(expected_r, round(r_glicko$final_r, 3))
+  
+  expect_identical(expected_rd, round(cpp_glicko$final_rd, 3))
+  expect_identical(expected_rd, round(r_glicko$final_rd, 3))
 })
 
 test_that("valid glicko computation",{
-  expect_identical(
-    setNames(c(1464.297, 1396.039, 1606.521, 1674.836), c("A", "B", "C", "D")),
-    round(
-      sport:::glicko(
-        unique_id = 1L,
-        id = c(1, 1, 1, 1),
-        rank = c(3, 4, 1, 2),
-        team = c("a", "b", "c", "d"),
-        player = c("A", "B", "C", "D"),
-        r  = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")), 
-        rd = setNames(c(200.0,  30.0,   100.0,  300.0), c("A", "B", "C", "D")),
-        sigma = numeric(0),
-        share = c(1, 1, 1, 1),
-        lambda = c(1, 1, 1, 1), 
-        weight = c(1, 1, 1, 1),
-        init_r = 1500.0,
-        init_rd = 350.0,
-        init_sigma = 0,
-        beta = 25 / 6,
-        gamma = 1.0,
-        kappa = 0.5,
-        tau = 0.5)$final_r, 
-      3
-    )
-  )
-})
-
-test_that("valid glicko computation",{
-  expect_identical(
-    c(1464.297, 1396.039, 1606.521, 1674.836),
-    round(
-      sport:::glicko(
-        unique_id = 1L,
-        id = c(1, 1, 1, 1, 1, 1, 1, 1),
-        rank = c(3, 3, 4, 4, 1, 1, 2, 2),
-        team = c("a", "a", "b", "b", "c", "c", "d", "d"),
-        player = LETTERS[1:8],
-        r  = setNames(rep(c(1500.0, 1400.0, 1550.0, 1700.0), each = 2), LETTERS[1:8]), 
-        rd = setNames(rep(c(200.0,  30.0,   100.0,  300.0), each = 2), LETTERS[1:8]),
-        share = rep(1, 8),
-        lambda = rep(1, 8), 
-        weight = rep(1, 8),
-        init_r = 1500.0,
-        init_rd = 350.0,
-        gamma = 1.0,
-        kappa = 0.5)$final_r, 
-      3
-    )
-  )
+  
 })
 
 test_that("init r passed",{
