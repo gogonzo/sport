@@ -21,15 +21,19 @@ factor2dummy <- function(factor) {
 #'   sigma = x[["sigma"]], 
 #'   weight = x[["weight"]], 
 #'   identifier = x[["identifier"]])
-glicko <- function(unique_id, id, rank, team, player, r, rd, share, lambda, weight, init_r = 1500.00, init_rd = 350.00, gamma = 1.0, kappa = .5) {
-    .Call('_sport_glicko', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, share, lambda, weight, init_r, init_rd, gamma, kappa)
+glicko <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau) {
+    .Call('_sport_glicko', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau)
 }
 
-glicko2 <- function(unique_id, id, rank, team, player, r, rd, sigma, lambda, share, weight, init_r = 1500.00, init_rd = 350.00, init_sigma = 0.05, kappa = 1.0, tau = .5) {
-    .Call('_sport_glicko2', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, lambda, share, weight, init_r, init_rd, init_sigma, kappa, tau)
+glicko2 <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau) {
+    .Call('_sport_glicko2', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau)
 }
 
-bbt <- function(unique_id, id, rank, team, player, r_val, rd_val, lambda, share, weight, kappa = 0.5, beta = 25 / 6, init_r = 25.0, init_rd = 25 / 3) {
-    .Call('_sport_bbt', PACKAGE = 'sport', unique_id, id, rank, team, player, r_val, rd_val, lambda, share, weight, kappa, beta, init_r, init_rd)
+bbt <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau) {
+    .Call('_sport_bbt', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau)
+}
+
+bbt2 <- function(unique_id, id, rank, team, player, r_val, rd_val, lambda, share, weight, kappa = 0.5, beta = 25 / 6, init_r = 25.0, init_rd = 25 / 3) {
+    .Call('_sport_bbt2', PACKAGE = 'sport', unique_id, id, rank, team, player, r_val, rd_val, lambda, share, weight, kappa, beta, init_r, init_rd)
 }
 

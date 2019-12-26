@@ -68,7 +68,7 @@ test_that("variable conversion to character",{
 
 test_that("valid glicko computation",{
   expect_identical(
-    c(1464.297, 1396.039, 1606.521, 1674.836),
+    setNames(c(1464.297, 1396.039, 1606.521, 1674.836), c("A", "B", "C", "D")),
     round(
       sport:::glicko(
         unique_id = 1L,
@@ -78,13 +78,17 @@ test_that("valid glicko computation",{
         player = c("A", "B", "C", "D"),
         r  = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")), 
         rd = setNames(c(200.0,  30.0,   100.0,  300.0), c("A", "B", "C", "D")),
+        sigma = numeric(0),
         share = c(1, 1, 1, 1),
         lambda = c(1, 1, 1, 1), 
         weight = c(1, 1, 1, 1),
         init_r = 1500.0,
         init_rd = 350.0,
+        init_sigma = 0,
+        beta = 25 / 6,
         gamma = 1.0,
-        kappa = 0.5)$final_r, 
+        kappa = 0.5,
+        tau = 0.5)$final_r, 
       3
     )
   )

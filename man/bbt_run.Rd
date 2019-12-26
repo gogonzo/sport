@@ -7,17 +7,15 @@
 bbt_run(
   formula,
   data,
-  r,
-  rd,
-  sigma,
-  weight,
-  beta = 25/6,
-  kappa = 0.5,
-  gamma,
-  idlab,
+  r = numeric(0),
+  rd = numeric(0),
   init_r = 25,
   init_rd = 25/3,
-  pb = FALSE
+  lambda = NULL,
+  weight = NULL,
+  share = NULL,
+  beta = 25/6,
+  kappa = 0.5
 )
 }
 \arguments{
@@ -35,7 +33,9 @@ bbt_run(
 
 \item{rd}{named vector of initial rating deviation estimates. In there is no assumption, initial is set to be r=25/3 Names of vector should correspond with `name` in formula.}
 
-\item{sigma}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sigma > 0` then prior `rd` increases, making estimate of `r` more uncertain.}
+\item{init_r}{initial values for `r` if not provided. Default = 25}
+
+\item{init_rd}{initial values for `r` if not provided. Default = 25/3}
 
 \item{weight}{name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.}
 
@@ -43,13 +43,11 @@ bbt_run(
 
 \item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1-kappa)`. `kappa=1` means that `rd` will not be decreased.}
 
-\item{gamma}{can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slows decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`.}
+\item{sigma}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sigma > 0` then prior `rd` increases, making estimate of `r` more uncertain.}
 
 \item{idlab}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`}
 
-\item{init_r}{initial values for `r` if not provided. Default = 25}
-
-\item{init_rd}{initial values for `r` if not provided. Default = 25/3}
+\item{gamma}{can help to control how fast the variance `rd` is reduced after updating. Lower `gamma` slows decreasing of `rd`, which tends to reach zero to quickly. The default value is `gamma = rd/c`. In simple words `gamma` multiplies prediction error.}
 
 \item{pb}{logical, if TRUE progress bar will appear in console. Default = FALSE}
 }
@@ -71,7 +69,8 @@ Wrapper arround `bbt` update algorithm. Wrapper allows user to simplify calculat
 }
 \examples{
 # Example from Glickman
-data <- data.frame( name = c( "A", "B", "C", "D" ), 
-                    rank = c( 3, 4, 1, 2 ))
-bbt <- bbt_run( rank ~ name, data )
+data <- data.frame(name = c("A", "B", "C", "D"), 
+                   rank = c(3, 4, 1, 2),
+                   stringsAsFactors = FALSE)
+bbt <- bbt_run( rank ~ name, data)
 }

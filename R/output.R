@@ -64,7 +64,7 @@ summary.rating <- function(object,...){
 
 #' @export
 print.rating <- function(x,...){
-  
+  browser()  
   model_probs_intervals <- x$pairs[,.(
     `Model probability` = round(mean(P), 3),
     `True probability`  = round(mean(Y), 3),

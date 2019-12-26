@@ -5,17 +5,24 @@
 \title{Glicko}
 \usage{
 glicko(
+  unique_id,
   id,
   rank,
-  name,
+  team,
+  player,
   r,
   rd,
   sigma,
+  share,
+  lambda,
   weight,
-  init_r = 1500,
-  init_rd = 350,
-  gamma = 1,
-  kappa = 0.5
+  init_r,
+  init_rd,
+  init_sigma,
+  beta,
+  gamma,
+  kappa,
+  tau
 )
 }
 \description{

@@ -150,6 +150,54 @@ init_check_rd <- function(rd, init_rd, unique_names, player) {
     stop("All values in rd should be greater than zero",
          call. = FALSE)
   } else {
-    r
+    rd
   }
+}
+
+init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
+  if (method != "glicko2") {
+    return(numeric(0))
+  } else if (length(sigma) == 0) {
+    sigma <- setNames(rep(init_sigma, length(unique_names)), unique_names)
+  } else if (!setequal(sort(names(sigma)), sort(unique_names))) {
+    stop(sprintf("All names in sigma should have a name which match %s argument in formula", player),
+         call. = FALSE)
+  } else if (any(sigma < 0)) {
+    stop("All values in sigma should be greater than zero",
+         call. = FALSE)
+  } else {
+    sigma
+  }
+}
+
+extract_formula <- function(formula, method, envir = parent.frame()) {
+  is_formula_missing(formula)
+  is_lhs_valid(formula)
+  is_rhs_valid(formula, paste0(method, "_run"))
+  
+  lhs  <- all.vars(update(formula, . ~ 0))
+  envir$rank <- lhs[1]
+  envir$rank_vec <- as.integer(data[[rank]])
+  
+  if (length(lhs) == 1) {
+    envir$id <- "id"
+    envir$id_vec <- rep(1L, nrow(data)) 
+  } else {
+    envir$id <- lhs[2]
+    envir$id_vec <- data[[lhs[2]]]
+  } 
+  
+  rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
+  if (grepl("nest\\(", rhs_terms)) {
+    envir$player <- gsub("^nest\\(([^ |]+)[ ]*\\|.*$", "\\1", rhs_terms)
+    envir$team <- gsub("^nest\\(.+\\|[ ]*(.+)\\)$", "\\1", rhs_terms)    
+    envir$team_vec <- as.character(data[[team]])
+    envir$player_vec <- as.character(data[[player]])
+  } else {
+    envir$player <- rhs_terms[1]
+    envir$team <- "team"
+    envir$player_vec <- as.character(data[[player]])
+    envir$team_vec <- player_vec
+  }
+  return(invisible(TRUE))
 }

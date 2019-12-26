@@ -1,13 +1,52 @@
 context("glicko2_run")
-data  <- data.frame(id = 1, 
-                    name = c( "A", "B", "C", "D"), 
-                    rank  = c( 3, 4, 1, 2 ), 
+data  <- data.frame(id     = 1, 
+                    name   = c( "A", "B", "C", "D"), 
+                    rank   = c(3, 4, 1, 2), 
                     weight = 1.05, 
-                    date = c("a","b","c","d"))
-sigma <- setNames(rep(1, 4), c("A", "B", "C", "D"))
-rd    <- setNames(rep(350, 4), c("A", "B", "C", "D"))
+                    date = c("a", "b", "c", "d"))
 
-test_that("Error with NA parameters",{
+r     <- setNames(rep(1500, 4), c("A", "B", "C", "D"))
+rd    <- setNames(rep(350, 4), c("A", "B", "C", "D"))
+sigma <- setNames(rep(1, 4), c("A", "B", "C", "D"))
+
+test_that("Expected final values", {
+  out <- sport:::glicko2(
+    unique_id = 1L,
+    id = c(1, 1, 1, 1),
+    rank = c(3, 4, 1, 2),
+    team = c("a", "b", "c", "d"),
+    player = c("A", "B", "C", "D"),
+    r  = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")), 
+    rd = setNames(c(200.0,  30.0,   100.0,  300.0),  c("A", "B", "C", "D")),
+    sigma = setNames(c(0.05, 0.05, 0.05, 0.05),   c("A", "B", "C", "D")),
+    share = c(1, 1, 1, 1),
+    lambda = c(1, 1, 1, 1), 
+    weight = c(1, 1, 1, 1),
+    init_r = 1500.0,
+    init_rd = 350.0,
+    init_sigma = 0.05,
+    beta = 25 / 6,
+    gamma = 1.0,
+    kappa = 0.5,
+    tau = 0.5)
+  
+  expect_identical(
+    setNames(c(1469, 1397, 1606, 1601), c("A", "B", "C", "D")),
+    round(out$final_r)
+  )
+  
+  expect_identical(
+    setNames(c(154, 31, 94, 204), c("A", "B", "C", "D")),
+    round(out$final_rd)
+  )
+  
+  expect_identical(
+    setNames(c(0.05, 0.05, 0.05, 0.05), c("A", "B", "C", "D")),
+    round(out$final_sigma, 2)
+  )
+})
+
+test_that("Errors with NA parameters",{
   gpheats$weight   <- 1.1
   gpheats$weight[17] <- NaN
   expect_error(
@@ -36,30 +75,7 @@ test_that("higher rating change for higher deviation",{
   ))
 })
 
-test_that("", {
-  expect_identical(
-    c(1468, 1396, 1606, 1601),
-    round(
-      sport:::glicko2(
-        unique_id = 1L,
-        id = c(1, 1, 1, 1),
-        rank = c(3, 4, 1, 2),
-        team = c("a", "b", "c", "d"),
-        player = c("A", "B", "C", "D"),
-        r  = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")), 
-        rd = setNames(c(200.0,  30.0,   100.0,  300.0),  c("A", "B", "C", "D")),
-        sigma = setNames(c(0.05, 0.05, 0.05, 0.05),   c("A", "B", "C", "D")),
-        share = c(1, 1, 1, 1),
-        lambda = c(1, 1, 1, 1), 
-        weight = c(1, 1, 1, 1),
-        init_r = 1500.0,
-        init_rd = 350.0,
-        tau = 0.5,
-        kappa = 0.5)$final_r
-    )
-  )
-  
-})
+
 
 test_that("R and RD exacltly proportional to weight",{
   r  <- setNames(c(1500, 1400, 1550, 1700), c("A", "B", "C", "D"))

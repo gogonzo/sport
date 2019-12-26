@@ -6,17 +6,17 @@ double rd2phi(double rd){
 }
 double calcGRd( double rd){
   double pi = std::atan(1)*4, 
-         q  = log(10.0)/400.0;
-  return 1.0/sqrt(1.0 + 3.0 * pow(q,2.0) * pow(rd, 2.0) / pow(pi,2.0) );
+         q  = log(10.0) / 400.0;
+  return 1.0 / sqrt(1.0 + 3.0 * pow(q,2.0) * pow(rd, 2.0) / pow(pi,2.0));
 }
 double calcGPhi( double phi ){
-  double pi = std::atan(1)*4.0;
-  return 1 / sqrt( 1.0 + 3.0 * pow(phi, 2.0) / pow(pi, 2.0) );
+  double pi = std::atan(1) * 4.0;
+  return 1 / sqrt(1.0 + 3.0 * pow(phi, 2.0) / pow(pi, 2.0));
 }
 double calcPGlicko( double g_rd_j, double r_i, double r_j){
   return  1/(1 + pow(10.0, -g_rd_j * (r_i - r_j)/400));
 }
-double calcPGlicko2( double g_phi_j, double mu_i, double mu_j){
+double calcPGlicko2(double g_phi_j, double mu_i, double mu_j){
   return 1/(1 + exp(-g_phi_j * (mu_i - mu_j)));
 }
 double calcVar( double g_rd_j, double E_s_ij){

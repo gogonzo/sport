@@ -24,7 +24,57 @@ data$id <- as.integer(data$id)
 sigma  <- setNames(rep(1, 26), letters)
 r  <- setNames(as.numeric(rep(25, 26)), letters)
 rd <- setNames(rep(25/3, 26), letters)
-# 
+
+test_that("expected final values", {
+  out <- sport:::bbt(
+    unique_id = 1,
+    id     = c(1, 1, 1, 1),
+    rank   = c(3, 4, 1, 2),
+    team   = c("a", "b", "c", "d"),
+    player = c("A", "B", "C", "D"),
+    
+    r      = setNames(c(25, 20, 15, 30), c("A", "B", "C", "D")), 
+    rd     = setNames(c(6,  7,  5,  20), c("A", "B", "C", "D")),
+    sigma  = numeric(0),
+    
+    lambda = c(1, 1, 1, 1),
+    weight = c(1, 1, 1, 1),
+    share  = c(1, 1, 1, 1),
+    
+    init_r  = 25,
+    init_rd = 25 / 3,
+    init_sigma = 0,
+    
+    beta = 25 / 6,
+    gamma = 1.0,
+    kappa = 0.5,
+    tau = 0.5
+  )
+  
+  out <- sport:::bbt2(
+    unique_id = 1,
+    id     = c(1, 1, 1, 1),
+    rank   = c(3, 4, 1, 2),
+    team   = c("a", "b", "c", "d"),
+    player = c("A", "B", "C", "D"),
+    r_val  = setNames(c(25, 20, 15, 30), c("A", "B", "C", "D")), 
+    rd_val = setNames(c(6,  7,  5,  20), c("A", "B", "C", "D")),
+    lambda = c(1, 1, 1, 1),
+    weight = c(1, 1, 1, 1),
+    share  = c(1, 1, 1, 1)
+  )
+  
+  expect_identical(
+    setNames(c(22.53, 14.07, 19.57, 32.69), c("A", "B", "C", "D")),
+    round(out$final_r, 2)
+  )
+  
+  expect_identical(
+    setNames(c(5.98, 6.94, 4.99, 14.74), c("A", "B", "C", "D")),
+    round(out$final_rd, 2)
+  )
+})
+
 test_that("bbt", {
   out <- sport:::bbt(
     unique_id = unique(as.integer(data$id)),
@@ -41,6 +91,7 @@ test_that("bbt", {
   identical(c("final_r", "final_rd", "r", "p"), names(out))
   identical(length(out$r), 3L)
   identical(length(out$p), 3L)
+  
 })
 
 

@@ -3,10 +3,10 @@
 #' @importFrom utils setTxtProgressBar txtProgressBar
 NULL
 
-#' Glicko rating algorithm
+
+#' Apply rating algorithm
 #' 
-#' Glicko rating algorithm
-#' Wrapper arround `glicko` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
+#' Apply rating algorithm
 #' @param formula formula specifying model. Glicko algorithm allows only player ranking parameter and should be specified by following manner: 
 #' `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same:
 #' \itemize{
@@ -34,30 +34,42 @@ NULL
 #' \item \code{method} type of algorithm used.
 #' \item \code{formula} modelled formula.
 #' }
-#' @examples
-#' # Example from Glickman
-#' data <- data.frame(name = c( "A", "B", "C", "D"), 
-#'                    rank = c( 3, 4, 1, 2 ))
-#' glicko <- glicko_run(data, rank ~ name)
-#' @export
-glicko_run <- function(data, formula, 
-                       r = numeric(0),
-                       rd = numeric(0), 
-                       init_r = 1500, 
-                       init_rd = 350, 
-                       share = numeric(0),
-                       weight = numeric(0),
-                       lambda = numeric(0), 
-                       kappa = 0.5, 
-                       gamma = 1.0) {
+run_rating <- function(
+    method,
+    data, 
+    formula, 
+    r,
+    rd, 
+    sigma,
+    init_r, 
+    init_rd, 
+    init_sigma,
+    share,
+    weight,
+    lambda,
+    beta,
+    gamma,
+    kappa, 
+    tau
+  ) {
+  if (method == "glicko") {
+    check_single_argument(gamma, "gamma", min = 0.00000000001)
+  } else if (method == "bbt") {
+    check_single_argument(beta, "beta", min = 0.00000000001)    
+  } else if (method == "glicko2") {
+    check_single_argument(init_sigma, "init_sigma", min = 0.00000000001)
+    check_single_argument(tau, "tau", min = 0.00000000001)
+  }
+  if (missing(beta)) beta <- 0.0
+  if (missing(gamma)) gamma <- 0.0
+  if (missing(tau)) tau <- 0.0
+  
+  is_data_provided(data)
   check_single_argument(init_r, "init_r", min = 0)
   check_single_argument(init_rd, "init_rd", min = 0)
-  check_single_argument(kappa, "kappa", min = 0.00000000001)
-  check_single_argument(gamma, "gamma", min = 0)
   is_formula_missing(formula)
-  is_data_provided(data)
   is_lhs_valid(formula)
-  is_rhs_valid(formula, "glicko_run")
+  is_rhs_valid(formula, paste0(method, "_run"))
   
   lhs  <- all.vars(update(formula, . ~ 0))
   rank <- lhs[1]
@@ -92,8 +104,9 @@ glicko_run <- function(data, formula,
   unique_names <- unique(unlist(player_vec))
   unique_id    <- unique(id_vec)
   
-  r  <- init_check_r(r, init_r, unique_names, player)
-  rd <- init_check_r(rd, init_rd, unique_names, player)
+  r     <- init_check_r(r, init_r, unique_names, player)
+  rd    <- init_check_rd(rd, init_rd, unique_names, player)
+  sigma <- init_check_sigma(sigma, init_sigma, unique_names, player, method)
   
   # check if lambda > 0
   check_integer_argument(id_vec, id)
@@ -104,24 +117,121 @@ glicko_run <- function(data, formula,
   check_numeric_argument(weight_vec, weight)
   check_numeric_argument(share_vec, share, min = 0, max = 1)
   
-  g <- glicko(
-    unique_id,
-    id = id_vec, 
-    rank = rank_vec, 
-    team = team_vec, 
-    player = player_vec, 
-    r = r, 
-    rd = rd,
-    share = share_vec, 
-    lambda = lambda_vec, 
-    weight = weight_vec, 
-    gamma = gamma,
-    kappa = kappa, 
+  g <- if (method == "glicko") {
+    glicko(
+      unique_id = unique_id,
+      id = id_vec, 
+      rank = rank_vec, 
+      team = team_vec, 
+      player = player_vec, 
+      r = r, 
+      rd = rd,
+      sigma = numeric(0),
+      init_r = init_r, 
+      init_rd = init_rd,
+      init_sigma = 0.0,
+      lambda = lambda_vec, 
+      share = share_vec, 
+      weight = weight_vec,
+      beta = 0.0,
+      gamma = gamma,
+      kappa = kappa,
+      tau = 0.0
+    )
+  } else if (method == "glicko2") {
+    glicko2(
+      unique_id,
+      id = id_vec, 
+      rank = rank_vec, 
+      team = team_vec, 
+      player = player_vec, 
+      
+      r = r, 
+      rd = rd,
+      sigma = sigma,
+      
+      init_r = init_r, 
+      init_rd = init_rd,
+      init_sigma = init_sigma,
+      
+      lambda = lambda_vec, 
+      share = share_vec, 
+      weight = weight_vec, 
+      
+      beta = 0.0,
+      gamma = 0.0,
+      kappa = kappa,
+      tau = tau
+    )
+  } else if (method == "bbt") {
+    bbt(
+      unique_id,
+      id = id_vec, 
+      rank = rank_vec, 
+      team = team_vec, 
+      player = player_vec, 
+      
+      r = r, 
+      rd = rd,
+      sigma = numeric(0),
+      
+      init_r = init_r, 
+      init_rd = init_rd,
+      init_sigma = 0.0,
+      
+      lambda = lambda_vec, 
+      share = share_vec, 
+      weight = weight_vec, 
+      
+      beta = beta,
+      gamma = 0.0,
+      kappa = kappa,
+      tau = 0.0
+    )
+  }
+  return(g)
+}
+
+
+#' Glicko rating algorithm
+#' 
+#' Glicko rating algorithm
+#' Wrapper arround `glicko` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
+#' @inheritParams run_rating
+#' @examples
+#' # Example from Glickman
+#' data <- data.frame(name = c( "A", "B", "C", "D"), 
+#'                    rank = c( 3, 4, 1, 2 ))
+#' glicko <- glicko_run(data, rank ~ name)
+#' @export
+glicko_run <- function(data, formula, 
+                       r = numeric(0),
+                       rd = numeric(0), 
+                       init_r = 1500, 
+                       init_rd = 350, 
+                       share = numeric(0),
+                       weight = numeric(0),
+                       lambda = numeric(0), 
+                       kappa = 0.5, 
+                       gamma = 1.0) {
+  g <- run_rating(
+    method = "glicko",
+    data = data, 
+    formula = formula, 
+    r = r,
+    rd = rd, 
     init_r = init_r, 
-    init_rd = init_rd)
+    init_rd = init_rd, 
+    share = share,
+    weight = weight,
+    lambda = lambda, 
+    kappa = kappa, 
+    gamma = gamma
+  )
   
-  ratings <- rbindlist(g$r)
-  pairs <- rbindlist(g$p)
+  
+  ratings <- data.table::rbindlist(g$r)
+  pairs <- data.table::rbindlist(g$p)
   
   out <- structure(
     list(final_r  = structure(g$final_r),
@@ -135,15 +245,13 @@ glicko_run <- function(data, formula,
     settings = list(
       init_r = init_r, 
       init_rd = init_rd, 
+      lambda = lambda,
+      share  = share,
       weight = weight,
-      sigma = sigma,
-      idlab = idlab,
-      kappa = kappa, 
-      idlab = idlab
+      gamma = gamma, 
+      kappa = kappa
     )
   )
-  
-  return(out)
 }
 
 #' Glicko2 rating algorithm
@@ -187,73 +295,35 @@ glicko_run <- function(data, formula,
 #' glicko2 <- glicko2_run( rank ~ name, data )
 #' @export
 glicko2_run <- function(formula, data, 
-                        r = numeric(0), rd = numeric(0), sigma = numeric(0), 
-                        weight = NULL, idlab = NULL,
+                        r = numeric(0), rd = numeric(0), sigma = numeric(0),
+                        lambda = NULL, share = NULL, weight = NULL, idlab = NULL,
                         init_r = 1500, init_rd = 350, init_sigma = 0.05,
                         tau = 0.5, kappa = 0.5) {
   
-  is_formula_missing(formula)
-  is_data_provided(data)
-  is_lhs_valid(formula)
-  is_rhs_valid(formula, "glicko_run")
-  is_vector_named(r, "r")
-  is_vector_named(rd, "rd")
-  is_vector_named(sigma, "sigma")
-  
-  # formula
-  lhs  <- all.vars(update(formula, .~0));
-  rhs  <- all.vars(update(formula, 0~.));
-  
-  rank_var <- lhs[1]
-  name_var <- rhs[1]
-  
-  rank_vec <- data[[rank_var]]
-  names_vec <- as.character(data[[name_var]])
-  id_vec <- if (length(lhs) == 1) rep(1.0, nrow(data)) else data[[lhs[2]]]  
-  weight_vec <- if (is.null(weight)) rep(1.0, nrow(data)) else data[[weight]]
-  
-  # default rating
-  unique_names <- unique(names_vec)
-  if (length(r) == 0) {
-    r <- setNames(rep(init_r, length(unique_names)), unique_names)
-  } else if (length(r) != length(unique_names)) {
-    stop(sprintf("All elements in r should have a name which match %s argument in formula",
-                 name_var))
-  }
-  
-  if (length(rd) == 0) {
-    rd <- setNames(rep(init_rd, length(unique_names)), unique_names)
-  } else if (length(rd) != length(unique_names)) {
-    stop(sprintf("All elements in rd should have a name which match %s argument in formula",
-                 name_var))
-  }
-  
-  if (length(sigma) == 0) {
-    sigma <- setNames(rep(init_sigma, length(unique_names)), unique_names)
-  } else if (length(sigma) != length(unique_names)) {
-    stop(sprintf("All elements in sigma should have a name which match %s argument in formula",
-                 name_var))
-  }
-  
-  g <- glicko2(
-    id = id_vec, 
-    rank = rank_vec, 
-    name = names_vec, 
-    weight = weight_vec,     
-    r = r, 
-    rd = rd,
-    sigma = sigma, 
+  run_rating(
+    method = "glicko2",
+    data = data, 
+    formula = formula, 
+    r = r,
+    rd = rd, 
+    sigma = sigma,
+    init_r = init_rd, 
+    init_rd = init_rd, 
+    init_sigma = init_sigma,
+    share = share,
+    weight = weight,
+    lambda = lambda, 
     kappa = kappa, 
-    tau = tau,
-    init_r = init_r, 
-    init_rd = init_rd)
+    gamma = tau
+  )
   
-  ratings <- rbindlist(g$r)
-  pairs   <- rbindlist(g$p)
+  ratings <- data.table::rbindlist(g$r)
+  pairs <- data.table::rbindlist(g$p)
   
   out <- structure(
     list(final_r  = structure(g$final_r),
          final_rd = structure(g$final_rd),
+         final_sigma = structure(g$final_sigma),
          r        = ratings,
          pairs    = pairs
     ),
@@ -263,13 +333,59 @@ glicko2_run <- function(formula, data,
     settings = list(
       init_r = init_r, 
       init_rd = init_rd, 
+      init_sigma = init_sigma,
+      lambda = lambda,
+      share  = share,
       weight = weight,
-      sigma = sigma,
-      idlab = idlab,
-      kappa = kappa, 
-      idlab = idlab
+      kappa = kappa,
+      tau = tau 
     )
   )
   
-  return(out)
+  
+}
+
+bbt_run <- function(formula, data, 
+                    r = numeric(0), rd = numeric(0),
+                    init_r = 25, init_rd = 25 / 3,
+                    lambda = NULL, weight = NULL, share = NULL,
+                    beta = 25 / 6, kappa = 0.5) {
+  run_rating(
+    method = "bbt",
+    data = data, 
+    formula = formula, 
+    r = r,
+    rd = rd, 
+    init_r = init_rd, 
+    init_rd = init_rd, 
+    share = share,
+    weight = weight,
+    lambda = lambda, 
+    beta = beta ,
+    kappa = kappa
+  )
+  
+  ratings <- rbindlist(g$r)
+  pairs <- rbindlist(g$p)
+  
+  out <- structure(
+    list(final_r  = structure(g$final_r),
+         final_rd = structure(g$final_rd),
+         final_sigma = structure(g$final_sigma),
+         r        = ratings,
+         pairs    = pairs
+    ),
+    class = "rating",
+    method = "bbt",
+    formula = formula,
+    settings = list(
+      init_r = init_r, 
+      init_rd = init_rd, 
+      lambda = lambda,
+      share  = share,
+      weight = weight,
+      beta = beta,
+      kappa = kappa
+    )
+  )
 }

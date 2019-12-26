@@ -11,9 +11,9 @@ glicko_run(
   rd = numeric(0),
   init_r = 1500,
   init_rd = 350,
-  sigma = NULL,
-  weight = NULL,
-  idlab = NULL,
+  share = numeric(0),
+  weight = numeric(0),
+  lambda = numeric(0),
   kappa = 0.5,
   gamma = 1
 )
@@ -37,13 +37,13 @@ glicko_run(
 
 \item{init_rd}{initial values for `r` if not provided. Default = 350}
 
-\item{sigma}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sigma > 0` then prior `rd` increases, making estimate of `r` more uncertain.}
-
 \item{weight}{name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.}
 
-\item{idlab}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`.}
-
 \item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1-kappa)`. `kappa=1` means that `rd` will not be decreased.}
+
+\item{sigma}{name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sigma > 0` then prior `rd` increases, making estimate of `r` more uncertain.}
+
+\item{idlab}{name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`.}
 
 \item{pb}{logical, if TRUE progress bar will appear in console. Default = FALSE}
 }
