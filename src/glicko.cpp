@@ -177,8 +177,6 @@ public:
           team1(idx) = unique_team_i[p];
           team2(idx) = unique_team_i[o];
           
-          Rcpp::Rcout << unique_team_i[p] << std::endl;
-          
           P(idx) = calcPGlicko(
               calcGRd(sqrt(rd2_it(p) + rd2_it(o))), 
               r_it(p), 
@@ -408,13 +406,6 @@ public:
       }
     }
     
-    
-    Rcpp::Rcout << "[id]" << id_i << std::endl;
-    Rcpp::Rcout << "[team]" << team1 << std::endl;
-    Rcpp::Rcout << "[opponent]" << team2 << std::endl;
-    Rcpp::Rcout << "[Y]" << Y << std::endl;
-    Rcpp::Rcout << "[P]" << P << std::endl;
-    
     Rcpp::DataFrame out_p_i = Rcpp::DataFrame::create(
       _["id"] = id_i,
       _["team"] = team1,
@@ -478,8 +469,6 @@ Ratings::Ratings(
   double gamma_val,
   double kappa_val,
   double tau_val) {
-  
-  Rcpp::Rcout << "in the initializer" << std::endl;
   
   // rank and name must be of length n
   this -> id_vec = id_vec_val;
@@ -657,16 +646,19 @@ Rcpp::List bbt(
     beta, gamma, kappa, tau                        // constants
   };
   
-  Rcpp::Rcout << "after init" << std::endl;
-  
   for (int i = 0; i < unique_id.size(); i++) {
-    Rcpp::Rcout << i << std::endl;
     id_i = unique_id(i);
     ratings.gatherTeams(id_i);
     ratings.updateBBT();
   }
 
-  return Rcpp::List::create();
+  return Rcpp::List::create(
+    _["r"] = ratings.out_r,
+    _["p"] = ratings.out_p,
+    _["final_r"] = ratings.r,
+    _["final_rd"] = ratings.rd
+  );
+  
 } 
 
 // [[Rcpp::export]]
@@ -782,7 +774,6 @@ Rcpp::List bbt2(
         if (p != q) {
           c = sqrt(rd2_it(p) + rd2_it(q) + pow(beta, 2.0));
           gamma = sqrt(rd2_it(p)) / c;
-          Rcpp::Rcout << "beta: " << beta << " gamma: " << gamma << std::endl; 
           
           team1(idx) = unique_team_i(p);
           team2(idx) = unique_team_i(q);
@@ -804,12 +795,6 @@ Rcpp::List bbt2(
         }
       }
     }
-    
-    
-    Rcpp::Rcout << "omega" << omega << std::endl;
-    Rcpp::Rcout << "delta" << delta << std::endl;
-    Rcpp::Rcout << "r" << r_it << std::endl;
-    Rcpp::Rcout << "rd" << rd2_it << std::endl;
     
     // update player ratings
     for (int t = 0; t < k; t++) {

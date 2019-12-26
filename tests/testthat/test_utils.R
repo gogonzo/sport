@@ -94,3 +94,10 @@ test_that("check vector arguments", {
   )
   
 })
+
+test_that("check data", {
+  expect_error(
+    is_data_provided(),
+    "Data is not provided"
+  )
+})
