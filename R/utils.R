@@ -122,12 +122,17 @@ check_single_argument <- function(x, var_name, min = -Inf, max = Inf) {
 
 init_check_r <- function(r, init_r, unique_names, player) {
   if (length(r) == 0) {
+    if (!is.finite(init_r)) {
+      stop("init_r should be a finite number", call. = FALSE)
+    }
     r <- setNames(rep(init_r, length(unique_names)), unique_names)
   } else if (!setequal(sort(names(r)), sort(unique_names))) {
     stop(sprintf("All names in r should have a name which match %s argument in formula", player),
          call. = FALSE)
-  } else if (any(r < 0)) {
-    stop("All values in r should be greater than zero",
+  } else if (any(duplicated(names(r)))) {
+    stop("All names in r should be unique. Duplicated names not allowed.", call. = FALSE)    
+  } else if (any(is.na(r))) {
+    stop("All values in r should be a finite number. NA's not allowed.",
          call. = FALSE)
   } else {
     r
@@ -136,12 +141,20 @@ init_check_r <- function(r, init_r, unique_names, player) {
 
 init_check_rd <- function(rd, init_rd, unique_names, player) {
   if (length(rd) == 0) {
+    if (!is.finite(init_rd) || init_rd <= 0) {
+      stop("init_rd value should be positive", call. = FALSE)
+    }
     rd <- setNames(rep(init_rd, length(unique_names)), unique_names)
   } else if (!setequal(sort(names(rd)), sort(unique_names))) {
     stop(sprintf("All names in rd should have a name which match %s argument in formula", player),
          call. = FALSE)
+  } else if (any(duplicated(names(rd)))) {
+    stop("All names in rd should be unique. Duplicated names not allowed.", call. = FALSE)    
+  } else if (any(is.na(rd))) {
+    stop("All values in rd should be a finite number. NA's not allowed.",
+         call. = FALSE)    
   } else if (any(rd < 0)) {
-    stop("All values in rd should be greater than zero",
+    stop("All values in rd should be positive",
          call. = FALSE)
   } else {
     rd
@@ -152,12 +165,20 @@ init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
   if (method != "glicko2") {
     return(numeric(0))
   } else if (length(sigma) == 0) {
+    if (!is.finite(init_sigma) || init_sigma <= 0) {
+      stop("init_sigma value should be positive", call. = FALSE)
+    }
     sigma <- setNames(rep(init_sigma, length(unique_names)), unique_names)
   } else if (!setequal(sort(names(sigma)), sort(unique_names))) {
     stop(sprintf("All names in sigma should have a name which match %s argument in formula", player),
          call. = FALSE)
+  } else if (any(duplicated(names(sigma)))) {
+    stop("All names in sigma should be unique. Duplicated names not allowed.", call. = FALSE)    
+  } else if (any(is.na(sigma))) {
+    stop("All values in sigma should be a finite number. NA's not allowed.",
+         call. = FALSE)    
   } else if (any(sigma < 0)) {
-    stop("All values in sigma should be greater than zero",
+    stop("All values in sigma should be positive",
          call. = FALSE)
   } else {
     sigma

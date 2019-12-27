@@ -6,6 +6,7 @@ test_that("check arguments", {
   # check init_r, init_rd, init_sigma
   # check if r, rd, sigma are > 0
   # check for missings and allowed values
+  # check r, rd, sigma pointers (should be different)
 })
 
 test_that("output structure", {
