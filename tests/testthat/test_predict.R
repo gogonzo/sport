@@ -13,18 +13,24 @@ r     <- setNames( rep(1500,4), c("A","B","C","D") )
 
 
 test_that("valid glicko predict computation",{
+  r  <- setNames(c( 1500, 1400, 1550, 1700 ), c("A","B","C","D"))
+  rd <- setNames(c( 200,  30,   100,  300 ), c("A","B","C","D"))
+  
   expect_identical(
     round(predict(
-      glicko_run( rank | id ~ name, data = data, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ) ),
+      glicko_run( rank | id ~ name, data = data, r = r, rd = rd),
       data)$P,7),
     c(0.5873752, 0.3287548, 0.2759733, 0.4126248, 0.2390720, 0.2015118, 0.6712452, 0.7609280, 0.4186856, 0.7240267, 0.7984882, 0.5813144)
   )
 })
 
 test_that("valid glicko2 predict computation",{
+  r  <- setNames(c( 1500, 1400, 1550, 1700 ), c("A","B","C","D"))
+  rd <- setNames(c( 200,  30,   100,  300 ), c("A","B","C","D"))
+  
   expect_identical(
     round(predict(
-      glicko2_run( rank | id ~ name, data = data, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ) ),
+      glicko2_run( rank | id ~ name, data = data, r = r, rd    = rd),
       data)$P,7),
     c(0.6356254, 0.2616612, 0.2816442, 0.3643746, 0.1592030, 0.1777754, 0.7383388, 0.8407970, 0.5089747, 0.7183558, 0.8222246, 0.4910253)
   )

@@ -53,6 +53,8 @@ glicko2_run <- function(formula, data, r, rd,sigma, tau=0.5, weight,kappa=0.5, i
   y    <- lhs[1]
   x    <- rhs[1]
   id <- ifelse( length(lhs)==1 , "id", lhs[2])
+  data[[x]] <- as.character(data[[x]])
+  
   if( length(lhs) == 1) data$id <- 1
   
   if( missing(r) ){
@@ -73,11 +75,11 @@ glicko2_run <- function(formula, data, r, rd,sigma, tau=0.5, weight,kappa=0.5, i
   if( missing(idlab) )   
     idlab <- id
   if(kappa==0) kappa=0.0001
-  if( !class(data[[x]]) %in% c("character","factor")) {
-    message(paste0("\nvariable '",x,"' is of class ",class(data[[x]])," and will be converted to character"))
+  if(!is.character(data[[x]])) {
+    message(paste0("\nvariable '",x,"' is of class ",class(data[[x]])[1]," and will be converted to character"))
     data[[x]] <- as.character(data[[x]])
   }
-  if(any(class(data)=="data.frame")) 
+  if(is.data.frame(data)) 
     data_list <- split(data[ unique(c(y,id,x, weight,idlab))], data[[ id ]] )
   
   

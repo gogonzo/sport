@@ -3,7 +3,7 @@ is_data_provided <- function(data)
 
 is_formula_missing <- function(formula)
   if(missing(formula)) 
-    stop("Formula is not specified",call. = F) else if(class(formula)!="formula")
+    stop("Formula is not specified",call. = F) else if(!is(formula, "formula"))
     stop("Formula is not specified",call. = F)
 
 is_lhs_valid <- function(formula)

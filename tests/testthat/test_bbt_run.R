@@ -9,15 +9,19 @@ gpheats$weight2  <- 1.0
 test_that("Error with NA parameters",{
   gpheats$weight[17] <- NaN
   expect_error(
-    bbt_run( rank|id~rider,data=gpheats[17:21,] , weight = "weight"  ),
+    bbt_run(formula = rank | id ~ rider,
+            data = gpheats[17:21,] , weight = "weight"),
     paste0("Parameters error after evaluating id=", gpheats$id[17])
   )
 })
 
 test_that("valid bbt computation",{
+  r  <- setNames(c( 25, 20, 15, 30 ), c("A","B","C","D"))
+  rd <- setNames(c( 6,  7,   5,  20 ), c("A","B","C","D"))
+  
   expect_equal(
-    c(22.52807, 14.06973, 19.57436, 30.46640),
-    round(bbt_run( rank | id ~ name, data = data, r = c( 25, 20, 15, 30 ) , rd    = c( 6,  7,   5,  20 ) )$final_r,5)
+    setNames(c(22.52807, 14.06973, 19.57436, 30.46640), c("A","B","C","D")),
+    round(bbt_run( rank | id ~ name, data = data, r = r, rd = rd )$final_r,5)
   )
 })
 
@@ -110,3 +114,4 @@ test_that("r object has date labels attribute",{
     attributes(bbt_run( rank | id ~ name, data = data, weight="weight", sigma = "sigma", init_r=1000, init_rd=200)$r)[-4]
   )
 })
+

@@ -33,8 +33,9 @@ test_that("higher rating change for higher deviation",{
 })
 
 test_that("R and RD exacltly proportional to weight",{
-  r  <- c( 1500, 1400, 1550, 1700 ) 
-  rd <- c( 200,  30,   100,  300 )
+  r  <- setNames(c( 1500, 1400, 1550, 1700 ), c("A","B","C","D"))
+  rd <- setNames(c( 200,  30,   100,  300 ), c("A","B","C","D"))
+  
   model1 <- glicko2_run( rank | id ~ name, data = data, r = r ,rd = rd, weight="weight" )
   model2 <- glicko2_run( rank | id ~ name, data = data, r = r ,rd = rd )
   

@@ -21,7 +21,8 @@ BugReports: https://github.com/gogonzo/sport/issues
 Imports: 
   Rcpp (>= 0.12.8), 
   data.table (>= 1.11.0), 
-  ggplot2 (>= 3.0.0)
+  ggplot2 (>= 3.0.0),
+  methods,
 LinkingTo: Rcpp
 License: GPL-2
 Encoding: UTF-8

@@ -41,6 +41,7 @@ NULL
 #' glicko <- glicko_run( rank ~ name, data )
 #' @export
 glicko_run <- function(formula, data, r, rd, sigma, weight, kappa=0.5, idlab, init_r=1500, init_rd=350, pb=FALSE){
+  
   is_formula_missing(formula)
   is_data_provided(data)
   is_lhs_valid(formula)
@@ -51,7 +52,10 @@ glicko_run <- function(formula, data, r, rd, sigma, weight, kappa=0.5, idlab, in
   y    <- lhs[1]
   x    <- rhs[1]
   id <- ifelse( length(lhs)==1 , "id", lhs[2])
-  if( length(lhs) == 1) data$id <- 1
+  
+  data[[x]] <- as.character(data[[x]])
+  if(length(lhs) == 1) data$id <- 1
+  
   
   if( missing(r) ){
     message(paste("r is missing and will set to default="), init_r)
@@ -67,18 +71,16 @@ glicko_run <- function(formula, data, r, rd, sigma, weight, kappa=0.5, idlab, in
     data$weight <- 1; weight="weight"}
   if( missing(idlab) )   
     idlab <- id
-  if( !class(data[[x]]) %in% c("character","factor")) {
-    message(paste0("\nvariable '",x,"' is of class ",class(data[[x]])," and will be converted to character"))
-    data[[x]] <- as.character(data[[x]])
-  }
+  
   if(kappa==0) kappa=0.0001
-  if(any(class(data)=="data.frame")) 
+  if(is.data.frame(data)) 
     data_list <- split(data[ unique(c(y,id,x, sigma, weight,idlab))], data[[ id ]] )
   
   j <- 0
   n <- length(data_list)
   if(pb) pb <- txtProgressBar(min=0, max=n, width=20, initial=0, style=3)
   models <- list()
+ 
   for(i in names(data_list)){
     player_names <- data_list[[ i ]][[ x ]]
     model      <- glicko( 

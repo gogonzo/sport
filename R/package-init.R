@@ -1,5 +1,5 @@
 #' @useDynLib sport
-#' @importFrom Rcpp sourceCpp
+#' @importFrom methods is
 NULL
 
 if(getRversion() >= "2.15.1")  

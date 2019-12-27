@@ -66,22 +66,28 @@ test_that("Error with NA parameters",{
   )
 })
 
-test_that("variable conversion to character",{
-  expect_message( 
-    glicko_run(rank|id~field, data=data, r=r, rd=rd),
-    "variable 'field' is of class integer and will be converted to character")
-})
-
 test_that("valid glicko computation",{
+
   expect_identical(
-    c(1464.297, 1396.039, 1606.521, 1674.836),
-    round(glicko_run( rank | id ~ name, data = data, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ) )$final_r,3)
+    setNames(c(1464.297, 1396.039, 1606.521, 1674.836), c("A","B","C","D")),
+    round(
+      glicko_run( 
+        rank | id ~ name, 
+        data = data, 
+        r = setNames(c(1500, 1400, 1550, 1700), c("A","B","C","D")), 
+        rd = setNames(c( 200,  30,   100,  300 ), c("A","B","C","D")) 
+      )$final_r,
+      3
+    )
   )
 })
 
 test_that("init r passed",{
-  expect_true( all(
-    sum(glicko_run(formula = rank | id ~ name, data=data, init_r = 1000)$final_r)==4000
+  expect_true( 
+    all(
+      sum(
+        glicko_run(formula = rank | id ~ name, data = data, init_r = 1000)$final_r
+      ) == 4000
   ))
 })
 
@@ -97,8 +103,8 @@ test_that("higher rating change for higher deviation",{
 })
 
 test_that("R and RD exacltly proportional to weight",{
-  r  <- c( 1500, 1400, 1550, 1700 ) 
-  rd <- c( 200,  30,   100,  300 )
+  r  <- setNames(c( 1500, 1400, 1550, 1700 ), c("A","B","C","D"))
+  rd <- setNames(c( 200,  30,   100,  300 ), c("A","B","C","D"))
   model1 <- glicko_run( rank | id ~ name, data = data, r = r ,rd = rd, weight="weight" )
   model2 <- glicko_run( rank | id ~ name, data = data, r = r ,rd = rd )
   
@@ -113,9 +119,12 @@ test_that("R and RD exacltly proportional to weight",{
 })
 
 test_that("higher rating change for higher sigma",{
+  r  <- setNames(c( 1500, 1400, 1550, 1700 ), c("A","B","C","D"))
+  rd <- setNames(c( 200,  30,   100,  300 ), c("A","B","C","D"))
+  
   expect_true( all(
-    abs( 1500 - glicko_run(formula = rank | id ~ name, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ),data=data, sigma="sigma")$final_r ) >
-    abs( 1500 - glicko_run(formula = rank | id ~ name, r = c( 1500, 1400, 1550, 1700 ) , rd    = c( 200,  30,   100,  300 ),data=data)$final_r )
+    abs( 1500 - glicko_run(formula = rank | id ~ name, r = r, rd = rd, data=data, sigma="sigma")$final_r ) >
+    abs( 1500 - glicko_run(formula = rank | id ~ name, r = r , rd    = rd, data=data)$final_r )
   ))
 })
 

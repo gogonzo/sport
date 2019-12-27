@@ -72,10 +72,10 @@ bbt_run <- function(formula, data, r,rd, sigma, weight,beta=25/6,kappa=0.5, gamm
   if(missing(idlab)) 
     idlab <- id 
   if(kappa==0) kappa=0.0001
-  if(class(r)!="matrix")   r <- as.matrix(r)
-  if(class(rd)!="matrix") rd <- as.matrix(rd)
+  if(!is.matrix(r))   r <- as.matrix(r)
+  if(!is.matrix(rd)) rd <- as.matrix(rd)
   
-  if(any(class(data)=="data.frame")) 
+  if(is.data.frame(data)) 
     data_list <- split(data[ unique(c(y,id,x, sigma, weight, idlab))], data[[ id ]] ) 
   
   n <- length(data_list)
