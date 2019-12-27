@@ -5,13 +5,15 @@ gpheats$weight   <- .9
 gpheats$weight2  <- 1.0
 
 formula      <- rank|id ~ rider + field + field_f
-r  <- dbl_run( formula, data = gpheats[1:16,])$final_r
-rd <- dbl_run( formula, data = gpheats[1:16,])$final_rd
+r  <- dbl_run(formula, data = gpheats[1:16,])$final_r
+rd <- dbl_run(formula, data = gpheats[1:16,])$final_rd
 
 test_that("final parameters list match all variables.levels ",{
   expect_identical(
-    sport:::allLevelsList( rank|id ~ rider + field + field:name+rider:name + beta:weight , gpheats[1:32,]),
-    names(        dbl_run( rank|id ~ rider + field + field:name+rider:name + beta:weight , data = gpheats[1:32,])$final_r)
+    sport:::allLevelsList(rank|id ~ rider + field + field:name+rider:name + beta:weight, 
+                          gpheats[1:32,]),
+    names(        dbl_run(rank|id ~ rider + field + field:name+rider:name + beta:weight, 
+                          data = gpheats[1:32,])$final_r)
   )
 })
 
@@ -65,20 +67,13 @@ test_that("R and RD exacltly proportional to weight",{
   model2 <- dbl_run( formula, gpheats[1:4,], weight = "weight2" )
   
   expect_true( all(
-    round(abs(0-model1$final_r)/abs(0-model2$final_r),2) == .9
+    round(abs(0 - model1$final_r) / abs(0 - model2$final_r), 2) == .9
   ))
   
   expect_true( all(
-    round(abs(1-model1$final_rd)/abs(1-model2$final_rd),2) == .9
+    round(abs(1 - model1$final_rd)/abs(1-model2$final_rd),2) == .9
   ))
   
-})
-
-test_that("identifier passed succesfuly",{
-  expect_identical(
-    as.character(gpheats$date[1:32]),
-    attr( dbl_run(formula = rank|id~rider+field+field_f,r=r,rd=rd, data=gpheats[1:32,], idlab = "date")$r,"identifier")
-  )
 })
 
 test_that("valid glicko output names",{
@@ -90,9 +85,23 @@ test_that("valid glicko output names",{
 
 test_that("valid dbl attr names",{
   expect_equal(
-    list(names = c("final_r","final_rd","r","pairs"),
-         class = "rating", method = "dbl",formula = rank|id~rider,
-         settings=list(init_r=0, init_rd=1,beta="beta",weight="weight",kappa=0.5,idlab="id")),
-    attributes( dbl_run( rank|id ~ rider, data = gpheats[1:32,], weight="weight", beta = "beta") )
+    list(names = c("final_r", "final_rd", "r", "pairs"),
+         class = "rating", 
+         method = "dbl",
+         formula = rank|id~rider,
+         settings = list(
+           init_r = 0, 
+           init_rd = 1,
+           beta = "beta",
+           weight = "weight",
+           kappa=0.5
+          )),
+    attributes( 
+      dbl_run(rank|id ~ rider, 
+              data = gpheats[1:32,], 
+              weight="weight", 
+              beta = "beta") 
+    )
   )
 })
+

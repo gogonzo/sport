@@ -118,7 +118,8 @@ test_that("valid formula", {
     "LHS of formula must be seperated by `\\|` operator eg."
   )
   
-  expect_silent(is_lhs_valid(rank ~ elo))
+  expect_warning(is_lhs_valid(rank ~ elo), 
+                  "all belongs to the same event id")
   expect_silent(is_rhs_valid(rank ~ elo))
   expect_silent(is_lhs_valid(rank|test ~ elo))
   expect_silent(is_rhs_valid(rank ~ nest(player|team)))

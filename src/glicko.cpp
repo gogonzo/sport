@@ -34,12 +34,13 @@ private:
   double tau;
   
   // in id_i loop
-  Rcpp::IntegerVector idx_i;;
+  Rcpp::IntegerVector idx_i;
   Rcpp::StringVector team_vec_i;
   Rcpp::StringVector player_vec_i;
   Rcpp::IntegerVector idx_rating_i;
   Rcpp::NumericVector r_vec_i;
   Rcpp::NumericVector rd_vec_i;
+  Rcpp::NumericVector sigma_vec_i;
   Rcpp::StringVector unique_team_i;
   // in team_it loop
   Rcpp::IntegerVector idx_it;
@@ -66,7 +67,9 @@ public:
     idx_rating_i = match(player_vec_i, player_names) - 1;
     r_vec_i = r[idx_rating_i];
     rd_vec_i = rd[idx_rating_i];
-    
+    if (sigma.size() > 0) {
+      sigma_vec_i = sigma[idx_rating_i];
+    }
     // team specific variables
     unique_team_i = utils::unique(team_vec_i);
   
@@ -125,6 +128,7 @@ public:
       _["player"] = player_vec_i,
       _["r"] = r_vec_i, 
       _["rd"] = rd_vec_i,
+      _["sigma"] = sigma.size() > 0 ? sigma_vec_i : 1.0,
       _["stringsAsFactors"] = false
     );  
     
@@ -218,6 +222,7 @@ public:
         sqrt(rd2_it(t)) - 
           sqrt(1 / (1 / rd2_it(t) + 1 / (delta(t))))
       );
+      
       
       for (int p = 0; p < idx_rating_it.size(); p++) {
         idx_r = idx_rating_it(p);
@@ -337,7 +342,8 @@ public:
     }
   }
   void updateBBT() {
-    int idx = 0, k = unique_team_i.size(), c, gamma;
+    int idx = 0, k = unique_team_i.size();
+    double c, gamma;
    
     // calculate update for teams
     CharacterVector team1(k * k - k);
@@ -536,6 +542,7 @@ List
     int id_i;
     StringVector player_names = r.names();
     
+    
     Ratings ratings{
       id, rank, team, player, lambda, share, weight, // match vectors
       r, rd, sigma, init_r, init_rd, init_sigma,     // ratings 
@@ -586,7 +593,7 @@ List
     
     int id_i;
     StringVector player_names = r.names();
-    
+
     Ratings ratings{
       id, rank, team, player, lambda, share, weight, // match vectors
       r, rd, sigma, init_r, init_rd, init_sigma,     // ratings 
@@ -599,7 +606,7 @@ List
       ratings.precalculateGlicko2();
       ratings.updateGlicko2();
     }
-    
+  
     return Rcpp::List::create(
       _["r"] = ratings.out_r,
       _["p"] = ratings.out_p,

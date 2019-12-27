@@ -11,7 +11,6 @@ Rcpp::List
     NumericVector RD,
     NumericVector beta,
     NumericVector weight,
-    StringVector identifier,
     double kappa = 0.95
   ) {
   int n = X.nrow();
@@ -22,7 +21,6 @@ Rcpp::List
   
   StringVector team2(n*n-n);
   StringVector team1(n*n-n);
-  StringVector identifierp(n*n-n);
   NumericVector P(n*n-n);
   NumericVector Y(n*n-n);
   NumericVector r_update(k);
@@ -44,7 +42,6 @@ Rcpp::List
     for(int q = 0; q<n; q++ ){
       if(i!=q){
         idx += 1;
-        identifierp( idx - 1 ) = identifier(i);
         team1( idx - 1 ) = name(i);
         team2( idx - 1 ) = name(q);
         
@@ -109,8 +106,6 @@ Rcpp::List
       Rcpp::Named("P") = P,
       Rcpp::Named("Y") = Y,
       Rcpp::Named("stringsAsFactors") = false
-    ),
-    Rcpp::Named("identifierp") = identifierp,
-    Rcpp::Named("identifier")  = identifier
+    )
   );
 }

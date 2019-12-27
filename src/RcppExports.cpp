@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // dbl
-Rcpp::List dbl(StringVector name, IntegerVector rank, NumericMatrix X, NumericVector R, NumericVector RD, NumericVector beta, NumericVector weight, StringVector identifier, double kappa);
-RcppExport SEXP _sport_dbl(SEXP nameSEXP, SEXP rankSEXP, SEXP XSEXP, SEXP RSEXP, SEXP RDSEXP, SEXP betaSEXP, SEXP weightSEXP, SEXP identifierSEXP, SEXP kappaSEXP) {
+Rcpp::List dbl(StringVector name, IntegerVector rank, NumericMatrix X, NumericVector R, NumericVector RD, NumericVector beta, NumericVector weight, double kappa);
+RcppExport SEXP _sport_dbl(SEXP nameSEXP, SEXP rankSEXP, SEXP XSEXP, SEXP RSEXP, SEXP RDSEXP, SEXP betaSEXP, SEXP weightSEXP, SEXP kappaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -18,9 +18,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type RD(RDSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type weight(weightSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type identifier(identifierSEXP);
     Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
-    rcpp_result_gen = Rcpp::wrap(dbl(name, rank, X, R, RD, beta, weight, identifier, kappa));
+    rcpp_result_gen = Rcpp::wrap(dbl(name, rank, X, R, RD, beta, weight, kappa));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -145,7 +144,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_sport_dbl", (DL_FUNC) &_sport_dbl, 9},
+    {"_sport_dbl", (DL_FUNC) &_sport_dbl, 8},
     {"_sport_factor2dummy", (DL_FUNC) &_sport_factor2dummy, 1},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 18},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 18},

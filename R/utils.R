@@ -3,7 +3,7 @@ is_data_provided <- function(data) {
 }
 
 is_formula_missing <- function(formula) {
-  if (missing(formula)) {
+  if (length(formula) == 0) {
     stop("Formula is not specified", call. = FALSE) 
   } else if (!inherits(formula, "formula")) {
     stop("Formula incorrectly specified", call. = FALSE)
@@ -50,25 +50,6 @@ is_newdata_consistent <- function(vars, newnames) {
         paste(setdiff(vars, newnames), collapse = ","),
         ") are not present in newdata. Provide colnames identical to specified in model formula"), call. = FALSE)      
   }
-}
-
-is_vector_named <- function(vec, name) {
-  if (length(vec) > 1 && is.null(names(vec))) {
-    stop(
-     sprintf("Rating variable %s is not named. Please set names."),
-     call. = FALSE
-    )
-  }
-}
-
-names_not_matching <- function(name_var) {
-  stop(
-    sprintf(
-      "All elements in r should have a name which match %s argument in formula",
-      name_var
-    ), 
-    call. = FALSE
-  )
 }
 
 check_numeric_argument <- function(x, var_name, min = -Inf, max = Inf) {
@@ -183,36 +164,4 @@ init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
   } else {
     sigma
   }
-}
-
-extract_formula <- function(formula, method, envir = parent.frame()) {
-  is_formula_missing(formula)
-  is_lhs_valid(formula)
-  is_rhs_valid(formula, paste0(method, "_run"))
-  
-  lhs  <- all.vars(update(formula, . ~ 0))
-  envir$rank <- lhs[1]
-  envir$rank_vec <- as.integer(data[[rank]])
-  
-  if (length(lhs) == 1) {
-    envir$id <- "id"
-    envir$id_vec <- rep(1L, nrow(data)) 
-  } else {
-    envir$id <- lhs[2]
-    envir$id_vec <- data[[lhs[2]]]
-  } 
-  
-  rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
-  if (grepl("nest\\(", rhs_terms)) {
-    envir$player <- gsub("^nest\\(([^ |]+)[ ]*\\|.*$", "\\1", rhs_terms)
-    envir$team <- gsub("^nest\\(.+\\|[ ]*(.+)\\)$", "\\1", rhs_terms)    
-    envir$team_vec <- as.character(data[[team]])
-    envir$player_vec <- as.character(data[[player]])
-  } else {
-    envir$player <- rhs_terms[1]
-    envir$team <- "team"
-    envir$player_vec <- as.character(data[[player]])
-    envir$team_vec <- player_vec
-  }
-  return(invisible(TRUE))
 }
