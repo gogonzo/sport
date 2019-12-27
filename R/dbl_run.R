@@ -31,7 +31,7 @@ NULL
 #' @examples
 #' data <- data.frame( name = c( "A", "B", "C", "D" ), 
 #'                     rank = c( 3, 4, 1, 2 ))
-#' dbl <- dbl_run( rank ~ name, data)
+#' dbl <- dbl_run(formula = rank ~ name, data)
 #' @export
 dbl_run <- function(formula, data, r, rd, beta, weight, idlab, kappa=0.5, init_r=0, init_rd=1, pb=FALSE){
   is_formula_missing(formula)
@@ -40,21 +40,21 @@ dbl_run <- function(formula, data, r, rd, beta, weight, idlab, kappa=0.5, init_r
   is_interactions_valid(formula)
   
   all_params <- allLevelsList(formula, data)
-  lhs  <- all.vars(update(formula, .~0))
-  rhs  <- all.vars(update(formula, 0~.))
+  lhs  <- all.vars(update(formula, . ~ 0))
+  rhs  <- all.vars(update(formula, 0 ~ .))
   y    <- lhs[1]
-  id <- ifelse( length(lhs)==1 , "id", lhs[2])
-  if( length(lhs) == 1) data$id <- 1
+  id   <- ifelse(length(lhs) == 1 , "id", lhs[2])
+  if (length(lhs) == 1) data$id <- 1
   
-  if(missing(r)) 
+  if (missing(r)) 
     r  <- setNames(rep(init_r, length(all_params)), all_params )
-  if(missing(rd)) 
+  if (missing(rd)) 
     rd <- setNames(rep(init_rd, length(all_params)), all_params )
-  if(missing(idlab)) 
+  if (missing(idlab)) 
     idlab <- id
-  if( missing(weight) ){
+  if (missing(weight)) {
     data$weight <- 1.0; weight <- "weight" } 
-  if( missing(beta) ){
+  if (missing(beta)) {
     data$beta <- 1.0; beta <- "beta" } 
   if(kappa==0) kappa=0.0001
   
