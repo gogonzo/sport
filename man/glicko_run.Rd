@@ -4,8 +4,19 @@
 \alias{glicko_run}
 \title{Glicko rating algorithm}
 \usage{
-glicko_run(formula, data, r, rd, sigma, weight, kappa = 0.5, idlab,
-  init_r = 1500, init_rd = 350, pb = FALSE)
+glicko_run(
+  formula,
+  data,
+  r,
+  rd,
+  sigma,
+  weight,
+  kappa = 0.5,
+  idlab,
+  init_r = 1500,
+  init_rd = 350,
+  pb = FALSE
+)
 }
 \arguments{
 \item{formula}{formula specifying model. Glicko algorithm allows only player ranking parameter and should be specified by following manner: 

@@ -4,8 +4,19 @@
 \alias{dbl_run}
 \title{DBL rating algorithm}
 \usage{
-dbl_run(formula, data, r, rd, beta, weight, idlab, kappa = 0.5,
-  init_r = 0, init_rd = 1, pb = FALSE)
+dbl_run(
+  formula,
+  data,
+  r,
+  rd,
+  beta,
+  weight,
+  idlab,
+  kappa = 0.5,
+  init_r = 0,
+  init_rd = 1,
+  pb = FALSE
+)
 }
 \arguments{
 \item{formula}{formula specifying model. DBL allows multiple variables in formula, also two-way interaction are available specified by `:`. `dbl` formula require first variable to be player name or identifier. LHS needs `rank|id`, to specify competitors order and event `id`.}

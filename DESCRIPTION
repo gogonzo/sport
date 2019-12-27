@@ -1,7 +1,8 @@
 Package: sport
 Type: Package
 Title: Sequential Pairwise Online Rating Techniques
-Version: 0.1.2
+Date: 2019-12-27
+Version: 0.1.3
 Depends: R (>= 3.0)
 Authors@R: person("Dawid", "Kałędkowski", email = "dawid.kaledkowski@gmail.com", role = c("aut", "cre"))
 Maintainer: Dawid Kałędkowski <dawid.kaledkowski@gmail.com>
@@ -28,7 +29,7 @@ License: GPL-2
 Encoding: UTF-8
 URL: https://github.com/gogonzo/sport
 LazyData: true
-RoxygenNote: 6.1.0
+RoxygenNote: 7.0.2
 Suggests: 
   dplyr,
   knitr, 
