@@ -144,7 +144,7 @@ get_terms <- function(data, formula) {
   return(vars)
 }
 
-get_terms_matrix <- function(data, terms) {
+get_terms_map <- function(data, terms) {
   df <- as.data.frame(
     lapply(terms, function(term) {
       if (length(term) == 1) {
@@ -177,6 +177,48 @@ get_terms_matrix <- function(data, terms) {
     })
   )
 
+  names <- vapply(terms, function(term) {
+    if (length(term) == 1) {
+      names(term)
+    } else {
+      if (any(term == "character")) {
+        paste(names(term), collapse = "|")
+      } else if (all(term == "numeric")) {
+        paste(names(term), collapse = "*")
+      }
+    }            
+  }, FUN.VALUE = character(1))
+  
+  names(df) <- names
+  df <- as.matrix(df)
+  
+  return(df)
+}
+get_terms_mat <- function(data, terms) {
+  df <- as.data.frame(
+    lapply(terms, function(term) {
+      if (length(term) == 1) {
+        if (term == "character") {
+          rep(1, times = nrow(data))       
+        } else {
+          data[[names(term)]]
+        }
+        
+      } else if (length(term) == 2) {
+        if (all(term == "character")) {
+          rep(1, times = nrow(data))
+        } else if (term[1] == "character" && term[2] == "numeric") {
+          data[names(term)[2]]
+        } else if (all(term == "numeric")) {
+          data[names(term)[1]] * data[names(term)[2]]
+        }
+      } else {
+        stop("Only two-variable interactions are possible. 
+             Please combine variables manualy and include them in formula.")
+      }            
+    })
+  )
+  
   names <- vapply(terms, function(term) {
     if (length(term) == 1) {
       names(term)

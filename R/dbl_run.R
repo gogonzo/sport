@@ -58,10 +58,10 @@ dbl_run <- function(formula,
     id <- lhs[2]
     id_vec <- as.integer(data[[lhs[2]]])
   }
-  
   terms   <- get_terms(data, formula)
-  X <- get_terms_matrix(data, terms)
-  unique_params <- unname(unlist(apply(X, 2, unique)))
+  MAP <- get_terms_map(data, terms)
+  X   <- get_terms_mat(data, terms)
+  unique_params <- unname(unlist(apply(MAP, 2, unique)))
   
   if (is.null(r)) {
     r <- setNames(rep(init_r, length(unique_params)), unique_params)
@@ -83,11 +83,14 @@ dbl_run <- function(formula,
   
   if (is.null(kappa)) kappa <- 0.0001
 
+  print(MAP)
+  print(X)
   model <- dbl(
     unique_id = unique(id_vec),
     id = id_vec,
     rank_vec = rank_vec,
     team_vec = team_vec,
+    MAP = as.matrix(MAP),
     X = as.matrix(X),
     R = r,
     RD = rd,

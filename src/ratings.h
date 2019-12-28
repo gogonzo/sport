@@ -125,10 +125,11 @@ double dlr_calc_y(int rank_i, int rank_j){
 }
 
 
-Rcpp::CharacterMatrix subset_matrix(Rcpp::StringMatrix input, Rcpp::NumericVector idx) {
+template <int rtype>
+Rcpp::Matrix<rtype> subset_matrix(Rcpp::Matrix<rtype> input, Rcpp::NumericVector idx) {
   int n = idx.size();
   int k = input.ncol();
-  Rcpp::StringMatrix output(n, k);
+  Rcpp::Matrix<rtype> output(n, k);
   
   for (int i = 0; i < n; i++) {
     output(i,Rcpp::_) = input(idx(i),Rcpp::_);

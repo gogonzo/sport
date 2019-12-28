@@ -860,52 +860,78 @@ Rcpp::List
     Rcpp::IntegerVector id_vec,
     Rcpp::IntegerVector rank_vec,
     Rcpp::StringVector team_vec,
-    Rcpp::StringMatrix X,
+    Rcpp::StringMatrix MAP,
+    Rcpp::NumericMatrix X,
     Rcpp::NumericVector R, 
     Rcpp::NumericVector RD,
     Rcpp::NumericVector beta_vec,
     Rcpp::NumericVector weight_vec,
     double kappa = 0.95
   ) {
-    int n = X.nrow();
-    int k = X.ncol();
     int idx = 0;
     double pi = 3.1415926535;
     double s2, Ks, p, y, y_var, error, delta_;
-    
-    StringVector team2(n*n-n);
-    StringVector team1(n*n-n);
-    NumericVector P(n*n-n);
-    NumericVector Y(n*n-n);
-    NumericVector r_update(k);
-    NumericVector rd_update(k);
-    NumericVector x_i(k);
-    NumericVector x_q(k);
-    NumericVector h_i(k);
-    NumericVector h_q(k);
-    NumericVector s_i(k);
-    NumericVector s_q(k);
-    NumericMatrix OMEGA( n , k );
-    NumericMatrix DELTA( n , k );
-    
-    //
+  
     Rcpp::NumericVector idx_i;
     Rcpp::NumericVector team_vec_i;
-    Rcpp::StringMatrix X_i;
+    Rcpp::StringMatrix MAP_i;
+    Rcpp::NumericMatrix X_i;
     Rcpp::IntegerMatrix Idx_i;
     Rcpp::NumericMatrix R_i;
     Rcpp::NumericMatrix RD_i;
     
-    
     int id_i;
     Rcpp::StringVector param_names = R.names();
     for (int i = 0; i < unique_id.size(); i++) {
-      id_i = unique_id(i);
+      id_i  = unique_id(i);
       idx_i = utils::find<int>(id_i, id_vec);
-      X_i = subset_matrix(X, idx_i);
-      Idx_i = term_matrix_idx(X_i, param_names);
-      R_i = term_matrix(Idx_i, R);
-      RD_i = term_matrix(Idx_i, RD);
+      MAP_i = subset_matrix(MAP, idx_i);
+      X_i   = subset_matrix(X, idx_i);
+      Idx_i = term_matrix_idx(MAP_i, param_names);
+      R_i   = term_matrix(Idx_i, R);
+      RD_i  = term_matrix(Idx_i, RD);
+      
+      int n = MAP_i.nrow();
+      int k = MAP_i.ncol();
+      
+      StringVector team2(n * n - n);
+      StringVector team1(n * n - n);
+      NumericVector P(n * n - n);
+      NumericVector Y(n*n-n);
+      NumericVector r_update(k);
+      NumericVector rd_update(k);
+      NumericVector x_p(k);
+      NumericVector x_q(k);
+      NumericVector r_p(k);
+      NumericVector r_q(k);
+      NumericVector rd_p(k);
+      NumericVector rd_q(k);
+      
+      NumericVector h_p(k);
+      NumericVector h_q(k);
+      NumericVector s_p(k);
+      NumericVector s_q(k);
+      NumericMatrix OMEGA( n , k );
+      NumericMatrix DELTA( n , k );
+      
+      
+      for (int p = 0; p < n; p++) {
+        x_p = X_i(p,_);
+        r_p = R_i(p,_);
+        rd_p = RD_i(p,_);
+        for (int q = 0; q < n; q++) {
+          if (p != q) {
+            x_q = X_i(q,_);
+            r_q = R_i(q,_);
+            rd_q = RD_i(q,_);
+            
+            s2 = sum(x_p * rd_p * x_p) + sum(x_q * rd_q * x_q);            
+            Rcpp::Rcout << "s2: " << s2 << std::endl;
+            
+          }
+        }
+      }
+      
     }
     
     return Rcpp::List::create(

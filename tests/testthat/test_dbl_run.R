@@ -15,8 +15,7 @@ test_that("", {
     formula <- rank | id ~ rider + field + field_f,
     data = gpheats[1:8, ]
   )
-  
-  
+  #
   
   
 })
