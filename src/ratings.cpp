@@ -1,6 +1,7 @@
 #include <Rcpp.h>
 #include "ratings.h"
 #include "utils.h"
+#include "bbt.h"
 
 using namespace Rcpp;
 // [[Rcpp::plugins(cpp11)]]
@@ -858,8 +859,8 @@ Rcpp::List
     Rcpp::IntegerVector unique_id,
     Rcpp::IntegerVector id_vec,
     Rcpp::IntegerVector rank_vec,
-    Rcpp::CharacterVector team_vec,
-    Rcpp::CharacterMatrix X,
+    Rcpp::StringVector team_vec,
+    Rcpp::StringMatrix X,
     Rcpp::NumericVector R, 
     Rcpp::NumericVector RD,
     Rcpp::NumericVector beta_vec,
@@ -890,17 +891,29 @@ Rcpp::List
     //
     Rcpp::NumericVector idx_i;
     Rcpp::NumericVector team_vec_i;
-    Rcpp::CharacterMatrix X_mat_i;
-    Rcpp::NumericMatrix idx_r_mat_i;
+    Rcpp::StringMatrix X_i;
+    Rcpp::IntegerMatrix Idx_i;
+    Rcpp::NumericMatrix R_i;
+    Rcpp::NumericMatrix RD_i;
+    
     
     int id_i;
-    StringVector player_names = R.names();
+    Rcpp::StringVector param_names = R.names();
     for (int i = 0; i < unique_id.size(); i++) {
       id_i = unique_id(i);
       idx_i = utils::find<int>(id_i, id_vec);
-      X_mat_i = subset_matrix(X, idx_i);
-      
+      X_i = subset_matrix(X, idx_i);
+      Idx_i = term_matrix_idx(X_i, param_names);
+      R_i = term_matrix(Idx_i, R);
+      RD_i = term_matrix(Idx_i, RD);
     }
     
-    return Rcpp::List::create(_["elo"] = X_mat_i);
+    return Rcpp::List::create(
+      _["X_i"] = X_i,
+      _["Idx_i"] = Idx_i,
+      _["R_i"] = R_i,
+      _["RD_i"] = RD_i,
+      _["R"] = R,
+      _["RD"] = RD
+    );
   }

@@ -35,10 +35,10 @@ NULL
 #' @export
 dbl_run <- function(formula,
                     data,
-                    r,
-                    rd,
-                    beta,
-                    weight,
+                    r = NULL,
+                    rd = NULL,
+                    beta = NULL,
+                    weight = NULL,
                     kappa = 0.5,
                     init_r = 0,
                     init_rd = 1) {
@@ -47,8 +47,6 @@ dbl_run <- function(formula,
   is_lhs_valid(formula)
   is_interactions_valid(formula)
 
-  browser()
-  
   lhs <- all.vars(update(formula, . ~ 0))
   rank <- lhs[1]
   rank_vec <- as.integer(data[[rank]])
@@ -65,10 +63,10 @@ dbl_run <- function(formula,
   X <- get_terms_matrix(data, terms)
   unique_params <- unname(unlist(apply(X, 2, unique)))
   
-  if (missing(r)) {
+  if (is.null(r)) {
     r <- setNames(rep(init_r, length(unique_params)), unique_params)
   }
-  if (missing(rd)) {
+  if (is.null(rd)) {
     rd <- setNames(rep(init_rd, length(unique_params)), unique_params)
   }
   
@@ -81,6 +79,8 @@ dbl_run <- function(formula,
     beta <- "beta"
   }
   
+  team_vec <- 1:nrow(data)
+  
   if (is.null(kappa)) kappa <- 0.0001
 
   model <- dbl(
@@ -88,7 +88,7 @@ dbl_run <- function(formula,
     id = id_vec,
     rank_vec = rank_vec,
     team_vec = team_vec,
-    X = as.matrix(terms),
+    X = as.matrix(X),
     R = r,
     RD = rd,
     beta = beta_vec,
@@ -96,5 +96,5 @@ dbl_run <- function(formula,
     kappa = kappa
   )
 
-  return(list())
+  return(model)
 }

@@ -13,7 +13,7 @@ test_that("", {
   
   dbl_run(
     formula <- rank | id ~ rider + field + field_f,
-    data = gpheats[1:4, ]
+    data = gpheats[1:8, ]
   )
   
   

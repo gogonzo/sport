@@ -125,14 +125,44 @@ double dlr_calc_y(int rank_i, int rank_j){
 }
 
 
-Rcpp::CharacterMatrix subset_matrix(Rcpp::CharacterMatrix input, Rcpp::NumericVector idx) {
+Rcpp::CharacterMatrix subset_matrix(Rcpp::StringMatrix input, Rcpp::NumericVector idx) {
   int n = idx.size();
   int k = input.ncol();
-  Rcpp::CharacterMatrix output(n, k);
+  Rcpp::StringMatrix output(n, k);
   
   for (int i = 0; i < n; i++) {
     output(i,Rcpp::_) = input(idx(i),Rcpp::_);
   }
   
   return(output);
+}
+
+Rcpp::IntegerMatrix term_matrix_idx(Rcpp::StringMatrix term, Rcpp::StringVector param_names) {
+  int n = term.nrow();
+  int k = term.ncol();
+  Rcpp::IntegerMatrix output(n, k);
+  Rcpp::StringVector terms_i; 
+  
+  for (int i = 0; i < n; i++) {
+    terms_i = term(i, Rcpp::_);
+    output(i,Rcpp::_) = Rcpp::match(terms_i, param_names) - 1;
+  }
+  
+  return(output);
+}
+
+Rcpp::NumericMatrix term_matrix(Rcpp::IntegerMatrix Idx, 
+                                Rcpp::NumericVector r) {
+  
+  int n = Idx.nrow();
+  int k = Idx.ncol();
+  Rcpp::NumericMatrix term(n, k);
+  
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < k; j++) {
+      term(i, j) = r(Idx(i, j));
+    }
+  }
+  
+  return(term);
 }
