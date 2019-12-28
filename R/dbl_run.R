@@ -38,6 +38,8 @@ dbl_run <- function(formula,
                     r = NULL,
                     rd = NULL,
                     beta = NULL,
+                    lambda = NULL,
+                    share = NULL,
                     weight = NULL,
                     kappa = 0.5,
                     init_r = 0,
@@ -70,21 +72,14 @@ dbl_run <- function(formula,
     rd <- setNames(rep(init_rd, length(unique_params)), unique_params)
   }
   
-  if (is.null(weight)) {
-    weight_vec <- rep(1.0, nrow(data))
-    weight <- "weight"
-  }
-  if (is.null(beta)) {
-    beta_vec <- 1.0
-    beta <- "beta"
-  }
+  lambda_vec <- if (is.null(lambda)) rep(1, nrow(data)) else data[["lambda"]]
+  share_vec  <- if (is.null(share))  rep(1, nrow(data)) else data[["share"]]
+  weight_vec <- if (is.null(weight)) rep(1, nrow(data)) else data[["weight"]]
   
   team_vec <- 1:nrow(data)
   
   if (is.null(kappa)) kappa <- 0.0001
 
-  print(MAP)
-  print(X)
   model <- dbl(
     unique_id = unique(id_vec),
     id = id_vec,
@@ -94,8 +89,9 @@ dbl_run <- function(formula,
     X = as.matrix(X),
     R = r,
     RD = rd,
-    beta = beta_vec,
-    weight = weight_vec,
+    lambda_vec = lambda_vec,
+    share_vec = share_vec,
+    weight_vec = weight_vec,
     kappa = kappa
   )
 

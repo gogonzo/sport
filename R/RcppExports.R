@@ -29,11 +29,7 @@ bbt <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, 
     .Call('_sport_bbt', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau)
 }
 
-bbt2 <- function(unique_id, id, rank, team, player, r_val, rd_val, lambda, share, weight, kappa = 0.5, beta = 25 / 6, init_r = 25.0, init_rd = 25 / 3) {
-    .Call('_sport_bbt2', PACKAGE = 'sport', unique_id, id, rank, team, player, r_val, rd_val, lambda, share, weight, kappa, beta, init_r, init_rd)
-}
-
-dbl <- function(unique_id, id_vec, rank_vec, team_vec, MAP, X, R, RD, beta_vec, weight_vec, kappa = 0.95) {
-    .Call('_sport_dbl', PACKAGE = 'sport', unique_id, id_vec, rank_vec, team_vec, MAP, X, R, RD, beta_vec, weight_vec, kappa)
+dbl <- function(unique_id, id_vec, rank_vec, team_vec, MAP, X, R, RD, lambda_vec, share_vec, weight_vec, kappa = 0.95) {
+    .Call('_sport_dbl', PACKAGE = 'sport', unique_id, id_vec, rank_vec, team_vec, MAP, X, R, RD, lambda_vec, share_vec, weight_vec, kappa)
 }
 
