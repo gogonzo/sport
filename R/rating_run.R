@@ -7,13 +7,18 @@ NULL
 #' Apply rating algorithm
 #'
 #' Apply rating algorithm
-#' @param formula formula specifying model. Glicko algorithm allows only player ranking parameter and should be specified by following manner:
-#' `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same:
+#' @param formula formula specifying model. Allows only player ranking parameter and should be specified by following manner:
+#' 
+#' `rank | id ~ player(name)`. Names in formula are unrestricted, but model structure remains the same:
 #' \itemize{
 #'  \item {rank} player position in event.
 #'  \item {id} event identifier in which pairwise comparison is assessed.
-#'  \item {name} of player.
+#'  \item {player(name)} name of the player. In this case \code{player(name)} 
+#'  helps algorithm point name of the column where player names are stored.
 #' }
+#' Users can also specify formula in in different way:
+#'  `rank | id ~ player(name|team)`. Which means that players are playing in teams, and results are obtained 
+#'  for teams.
 #' @param data data.frame which contains columns specified in formula, and optionaly columns defined by `sigma`, `weight` or `date`.
 #' @param r named vector of initial players ratings estimates. In there is no assumption, initial ratings are set be r=1500. Names of vector should correspond with `name` in formula.
 #' @param rd named vector of initial rating deviation estimates. In there is no assumption, initial ratings are set be r=300 Names of vector should correspond with `name` in formula.
@@ -35,27 +40,27 @@ NULL
 #' \item \code{formula} modelled formula.
 #' }
 rating_run <- function(
-                       method,
-                       data,
-                       formula,
-                       r = numeric(0),
-                       rd = numeric(0),
-                       sigma = numeric(0),
-                       init_r = numeric(0),
-                       init_rd = numeric(0),
-                       init_sigma = numeric(0),
-                       share = numeric(0),
-                       weight = numeric(0),
-                       lambda = numeric(0),
-                       beta = numeric(0),
-                       gamma = numeric(0),
-                       kappa = numeric(0),
-                       tau = numeric(0)) {
+  method,
+  data,
+  formula,
+  r = numeric(0),
+  rd = numeric(0),
+  sigma = numeric(0),
+  init_r = numeric(0),
+  init_rd = numeric(0),
+  init_sigma = numeric(0),
+  share = numeric(0),
+  weight = numeric(0),
+  lambda = numeric(0),
+  beta = numeric(0),
+  gamma = numeric(0),
+  kappa = numeric(0),
+  tau = numeric(0)) {
   if (length(beta) == 0) beta <- 25 / 6
   if (length(gamma) == 0) gamma <- 1.0
   if (length(kappa) == 0) kappa <- 0.5
   if (length(tau) == 0) tau <- 0.5
-
+  
   if (method == "glicko") {
     check_single_argument(gamma, "gamma", min = 0.00000000001)
   } else if (method == "bbt") {
@@ -64,18 +69,18 @@ rating_run <- function(
     check_single_argument(init_sigma, "init_sigma", min = 0.00000000001)
     check_single_argument(tau, "tau", min = 0.00000000001)
   }
-
+  
   is_data_provided(data)
   check_single_argument(init_r, "init_r", min = 0)
   check_single_argument(init_rd, "init_rd", min = 0)
   is_formula_missing(formula)
   is_lhs_valid(formula)
   is_rhs_valid(formula, paste0(method, "_run"))
-
+  
   lhs <- all.vars(update(formula, . ~ 0))
   rank <- lhs[1]
   rank_vec <- as.integer(data[[rank]])
-
+  
   if (length(lhs) == 1) {
     id <- "id"
     id_vec <- rep(1L, nrow(data))
@@ -83,57 +88,57 @@ rating_run <- function(
     id <- lhs[2]
     id_vec <- as.integer(data[[lhs[2]]])
   }
-
+  
   
   rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
   if (grepl("player\\(", rhs_terms)) {
     player <- gsub("^player\\(([^ |]+)[ ]*\\|.*$", "\\1", rhs_terms)
     player_vec <- as.character(data[[player]])
-
+    
     team <- gsub("^player\\(.+\\|[ ]*(.+)\\)$", "\\1", rhs_terms)
     team_vec <- as.character(data[[team]])
   } else {
     player <- rhs_terms[1]
     player_vec <- as.character(data[[player]])
-
+    
     team <- "team"
     team_vec <- player_vec
   }
-
+  
   check_integer_argument(id_vec, id)
   check_integer_argument(rank_vec, rank)
   check_string_argument(player_vec, player)
   check_string_argument(team_vec, team)
-
+  
   if (length(share) == 0) {
     share_vec <- rep(1.0, nrow(data))
   } else {
     share_vec <- data[[share]] # 1/n_it
     check_numeric_argument(share_vec, share, min = 0, max = 1)
   }
-
+  
   if (length(lambda) == 0) {
     lambda_vec <- rep(1.0, nrow(data))
   } else {
     lambda_vec <- data[[lambda]] # 1/n_it
     check_numeric_argument(lambda_vec, lambda, min = 0, max = 1)
   }
-
+  
   if (length(weight) == 0) {
     weight_vec <- rep(1.0, nrow(data))
   } else {
     weight_vec <- data[[weight]] # 1/n_it
     check_numeric_argument(weight_vec, weight, min = 0, max = 1)
   }
-
+  
   # default rating
   unique_names <- unique(unlist(player_vec))
   unique_id <- unique(id_vec)
-
+  
   r <- init_check_r(r, init_r, unique_names, player)
   rd <- init_check_rd(rd, init_rd, unique_names, player)
   sigma <- init_check_sigma(sigma, init_sigma, unique_names, player, method)
-
+  
   g <- if (method == "glicko") {
     glicko(
       unique_id = unique_id,
@@ -162,19 +167,19 @@ rating_run <- function(
       rank = rank_vec,
       team = team_vec,
       player = player_vec,
-
+      
       r = r,
       rd = rd,
       sigma = sigma,
-
+      
       init_r = init_r,
       init_rd = init_rd,
       init_sigma = init_sigma,
-
+      
       lambda = lambda_vec,
       share = share_vec,
       weight = weight_vec,
-
+      
       beta = 0.0,
       gamma = 0.0,
       kappa = kappa,
@@ -187,19 +192,19 @@ rating_run <- function(
       rank = rank_vec,
       team = team_vec,
       player = player_vec,
-
+      
       r = r,
       rd = rd,
       sigma = numeric(0),
-
+      
       init_r = init_r,
       init_rd = init_rd,
       init_sigma = 0.0,
-
+      
       lambda = lambda_vec,
       share = share_vec,
       weight = weight_vec,
-
+      
       beta = beta,
       gamma = 0.0,
       kappa = kappa,
@@ -247,10 +252,10 @@ glicko_run <- function(data, formula,
     kappa = kappa,
     gamma = gamma
   )
-
+  
   ratings <- data.table::rbindlist(g$r)[, -6]
   pairs <- data.table::rbindlist(g$p)
-
+  
   out <- structure(
     list(
       final_r = g$final_r,
@@ -271,7 +276,7 @@ glicko_run <- function(data, formula,
       kappa = kappa
     )
   )
-
+  
   return(out)
 }
 
@@ -346,10 +351,10 @@ glicko2_run <- function(formula,
     kappa = kappa,
     tau = tau
   )
-
+  
   ratings <- data.table::rbindlist(g$r)
   pairs <- data.table::rbindlist(g$p)
-
+  
   out <- structure(
     list(
       final_r = g$final_r,
@@ -372,7 +377,7 @@ glicko2_run <- function(formula,
       tau = tau
     )
   )
-
+  
   return(out)
 }
 
@@ -401,10 +406,10 @@ bbt_run <- function(formula,
     beta = beta,
     kappa = kappa
   )
-
+  
   ratings <- rbindlist(g$r)[, -6]
   pairs <- rbindlist(g$p)
-
+  
   out <- structure(
     list(
       final_r = g$final_r,
@@ -425,5 +430,97 @@ bbt_run <- function(formula,
       kappa = kappa
     )
   )
+  return(out)
+}
+
+
+dbl_run <- function(formula,
+                    data,
+                    r = NULL,
+                    rd = NULL,
+                    beta = NULL,
+                    lambda = NULL,
+                    share = NULL,
+                    weight = NULL,
+                    kappa = 0.95,
+                    init_r = 0,
+                    init_rd = 1) {
+  is_formula_missing(formula)
+  is_data_provided(data)
+  is_lhs_valid(formula)
+  is_interactions_valid(formula)
+  
+  lhs <- all.vars(update(formula, . ~ 0))
+  rank <- lhs[1]
+  rank_vec <- as.integer(data[[rank]])
+  
+  if (length(lhs) == 1) {
+    id <- "id"
+    id_vec <- rep(1L, nrow(data))
+  } else {
+    id <- lhs[2]
+    id_vec <- as.integer(data[[lhs[2]]])
+  }
+  terms   <- get_terms(data, formula)
+  MAP <- get_terms_map(data, terms)
+  X   <- get_terms_mat(data, terms)
+  cls <- get_terms_cls(data, terms)
+  unique_params <- unname(unlist(apply(MAP, 2, unique)))
+  
+  if (is.null(r)) {
+    r <- setNames(rep(init_r, length(unique_params)), unique_params)
+  }
+  if (is.null(rd)) {
+    rd <- setNames(rep(init_rd, length(unique_params)), unique_params)
+  }
+  
+  lambda_vec <- if (is.null(lambda)) rep(1, nrow(data)) else data[["lambda"]]
+  share_vec  <- if (is.null(share))  rep(1, nrow(data)) else data[["share"]]
+  weight_vec <- if (is.null(weight)) rep(1, nrow(data)) else data[["weight"]]
+  
+  player_vec <- 1:nrow(data)
+  
+  if (is.null(kappa)) kappa <- 0.0001
+  
+  g <- dbl(
+    unique_id = unique(id_vec),
+    id = id_vec,
+    rank_vec = rank_vec,
+    player_vec = player_vec,
+    MAP = as.matrix(MAP),
+    X = as.matrix(X),
+    cls = cls,
+    R = r,
+    RD = rd,
+    lambda_vec = lambda_vec,
+    share_vec = share_vec,
+    weight_vec = weight_vec,
+    kappa = kappa
+  )
+  
+  ratings <- data.table::rbindlist(g$r)
+  pairs <- data.table::rbindlist(g$p)
+  
+  out <- structure(
+    list(
+      final_r = g$final_r,
+      final_rd = g$final_rd,
+      r = ratings,
+      pairs = pairs
+    ),
+    class = "rating",
+    method = "dbl",
+    formula = formula,
+    settings = list(
+      init_r = init_r,
+      init_rd = init_rd,
+      lambda = lambda,
+      share = share,
+      weight = weight,
+      kappa = kappa
+    )
+  )  
+  
+  
   return(out)
 }

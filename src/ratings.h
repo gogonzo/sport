@@ -114,7 +114,7 @@ double phi2rd(double phi) {
   return phi * 173.7178;
 }
 
-double dlr_calc_y(int rank_i, int rank_j){
+double dbl_calc_y(int rank_i, int rank_j){
   if(rank_i < rank_j ){
     return 1.0;
   } else if( rank_i==rank_j){

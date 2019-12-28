@@ -10,12 +10,8 @@ rd <- dbl_run(formula, data = gpheats[1:16, ])$final_rd
 
 
 test_that("", {
-  
   dbl_run(
     formula <- rank | id ~ rider + field + field_f,
     data = gpheats[1:8, ]
   )
-  #
-  
-  
 })
