@@ -740,8 +740,8 @@ Rcpp::List
       NumericVector h_q(k);
       NumericVector s_p(k);
       NumericVector s_q(k);
-      NumericMatrix OMEGA( n , k );
-      NumericMatrix DELTA( n , k );
+      NumericMatrix OMEGA(n , k);
+      NumericMatrix DELTA(n , k);
       
       idx = 0;
       for (int p = 0; p < n; p++) {
@@ -777,18 +777,30 @@ Rcpp::List
             OMEGA(q, _) =  OMEGA(q, _) + ((rd_q * y_var) * (x_q * error));
             DELTA(p, _) = DELTA(p, _) +  
               (prob * (1 - prob) * y_var) * 
-              (s_p * h_p) * 
-              (s_p * h_p); 
+              (rd_p * x_p) * 
+              (rd_p * x_p); 
             
             DELTA(q, _) = DELTA(q, _) + 
               (prob * (1 - prob) * y_var) * 
-              (s_q * h_q) * 
-              (s_q * h_q); 
+              (rd_q * x_q) * 
+              (rd_q * x_q); 
             
             idx++;
           }
         }
       }
+      
+      for (int i = 0; i < k; i++) {
+       for (int j = 0; j < n; j++) {
+         R_i(i, j) = R_i(i, j) + DELTA(i, j); 
+         RD_i(i, j) = RD_i(i, j) + OMEGA(i, j); 
+        } 
+        
+      }
+      
+      
+      Rcpp::Rcout << R_i << std::endl;
+      Rcpp::Rcout << RD_i << std::endl;
       
       Rcpp::DataFrame out_p_i = Rcpp::DataFrame::create(
         _["id"] = id_i,
@@ -802,8 +814,6 @@ Rcpp::List
       
       out_p.push_back(out_p_i);
       
-      out_r.push_back(OMEGA);
-      out_r.push_back(DELTA);
     }
     
     return Rcpp::List::create(
