@@ -10,16 +10,15 @@ get_terms <- function(data, formula) {
   classes <- lapply(data, get_type)
   trm <- unlist(strsplit(attr(terms(formula), "term.labels"), "[ ][+][ ]+"))
   trm <- strsplit(trm, ":")
+  missing_vars <- setdiff(unlist(trm), colnames(data))
+  if (length(missing_vars)) {
+    stop(sprintf("Variable(s) %s specified in formula are missing in data",
+                 paste(missing_vars, collapse = ", "))) 
+  }
   trm <- lapply(trm, gsub, pattern = "([a-zA-Z]+\\()|(\\))", replacement = "")
   
   vars <- lapply(trm, function(x) unlist(classes[x]))
   vars <- lapply(vars, function(x) x[order(!x %in% c("character"))])
-  idx_null <- which(vapply(vars, is.null, logical(1)))
-  if (length(idx_null) > 0) {
-    missing_vars <- unlist(trm[idx_null])
-    stop(sprintf("Variable(s) %s specified in formula are missing in data",
-                 paste(missing_vars, collapse = ", ")))
-  }
 
   return(vars)
 }
