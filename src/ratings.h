@@ -113,3 +113,26 @@ double mu2r(double mu) {
 double phi2rd(double phi) {
   return phi * 173.7178;
 }
+
+double dlr_calc_y(int rank_i, int rank_j){
+  if(rank_i < rank_j ){
+    return 1.0;
+  } else if( rank_i==rank_j){
+    return .5;
+  } else {
+    return 0.0;
+  }
+}
+
+
+Rcpp::CharacterMatrix subset_matrix(Rcpp::CharacterMatrix input, Rcpp::NumericVector idx) {
+  int n = idx.size();
+  int k = input.ncol();
+  Rcpp::CharacterMatrix output(n, k);
+  
+  for (int i = 0; i < n; i++) {
+    output(i,Rcpp::_) = input(idx(i),Rcpp::_);
+  }
+  
+  return(output);
+}

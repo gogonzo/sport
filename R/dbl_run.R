@@ -47,114 +47,54 @@ dbl_run <- function(formula,
   is_lhs_valid(formula)
   is_interactions_valid(formula)
 
-  all_params <- allLevelsList(formula, data)
+  browser()
+  
   lhs <- all.vars(update(formula, . ~ 0))
-  rhs <- all.vars(update(formula, 0 ~ .))
-  id <- ifelse(length(lhs) == 1, "id", lhs[2])
-  data[[rhs[1]]] <- as.character(data[[rhs[1]]])
-
-  if (length(lhs) == 1) data$id <- 1
-
+  rank <- lhs[1]
+  rank_vec <- as.integer(data[[rank]])
+  
+  if (length(lhs) == 1) {
+    id <- "id"
+    id_vec <- rep(1L, nrow(data))
+  } else {
+    id <- lhs[2]
+    id_vec <- as.integer(data[[lhs[2]]])
+  }
+  
+  terms   <- get_terms(data, formula)
+  X <- get_terms_matrix(data, terms)
+  unique_params <- unname(unlist(apply(X, 2, unique)))
+  
   if (missing(r)) {
-    r <- setNames(rep(init_r, length(all_params)), all_params)
+    r <- setNames(rep(init_r, length(unique_params)), unique_params)
   }
   if (missing(rd)) {
-    rd <- setNames(rep(init_rd, length(all_params)), all_params)
+    rd <- setNames(rep(init_rd, length(unique_params)), unique_params)
   }
-  if (missing(weight)) {
-    data$weight <- 1.0
+  
+  if (is.null(weight)) {
+    weight_vec <- rep(1.0, nrow(data))
     weight <- "weight"
   }
-  if (missing(beta)) {
-    data$beta <- 1.0
+  if (is.null(beta)) {
+    beta_vec <- 1.0
     beta <- "beta"
   }
-  if (kappa == 0) {
-    kappa <- 0.0001
-  }
+  
+  if (is.null(kappa)) kappa <- 0.0001
 
-  if (is.data.frame(data)) {
-    data_list <- split(
-      data[c(rhs, beta, weight)],
-      data[[id]]
-    )
-  }
-
-  rank_list <- split(as.integer(data[[lhs[1]]]), data[[id]])
-  rider_list <- split(data[[rhs[1]]], data[[id]])
-
-  models <- list()
-  for (i in names(data_list)) {
-    terms <- createTermMatrix(formula, data_list[[i]][rhs])
-    model <- dbl(
-      name = rider_list[[i]],
-      rank = rank_list[[i]],
-      X = as.matrix(terms),
-      R = r[colnames(terms)],
-      RD = rd[colnames(terms)],
-      beta = data_list[[i]][[beta]],
-      weight = data_list[[i]][[weight]],
-      kappa = kappa
-    )
-
-    if (any(!is.finite(model$rd) | !is.finite(model$r) | model$rd < 0)) {
-      stop(paste0("Parameters error after evaluating ", id, "=", i), call. = F)
-    }
-
-    r[names(model$r)] <- model$r
-    rd[names(model$rd)] <- model$rd
-
-    models[[ i ]] <- model
-  }
-
-  model_r <- suppressWarnings(
-    data.table::rbindlist(
-      lapply(models, function(x) x[["r_df"]]),
-      use.names = TRUE,
-      idcol = "id"
-    )
-  )
-  model_P <- suppressWarnings(
-    data.table::rbindlist(
-      lapply(models, function(x) x[["pairs"]]),
-      use.names = TRUE,
-      idcol = "id"
-    )
+  model <- dbl(
+    unique_id = unique(id_vec),
+    id = id_vec,
+    rank_vec = rank_vec,
+    team_vec = team_vec,
+    X = as.matrix(terms),
+    R = r,
+    RD = rd,
+    beta = beta_vec,
+    weight = weight_vec,
+    kappa = kappa
   )
 
-  # Output, class and attributes ----
-  class(model_r[[id]]) <- class(model_P[[id]]) <- class(data[[id]])
-
-  # add winning probability to data
-  p <- model_P[, .(p_win = prod(P)), by = c("id", "name")][,
-    p_win := p_win / sum(p_win),
-    by = "id"
-  ]
-  model_r <- merge(model_r,
-    p,
-    all.x = TRUE,
-    by = c("id", "name"),
-    sort = FALSE
-  )
-
-  out <- structure(
-    list(
-      final_r = r,
-      final_rd = rd,
-      r = model_r,
-      pairs = model_P
-    ),
-    class = "rating",
-    method = "dbl",
-    formula = formula,
-    settings = list(
-      init_r = init_r,
-      init_rd = init_rd,
-      beta = beta,
-      weight = weight,
-      kappa = kappa
-    )
-  )
-
-  return(out)
+  return(list())
 }

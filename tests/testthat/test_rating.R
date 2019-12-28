@@ -16,7 +16,7 @@ test_that("check rating default arguments", {
     g1 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ nest(player | team),
+      formula = rank | id ~ player(player | team),
       r = NULL,
       rd = NULL,
       init_r = 1500,
@@ -33,7 +33,7 @@ test_that("check rating default arguments", {
     g2 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ nest(player | team),
+      formula = rank | id ~ player(player | team),
       r = NULL,
       rd = NULL,
       init_r = 1500,
@@ -50,7 +50,7 @@ test_that("check rating default arguments", {
     g3 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ nest(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 1500,
       init_rd = 350,
       kappa = 0.5,
@@ -61,7 +61,7 @@ test_that("check rating default arguments", {
   expect_silent(
     g4 <- glicko_run(
       data = df,
-      formula = rank | id ~ nest(player | team)
+      formula = rank | id ~ player(player | team)
     )
   )
 
@@ -74,7 +74,7 @@ test_that("check rating default arguments", {
     g5 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ nest(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 1500,
       init_rd = 350,
       kappa = 0.5
@@ -85,7 +85,7 @@ test_that("check rating default arguments", {
     g6 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ nest(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 1500,
       init_rd = 350
     )
@@ -97,7 +97,7 @@ test_that("check rating default arguments", {
     g7 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ nest(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 1500,
       init_rd = 350,
       gamma = 1
@@ -108,7 +108,7 @@ test_that("check rating default arguments", {
     g8 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ nest(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 1500,
       init_rd = 350
     )
@@ -120,7 +120,7 @@ test_that("check rating default arguments", {
     g9 <- rating_run(
       method = "glicko2",
       data = df,
-      formula = rank | id ~ nest(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 1500,
       init_rd = 350,
       init_sigma = 0.05,
@@ -132,7 +132,7 @@ test_that("check rating default arguments", {
   expect_silent(
     g10 <- glicko2_run(
       data = df,
-      formula = rank | id ~ nest(player | team)
+      formula = rank | id ~ player(player | team)
     )
   )
 
@@ -145,7 +145,7 @@ test_that("check rating default arguments", {
     g11 <- rating_run(
       method = "bbt",
       data = df,
-      formula = rank | id ~ nest(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 25.0,
       init_rd = 25 / 3,
       beta = 25 / 6,
@@ -156,7 +156,7 @@ test_that("check rating default arguments", {
   expect_silent(
     g12 <- bbt_run(
       data = df,
-      formula = rank | id ~ nest(player | team)
+      formula = rank | id ~ player(player | team)
     )
   )
 
@@ -183,9 +183,9 @@ test_that("rating errors", {
 
   expect_error(glicko_run(data = df, formula = rank | id ~ .))
 
-  expect_error(glicko_run(data = df, formula = rank | id ~ nest(team)))
+  expect_error(glicko_run(data = df, formula = rank | id ~ player(team)))
 
-  expect_silent(glicko_run(data = df, formula = rank | id ~ nest(player | team)))
+  expect_silent(glicko_run(data = df, formula = rank | id ~ player(player | team)))
 })
 
 test_that("glicko result", {
@@ -259,7 +259,7 @@ test_that("glicko2 result", {
   )
 
   r_glicko2 <- glicko2_run(
-    formula = rank | id ~ nest(player | team),
+    formula = rank | id ~ player(player | team),
     data = data.frame(
       id = c(1, 1, 1, 1),
       rank = c(3, 4, 1, 2),
@@ -337,7 +337,7 @@ test_that("bbt result", {
   )
 
   r_bbt <- bbt_run(
-    formula = rank | id ~ nest(player | team),
+    formula = rank | id ~ player(player | team),
     data = data.frame(
       id = c(1, 1, 1, 1),
       rank = c(3, 4, 1, 2),

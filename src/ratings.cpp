@@ -1,8 +1,6 @@
 #include <Rcpp.h>
-#include "bbt.h"
-#include "glicko.h"
+#include "ratings.h"
 #include "utils.h"
-#include "constructors.h"
 
 using namespace Rcpp;
 // [[Rcpp::plugins(cpp11)]]
@@ -853,3 +851,56 @@ Rcpp::List bbt2(
     _["p"] = out_p
   );
 } 
+
+// [[Rcpp::export]]
+Rcpp::List 
+  dbl(
+    Rcpp::IntegerVector unique_id,
+    Rcpp::IntegerVector id_vec,
+    Rcpp::IntegerVector rank_vec,
+    Rcpp::CharacterVector team_vec,
+    Rcpp::CharacterMatrix X,
+    Rcpp::NumericVector R, 
+    Rcpp::NumericVector RD,
+    Rcpp::NumericVector beta_vec,
+    Rcpp::NumericVector weight_vec,
+    double kappa = 0.95
+  ) {
+    int n = X.nrow();
+    int k = X.ncol();
+    int idx = 0;
+    double pi = 3.1415926535;
+    double s2, Ks, p, y, y_var, error, delta_;
+    
+    StringVector team2(n*n-n);
+    StringVector team1(n*n-n);
+    NumericVector P(n*n-n);
+    NumericVector Y(n*n-n);
+    NumericVector r_update(k);
+    NumericVector rd_update(k);
+    NumericVector x_i(k);
+    NumericVector x_q(k);
+    NumericVector h_i(k);
+    NumericVector h_q(k);
+    NumericVector s_i(k);
+    NumericVector s_q(k);
+    NumericMatrix OMEGA( n , k );
+    NumericMatrix DELTA( n , k );
+    
+    //
+    Rcpp::NumericVector idx_i;
+    Rcpp::NumericVector team_vec_i;
+    Rcpp::CharacterMatrix X_mat_i;
+    Rcpp::NumericMatrix idx_r_mat_i;
+    
+    int id_i;
+    StringVector player_names = R.names();
+    for (int i = 0; i < unique_id.size(); i++) {
+      id_i = unique_id(i);
+      idx_i = utils::find<int>(id_i, id_vec);
+      X_mat_i = subset_matrix(X, idx_i);
+      
+    }
+    
+    return Rcpp::List::create(_["elo"] = X_mat_i);
+  }

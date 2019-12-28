@@ -123,8 +123,8 @@ test_that("valid formula", {
   )
   expect_silent(is_rhs_valid(rank ~ elo))
   expect_silent(is_lhs_valid(rank | test ~ elo))
-  expect_silent(is_rhs_valid(rank ~ nest(player | team)))
-  expect_silent(is_lhs_valid(rank | test ~ nest(player | team)))
+  expect_silent(is_rhs_valid(rank ~ player(player | team)))
+  expect_silent(is_lhs_valid(rank | test ~ player(player | team)))
 })
 
 test_that("check initial r", {

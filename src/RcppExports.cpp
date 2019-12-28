@@ -5,24 +5,6 @@
 
 using namespace Rcpp;
 
-// dbl
-Rcpp::List dbl(StringVector name, IntegerVector rank, NumericMatrix X, NumericVector R, NumericVector RD, NumericVector beta, NumericVector weight, double kappa);
-RcppExport SEXP _sport_dbl(SEXP nameSEXP, SEXP rankSEXP, SEXP XSEXP, SEXP RSEXP, SEXP RDSEXP, SEXP betaSEXP, SEXP weightSEXP, SEXP kappaSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< StringVector >::type name(nameSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rank(rankSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type R(RSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type RD(RDSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type weight(weightSEXP);
-    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
-    rcpp_result_gen = Rcpp::wrap(dbl(name, rank, X, R, RD, beta, weight, kappa));
-    return rcpp_result_gen;
-END_RCPP
-}
 // factor2dummy
 IntegerMatrix factor2dummy(SEXP factor);
 RcppExport SEXP _sport_factor2dummy(SEXP factorSEXP) {
@@ -142,14 +124,34 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// dbl
+Rcpp::List dbl(Rcpp::IntegerVector unique_id, Rcpp::IntegerVector id_vec, Rcpp::IntegerVector rank_vec, Rcpp::CharacterVector team_vec, Rcpp::CharacterMatrix X, Rcpp::NumericVector R, Rcpp::NumericVector RD, Rcpp::NumericVector beta_vec, Rcpp::NumericVector weight_vec, double kappa);
+RcppExport SEXP _sport_dbl(SEXP unique_idSEXP, SEXP id_vecSEXP, SEXP rank_vecSEXP, SEXP team_vecSEXP, SEXP XSEXP, SEXP RSEXP, SEXP RDSEXP, SEXP beta_vecSEXP, SEXP weight_vecSEXP, SEXP kappaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type unique_id(unique_idSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type id_vec(id_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type rank_vec(rank_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type team_vec(team_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::CharacterMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type R(RSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type RD(RDSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type beta_vec(beta_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type weight_vec(weight_vecSEXP);
+    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
+    rcpp_result_gen = Rcpp::wrap(dbl(unique_id, id_vec, rank_vec, team_vec, X, R, RD, beta_vec, weight_vec, kappa));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_sport_dbl", (DL_FUNC) &_sport_dbl, 8},
     {"_sport_factor2dummy", (DL_FUNC) &_sport_factor2dummy, 1},
     {"_sport_glicko", (DL_FUNC) &_sport_glicko, 18},
     {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 18},
     {"_sport_bbt", (DL_FUNC) &_sport_bbt, 18},
     {"_sport_bbt2", (DL_FUNC) &_sport_bbt2, 14},
+    {"_sport_dbl", (DL_FUNC) &_sport_dbl, 10},
     {NULL, NULL, 0}
 };
 

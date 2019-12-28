@@ -84,12 +84,13 @@ rating_run <- function(
     id_vec <- as.integer(data[[lhs[2]]])
   }
 
+  
   rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
-  if (grepl("nest\\(", rhs_terms)) {
-    player <- gsub("^nest\\(([^ |]+)[ ]*\\|.*$", "\\1", rhs_terms)
+  if (grepl("player\\(", rhs_terms)) {
+    player <- gsub("^player\\(([^ |]+)[ ]*\\|.*$", "\\1", rhs_terms)
     player_vec <- as.character(data[[player]])
 
-    team <- gsub("^nest\\(.+\\|[ ]*(.+)\\)$", "\\1", rhs_terms)
+    team <- gsub("^player\\(.+\\|[ ]*(.+)\\)$", "\\1", rhs_terms)
     team_vec <- as.character(data[[team]])
   } else {
     player <- rhs_terms[1]
