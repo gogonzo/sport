@@ -47,7 +47,7 @@ with initial value `init_rd`.}
 Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
 
 \item{init_rd}{initial values for `r` if not provided. 
-Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
+Default = 0.5}
 
 \item{share}{name of the column in `data` containing player share in team 
 efforts. It's used to first calculate combined rating of the team and
@@ -70,6 +70,7 @@ matchup. Higher lambda flattens chances of winning.}
 }
 \value{
 A "rating" object is returned: \itemize{
+
 \item \code{final_r} named vector containing players ratings.
 
 \item \code{final_rd} named vector containing players ratings deviations.
@@ -84,7 +85,7 @@ prior probability and result of a challange.
 
 \item \code{method} type of algorithm used.
 
-\item \code{...} arguments specified in function call.
+\item \code{settings} arguments specified in function call.
 }
 }
 \description{

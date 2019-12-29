@@ -51,10 +51,11 @@ Higher weight increasing impact of event result on rating estimate.}
 Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
 
 \item{init_rd}{initial values for `r` if not provided. 
-Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
+Default = 0.5}
 }
 \value{
 A "rating" object is returned: \itemize{
+
 \item \code{final_r} named vector containing players ratings.
 
 \item \code{final_rd} named vector containing players ratings deviations.
@@ -69,7 +70,7 @@ prior probability and result of a challange.
 
 \item \code{method} type of algorithm used.
 
-\item \code{...} arguments specified in function call.
+\item \code{settings} arguments specified in function call.
 }
 }
 \description{

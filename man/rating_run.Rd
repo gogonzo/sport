@@ -47,11 +47,15 @@ with initial value `init_r`.}
 then `rd` will be created automatically for parameters specified in `formula`
 with initial value `init_rd`.}
 
+\item{sigma}{(only for glicko2) named vector of initial players ratings 
+estimates. If not specified then `sigma` will be created automatically for 
+parameters specified in `formula` with initial value `init_sigma`.}
+
 \item{init_r}{initial values for `r` if not provided. 
 Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
 
 \item{init_rd}{initial values for `r` if not provided. 
-Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
+Default = 0.5}
 
 \item{share}{name of the column in `data` containing player share in team 
 efforts. It's used to first calculate combined rating of the team and
@@ -71,6 +75,15 @@ matchup. Higher lambda flattens chances of winning.}
 
 \item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
 `kappa=1` means that `rd` will not be decreased.}
+
+\item{tau}{The system constant. Which constrains the change in volatility over
+time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though 
+the system should be tested to decide which value results in greatest 
+predictive accuracy. Smaller values of `tau` prevent the volatility measures 
+from changing by largeamounts, which in turn prevent enormous changes in 
+ratings based on very improbable results. If the application of Glicko-2 is 
+expected to involve extremely improbable collections of game outcomes, then 
+`tau` should be set to a small value, even as small as, say, `tau= 0`.}
 
 \item{idlab}{name of column in `data` containing date. Doesn't affect
 estimation process. If specified, charts displays estimates changes in time

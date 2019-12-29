@@ -142,10 +142,21 @@ init_check_r <- function(r, init_r, unique_names, player) {
       stop("init_r should be a finite number", call. = FALSE)
     }
     r <- setNames(rep(init_r, length(unique_names)), unique_names)
-  } else if (!setequal(sort(names(r)), sort(unique_names))) {
-    stop(sprintf("All names in r should have a name which match %s argument in formula", player),
-         call. = FALSE
+  } else if (any(!unique_names %in% names(r))) {
+    warning(
+      sprintf("Some names in %s doesn't have a match in r. 
+              Missing parameters will be added with init_r = %s", 
+              player, init_r
+      ),
+      call. = FALSE
     )
+    
+    missing_params <- setdiff(unique_names, names(r))
+    add_params <- setNames(object = rep(init_r, times = length(missing_params)), 
+                           nm = missing_params) 
+    
+    r <- append(r, add_params)
+    
   } else if (any(duplicated(names(r)))) {
     stop("All names in r should be unique. Duplicated names not allowed.", call. = FALSE)
   } else if (any(is.na(r))) {
@@ -163,10 +174,21 @@ init_check_rd <- function(rd, init_rd, unique_names, player) {
       stop("init_rd value should be positive", call. = FALSE)
     }
     rd <- setNames(rep(init_rd, length(unique_names)), unique_names)
-  } else if (!setequal(sort(names(rd)), sort(unique_names))) {
-    stop(sprintf("All names in rd should have a name which match %s argument in formula", player),
-         call. = FALSE
+  } else if (any(!unique_names %in% names(rd))) {
+    warning(
+      sprintf("Some names in %s doesn't have a match in rd. 
+              Missing parameters will be added with init_rd = %s", 
+              player, init_rd
+      ),
+      call. = FALSE
     )
+    
+    missing_params <- setdiff(unique_names, names(rd))
+    add_params <- setNames(object = rep(init_rd, times = length(missing_params)), 
+                           nm = missing_params) 
+    
+    rd <- append(rd, add_params)
+    
   } else if (any(duplicated(names(rd)))) {
     stop("All names in rd should be unique. Duplicated names not allowed.", call. = FALSE)
   } else if (any(is.na(rd))) {
@@ -190,10 +212,23 @@ init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
       stop("init_sigma value should be positive", call. = FALSE)
     }
     sigma <- setNames(rep(init_sigma, length(unique_names)), unique_names)
-  } else if (!setequal(sort(names(sigma)), sort(unique_names))) {
-    stop(sprintf("All names in sigma should have a name which match %s argument in formula", player),
-         call. = FALSE
+  } else if (any(!unique_names %in% names(sigma))) {
+    warning(
+      sprintf("Some names in %s doesn't have a match in sigma. 
+              Missing parameters will be added with init_sigma = %s", 
+              player, init_sigma
+      ),
+      call. = FALSE
     )
+    
+    missing_params <- setdiff(unique_names, names(sigma))
+    add_params <- setNames(
+      object = rep(init_sigma, times = length(missing_params)), 
+      nm = missing_params
+    ) 
+    
+    sigma <- append(sigma, add_params)
+    
   } else if (any(duplicated(names(sigma)))) {
     stop("All names in sigma should be unique. Duplicated names not allowed.", call. = FALSE)
   } else if (any(is.na(sigma))) {

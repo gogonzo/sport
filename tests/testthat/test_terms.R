@@ -54,6 +54,7 @@ test_that("get terms", {
                       heat = "numeric"))
   expect_identical(term3, expected3)
   
+  gpheats$field_f <- as.factor(gpheats$field)
   term4 <- get_terms(
     gpheats,
     rank|id ~ rider + round + field:heat + heat:field_f
@@ -190,7 +191,7 @@ test_that("get terms mat", {
   expected2 <- as.matrix(
     data.frame(
       rider = rep(1, 6),
-      round = data[1:6, "round"]
+      round = gpheats[1:6, "round"]
     )
   )
   expect_identical(terms_mat2, expected2)  
@@ -204,9 +205,9 @@ test_that("get terms mat", {
   expected4 <- as.matrix(
     data.frame(
       rider = rep(1, 6),
-      round = data[1:6, "round"],
-      `field*heat` = data[1:6, "field"] * data[1:6, "heat"],
-      `rider|heat` = data[1:6, "heat"],
+      round = gpheats[1:6, "round"],
+      `field*heat` = gpheats[1:6, "field"] * gpheats[1:6, "heat"],
+      `rider|heat` = gpheats[1:6, "heat"],
       check.names = FALSE,
       row.names = 1:6
     )
@@ -222,8 +223,8 @@ test_that("get terms mat", {
   expected5 <- as.matrix(
     data.frame(
       rider = rep(1, 6),
-      round = data[1:6, "round"],
-      `field*heat` = data[1:6, "field"] * data[1:6, "heat"],
+      round = gpheats[1:6, "round"],
+      `field*heat` = gpheats[1:6, "field"] * gpheats[1:6, "heat"],
       `rider|name` = rep(1, 6),
       check.names = FALSE,
       row.names = 1:6

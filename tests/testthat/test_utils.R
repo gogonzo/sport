@@ -103,39 +103,39 @@ test_that("check data", {
 
 test_that("valid formula", {
   expect_error(
-    is_formula_missing(),
+    is_formula_missing(NULL),
     "Formula is not specified"
   )
   
   expect_error(
-    is_lhs_valid(rank:id ~ field, gpheats),
+    is_lhs_valid(formula = rank:id ~ field, gpheats),
     "LHS of formula must be seperated by `\\|` operator eg."
   )
   
   expect_error(
-    is_lhs_valid(rank + id ~ field, gpheats),
+    is_lhs_valid(formula = rank + id ~ field, gpheats),
     "LHS of formula must be seperated by `\\|` operator eg."
   )
   
   expect_error(
-    is_rhs_valid(rank + id ~ wrong, gpheats),
+    is_rhs_valid(formula = rank + id ~ wrong, gpheats),
     "Variable\\(s\\) wrong specified in formula are not present in data"
   )
   
   expect_warning(
-    is_lhs_valid(rank ~ field, gpheats),
+    is_lhs_valid(formula = rank ~ field, gpheats),
     "all belongs to the same event id"
   )
   
-  expect_warning(
-    is_lhs_valid(rank | wrong ~ field, gpheats),
+  expect_error(
+    is_lhs_valid(formula = rank | wrong ~ field, gpheats),
     "Variable\\(s\\) wrong specified in formula are not present in data"
   )
   
-  expect_silent(is_rhs_valid(rank ~ rider, gpheats))
-  expect_silent(is_lhs_valid(rank | field ~ rider, gpheats))
-  expect_silent(is_rhs_valid(rank ~ team(rider | name), gpheats))
-  expect_silent(is_lhs_valid(rank | id ~ team(rider | name), gpheats))
+  expect_silent(is_rhs_valid(formula = rank ~ rider, gpheats))
+  expect_silent(is_lhs_valid(formula = rank | field ~ rider, gpheats))
+  expect_silent(is_rhs_valid(formula = rank ~ team(rider | name), gpheats))
+  expect_silent(is_lhs_valid(formula = rank | id ~ team(rider | name), gpheats))
 })
 
 test_that("check initial r", {
@@ -191,15 +191,16 @@ test_that("check initial r", {
     )
   )
   
-  expect_error(
-    init_check_r(
-      r = setNames(c(1500, 1500, 1500), c("A", "B", "C")),
+  expect_warning(
+    new_r <- init_check_r(
+      r = c(A = 1500),
       player = "player_var",
-      init_r = 1500,
+      init_r = 1501,
       unique_names = c("A", "B")
     ),
-    "All names in r should have a name which match player_var"
+    "Missing parameters will be added"
   )
+  expect_identical(new_r, c(A = 1500, B = 1501))
   
   expect_error(
     init_check_r(
@@ -286,15 +287,16 @@ test_that("check initial rd", {
     )
   )
   
-  expect_error(
-    init_check_rd(
-      rd = setNames(c(1500, 1500, 1500), c("A", "B", "C")),
+  expect_warning(
+    new_rd <- init_check_rd(
+      rd = c(A = 1500),
       player = "player_var",
-      init_rd = 1500,
+      init_rd = 1501,
       unique_names = c("A", "B")
     ),
-    "All names in rd should have a name which match player_var"
+    "Missing parameters will be added"
   )
+  expect_identical(new_rd, c(A = 1500, B = 1501))
   
   expect_error(
     init_check_rd(
@@ -418,17 +420,17 @@ test_that("check initial sigma", {
       method = "glicko2"
     )
   )
-  
-  expect_error(
-    init_check_sigma(
-      sigma = setNames(c(1500, 1500, 1500), c("A", "B", "C")),
+  expect_warning(
+    new_sigma <- init_check_sigma(
+      method = "glicko2",
+      sigma = c(A = 1500),
       player = "player_var",
-      init_sigma = 1500,
-      unique_names = c("A", "B"),
-      method = "glicko2"
+      init_sigma = 1501,
+      unique_names = c("A", "B")
     ),
-    "All names in sigma should have a name which match player_var"
+    "Missing parameters will be added"
   )
+  expect_identical(new_sigma, c(A = 1500, B = 1501))
   
   expect_error(
     init_check_sigma(
@@ -531,9 +533,4 @@ test_that("initialize vector", {
     initialize_vec("wrong", gpheats, "weight", min = 0, max = .99),
     "is not present in data"
   ) 
-  
-
-
-  
-  
 })

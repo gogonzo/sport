@@ -70,23 +70,23 @@ Higher weight increasing impact of event result on rating estimate.}
 Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
 
 \item{init_rd}{initial values for `r` if not provided. 
-Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
+Default = 0.5}
 
 \item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
 `kappa=1` means that `rd` will not be decreased.}
 
 \item{tau}{The system constant. Which constrains the change in volatility over
- time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though 
- the system should be tested to decide which value results in greatest 
- predictive accuracy. Smaller values of `tau` prevent the volatility measures 
- from changing by largeamounts, which in turn prevent enormous changes in 
- ratings based on very improbable results. If the application of Glicko-2 is 
- expected to involve extremely improbable collections of game outcomes, then 
- `tau` should be set to a small value, even as small as, say, `tau= 0`.
-A "rating" object is returned}
+time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though 
+the system should be tested to decide which value results in greatest 
+predictive accuracy. Smaller values of `tau` prevent the volatility measures 
+from changing by largeamounts, which in turn prevent enormous changes in 
+ratings based on very improbable results. If the application of Glicko-2 is 
+expected to involve extremely improbable collections of game outcomes, then 
+`tau` should be set to a small value, even as small as, say, `tau= 0`.}
 }
 \value{
 A "rating" object is returned: \itemize{
+
 \item \code{final_r} named vector containing players ratings.
 
 \item \code{final_rd} named vector containing players ratings deviations.
@@ -103,7 +103,7 @@ prior probability and result of a challange.
 
 \item \code{method} type of algorithm used.
 
-\item \code{...} arguments specified in function call.
+\item \code{settings} arguments specified in function call.
 }
 }
 \description{

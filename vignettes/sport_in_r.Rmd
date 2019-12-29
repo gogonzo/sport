@@ -17,6 +17,13 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 Name `sport` is an abbreviation for Sequential Pairwise Online Rating Techniques. Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challenge. 
 Algorithms are based on Bayesian Approximation Method, and they don't involve any matrix inversions nor likelihood estimation. `sport` incorporates methods such glicko, glicko2, bayesian Bradley-Terry, dynamic logistic regression. Parameters are updated sequentially, and computation doesn't require any additional RAM to make estimation feasible. Additionally, base of the package is written in `C++` what makes `sport` computation even faster.
 
+Package can be installed from CRAN or from github.
+
+```{r eval=FALSE, warning=FALSE , message=FALSE}
+install.packages("sport")
+devtools::install_github("gogonzo/sport")
+```
+
 # Theory
 Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preference of choice between two alternatives. Just as one product is more preferred over another to buy, similarly better player is more preferred to win over worst. As player/event and alternative/experiment can be used interchangeably, for ease of use sport nomenclature is adapted (player/event). 
 
@@ -28,10 +35,34 @@ Where:
  $$\large \hat{Y} = P(X_i > X_j)$$ 
  $$K - learning rate$$
 
-Outcome probability function is based on [Bradley-Terry model](https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model) designed to predict outcome of pairwise comparison. For multi-player matchups where output is a ranking, `sport` package uses the same data transformation as in [exploded logit](https://www.jstor.org/stable/270983) - ranking is then presented as combination of all possible pairs competing within same event.
+Outcome probability function is based on [Bradley-Terry model](https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model) 
+designed to predict outcome of pairwise comparison. For multi-player matchups 
+where output is a ranking, `sport` package uses the same data transformation as
+in [exploded logit](https://www.jstor.org/stable/270983) - ranking is then 
+presented as combination of all possible pairs competing within same event.
 
 ## Glicko rating system
-Glicko is the first bayesian online update algorithm incorporating rating volatility to rating and outcome computation. Glicko system is not balanced, and sum of rating rewards of all players are not zero. In one 2-players event, reward of player `i` differs from reward of player `q` as it depends on their individual ratings deviation. Rating values oscillates around `r=1500` with max deviation `rd<=350`.
+Glicko is the first bayesian online update algorithm incorporating rating 
+volatility to rating and outcome computation. Glicko system is not balanced, and
+sum of rating rewards of all players are not zero. In one 2-players event, 
+reward of player `i` differs from reward of player `q` as it depends on their 
+individual ratings deviation. Rating values oscillates around `r=1500` with max 
+deviation `rd<=350`.
+
+```{r message=FALSE, warning=FALSE}
+library(sport)
+
+# example taken from Glickman (1999)
+data <- data.frame(id = 1, 
+                   name = c("A", "B", "C", "D"), 
+                   rank = c(3, 4, 1, 2))
+r <- setNames(c(1500, 1400, 1550, 1700), c("A","B","C","D"))
+rd <- setNames(c(200, 30, 100, 300), c("A","B","C","D"))
+
+model <- glicko_run(rank | id ~ name, data = data, r = r, rd = rd)
+print(model$final_r)
+
+```
 
 For deeper knowledge read [Mark E. Glickman (1999)](http://www.glicko.net/research/glicko.pdf).
 
@@ -45,6 +76,21 @@ $${RD'}_i = \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}$$
 
 ## Glicko2 rating system
 Glicko2 improved predecessor by adding volatile parameter $\sigma_i$ which increase/decrease rating deviation in periods when player performance differs from expected. Sigma is estimated iteratively using Illinois algorithm, which converges quickly not affecting computation time. Rating values oscillates around `r=1500` with max deviation `rd<=350`.
+
+```{r message=FALSE, warning=FALSE}
+# example taken from Glickman (2013)
+data <- data.frame(id = 1, 
+                   name = c("A", "B", "C", "D"), 
+                   rank = c(3, 4, 1, 2))
+r <- setNames(c(1500, 1400, 1550, 1700), c("A","B","C","D"))
+rd <- setNames(c(200, 30, 100, 300), c("A","B","C","D"))
+
+model <- glicko2_run(rank | id ~ name, data = data, r = r, rd = rd)
+print(model$final_r)
+
+```
+
+** write about modification of g_phi **
 
 For further knowledge read [Mark E. Glickman (2013)](http://www.glicko.net/glicko/glicko2.pdf)
 
@@ -80,15 +126,6 @@ $$RD^2_{i t} = RD^2_{i(t-1)} - \frac{\hat{Y_{ij}}(1-\hat{Y_{ij}})}{1+\hat{Y_{ij}
 For further knowledge read [Stephen J. Roberts, William Penny (2011)](https://www.researchgate.net/publication/2465226_Dynamic_Logistic_Regression)
 
 # Package Usage
-
-## Installation
-Install package from CRAN or development version from github.
-
-```{r ,message=FALSE, warning=FALSE}
-# devtools::install_github("gogonzo/sport")
-# install.packages("sport")
-library(sport)
-```
 
 ## Available Data
 Package contains actual data from Speedway Grand-Prix. There are two data.frames: 
@@ -131,7 +168,7 @@ summary(dbl)
 To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coefficients are presented not necessarily ratings. It's also possible to examine ratings evolution in time, by specifying `players` argument.
 
 ```{r}
-#plot(glicko, n = 15)
+plot(glicko, n = 15)
 #plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
 ```
 
@@ -156,25 +193,21 @@ Examples presented in package overview might be sufficient in most cases, but so
 ## Prior beliefs about `r` and `rd`
 Main functionality which is common between all algorithms is to specify prior `r` and `rd`. Both parameters can be set by creating named vectors. Let's suppose we have 4 players `c("A","B","C","D")` competing in an event, and we have players prior `r` and `rd` estimates. It's important to have `r` and `rd` names corresponding with levels of `name` variable. One can run algorithm, to obtain new estimates.
 
-```{r message=FALSE, warning=FALSE}
-library(dplyr) # for examples purpose 
-data <- data.frame(id = 1, name = c("A", "B", "C", "D"), rank = c(3, 4, 1, 2))
-r <- setNames(c(1500, 1400, 1550, 1700), c("A","B","C","D"))
-rd <- setNames(c(200, 30, 100, 300), c("A","B","C","D"))
-
-model <- glicko_run(rank | id ~ name, data = data, r = r, rd = rd)
-print(model$final_r)
-
+```{r}
+model <- glicko_run(data = gpheats[1:16, ], 
+                    rank | id ~ rider)
 ```
 
-We can also run models using previously estimated parameters from `model$final_r` and `model$final_rd` in next event.
+We can also run models re-using previously estimated parameters from `model$final_r` 
+and `model$final_rd` in the future when new data appear.
 
 ```{r}
-data2 <- data.frame(id = 2, name = c("A", "B", "C", "D"), rank = 1:4)
-r <- model$final_r
-rd <- model$final_rd
-
-glicko_run(formula = rank | id ~ name, data = data2, r = r, rd = rd)$final_r
+glicko_run(
+  formula = rank | id ~ rider, 
+  data = gpheats[17:20, ], 
+  r    = model$final_r, 
+  rd   = model$final_rd
+  )$final_r
 ```
 
 ## Tuning update size by `weight`
@@ -182,7 +215,7 @@ glicko_run(formula = rank | id ~ name, data = data2, r = r, rd = rd)$final_r
 All algorithms have a weight argument which increases or decreases update change. Higher weight increasing impact of corresponding event. Effect of the weight on update size can be expressed directly by following formula - $\small R_i^{'} \leftarrow R_i + weight \sum_{j \neq i}{ K (Y_{ij} - \hat{Y_{ij}}} )$. To specify weight one needs to add create additional column in input data, and name a column in `weight` argument. For example weight could depend on importance of competition. In speedway Grand-Prix last three heats determine event winner and thus have higher weight.
 
 ```{r}
-data <- mutate(data, weight = ifelse(heat >= (max(heat) - 3), 2, 1))
+data <- dplyr::mutate(data, weight = ifelse(heat >= (max(heat) - 3), 2, 1))
 glicko <- glicko_run(formula = rank | id ~ rider, 
                      data = data, 
                      weight = "weight")
@@ -199,13 +232,25 @@ bbt2 <- bbt_run(formula = rank | id ~ rider, data = data, kappa = 0.5)
 all(bbt1$final_rd >= bbt2$final_rd)
 ```
 
-## Control output uncertainty by `beta`
+## Control output uncertainty by `lambda`
 
-To increase/decrease uncertainty of challenge output one can define `beta`. Increasing `beta` flatten probabilities of winning challenge equalizing competitors chances. This element differs from `sigma` by not affecting `rd` directly but to adjust prediction. This argument can be used in bbt and dbl by identifying column in input data where beta is stored. It is worth to specify `beta` in events when level of competition is higher than usual e.g. derby, knock-out phase, decisive matches, exhibitions and friendlies. Let's assume that `beta` follows the same rule as previously set `weight`.
+To increase/decrease uncertainty of challenge output one can define `lambda`. 
+Increasing `lambda` flatten probabilities of winning challenge equalizing 
+competitors chances. This argument can be used by identifying column in input 
+data where `lambda` values are stored. `lambda` can be used differently in 
+several type of events. For example constant value for all participants in particular
+event in cases when level of competition is higher than usual e.g. derby, 
+knock-out phase, decisive matches, exhibitions and friendlies. In other case
+different `lambda` for all players means that something has changed variance
+of some estimates - for example when some player has not played for a longer
+period of time. For players which performance is more uncertain in particular event
+one ought to set `lambda` greater than 1.
 
 ```{r}
-data %<>% mutate(beta = ifelse(heat >= (max(heat) - 3), 2, 1))
-dbl <- dbl_run(rank | id ~ rider, beta = "beta", data=data) 
+data <- dplyr::mutate(data, lambda = ifelse(heat >= (max(heat) - 3), 2, 1))
+dbl <- dbl_run(rank | id ~ rider, 
+               lambda = "lambda", 
+               data = data) 
 ```
 
 
@@ -215,19 +260,21 @@ In some periods player ratings tends to fluctuate more, when players form is mor
 - In glicko2 `sigma` is another parameter per player estimated simultaneously with `r` and `rd`. One can specify prior sigma in the same manner as `r` and `rd` by creating named vector of positive values. Sigma values depends on a particular application, and priors should be chosen by user.
 
 ```{r}
-sigma <- unique(data$rider) %>% setNames(runif(0.1, 0.5, n = length(.)), .)
-glicko2 <- glicko2_run(rank | id ~ rider, data, sigma = "sigma")
+glicko2 <- glicko2_run(rank | id ~ rider, data, lambda = "lambda")
 ```
 
-In glicko and bbt `sigma` needs to be fixed before iteration by adding new column to input data. For example sigma can be column of time difference between events in which player participated - The longer break in competing, the higher sigma is. It is recommended to keep values close to `data$sigma`.
+In glicko and bbt `lambda` needs to be fixed before iteration by adding new column to input data. For example sigma can be column of time difference between events in which player participated - The longer break in competing, the higher sigma is. It is recommended to keep values close to `data$lambda`.
 
 ```{r}
 # bbt example
-data %<>%
- group_by(rider) %>%
- mutate(days_scaled = as.integer(date - lag(date))/90,
+library(dplyr)
+data <- data %>%
+ dplyr::group_by(rider) %>%
+ dplyr::mutate(days_scaled = as.integer(date - lag(date))/90,
  days_scaled = if_else(days_scaled>1,1.0, days_scaled)) %>%
  filter(!is.na(days_scaled))
 
-bbt <- bbt_run(rank | id ~ rider, data=data, sigma = "days_scaled")
+bbt <- bbt_run(rank | id ~ rider,
+               data = data, 
+               lambda = "days_scaled")
 ```

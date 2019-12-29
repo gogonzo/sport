@@ -283,12 +283,12 @@ public:
         } else { 
           continue; 
         }
+        idx += 1;
       }
       // this event ratings
       error(p)   = err;
       variance(p)   = 1 / var;
       delta(p) =  1 / var * err;
-      idx += 1;
     }
     Rcpp::DataFrame out_p_i = Rcpp::DataFrame::create(
       _["id"] = id_i,

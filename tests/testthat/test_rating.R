@@ -360,3 +360,39 @@ test_that("bbt result", {
     r_bbt$final_rd
   )
 })
+
+
+test_that("dbl result", {
+  r_dbl <- dbl_run(
+    formula = rank | id ~ player + gate:factor,
+    data = data.frame(
+      id = c(1, 1, 1, 1),
+      rank = c(3, 4, 1, 2),
+      team = c("a", "b", "c", "d"),
+      gate = c(1, 2, 3, 4),
+      factor = c("a", "a", "b", "b"),
+      factor2 = c("a", "b", "a", "b"),
+      player = c("A", "B", "C", "D"),
+      lambda = c(1, 1, 1, 1),
+      weight = c(1, 1, 1, 1),
+      share = c(1, 1, 1, 1)
+    )
+  )
+  
+  expect_identical(
+    round(r_dbl$final_r, 2),
+    setNames(
+      c(-0.02, -0.18,  0.15,  0.05, -0.38,  0.64),
+      c("player=A", "player=B", "player=C", "player=D", "factor=a:gate", "factor=b:gate")
+    )
+  )
+  
+  expect_identical(
+    round(r_dbl$final_rd, 2),
+    setNames(
+      c(0.95, 0.95, 0.95, 0.95, 0.90, 0.90),
+      c("player=A", "player=B", "player=C", "player=D", "factor=a:gate", "factor=b:gate")
+    )
+  )
+  
+})
