@@ -37,23 +37,23 @@ summary.rating <- function(object, ...) {
       `Accuracy` = round(mean((P > .5) == Y), 3),
       `pairings` = length(P)
     ),
-    name
-  ]
-
+    team
+    ]
+  
   acc <- object$pairs[, .(`acc` = mean((P > .5) == Y), `pairings` = length(P)), ]
-
+  
   players_ratings <- data.table(
-    name = names(object$final_r),
+    team = names(object$final_r),
     r = round(object$final_r, 3),
     rd = round(object$final_rd, 3)
   )
-
+  
   r <- if (length(all.vars(update(attr(object, "formula"), 0 ~ .))) == 1) {
-    players_ratings[model_probs_players, on = "name"]
+    players_ratings[model_probs_players, on = "team"]
   } else {
     players_ratings
   }
-
+  
   out <- list(
     formula = attr(object, "formula"),
     method = attr(object, "method"),
@@ -75,11 +75,11 @@ print.rating <- function(x, ...) {
       `n` = length(P)
     ),
     list(Interval = cut(P, breaks = seq(0, 1, by = 0.1), include.lowest = TRUE))
-  ][order(Interval)]
-
-
+    ][order(Interval)]
+  
+  
   out <- x$pairs[, .(n = length(P), `accuracy` = mean((P > .5) == Y))]
-
+  
   cat(
     paste("\nCall:", format(attr(x, "formula"))),
     paste("\nNumber of unique pairs:", out$n / 2),
@@ -100,30 +100,29 @@ print.rating <- function(x, ...) {
 #' @export
 plot.rating <- function(x, n = 10, players, ...) {
   if (!missing(players)) {
-    data <- x$r[x$r$name %in% players, ]
-    ggplot(data, aes_string(x = attr(x, "settings")$idlab, y = "r", group = "name", color = "name")) +
+    data <- x$r[x$r$team %in% players, ]
+    ggplot(data, aes_string(x = attr(x, "settings")$idlab, y = "r", group = "team", color = "team")) +
       geom_line() +
       ggtitle("Ratings evolution") +
       theme_bw()
   } else {
     data <- data.frame(
-      name = names(x$final_r),
+      team = names(x$final_r),
       r = x$final_r,
       rd = x$final_rd,
       row.names = NULL,
       stringsAsFactors = F
     )
-
+    
     data <- data[order(data$r, decreasing = T), ][1:n, ]
-    data$name <- reorder(data$name, nrow(data):1)
-
-    ggplot(data, aes(x = name, y = r)) +
+    data$team <- reorder(data$team, nrow(data):1)
+    ggplot(data, aes(x = team, y = r)) +
       ggtitle("Actual ratings") +
       geom_linerange(aes(ymin = r - rd * 1.98, ymax = r + rd * 1.98), size = 1 * 0.8, alpha = 0.4) +
       geom_point(colour = "grey20", size = 1) +
       coord_flip() +
-      scale_x_discrete("Name") +
-      scale_y_continuous("Name") +
+      scale_x_discrete("team") +
+      scale_y_continuous("team") +
       theme_bw()
   }
 }

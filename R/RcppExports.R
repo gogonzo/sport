@@ -17,19 +17,19 @@ factor2dummy <- function(factor) {
 #'   sigma = x[["sigma"]], 
 #'   weight = x[["weight"]], 
 #'   identifier = x[["identifier"]])
-glicko <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau) {
-    .Call('_sport_glicko', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau)
+glicko <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau) {
+    .Call('_sport_glicko', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau)
 }
 
-glicko2 <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau) {
-    .Call('_sport_glicko2', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau)
+glicko2 <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau) {
+    .Call('_sport_glicko2', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau)
 }
 
-bbt <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau) {
-    .Call('_sport_bbt', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, beta, gamma, kappa, tau)
+bbt <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau) {
+    .Call('_sport_bbt', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau)
 }
 
-dbl <- function(unique_id, id_vec, rank_vec, player_vec, MAP, X, cls, R, RD, lambda_vec, share_vec, weight_vec, kappa) {
-    .Call('_sport_dbl', PACKAGE = 'sport', unique_id, id_vec, rank_vec, player_vec, MAP, X, cls, R, RD, lambda_vec, share_vec, weight_vec, kappa)
+dbl <- function(unique_id, id_vec, rank_vec, team_vec, MAP, X, cls, R, RD, lambda_vec, weight_vec, kappa) {
+    .Call('_sport_dbl', PACKAGE = 'sport', unique_id, id_vec, rank_vec, team_vec, MAP, X, cls, R, RD, lambda_vec, weight_vec, kappa)
 }
 

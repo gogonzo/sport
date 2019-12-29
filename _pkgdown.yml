@@ -1,0 +1,18 @@
+destination: docs
+toc:
+  depth: 3
+
+reference:
+  - title: "Sequential Pairwise Online Rating Techniques"
+    desc: "Various lgorithms"
+    contents:
+      - glicko_run
+      - glicko2_run
+      - bbt_run
+      - dbl_run
+
+article:
+
+template:
+  params:
+    bootswatch: cerulean

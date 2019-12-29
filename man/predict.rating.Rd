@@ -20,6 +20,6 @@ probabilities of winning challange by player over his opponent in all provided e
 Predict rating model
 }
 \examples{
-glicko <- glicko_run(rank|id~rider, gpheats[1:16,])
-predict(glicko,gpheats[17:20,])
+glicko <- glicko_run(rank | id ~ rider, gpheats[1:16, ])
+predict(glicko, gpheats[17:20, ])
 }

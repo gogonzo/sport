@@ -1,3 +1,4 @@
+#' @importFrom stats terms
 get_type <- function(x) {
   if (is.character(x) || is.factor(x)) {
     "character"
@@ -7,8 +8,20 @@ get_type <- function(x) {
 }
 
 get_terms <- function(data, formula) {
+  
   classes <- lapply(data, get_type)
   trm <- unlist(strsplit(attr(terms(formula), "term.labels"), "[ ][+][ ]+"))
+  if (any(grepl("team\\(", trm))) {
+    x <- paste(grep("team\\(", trm, value = TRUE), collapse = ",")
+    stop(
+      sprintf(
+        "Specifying %s in dbl_run is not possible. 
+        Please include variable in formula without team().",
+        x
+      )
+    )
+  }
+  
   trm <- strsplit(trm, ":")
   missing_vars <- setdiff(unlist(trm), colnames(data))
   if (length(missing_vars)) {
@@ -19,7 +32,7 @@ get_terms <- function(data, formula) {
   
   vars <- lapply(trm, function(x) unlist(classes[x]))
   vars <- lapply(vars, function(x) x[order(!x %in% c("character"))])
-
+  
   return(vars)
 }
 
@@ -32,7 +45,7 @@ get_terms_map <- function(data, terms) {
         } else {
           rep(names(term), times = nrow(data))
         }
-
+        
       } else if (length(term) == 2) {
         if (all(term == "character")) {
           sprintf(
@@ -55,7 +68,7 @@ get_terms_map <- function(data, terms) {
       }            
     })
   )
-
+  
   names <- vapply(terms, function(term) {
     if (length(term) == 1) {
       names(term)
@@ -95,8 +108,7 @@ get_terms_mat <- function(data, terms) {
         stop("Only two-variable interactions are possible. 
              Please combine variables manualy and include them in formula.")
       }            
-    })
-  )
+    })  )
   
   names <- vapply(terms, function(term) {
     if (length(term) == 1) {
@@ -110,7 +122,7 @@ get_terms_mat <- function(data, terms) {
     }            
   }, FUN.VALUE = character(1))
   
-  names(df) <- names
+  colnames(df) <- names
   df <- as.matrix(df)
   
   return(df)

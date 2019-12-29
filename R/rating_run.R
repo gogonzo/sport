@@ -1,44 +1,66 @@
 #' @importFrom data.table rbindlist
 #' @importFrom stats setNames terms update
-#' @importFrom utils setTxtProgressBar txtProgressBar
 NULL
 
 
 #' Apply rating algorithm
 #'
 #' Apply rating algorithm
-#' @param formula formula specifying model. Allows only player ranking parameter and should be specified by following manner:
+#' @param formula formula which specifies the model. RHS Allows only player 
+#' rating parameter and it should be specified in following manner:
 #' 
-#' `rank | id ~ player(name)`. Names in formula are unrestricted, but model structure remains the same:
+#' `rank | id ~ team(name)`.
 #' \itemize{
-#'  \item {rank} player position in event.
-#'  \item {id} event identifier in which pairwise comparison is assessed.
-#'  \item {player(name)} name of the player. In this case \code{player(name)} 
-#'  helps algorithm point name of the column where player names are stored.
+#'   \item {rank} player position in event.
+#'   \item {id} event identifier in which pairwise comparison is assessed.
+#'   \item {team(name)} name of the contestant. In this case \code{team(name)} 
+#'     helps algorithm point name of the column where player names are stored.
 #' }
 #' Users can also specify formula in in different way:
-#'  `rank | id ~ player(name|team)`. Which means that players are playing in teams, and results are obtained 
-#'  for teams.
-#' @param data data.frame which contains columns specified in formula, and optionaly columns defined by `sigma`, `weight` or `date`.
-#' @param r named vector of initial players ratings estimates. In there is no assumption, initial ratings are set be r=1500. Names of vector should correspond with `name` in formula.
-#' @param rd named vector of initial rating deviation estimates. In there is no assumption, initial ratings are set be r=300 Names of vector should correspond with `name` in formula.
-#' @param sigma name of column in `data` containing rating volatility. Rating volitality is a value which multiplies prior `rd`. If `sigma > 0` then prior `rd` increases, making estimate of `r` more uncertain.
-#' @param weight name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.
-#' @param kappa controls `rd` shrinkage not to be greater than `rd*(1-kappa)`. `kappa=1` means that `rd` will not be decreased.
-#' @param idlab name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by observation `id`.
-#' @param init_r initial values for `r` if not provided. Default = 1500
-#' @param init_rd initial values for `r` if not provided. Default = 350
-#' @param pb logical, if TRUE progress bar will appear in console. Default = FALSE
-#' @return
-#' A "rating" object is returned: \itemize{
-#' \item \code{final_r} named vector containing players ratings.
-#' \item \code{final_rd} named vector containing players ratings deviations.
-#' \item \code{r} data.frame with evolution of the ratings and ratings deviations estimated at each event.
-#' \item \code{pairs} pairwise combinations of players in analysed events with prior probability and result of a challange.
-#' \item \code{class} of the object.
-#' \item \code{method} type of algorithm used.
-#' \item \code{formula} modelled formula.
-#' }
+#'  `rank | id ~ team(name|team)`. Which means that players are playing in teams, 
+#'  and results are observed for teams not for players. For more see vignette.
+#'  
+#' @param data data.frame which contains columns specified in formula, and
+#'  optionaly columns defined by `lambda`, `weight`.
+#'  
+#' @param r named vector of initial players ratings estimates. If not specified 
+#' then `r` will be created automatically for parameters specified in `formula`
+#' with initial value `init_r`.
+#' 
+#' @param rd rd named vector of initial rating deviation estimates. If not specified 
+#' then `rd` will be created automatically for parameters specified in `formula`
+#' with initial value `init_rd`.
+#' 
+#' @param lambda name of the column in `data` containing lambda values or one 
+#' constant value (eg. `lambda = colname` or `lambda = 0.5`).
+#' Lambda impact prior variance, and uncertainty of the matchup result. The 
+#' higher lambda, the higher prior variance and more uncertain result of the 
+#' matchup. Higher lambda flattens chances of winning. 
+#' 
+#' @param share name of the column in `data` containing player share in team 
+#' efforts. It's used to first calculate combined rating of the team and
+#' then redistribute ratings update back to players level. Warning - it should
+#' be used only if formula is specified with players nested within teams (`team(player|team)`).
+#' 
+#' 
+#' @param weight name of the column in `data` containing weights values or
+#' one constant (eg. `weight = colname` or `weight = 0.5`). 
+#' Weights increasing (weight > 1) or decreasing (weight < 1) update change. 
+#' Higher weight increasing impact of event result on rating estimate.
+#' 
+#' @param kappa controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
+#'  `kappa=1` means that `rd` will not be decreased.
+#'  
+#' @param idlab name of column in `data` containing date. Doesn't affect
+#' estimation process. If specified, charts displays estimates changes in time
+#'  instead of by observation `id`.
+#'  
+#' @param init_r initial values for `r` if not provided. 
+#' Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)
+#' 
+#' @param init_rd initial values for `r` if not provided. 
+#' Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)
+#' 
 rating_run <- function(
   method,
   data,
@@ -52,20 +74,12 @@ rating_run <- function(
   share = numeric(0),
   weight = numeric(0),
   lambda = numeric(0),
-  beta = numeric(0),
-  gamma = numeric(0),
   kappa = numeric(0),
   tau = numeric(0)) {
-  if (length(beta) == 0) beta <- 25 / 6
-  if (length(gamma) == 0) gamma <- 1.0
   if (length(kappa) == 0) kappa <- 0.5
   if (length(tau) == 0) tau <- 0.5
   
-  if (method == "glicko") {
-    check_single_argument(gamma, "gamma", min = 0.00000000001)
-  } else if (method == "bbt") {
-    check_single_argument(beta, "beta", min = 0.00000000001)
-  } else if (method == "glicko2") {
+  if (method == "glicko2") {
     check_single_argument(init_sigma, "init_sigma", min = 0.00000000001)
     check_single_argument(tau, "tau", min = 0.00000000001)
   }
@@ -74,8 +88,8 @@ rating_run <- function(
   check_single_argument(init_r, "init_r", min = 0)
   check_single_argument(init_rd, "init_rd", min = 0)
   is_formula_missing(formula)
-  is_lhs_valid(formula)
-  is_rhs_valid(formula, paste0(method, "_run"))
+  is_lhs_valid(formula, data)
+  is_rhs_valid(formula, data, paste0(method, "_run"))
   
   lhs <- all.vars(update(formula, . ~ 0))
   rank <- lhs[1]
@@ -91,11 +105,11 @@ rating_run <- function(
   
   
   rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
-  if (grepl("player\\(", rhs_terms)) {
-    player <- gsub("^player\\(([^ |]+)[ ]*\\|.*$", "\\1", rhs_terms)
+  if (grepl("team\\(", rhs_terms)) {
+    player <- gsub("^team\\(([^ |]+)[ ]*\\|.*$", "\\1", rhs_terms)
     player_vec <- as.character(data[[player]])
     
-    team <- gsub("^player\\(.+\\|[ ]*(.+)\\)$", "\\1", rhs_terms)
+    team <- gsub("^team\\(.+\\|[ ]*(.+)\\)$", "\\1", rhs_terms)
     team_vec <- as.character(data[[team]])
   } else {
     player <- rhs_terms[1]
@@ -110,26 +124,9 @@ rating_run <- function(
   check_string_argument(player_vec, player)
   check_string_argument(team_vec, team)
   
-  if (length(share) == 0) {
-    share_vec <- rep(1.0, nrow(data))
-  } else {
-    share_vec <- data[[share]] # 1/n_it
-    check_numeric_argument(share_vec, share, min = 0, max = 1)
-  }
-  
-  if (length(lambda) == 0) {
-    lambda_vec <- rep(1.0, nrow(data))
-  } else {
-    lambda_vec <- data[[lambda]] # 1/n_it
-    check_numeric_argument(lambda_vec, lambda, min = 0, max = 1)
-  }
-  
-  if (length(weight) == 0) {
-    weight_vec <- rep(1.0, nrow(data))
-  } else {
-    weight_vec <- data[[weight]] # 1/n_it
-    check_numeric_argument(weight_vec, weight, min = 0, max = 1)
-  }
+  lambda_vec <- initialize_vec(var = lambda, data = data, argname = "lambda", min = 0)
+  share_vec  <- initialize_vec(var = share, data = data, argname = "share", min = 0, max = 1)
+  weight_vec <- initialize_vec(var = weight, data = data, argname = "weight", min = 0)
   
   # default rating
   unique_names <- unique(unlist(player_vec))
@@ -155,8 +152,6 @@ rating_run <- function(
       lambda = lambda_vec,
       share = share_vec,
       weight = weight_vec,
-      beta = 0.0,
-      gamma = gamma,
       kappa = kappa,
       tau = 0.0
     )
@@ -180,8 +175,6 @@ rating_run <- function(
       share = share_vec,
       weight = weight_vec,
       
-      beta = 0.0,
-      gamma = 0.0,
       kappa = kappa,
       tau = tau
     )
@@ -205,8 +198,6 @@ rating_run <- function(
       share = share_vec,
       weight = weight_vec,
       
-      beta = beta,
-      gamma = 0.0,
       kappa = kappa,
       tau = 0.0
     )
@@ -218,15 +209,48 @@ rating_run <- function(
 #' Glicko rating algorithm
 #'
 #' Glicko rating algorithm
-#' Wrapper arround `glicko` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
+#' 
 #' @inheritParams rating_run
+#' 
+#' @return
+#' 
+#' A "rating" object is returned: \itemize{
+#' 
+#' \item \code{final_r} named vector containing players ratings.
+#' 
+#' \item \code{final_rd} named vector containing players ratings deviations.
+#' 
+#' \item \code{r} data.frame with evolution of the ratings and ratings deviations
+#'  estimated at each event.
+#'  
+#' \item \code{pairs} pairwise combinations of players in analysed events with 
+#' prior probability and result of a challange.
+#' 
+#' \item \code{class} of the object.
+#' 
+#' \item \code{method} type of algorithm used.
+#' 
+#' \item \code{settings} arguments specified in function call.
+#' }
+#' 
 #' @examples
-#' # Example from Glickman
+#' # the simplest example
 #' data <- data.frame(
 #'   name = c("A", "B", "C", "D"),
 #'   rank = c(3, 4, 1, 2)
 #' )
-#' glicko <- glicko_run(data, rank ~ name)
+#' glicko <- glicko_run(
+#'   data = data, 
+#'   formula = rank ~ name
+#'  )
+#' 
+#' # Example from Glickman
+#' glicko <- glicko_run(
+#'   data = data, 
+#'   formula = rank ~ name,
+#'    r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")),
+#'    rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("A", "B", "C", "D"))
+#'   )
 #' @export
 glicko_run <- function(data, formula,
                        r = numeric(0),
@@ -236,8 +260,7 @@ glicko_run <- function(data, formula,
                        share = numeric(0),
                        weight = numeric(0),
                        lambda = numeric(0),
-                       kappa = 0.5,
-                       gamma = 1.0) {
+                       kappa = 0.5) {
   g <- rating_run(
     method = "glicko",
     data = data,
@@ -249,8 +272,7 @@ glicko_run <- function(data, formula,
     share = share,
     weight = weight,
     lambda = lambda,
-    kappa = kappa,
-    gamma = gamma
+    kappa = kappa
   )
   
   ratings <- data.table::rbindlist(g$r)[, -6]
@@ -272,7 +294,6 @@ glicko_run <- function(data, formula,
       lambda = lambda,
       share = share,
       weight = weight,
-      gamma = gamma,
       kappa = kappa
     )
   )
@@ -283,44 +304,61 @@ glicko_run <- function(data, formula,
 #' Glicko2 rating algorithm
 #'
 #' Glicko2 rating algorithm
-#' Wrapper arround `glicko2` update algorithm. Wrapper allows user to simplify calculation providing only data and initial parameters assumptions
-#' @param formula formula specifying model. Glicko2 algorithm allows only player ranking parameter and should be specified by following manner:
-#' `rank | id ~ name`. Names in formula are unrestricted, but model structure remains the same:
-#' \itemize{
-#'  \item rank player position in event.
-#'  \item id event identifier in which pairwise comparison is assessed.
-#'  \item name of player.
-#' }
-#' @param data data.frame which contains columns specified in formula, and optionaly columns defined by `weight` or `date`.
-#' @param r named vector of initial rating estimates. In there is no assumption, initial ratings is set to be r=1500. Names of vector should correspond with team_name label.
-#' @param rd named vector of initial rating deviation estimates. In there is no assumption, initial ratings is set to be r=300 Names of vector should correspond with team_name label.
-#' @param sigma named vector of rating volatile. In there is no assumption, initial ratings should be sigma=0.5. Names of vector should correspond with team_name label.
-#' @param tau The system constant. Which constrains the change in volatility over time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though the system should be tested to decide which value results in greatest predictive accuracy. Smaller values of `tau` prevent the volatility measures from changing by largeamounts, which in turn prevent enormous changes in ratings based on very improbable results. If the application of Glicko-2 is expected to involve extremely improbable collections of game outcomes, then `tau` should be set to a small value, even as small as, say, `tau= 0`.2.
-#' @param weight name of column in `data` containing weights. Weights increasing or decreasing update change. Higher weight increasing impact of corresponding event.
-#' @param kappa controls `rd` shrinkage not to be greater than `rd*(1-kappa)`. `kappa=1` means that `rd` will not be decreased.
-#' @param idlab name of column in `data` containing date. Doesn't affect estimation process. If specified, charts displays estimates changes in time instead of by event `id`
-#' @param init_r initial values for `r` if not provided. Default = 1500
-#' @param init_rd initial values for `r` if not provided. Default = 350
-#' @param pb logical, if TRUE progress bar will appear in console. Default = FALSE
-#' @return
+#' @inheritParams rating_run
+#' @param sigma (only for glicko2) named vector of initial players ratings 
+#' estimates. If not specified then `sigma` will be created automatically for 
+#' parameters specified in `formula` with initial value `init_sigma`.
+#' 
+#' @param tau The system constant. Which constrains the change in volatility over
+#'  time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though 
+#'  the system should be tested to decide which value results in greatest 
+#'  predictive accuracy. Smaller values of `tau` prevent the volatility measures 
+#'  from changing by largeamounts, which in turn prevent enormous changes in 
+#'  ratings based on very improbable results. If the application of Glicko-2 is 
+#'  expected to involve extremely improbable collections of game outcomes, then 
+#'  `tau` should be set to a small value, even as small as, say, `tau= 0`.
 #' A "rating" object is returned
-#' \itemize{
-#'   \item \code{final_r} named vector containing players ratings.
-#'   \item \code{final_rd} named vector containing players ratings deviations.
-#'   \item \code{final_sigma} named vector containing players ratings volatiles.
-#'   \item \code{r} data.frame with evolution of the ratings and ratings deviations estimated at each event.
-#'   \item \code{pairs} pairwise combinations of players in analysed events with prior probability and result of a challange.
-#'   \item \code{class} of the object
-#'   \item \code{method} type of algorithm used
-#'   \item \code{formula} modelled formula
+#' @return
+#' 
+#' A "rating" object is returned: \itemize{
+#' 
+#' \item \code{final_r} named vector containing players ratings.
+#' 
+#' \item \code{final_rd} named vector containing players ratings deviations.
+#' 
+#' \item \code{final_sigma} named vector containing players ratings volatiles.
+#' 
+#' \item \code{r} data.frame with evolution of the ratings and ratings deviations
+#'  estimated at each event.
+#'  
+#' \item \code{pairs} pairwise combinations of players in analysed events with 
+#' prior probability and result of a challange.
+#' 
+#' \item \code{class} of the object.
+#' 
+#' \item \code{method} type of algorithm used.
+#' 
+#' \item \code{settings} arguments specified in function call.
 #' }
+#' 
 #' @examples
-#' # Example from Glickman
+#' # the simplest example
 #' data <- data.frame(
 #'   name = c("A", "B", "C", "D"),
 #'   rank = c(3, 4, 1, 2)
 #' )
-#' glicko2 <- glicko2_run(rank ~ name, data)
+#' glicko2 <- glicko_run(
+#'   data = data, 
+#'   formula = rank ~ name
+#'  )
+#' 
+#' # Example from Glickman
+#' glicko2 <- glicko2_run(
+#'   data = data, 
+#'   formula = rank ~ name,
+#'    r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")),
+#'    rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("A", "B", "C", "D"))
+#'   )
 #' @export
 glicko2_run <- function(formula,
                         data,
@@ -380,7 +418,50 @@ glicko2_run <- function(formula,
   
   return(out)
 }
-
+#' Bayesian Bradley-Terry
+#' 
+#' Bayesian Bradley-Terry
+#' @inheritParams rating_run
+#' 
+#' @return
+#' 
+#' A "rating" object is returned: \itemize{
+#' 
+#' \item \code{final_r} named vector containing players ratings.
+#' 
+#' \item \code{final_rd} named vector containing players ratings deviations.
+#' 
+#' \item \code{r} data.frame with evolution of the ratings and ratings deviations
+#'  estimated at each event.
+#'  
+#' \item \code{pairs} pairwise combinations of players in analysed events with 
+#' prior probability and result of a challange.
+#' 
+#' \item \code{class} of the object.
+#' 
+#' \item \code{method} type of algorithm used.
+#' 
+#' \item \code{settings} arguments specified in function call.
+#' }
+#' 
+#' @examples
+#' # the simplest example
+#' data <- data.frame(
+#'   name = c("A", "B", "C", "D"),
+#'   rank = c(3, 4, 1, 2)
+#' )
+#' bbt <- bbt_run(
+#'   data = data, 
+#'   formula = rank ~ name
+#'  )
+#' 
+#' bbt <- bbt_run(
+#'   data = data, 
+#'   formula = rank ~ name,
+#'    r = setNames(c(25, 23.3, 25.83, 28.33), c("A", "B", "C", "D")),
+#'    rd = setNames(c(4.76, 0.71, 2.38, 7.14), c("A", "B", "C", "D"))
+#'   )
+#' @export
 bbt_run <- function(formula,
                     data,
                     r = numeric(0),
@@ -390,7 +471,6 @@ bbt_run <- function(formula,
                     lambda = NULL,
                     weight = NULL,
                     share = NULL,
-                    beta = 25 / 6,
                     kappa = 0.5) {
   g <- rating_run(
     method = "bbt",
@@ -403,7 +483,6 @@ bbt_run <- function(formula,
     share = share,
     weight = weight,
     lambda = lambda,
-    beta = beta,
     kappa = kappa
   )
   
@@ -426,7 +505,6 @@ bbt_run <- function(formula,
       lambda = lambda,
       share = share,
       weight = weight,
-      beta = beta,
       kappa = kappa
     )
   )
@@ -434,20 +512,68 @@ bbt_run <- function(formula,
 }
 
 
+#' Dynamic Bayesian Logit
+#' 
+#' Dynamic Bayesian Logit
+#' 
+#' @inheritParams rating_run
+#' @param formula formula which specifies the model. Unlike other algorithms
+#' in the packages (glicko_run, glicko2_run, bbt_run), this doesn't allow
+#' players nested in teams with `team(player | team)` but instead let user
+#' specify multiple parameters also in interaction with others.
+#' 
+#' @return
+#' 
+#' A "rating" object is returned: \itemize{
+#' 
+#' \item \code{final_r} named vector containing players ratings.
+#' 
+#' \item \code{final_rd} named vector containing players ratings deviations.
+#' 
+#' \item \code{r} data.frame with evolution of the ratings and ratings deviations
+#'  estimated at each event.
+#'  
+#' \item \code{pairs} pairwise combinations of players in analysed events with 
+#' prior probability and result of a challange.
+#' 
+#' \item \code{class} of the object.
+#' 
+#' \item \code{method} type of algorithm used.
+#' 
+#' \item \code{settings} arguments specified in function call.
+#' }
+#' 
+#' @examples
+#' # the simplest example
+#' data <- data.frame(
+#'   name = c("A", "B", "C", "D"),
+#'   rank = c(3, 4, 1, 2),
+#'   gate = c(1, 2, 3, 4),
+#'   factor1 = c("a", "a", "b", "b"),
+#'   factor2 = c("a", "b", "a", "b")
+#' )
+#' 
+#' dbl <- dbl_run(
+#'   data = data, 
+#'   formula = rank ~ name
+#'  )
+#' 
+#' dbl <- dbl_run(
+#'   data = data, 
+#'   formula = rank ~ name + gate * factor1)
+#' @export
 dbl_run <- function(formula,
                     data,
                     r = NULL,
                     rd = NULL,
-                    beta = NULL,
                     lambda = NULL,
-                    share = NULL,
                     weight = NULL,
                     kappa = 0.95,
                     init_r = 0,
                     init_rd = 1) {
   is_formula_missing(formula)
   is_data_provided(data)
-  is_lhs_valid(formula)
+  is_lhs_valid(formula, data)
   is_interactions_valid(formula)
   
   lhs <- all.vars(update(formula, . ~ 0))
@@ -474,11 +600,10 @@ dbl_run <- function(formula,
     rd <- setNames(rep(init_rd, length(unique_params)), unique_params)
   }
   
-  lambda_vec <- if (is.null(lambda)) rep(1, nrow(data)) else data[["lambda"]]
-  share_vec  <- if (is.null(share))  rep(1, nrow(data)) else data[["share"]]
-  weight_vec <- if (is.null(weight)) rep(1, nrow(data)) else data[["weight"]]
+  lambda_vec <- initialize_vec(var = lambda, data = data, argname = "lambda", min = 0)
+  weight_vec <- initialize_vec(var = weight, data = data, argname = "weight", min = 0)
   
-  player_vec <- 1:nrow(data)
+  team_vec <- 1:nrow(data)
   
   if (is.null(kappa)) kappa <- 0.0001
   
@@ -486,14 +611,13 @@ dbl_run <- function(formula,
     unique_id = unique(id_vec),
     id = id_vec,
     rank_vec = rank_vec,
-    player_vec = player_vec,
+    team_vec = team_vec,
     MAP = as.matrix(MAP),
     X = as.matrix(X),
     cls = cls,
     R = r,
     RD = rd,
     lambda_vec = lambda_vec,
-    share_vec = share_vec,
     weight_vec = weight_vec,
     kappa = kappa
   )
@@ -515,7 +639,6 @@ dbl_run <- function(formula,
       init_r = init_r,
       init_rd = init_rd,
       lambda = lambda,
-      share = share,
       weight = weight,
       kappa = kappa
     )

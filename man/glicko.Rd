@@ -19,8 +19,6 @@ glicko(
   init_r,
   init_rd,
   init_sigma,
-  beta,
-  gamma,
   kappa,
   tau
 )
