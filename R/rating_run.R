@@ -19,6 +19,8 @@ NULL
 #' Users can also specify formula in in different way:
 #'  `rank | id ~ team(name|team)`. Which means that players are playing in teams, 
 #'  and results are observed for teams not for players. For more see vignette.
+#'
+#' @param method one of `c("glicko", "glicko2", "bbt", "dbl")` 
 #'  
 #' @param data data.frame which contains columns specified in formula, and
 #'  optionaly columns defined by `lambda`, `weight`.
@@ -70,10 +72,10 @@ NULL
 #' @param init_r initial values for `r` if not provided. 
 #' Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)
 #' 
-#' @param init_rd initial values for `r` if not provided. 
+#' @param init_rd initial values for `rd` if not provided. 
 #' Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)
 #' 
-#' @param init_rd initial values for `r` if not provided. 
+#' @param init_sigma initial values for `sigma` if not provided. 
 #' Default = 0.5
 rating_run <- function(
   method,
@@ -85,9 +87,10 @@ rating_run <- function(
   init_r = numeric(0),
   init_rd = numeric(0),
   init_sigma = numeric(0),
+  lambda = numeric(0),
   share = numeric(0),
   weight = numeric(0),
-  lambda = numeric(0),
+  idlab = character(0),
   kappa = numeric(0),
   tau = numeric(0)) {
   if (length(kappa) == 0) kappa <- 0.5
@@ -116,7 +119,6 @@ rating_run <- function(
     id <- lhs[2]
     id_vec <- as.integer(data[[lhs[2]]])
   }
-  
   
   rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
   if (grepl("team\\(", rhs_terms)) {
@@ -271,9 +273,10 @@ glicko_run <- function(data, formula,
                        rd = numeric(0),
                        init_r = 1500,
                        init_rd = 350,
+                       lambda = numeric(0),
                        share = numeric(0),
                        weight = numeric(0),
-                       lambda = numeric(0),
+                       idlab = numeric(0),
                        kappa = 0.5) {
   g <- rating_run(
     method = "glicko",
@@ -308,6 +311,7 @@ glicko_run <- function(data, formula,
       lambda = lambda,
       share = share,
       weight = weight,
+      idlab = idlab,
       kappa = kappa
     )
   )
@@ -370,6 +374,7 @@ glicko2_run <- function(formula,
                         lambda = NULL,
                         share = NULL,
                         weight = NULL,
+                        idlab = NULL,
                         init_r = 1500,
                         init_rd = 350,
                         init_sigma = 0.05,
@@ -385,9 +390,10 @@ glicko2_run <- function(formula,
     init_r = init_r,
     init_rd = init_rd,
     init_sigma = init_sigma,
+    lambda = lambda,
     share = share,
     weight = weight,
-    lambda = lambda,
+    #idlab = if (length(idlab) == 0) id else idlab
     kappa = kappa,
     tau = tau
   )
@@ -471,8 +477,9 @@ bbt_run <- function(formula,
                     init_r = 25,
                     init_rd = 25 / 3,
                     lambda = NULL,
-                    weight = NULL,
                     share = NULL,
+                    weight = NULL,
+                    idlab = NULL,
                     kappa = 0.5) {
   g <- rating_run(
     method = "bbt",
@@ -482,9 +489,10 @@ bbt_run <- function(formula,
     rd = rd,
     init_r = init_r,
     init_rd = init_rd,
+    lambda = lambda,
     share = share,
     weight = weight,
-    lambda = lambda,
+    #idlab = if (length(idlab) == 0) id else idlab
     kappa = kappa
   )
   
@@ -507,6 +515,7 @@ bbt_run <- function(formula,
       lambda = lambda,
       share = share,
       weight = weight,
+      idlab = idlab,
       kappa = kappa
     )
   )
@@ -570,6 +579,7 @@ dbl_run <- function(formula,
                     rd = NULL,
                     lambda = NULL,
                     weight = NULL,
+                    idlab = NULL,
                     kappa = 0.95,
                     init_r = 0,
                     init_rd = 1) {
@@ -611,7 +621,7 @@ dbl_run <- function(formula,
   
   g <- dbl(
     unique_id = unique(id_vec),
-    id = id_vec,
+    id_vec = id_vec,
     rank_vec = rank_vec,
     team_vec = team_vec,
     MAP = as.matrix(MAP),
@@ -642,6 +652,7 @@ dbl_run <- function(formula,
       init_rd = init_rd,
       lambda = lambda,
       weight = weight,
+      idlab = idlab,
       kappa = kappa
     )
   )  

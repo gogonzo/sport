@@ -495,18 +495,6 @@ Ratings::Ratings(
   this -> tau = tau_val;
 }
 
-//' Glicko
-//' @examples
-//' x <- data.frame(id = 0, name = "a", rank = 1, r = 2, rd = 3, sigma = 4, weight = 5, identifier = 6)
-//' glicko(
-//'   id = x[["id"]], 
-//'   name = x[["name"]], 
-//'   rank = x[["rank"]], 
-//'   r = x[["rank"]], 
-//'   rd = x[["rd"]], 
-//'   sigma = x[["sigma"]], 
-//'   weight = x[["weight"]], 
-//'   identifier = x[["identifier"]])
 // [[Rcpp::export]]
 List 
   glicko(

@@ -5,18 +5,6 @@ factor2dummy <- function(factor) {
     .Call('_sport_factor2dummy', PACKAGE = 'sport', factor)
 }
 
-#' Glicko
-#' @examples
-#' x <- data.frame(id = 0, name = "a", rank = 1, r = 2, rd = 3, sigma = 4, weight = 5, identifier = 6)
-#' glicko(
-#'   id = x[["id"]], 
-#'   name = x[["name"]], 
-#'   rank = x[["rank"]], 
-#'   r = x[["rank"]], 
-#'   rd = x[["rd"]], 
-#'   sigma = x[["sigma"]], 
-#'   weight = x[["weight"]], 
-#'   identifier = x[["identifier"]])
 glicko <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau) {
     .Call('_sport_glicko', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau)
 }

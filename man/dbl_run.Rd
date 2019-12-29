@@ -11,6 +11,7 @@ dbl_run(
   rd = NULL,
   lambda = NULL,
   weight = NULL,
+  idlab = NULL,
   kappa = 0.95,
   init_r = 0,
   init_rd = 1
@@ -44,14 +45,18 @@ one constant (eg. `weight = colname` or `weight = 0.5`).
 Weights increasing (weight > 1) or decreasing (weight < 1) update change. 
 Higher weight increasing impact of event result on rating estimate.}
 
+\item{idlab}{name of column in `data` containing date. Doesn't affect
+estimation process. If specified, charts displays estimates changes in time
+ instead of by observation `id`.}
+
 \item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
 `kappa=1` means that `rd` will not be decreased.}
 
 \item{init_r}{initial values for `r` if not provided. 
 Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
 
-\item{init_rd}{initial values for `r` if not provided. 
-Default = 0.5}
+\item{init_rd}{initial values for `rd` if not provided. 
+Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
 }
 \value{
 A "rating" object is returned: \itemize{

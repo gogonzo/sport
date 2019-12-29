@@ -101,7 +101,11 @@ print.rating <- function(x, ...) {
 plot.rating <- function(x, n = 10, players, ...) {
   if (!missing(players)) {
     data <- x$r[x$r$team %in% players, ]
-    ggplot(data, aes_string(x = attr(x, "settings")$idlab, y = "r", group = "team", color = "team")) +
+    ggplot(data, 
+           aes_string(x = attr(x, "settings")$idlab, 
+                      y = "r", 
+                      group = "team", 
+                      color = "team")) +
       geom_line() +
       ggtitle("Ratings evolution") +
       theme_bw()
@@ -118,7 +122,10 @@ plot.rating <- function(x, n = 10, players, ...) {
     data$team <- reorder(data$team, nrow(data):1)
     ggplot(data, aes(x = team, y = r)) +
       ggtitle("Actual ratings") +
-      geom_linerange(aes(ymin = r - rd * 1.98, ymax = r + rd * 1.98), size = 1 * 0.8, alpha = 0.4) +
+      geom_linerange(aes(ymin = r - rd * 1.98, 
+                         ymax = r + rd * 1.98), 
+                     size = 1 * 0.8, 
+                     alpha = 0.4) +
       geom_point(colour = "grey20", size = 1) +
       coord_flip() +
       scale_x_discrete("team") +

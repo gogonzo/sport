@@ -14,14 +14,17 @@ rating_run(
   init_r = numeric(0),
   init_rd = numeric(0),
   init_sigma = numeric(0),
+  lambda = numeric(0),
   share = numeric(0),
   weight = numeric(0),
-  lambda = numeric(0),
+  idlab = character(0),
   kappa = numeric(0),
   tau = numeric(0)
 )
 }
 \arguments{
+\item{method}{one of `c("glicko", "glicko2", "bbt", "dbl")`}
+
 \item{data}{data.frame which contains columns specified in formula, and
 optionaly columns defined by `lambda`, `weight`.}
 
@@ -54,8 +57,17 @@ parameters specified in `formula` with initial value `init_sigma`.}
 \item{init_r}{initial values for `r` if not provided. 
 Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
 
-\item{init_rd}{initial values for `r` if not provided. 
+\item{init_rd}{initial values for `rd` if not provided. 
+Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
+
+\item{init_sigma}{initial values for `sigma` if not provided. 
 Default = 0.5}
+
+\item{lambda}{name of the column in `data` containing lambda values or one 
+constant value (eg. `lambda = colname` or `lambda = 0.5`).
+Lambda impact prior variance, and uncertainty of the matchup result. The 
+higher lambda, the higher prior variance and more uncertain result of the 
+matchup. Higher lambda flattens chances of winning.}
 
 \item{share}{name of the column in `data` containing player share in team 
 efforts. It's used to first calculate combined rating of the team and
@@ -67,11 +79,9 @@ one constant (eg. `weight = colname` or `weight = 0.5`).
 Weights increasing (weight > 1) or decreasing (weight < 1) update change. 
 Higher weight increasing impact of event result on rating estimate.}
 
-\item{lambda}{name of the column in `data` containing lambda values or one 
-constant value (eg. `lambda = colname` or `lambda = 0.5`).
-Lambda impact prior variance, and uncertainty of the matchup result. The 
-higher lambda, the higher prior variance and more uncertain result of the 
-matchup. Higher lambda flattens chances of winning.}
+\item{idlab}{name of column in `data` containing date. Doesn't affect
+estimation process. If specified, charts displays estimates changes in time
+ instead of by observation `id`.}
 
 \item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
 `kappa=1` means that `rd` will not be decreased.}
@@ -84,10 +94,6 @@ from changing by largeamounts, which in turn prevent enormous changes in
 ratings based on very improbable results. If the application of Glicko-2 is 
 expected to involve extremely improbable collections of game outcomes, then 
 `tau` should be set to a small value, even as small as, say, `tau= 0`.}
-
-\item{idlab}{name of column in `data` containing date. Doesn't affect
-estimation process. If specified, charts displays estimates changes in time
- instead of by observation `id`.}
 }
 \description{
 Apply rating algorithm

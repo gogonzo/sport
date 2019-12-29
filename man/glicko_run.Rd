@@ -11,9 +11,10 @@ glicko_run(
   rd = numeric(0),
   init_r = 1500,
   init_rd = 350,
+  lambda = numeric(0),
   share = numeric(0),
   weight = numeric(0),
-  lambda = numeric(0),
+  idlab = numeric(0),
   kappa = 0.5
 )
 }
@@ -46,8 +47,14 @@ with initial value `init_rd`.}
 \item{init_r}{initial values for `r` if not provided. 
 Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
 
-\item{init_rd}{initial values for `r` if not provided. 
-Default = 0.5}
+\item{init_rd}{initial values for `rd` if not provided. 
+Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
+
+\item{lambda}{name of the column in `data` containing lambda values or one 
+constant value (eg. `lambda = colname` or `lambda = 0.5`).
+Lambda impact prior variance, and uncertainty of the matchup result. The 
+higher lambda, the higher prior variance and more uncertain result of the 
+matchup. Higher lambda flattens chances of winning.}
 
 \item{share}{name of the column in `data` containing player share in team 
 efforts. It's used to first calculate combined rating of the team and
@@ -59,11 +66,9 @@ one constant (eg. `weight = colname` or `weight = 0.5`).
 Weights increasing (weight > 1) or decreasing (weight < 1) update change. 
 Higher weight increasing impact of event result on rating estimate.}
 
-\item{lambda}{name of the column in `data` containing lambda values or one 
-constant value (eg. `lambda = colname` or `lambda = 0.5`).
-Lambda impact prior variance, and uncertainty of the matchup result. The 
-higher lambda, the higher prior variance and more uncertain result of the 
-matchup. Higher lambda flattens chances of winning.}
+\item{idlab}{name of column in `data` containing date. Doesn't affect
+estimation process. If specified, charts displays estimates changes in time
+ instead of by observation `id`.}
 
 \item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
 `kappa=1` means that `rd` will not be decreased.}
