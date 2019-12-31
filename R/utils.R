@@ -4,65 +4,6 @@ is_data_provided <- function(data) {
   if (missing(data)) stop("Data is not provided", call. = FALSE)
 }
 
-is_formula_missing <- function(formula) {
-  if (length(formula) == 0) {
-    stop("Formula is not specified", call. = FALSE)
-  } else if (!inherits(formula, "formula")) {
-    stop("Formula incorrectly specified", call. = FALSE)
-  }
-}
-
-is_lhs_valid <- function(formula, data) {
-  if (length(all.vars(update(formula, . ~ 0))) == 1) {
-    warning("LHS of formula doesn't contain `| id` element. It will be assummed that all belongs to the same event id", call. = F)
-  } else if (length(all.vars(update(formula, . ~ 0))) == 2 &
-    !grepl("[|]", format(update(formula, . ~ 0)))) {
-    stop("LHS of formula must be seperated by `|` operator eg. `rank | id ~ .`", call. = FALSE)
-  } else if (length(all.vars(update(formula, . ~ 0))) > 2) {
-    stop("LHS must contain 1 or 2 variables", call. = FALSE)
-  }
-  
-  x <- all.vars(update(formula, . ~ 0))
-  vars <- trimws(unlist(strsplit(x, "[+|:*]")))
-  missing_vars <- setdiff(vars, colnames(data))
-  if (length(missing_vars) > 0) {
-    stop(sprintf("Variable(s) %s specified in formula are not present in data",
-                 paste(missing_vars, collapse = ", ")))
-  }
-  
-}
-
-is_interactions_valid <- function(formula) {
-  if (grepl("[-*|]", format(update(formula, 0 ~ .)))) {
-    stop("RHS formula can be composed only using names and `+` or `:` operator eg. ~ name + field:name")
-  }
-}
-
-is_rhs_valid <- function(formula, data, model) {
-  rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
-  x <- gsub("(team\\()|(\\))", "", rhs_terms) 
-  vars <- trimws(unlist(strsplit(x, "[+|:*]")))
-  missing_vars <- setdiff(vars, colnames(data))
-  if (length(missing_vars) > 0) {
-    stop(sprintf("Variable(s) %s specified in formula are not present in data",
-                 paste(missing_vars, collapse = ", ")))
-  }
-  
-  if (length(rhs_terms) != 1) {
-    stop(sprintf(
-      "%s expects only one element on RHS which is `~ name` or `nest(player | team)`",
-      model
-    ),
-    call. = FALSE
-    )
-  } else if (grepl("team\\(.+\\)", rhs_terms)) {
-    nested <- trimws(unlist(strsplit(gsub("team\\((.+)\\)", "\\1", rhs_terms), "\\|")))
-    if (length(nested) != 2) {
-      stop(sprintf("term %s must contain two variables nest(player | team)", rhs_terms))
-    }
-  }
-}
-
 is_newdata_consistent <- function(vars, newnames) {
   if (!all(vars %in% newnames)) {
     stop(
@@ -76,6 +17,19 @@ is_newdata_consistent <- function(vars, newnames) {
   }
 }
 
+are_variables_in_dataset <- function(vars, data) {
+  missing_vars <- setdiff(vars, colnames(data))
+  
+  if (length(missing_vars) > 0) {
+    stop(sprintf(
+      "Variable(s) %s specified in formula not present in data",
+      paste(missing_vars, collapse = ", ")),
+      call. = FALSE)
+    
+  }
+  
+  return(invisible(TRUE))
+}
 check_numeric_argument <- function(x, var_name, min = -Inf, max = Inf) {
   if (!is.numeric(x)) {
     stop(sprintf("Variable %s should be of type numeric.", var_name),
@@ -142,6 +96,9 @@ init_check_r <- function(r, init_r, unique_names, player) {
       stop("init_r should be a finite number", call. = FALSE)
     }
     r <- setNames(rep(init_r, length(unique_names)), unique_names)
+  } else if (any(duplicated(names(r)))) {
+    stop("All names in r should be unique. Duplicated names not allowed.", call. = FALSE)
+    
   } else if (any(!unique_names %in% names(r))) {
     warning(
       sprintf("Some names in %s doesn't have a match in r. 
@@ -151,21 +108,17 @@ init_check_r <- function(r, init_r, unique_names, player) {
       call. = FALSE
     )
     
-    missing_params <- setdiff(unique_names, names(r))
-    add_params <- setNames(object = rep(init_r, times = length(missing_params)), 
-                           nm = missing_params) 
+    r2 <- setNames(rep(init_r, length(unique_names)), unique_names)
+    r2[names(r)] <- r
+    r <- r2
     
-    r <- append(r, add_params)
-    
-  } else if (any(duplicated(names(r)))) {
-    stop("All names in r should be unique. Duplicated names not allowed.", call. = FALSE)
   } else if (any(is.na(r))) {
     stop("All values in r should be a finite number. NA's not allowed.",
          call. = FALSE
     )
-  } else {
-    r
   }
+  
+  return(r)
 }
 
 init_check_rd <- function(rd, init_rd, unique_names, player) {
@@ -174,6 +127,10 @@ init_check_rd <- function(rd, init_rd, unique_names, player) {
       stop("init_rd value should be positive", call. = FALSE)
     }
     rd <- setNames(rep(init_rd, length(unique_names)), unique_names)
+
+  } else if (any(duplicated(names(rd)))) {
+    stop("All names in rd should be unique. Duplicated names not allowed.", call. = FALSE)
+    
   } else if (any(!unique_names %in% names(rd))) {
     warning(
       sprintf("Some names in %s doesn't have a match in rd. 
@@ -183,14 +140,10 @@ init_check_rd <- function(rd, init_rd, unique_names, player) {
       call. = FALSE
     )
     
-    missing_params <- setdiff(unique_names, names(rd))
-    add_params <- setNames(object = rep(init_rd, times = length(missing_params)), 
-                           nm = missing_params) 
+    rd2 <- setNames(rep(init_rd, length(unique_names)), unique_names)
+    rd2[names(rd)] <- rd
+    rd <- rd2
     
-    rd <- append(rd, add_params)
-    
-  } else if (any(duplicated(names(rd)))) {
-    stop("All names in rd should be unique. Duplicated names not allowed.", call. = FALSE)
   } else if (any(is.na(rd))) {
     stop("All values in rd should be a finite number. NA's not allowed.",
          call. = FALSE
@@ -199,19 +152,23 @@ init_check_rd <- function(rd, init_rd, unique_names, player) {
     stop("All values in rd should be positive",
          call. = FALSE
     )
-  } else {
-    rd
   }
+  
+  return(rd)
 }
 
 init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
   if (method != "glicko2") {
     return(numeric(0))
-  } else if (length(sigma) == 0) {
+  } else   if (length(sigma) == 0) {
     if (!is.finite(init_sigma) || init_sigma <= 0) {
       stop("init_sigma value should be positive", call. = FALSE)
     }
     sigma <- setNames(rep(init_sigma, length(unique_names)), unique_names)
+    
+  } else if (any(duplicated(names(sigma)))) {
+    stop("All names in sigma should be unique. Duplicated names not allowed.", call. = FALSE)
+    
   } else if (any(!unique_names %in% names(sigma))) {
     warning(
       sprintf("Some names in %s doesn't have a match in sigma. 
@@ -221,16 +178,10 @@ init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
       call. = FALSE
     )
     
-    missing_params <- setdiff(unique_names, names(sigma))
-    add_params <- setNames(
-      object = rep(init_sigma, times = length(missing_params)), 
-      nm = missing_params
-    ) 
+    sigma2 <- setNames(rep(init_sigma, length(unique_names)), unique_names)
+    sigma2[names(sigma)] <- sigma
+    sigma <- sigma2
     
-    sigma <- append(sigma, add_params)
-    
-  } else if (any(duplicated(names(sigma)))) {
-    stop("All names in sigma should be unique. Duplicated names not allowed.", call. = FALSE)
   } else if (any(is.na(sigma))) {
     stop("All values in sigma should be a finite number. NA's not allowed.",
          call. = FALSE
@@ -239,11 +190,29 @@ init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
     stop("All values in sigma should be positive",
          call. = FALSE
     )
-  } else {
-    sigma
   }
+  
+  return(sigma)
 }
 
+check_equal_names <- function(x, y) {
+  xname <- deparse(substitute(x))
+  yname <- deparse(substitute(y))
+  
+  diff1 <- setdiff(names(x), names(y))
+  if (length(diff1) > 0) {
+    stop(sprintf("Names of %s doesn't match %s names.", xname, yname),
+         call. = FALSE)
+  }
+  
+  diff2 <- setdiff(names(y), names(x))
+  if (length(diff2) > 0) {
+    stop(sprintf("Names of %s doesn't match %s names.", yname, xname),
+         call. = FALSE)
+  }
+  
+  return(invisible(TRUE))
+}
 
 initialize_vec <- function(var, data, argname, min = -Inf, max = Inf) {
   if (length(var) == 0) {
@@ -268,3 +237,4 @@ initialize_vec <- function(var, data, argname, min = -Inf, max = Inf) {
   
   return(var_vec)
 }
+

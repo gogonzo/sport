@@ -65,10 +65,6 @@ NULL
 #'  expected to involve extremely improbable collections of game outcomes, then 
 #'  `tau` should be set to a small value, even as small as, say, `tau= 0`.
 #'  
-#' @param idlab name of column in `data` containing date. Doesn't affect
-#' estimation process. If specified, charts displays estimates changes in time
-#'  instead of by observation `id`.
-#'  
 #' @param init_r initial values for `r` if not provided. 
 #' Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)
 #' 
@@ -90,7 +86,6 @@ rating_run <- function(
   lambda = numeric(0),
   share = numeric(0),
   weight = numeric(0),
-  idlab = character(0),
   kappa = numeric(0),
   tau = numeric(0)) {
   if (length(kappa) == 0) kappa <- 0.5
@@ -102,38 +97,25 @@ rating_run <- function(
   }
   
   is_data_provided(data)
-  check_single_argument(init_r, "init_r", min = 0)
-  check_single_argument(init_rd, "init_rd", min = 0)
   is_formula_missing(formula)
   is_lhs_valid(formula, data)
-  is_rhs_valid(formula, data, paste0(method, "_run"))
-  
-  lhs <- all.vars(update(formula, . ~ 0))
-  rank <- lhs[1]
+  is_rhs_valid(formula, data, only_team_term = TRUE, single = FALSE)
+  check_single_argument(init_r, "init_r", min = 0)
+  check_single_argument(init_rd, "init_rd", min = 0)
+ 
+  rank <- get_rank_name(formula)
   rank_vec <- as.integer(data[[rank]])
+ 
+  id <- get_id_name(formula)
+  id_vec <- if (length(id) == 0) rep(1L, nrow(data)) else  as.integer(data[[id]])
   
-  if (length(lhs) == 1) {
-    id <- "id"
-    id_vec <- rep(1L, nrow(data))
-  } else {
-    id <- lhs[2]
-    id_vec <- as.integer(data[[lhs[2]]])
-  }
+  team <- get_team_name(formula)
+  player <- get_player_name(formula)
+  are_variables_in_dataset(c(rank, id, team, player), data)
   
-  rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
-  if (grepl("team\\(", rhs_terms)) {
-    player <- gsub("^team\\(([^ |]+)[ ]*\\|.*$", "\\1", rhs_terms)
-    player_vec <- as.character(data[[player]])
-    
-    team <- gsub("^team\\(.+\\|[ ]*(.+)\\)$", "\\1", rhs_terms)
-    team_vec <- as.character(data[[team]])
-  } else {
-    player <- rhs_terms[1]
-    player_vec <- as.character(data[[player]])
-    
-    team <- "team"
-    team_vec <- player_vec
-  }
+  team_vec <- as.character(data[[team]])
+  player_vec <- if (length(player) == 0) team_vec else as.character(data[[player]])
+  
   
   check_integer_argument(id_vec, id)
   check_integer_argument(rank_vec, rank)
@@ -145,13 +127,14 @@ rating_run <- function(
   weight_vec <- initialize_vec(var = weight, data = data, argname = "weight", min = 0)
   
   # default rating
-  unique_names <- unique(unlist(player_vec))
+  unique_names <- unique(c(unlist(player_vec), names(r), names(rd), names(sigma)))
   unique_id <- unique(id_vec)
   
   r <- init_check_r(r, init_r, unique_names, player)
   rd <- init_check_rd(rd, init_rd, unique_names, player)
   sigma <- init_check_sigma(sigma, init_sigma, unique_names, player, method)
-  
+  check_equal_names(r, rd)
+   
   g <- if (method == "glicko") {
     glicko(
       unique_id = unique_id,
@@ -171,6 +154,7 @@ rating_run <- function(
       kappa = kappa,
       tau = 0.0
     )
+    
   } else if (method == "glicko2") {
     glicko2(
       unique_id,
@@ -194,6 +178,7 @@ rating_run <- function(
       kappa = kappa,
       tau = tau
     )
+    
   } else if (method == "bbt") {
     bbt(
       unique_id,
@@ -217,7 +202,27 @@ rating_run <- function(
       kappa = kappa,
       tau = 0.0
     )
+    
   }
+  
+  ratings <- data.table::rbindlist(g$r)
+  pairs <- data.table::rbindlist(g$p)
+  
+  rhs_terms <- extract_team_terms(formula)
+  if (length(rhs_terms) == 1) {
+    ratings <- ratings[,"player" := NULL]
+    names(ratings)[names(ratings) == "team"] <- rhs_terms[1]
+    names(pairs)[names(pairs) == "team"] <- rhs_terms[1]
+    
+  } else {
+    names(ratings)[names(ratings) == "player"] <- rhs_terms[1]
+    names(ratings)[names(ratings) == "team"] <- rhs_terms[2]
+    names(pairs)[names(pairs) == "team"] <- rhs_terms[2]
+  }
+  
+  g$r <- if (method == "glicko2") ratings else ratings[,"sigma" := NULL]
+  g$p <- pairs
+  
   return(g)
 }
 
@@ -276,7 +281,6 @@ glicko_run <- function(data, formula,
                        lambda = numeric(0),
                        share = numeric(0),
                        weight = numeric(0),
-                       idlab = numeric(0),
                        kappa = 0.5) {
   g <- rating_run(
     method = "glicko",
@@ -291,16 +295,13 @@ glicko_run <- function(data, formula,
     lambda = lambda,
     kappa = kappa
   )
-  
-  ratings <- data.table::rbindlist(g$r)[, -6]
-  pairs <- data.table::rbindlist(g$p)
-  
+
   out <- structure(
     list(
       final_r = g$final_r,
       final_rd = g$final_rd,
-      r = ratings,
-      pairs = pairs
+      r = g$r,
+      pairs = g$p
     ),
     class = "rating",
     method = "glicko",
@@ -311,7 +312,6 @@ glicko_run <- function(data, formula,
       lambda = lambda,
       share = share,
       weight = weight,
-      idlab = idlab,
       kappa = kappa
     )
   )
@@ -374,7 +374,6 @@ glicko2_run <- function(formula,
                         lambda = NULL,
                         share = NULL,
                         weight = NULL,
-                        idlab = NULL,
                         init_r = 1500,
                         init_rd = 350,
                         init_sigma = 0.05,
@@ -393,21 +392,17 @@ glicko2_run <- function(formula,
     lambda = lambda,
     share = share,
     weight = weight,
-    #idlab = if (length(idlab) == 0) id else idlab
     kappa = kappa,
     tau = tau
   )
-  
-  ratings <- data.table::rbindlist(g$r)
-  pairs <- data.table::rbindlist(g$p)
   
   out <- structure(
     list(
       final_r = g$final_r,
       final_rd = g$final_rd,
       final_sigma = g$final_sigma,
-      r = ratings,
-      pairs = pairs
+      r = g$r,
+      pairs = g$p
     ),
     class = "rating",
     method = "glicko2",
@@ -479,7 +474,6 @@ bbt_run <- function(formula,
                     lambda = NULL,
                     share = NULL,
                     weight = NULL,
-                    idlab = NULL,
                     kappa = 0.5) {
   g <- rating_run(
     method = "bbt",
@@ -492,19 +486,15 @@ bbt_run <- function(formula,
     lambda = lambda,
     share = share,
     weight = weight,
-    #idlab = if (length(idlab) == 0) id else idlab
     kappa = kappa
   )
-  
-  ratings <- rbindlist(g$r)[, -6]
-  pairs <- rbindlist(g$p)
   
   out <- structure(
     list(
       final_r = g$final_r,
       final_rd = g$final_rd,
-      r = ratings,
-      pairs = pairs
+      r = g$r,
+      pairs = g$p
     ),
     class = "rating",
     method = "bbt",
@@ -515,7 +505,6 @@ bbt_run <- function(formula,
       lambda = lambda,
       share = share,
       weight = weight,
-      idlab = idlab,
       kappa = kappa
     )
   )
@@ -571,7 +560,7 @@ bbt_run <- function(formula,
 #' 
 #' dbl <- dbl_run(
 #'   data = data, 
-#'   formula = rank ~ name + gate * factor1)
+#'   formula = rank ~ team(name) + gate * factor1)
 #' @export
 dbl_run <- function(formula,
                     data,
@@ -579,45 +568,41 @@ dbl_run <- function(formula,
                     rd = NULL,
                     lambda = NULL,
                     weight = NULL,
-                    idlab = NULL,
                     kappa = 0.95,
                     init_r = 0,
                     init_rd = 1) {
+  
   is_formula_missing(formula)
   is_data_provided(data)
   is_lhs_valid(formula, data)
-  is_interactions_valid(formula)
+  is_rhs_valid(formula, data, only_team_term = FALSE, single = TRUE)
   
-  lhs <- all.vars(update(formula, . ~ 0))
-  rank <- lhs[1]
+  rank <- get_rank_name(formula)
   rank_vec <- as.integer(data[[rank]])
   
-  if (length(lhs) == 1) {
-    id <- "id"
-    id_vec <- rep(1L, nrow(data))
-  } else {
-    id <- lhs[2]
-    id_vec <- as.integer(data[[lhs[2]]])
-  }
-  terms   <- get_terms(data, formula)
-  MAP <- get_terms_map(data, terms)
-  X   <- get_terms_mat(data, terms)
-  cls <- get_terms_cls(data, terms)
+  id <- get_id_name(formula)
+  id_vec <- if (length(id) == 0) rep(1L, nrow(data)) else  as.integer(data[[id]])
+  
+  
+  terms <- get_terms(data, formula)
+  MAP   <- get_terms_map(data, terms)
+  X     <- get_terms_mat(data, terms)
+  cls   <- get_terms_cls(data, terms)
   unique_params <- unname(unlist(apply(MAP, 2, unique)))
   
-  if (is.null(r)) {
-    r <- setNames(rep(init_r, length(unique_params)), unique_params)
-  }
-  if (is.null(rd)) {
-    rd <- setNames(rep(init_rd, length(unique_params)), unique_params)
-  }
+  team <- get_team_name(formula)
+  team_vec <- as.character(data[[team]])
+  
+  r <- init_check_r(r, init_r, unique_params, "term columns")
+  rd <- init_check_rd(rd, init_rd, unique_params, "term columns")
+  check_equal_names(r, rd)
   
   lambda_vec <- initialize_vec(var = lambda, data = data, argname = "lambda", min = 0)
   weight_vec <- initialize_vec(var = weight, data = data, argname = "weight", min = 0)
   
-  team_vec <- 1:nrow(data)
-  
   if (is.null(kappa)) kappa <- 0.0001
+  
+  
   
   g <- dbl(
     unique_id = unique(id_vec),
@@ -637,6 +622,10 @@ dbl_run <- function(formula,
   ratings <- data.table::rbindlist(g$r)
   pairs <- data.table::rbindlist(g$p)
   
+  rhs_terms <- extract_team_terms(formula)
+  names(ratings)[names(ratings) == "team"] <- rhs_terms[1]
+  names(pairs)[names(pairs) == "team"] <- rhs_terms[1]
+
   out <- structure(
     list(
       final_r = g$final_r,
@@ -652,11 +641,9 @@ dbl_run <- function(formula,
       init_rd = init_rd,
       lambda = lambda,
       weight = weight,
-      idlab = idlab,
       kappa = kappa
     )
   )  
-  
   
   return(out)
 }

@@ -17,7 +17,7 @@ test_that("valid glicko predict computation", {
   sigma <- setNames(rep(1, 4), c("A", "B", "C", "D"))
   data$rank <- 1
   
-  glicko <- glicko_run(rank | id ~ name, 
+  glicko <- glicko_run(rank | id ~ team(name), 
                        data = data, 
                        r = r, 
                        rd = rd)
@@ -29,7 +29,7 @@ test_that("valid glicko predict computation", {
   
   r  <- setNames(c(1500, 1400, 1550, 1700), c("A", "B", "C", "D"))
   rd <- setNames(c(200, 30, 100, 300), c("A", "B", "C", "D"))
-  glicko <- glicko_run(rank | id ~ name, data = data, r = r, rd = rd)
+  glicko <- glicko_run(rank | id ~ team(name), data = data, r = r, rd = rd)
   
   expect_identical(
     round(predict(glicko, data)$P, 3),
@@ -46,7 +46,7 @@ test_that("valid glicko2 predict computation", {
   sigma <- setNames(rep(1, 4), c("A", "B", "C", "D"))
   data$rank <- 1
   
-  glicko2 <- glicko2_run(rank | id ~ name, 
+  glicko2 <- glicko2_run(rank | id ~ team(name), 
                        data = data, 
                        r = r, 
                        rd = rd)
@@ -58,7 +58,7 @@ test_that("valid glicko2 predict computation", {
   
   r  <- setNames(c(1500, 1400, 1550, 1700), c("A", "B", "C", "D"))
   rd <- setNames(c(200, 30, 100, 300), c("A", "B", "C", "D"))
-  glicko2 <- glicko2_run(rank | id ~ name, data = data, r = r, rd = rd)
+  glicko2 <- glicko2_run(rank | id ~ team(name), data = data, r = r, rd = rd)
   
   expect_identical(
     round(predict(glicko2, data)$P, 3),
@@ -75,7 +75,7 @@ test_that("valid bbt predict computation", {
   sigma <- setNames(rep(1, 4), c("A", "B", "C", "D"))
   data$rank <- 1
   
-  bbt <- bbt_run(rank | id ~ name, 
+  bbt <- bbt_run(rank | id ~ team(name), 
                 data = data, 
                 r = r, 
                 rd = rd)
@@ -87,7 +87,7 @@ test_that("valid bbt predict computation", {
   
   r = setNames(c(25.0, 20.0, 15.0, 30.0), c("A", "B", "C", "D"))
   rd = setNames(c(6.0, 7.0, 5.0, 20.0), c("A", "B", "C", "D"))
-  bbt <- bbt_run(rank | id ~ name, data = data, r = r, rd = rd)
+  bbt <- bbt_run(rank | id ~ team(name), data = data, r = r, rd = rd)
   
   expect_identical(
     round(predict(bbt, data)$P, 3),
@@ -99,7 +99,7 @@ test_that("valid bbt predict computation", {
 })
 
 test_that("valid dbl predict computation", {
-  dbl <- dbl_run(rank | id ~ name, data = data)
+  dbl <- dbl_run(rank | id ~ team(name), data = data)
   expect_silent(pred <- predict(dbl, data))
   expect_identical(
     round(pred$P, 3),
@@ -110,9 +110,10 @@ test_that("valid dbl predict computation", {
   )
   
   data$rank <- 1
-  dbl <- dbl_run(rank | id ~ name, 
+  dbl <- dbl_run(rank | id ~ team(name), 
                  data = data)
   
   expect_silent(pred <- predict(dbl, data))
   expect_true(all(pred$Y == .5))
 })
+

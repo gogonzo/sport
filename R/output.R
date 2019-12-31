@@ -30,14 +30,19 @@ NULL
 #' summary(model)
 #' @export
 summary.rating <- function(object, ...) {
-  model_probs_players <- object$pairs[
+  formula <- attr(object, "formula")
+  team_terms <- extract_team_terms(formula)
+  team_term_name <- get_team_name(formula)
+  player_term_name <- get_player_name(formula)
+  
+  model_probs_teams <- object$pairs[
     , .(
       `Model probability` = round(mean(P), 3),
       `True probability` = round(mean(Y), 3),
       `Accuracy` = round(mean((P > .5) == Y), 3),
       `pairings` = length(P)
     ),
-    team
+    team_term_name
     ]
   
   acc <- object$pairs[, .(`acc` = mean((P > .5) == Y), `pairings` = length(P)), ]
@@ -47,11 +52,17 @@ summary.rating <- function(object, ...) {
     r = round(object$final_r, 3),
     rd = round(object$final_rd, 3)
   )
-  
-  r <- if (length(all.vars(update(attr(object, "formula"), 0 ~ .))) == 1) {
-    players_ratings[model_probs_players, on = "team"]
+  names(players_ratings)[1] <- if (length(player_term_name) == 0) {
+    team_term_name
   } else {
+    player_term_name
+  }
+  
+  
+  r <- if (attr(object, "method") == "dbl" || length(team_terms) == 2) {
     players_ratings
+  } else {
+    merge(players_ratings, model_probs_teams, by = team_term_name)
   }
   
   out <- list(
@@ -95,14 +106,15 @@ print.rating <- function(x, ...) {
 #'
 #' @param x of class rating
 #' @param n number of players to be plotted
-#' @param players optional vector with names of the players (coefficients) to plot their evolution in time.
+#' @param players optional vector with names of the contestants to plot 
+#' their evolution in time.
 #' @param ... optional arguments
 #' @export
-plot.rating <- function(x, n = 10, players, ...) {
-  if (!missing(players)) {
-    data <- x$r[x$r$team %in% players, ]
+plot.rating <- function(x, n = 10, teams, ...) {
+  if (!missing(teams)) {
+    data <- x$r[x$r$team %in% teams, ]
     ggplot(data, 
-           aes_string(x = attr(x, "settings")$idlab, 
+           aes_string(x = "id", 
                       y = "r", 
                       group = "team", 
                       color = "team")) +
@@ -118,7 +130,7 @@ plot.rating <- function(x, n = 10, players, ...) {
       stringsAsFactors = F
     )
     
-    data <- data[order(data$r, decreasing = T), ][1:n, ]
+    data <- data[order(data$r, decreasing = TRUE), ][1:n, ]
     data$team <- reorder(data$team, nrow(data):1)
     ggplot(data, aes(x = team, y = r)) +
       ggtitle("Actual ratings") +
@@ -129,7 +141,7 @@ plot.rating <- function(x, n = 10, players, ...) {
       geom_point(colour = "grey20", size = 1) +
       coord_flip() +
       scale_x_discrete("team") +
-      scale_y_continuous("team") +
+      scale_y_continuous("r") +
       theme_bw()
   }
 }

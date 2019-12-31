@@ -99,43 +99,12 @@ test_that("check data", {
     is_data_provided(),
     "Data is not provided"
   )
-})
-
-test_that("valid formula", {
-  expect_error(
-    is_formula_missing(NULL),
-    "Formula is not specified"
-  )
   
   expect_error(
-    is_lhs_valid(formula = rank:id ~ field, gpheats),
-    "LHS of formula must be seperated by `\\|` operator eg."
+    are_variables_in_dataset(vars = c("rider2", "team"), data = gpheats),
+    "rider2, team specified in formula not present in data"
   )
   
-  expect_error(
-    is_lhs_valid(formula = rank + id ~ field, gpheats),
-    "LHS of formula must be seperated by `\\|` operator eg."
-  )
-  
-  expect_error(
-    is_rhs_valid(formula = rank + id ~ wrong, gpheats),
-    "Variable\\(s\\) wrong specified in formula are not present in data"
-  )
-  
-  expect_warning(
-    is_lhs_valid(formula = rank ~ field, gpheats),
-    "all belongs to the same event id"
-  )
-  
-  expect_error(
-    is_lhs_valid(formula = rank | wrong ~ field, gpheats),
-    "Variable\\(s\\) wrong specified in formula are not present in data"
-  )
-  
-  expect_silent(is_rhs_valid(formula = rank ~ rider, gpheats))
-  expect_silent(is_lhs_valid(formula = rank | field ~ rider, gpheats))
-  expect_silent(is_rhs_valid(formula = rank ~ team(rider | name), gpheats))
-  expect_silent(is_lhs_valid(formula = rank | id ~ team(rider | name), gpheats))
 })
 
 test_that("check initial r", {
@@ -504,7 +473,6 @@ test_that("check initial sigma", {
     lobstr::obj_addr(new_sigma)
   )
 })
-
 
 test_that("initialize vector", {
   gpheats$weight <- 1

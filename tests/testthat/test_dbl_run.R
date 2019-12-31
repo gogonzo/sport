@@ -3,10 +3,10 @@ context("dbl_run")
 test_that("wrong formula", {
   expect_error(
     dbl_run(
-      formula <- rank | id ~ team(rider),
+      formula <- rank | id ~ team(rider|team),
       data = gpheats[1:8, ]
     ),
-    "Specifying team\\(rider\\) in dbl_run is not possible"
+    "Please specify only one variable inside of the team"
   )
   
   expect_error(
@@ -17,9 +17,17 @@ test_that("wrong formula", {
     "LHS"
   )
   
+  expect_error(
+    dbl_run(
+      formula <- rank | id ~ rider,
+      data = gpheats[1:8, ]
+    ),
+    "Formula requires specifying team"
+  )
+  
   expect_warning(
     dbl_run(
-      formula <- rank ~ rider,
+      formula <- rank ~ team(rider),
       data = gpheats[1:8, ]
     ),
     "LHS"
@@ -35,16 +43,50 @@ test_that("wrong formula", {
   
   expect_silent(
     dbl_run(
-      formula <- rank | id ~ rider,
+      formula <- rank | id ~ team(rider),
       data = gpheats[1:8, ]
     )
   )
+  
+  
+  expect_silent(
+    dbl_run(
+      formula <- rank | id ~ team(rider) + field,
+      data = gpheats[1:8, ]
+    )
+  )
+  
+  expect_silent(
+    dbl_run(
+      formula <- rank | id ~ team(rider) + field*heat + heat:rider,
+      data = gpheats[1:8, ]
+    )
+  )
+})
+
+test_that("initial",{
+  expect_warning(
+    dbl_run(
+      formula <- rank | id ~ team(rider),
+      data = gpheats[1:8, ],
+      r = setNames(.5, "rider=Tomasz Gollob")),
+    "Missing parameters will be added with init_r"
+  )
+  
+  expect_warning(
+    dbl_run(
+      formula <- rank | id ~ team(rider),
+      data = gpheats[1:8, ],
+      rd = setNames(.5, "rider=Tomasz Gollob")),
+    "Missing parameters will be added with init_rd"
+  )
+
   
 })
 
 test_that("output", {
   out1 <- dbl_run(
-    formula = formula <- rank | id ~ rider,
+    formula = formula <- rank | id ~ team(rider),
     data = gpheats[1:4, ],
     lambda = 1,
     weight = 1,
@@ -66,7 +108,7 @@ test_that("output", {
   
   
   out2 <- dbl_run(
-    formula = formula <- rank | id ~ rider,
+    formula = formula <- rank | id ~ team(rider),
     data = gpheats[1:4, ],
     lambda = 1,
     weight = 1,
@@ -77,5 +119,5 @@ test_that("output", {
   expect_true(all(out2$r$R == 1))
   expect_true(all(out2$r$RD == 2))
   expect_true(all(out2$pairs$P == 0.5))
-  
 })
+

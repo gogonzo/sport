@@ -11,7 +11,6 @@ dbl_run(
   rd = NULL,
   lambda = NULL,
   weight = NULL,
-  idlab = NULL,
   kappa = 0.95,
   init_r = 0,
   init_rd = 1
@@ -44,10 +43,6 @@ matchup. Higher lambda flattens chances of winning.}
 one constant (eg. `weight = colname` or `weight = 0.5`). 
 Weights increasing (weight > 1) or decreasing (weight < 1) update change. 
 Higher weight increasing impact of event result on rating estimate.}
-
-\item{idlab}{name of column in `data` containing date. Doesn't affect
-estimation process. If specified, charts displays estimates changes in time
- instead of by observation `id`.}
 
 \item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
 `kappa=1` means that `rd` will not be decreased.}
@@ -98,5 +93,5 @@ dbl <- dbl_run(
 
 dbl <- dbl_run(
   data = data, 
-  formula = rank ~ name + gate * factor1)
+  formula = rank ~ team(name) + gate * factor1)
 }

@@ -14,7 +14,6 @@ glicko_run(
   lambda = numeric(0),
   share = numeric(0),
   weight = numeric(0),
-  idlab = numeric(0),
   kappa = 0.5
 )
 }
@@ -65,10 +64,6 @@ be used only if formula is specified with players nested within teams (`team(pla
 one constant (eg. `weight = colname` or `weight = 0.5`). 
 Weights increasing (weight > 1) or decreasing (weight < 1) update change. 
 Higher weight increasing impact of event result on rating estimate.}
-
-\item{idlab}{name of column in `data` containing date. Doesn't affect
-estimation process. If specified, charts displays estimates changes in time
- instead of by observation `id`.}
 
 \item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
 `kappa=1` means that `rd` will not be decreased.}

@@ -61,7 +61,7 @@ test_that("check rating default arguments", {
       formula = rank | id ~ team(player | team)
     )
   )
-  
+
   expect_identical(g1, g2)
   expect_identical(g2, g3)
   expect_identical(g3$final_r, g4$final_r)
@@ -157,9 +157,48 @@ test_that("check rating default arguments", {
   
   expect_identical(g11$final_r, g12$final_r)
   expect_identical(g11$final_rd, g12$final_rd)
+  
+  
+  expect_warning(
+    glicko_run(
+      data = df,
+      formula = rank | id ~ team(player | team),
+      r = setNames(.5, "c")
+    ),
+    "Missing parameters will be added with init_r"
+  )
+  
+  expect_warning(
+    glicko_run(
+      data = df,
+      formula = rank | id ~ team(player | team),
+      rd = setNames(.5, "c")
+    ),
+    "Missing parameters will be added with init_rd"
+  )
+  
+  expect_warning(
+    glicko2_run(
+      data = df,
+      formula = rank | id ~ team(player | team),
+      sigma = setNames(.5, "c")
+    ),
+    "Missing parameters will be added with init_sigma"
+  )
+  
+  expect_warning(
+    glicko2_run(
+      data = df,
+      formula = rank | id ~ team(player | team),
+      sigma = setNames(.5, "unknown")
+    ),
+    "Missing parameters will be added with init_sigma"
+  )
+  
+  
 })
 
-test_that("rating errors", {
+test_that("rating (argument) errors", {
   expect_error(
     glicko_run(formula = rank ~ player),
     "Data is not provided"
@@ -176,11 +215,25 @@ test_that("rating errors", {
     "LHS"
   )
   
-  expect_error(glicko_run(data = df, formula = rank | id ~ .))
+  expect_error(
+    glicko_run(data = df, formula = rank | id ~ player),
+    "Formula requires specifying team\\(...\\) term"
+  )
   
-  expect_error(glicko_run(data = df, formula = rank | id ~ team(team)))
+  # stats::terms need also data if `.` specified
+  expect_error(glicko_run(data = df, formula = rank | id ~ .),
+               "in formula and no 'data' argument") 
   
+  expect_error(glicko_run(data = df, formula = rank | id ~ 1),
+               "Formula requires specifying team\\(...\\) term")
+  
+  expect_error(glicko_run(data = df, formula = rank | id ~ team(wrong)),
+               "Variable\\(s\\) wrong specified in formula not present in data")
+  
+  expect_silent(glicko_run(data = df, formula = rank | id ~ team(player)))
   expect_silent(glicko_run(data = df, formula = rank | id ~ team(player | team)))
+  expect_error(dbl_run(data = df, formula = rank | id ~ team(player | team)),
+               "Please specify only one variable inside of the team")
 })
 
 test_that("glicko result", {
@@ -215,7 +268,7 @@ test_that("glicko result", {
         player = c("A", "B", "C", "D"),
         stringsAsFactors = FALSE
       ),
-      rank ~ player,
+      rank ~ team(player),
       r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")),
       rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("A", "B", "C", "D"))
     )
@@ -364,7 +417,7 @@ test_that("bbt result", {
 
 test_that("dbl result", {
   r_dbl <- dbl_run(
-    formula = rank | id ~ player + gate:factor,
+    formula = rank | id ~ team(player) + gate:factor,
     data = data.frame(
       id = c(1, 1, 1, 1),
       rank = c(3, 4, 1, 2),
@@ -394,5 +447,5 @@ test_that("dbl result", {
       c("player=A", "player=B", "player=C", "player=D", "factor=a:gate", "factor=b:gate")
     )
   )
-  
 })
+

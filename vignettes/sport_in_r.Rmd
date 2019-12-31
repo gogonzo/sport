@@ -59,7 +59,7 @@ data <- data.frame(id = 1,
 r <- setNames(c(1500, 1400, 1550, 1700), c("A","B","C","D"))
 rd <- setNames(c(200, 30, 100, 300), c("A","B","C","D"))
 
-model <- glicko_run(rank | id ~ name, data = data, r = r, rd = rd)
+model <- glicko_run(rank | id ~ team(name), data = data, r = r, rd = rd)
 print(model$final_r)
 
 ```
@@ -85,7 +85,7 @@ data <- data.frame(id = 1,
 r <- setNames(c(1500, 1400, 1550, 1700), c("A","B","C","D"))
 rd <- setNames(c(200, 30, 100, 300), c("A","B","C","D"))
 
-model <- glicko2_run(rank | id ~ name, data = data, r = r, rd = rd)
+model <- glicko2_run(rank | id ~ team(name), data = data, r = r, rd = rd)
 print(model$final_r)
 
 ```
@@ -147,13 +147,13 @@ data[1:8, c("id","rider","rank")]
 ## Estimate dynamic ratings
 
 To compute ratings using each algorithms one has to specify formula. Form `rank | id ~ name` is required, which estimates `name` - rating of a player, by observing outputs - `rank`, nested within particular event - `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
-`formula = rank | id ~ name` 
+`formula = rank | id ~ team(name)` 
 
 ```{r message=FALSE}
-glicko <- glicko_run(formula = rank | id ~ rider, data = data)
-glicko2 <- glicko2_run(formula = rank | id ~ rider, data = data)
-bbt <- bbt_run(formula = rank | id ~ rider, data = data)
-dbl <- dbl_run(formula = rank | id ~ rider, data = data)
+glicko <- glicko_run(formula = rank | id ~ team(rider), data = data)
+glicko2 <- glicko2_run(formula = rank | id ~ team(rider), data = data)
+bbt <- bbt_run(formula = rank | id ~ team(rider), data = data)
+dbl <- dbl_run(formula = rank | id ~ team(rider), data = data)
 print(dbl)
 ```
 
@@ -169,7 +169,7 @@ To visualize top n ratings with their 95% confidence interval one can use dedica
 
 ```{r}
 plot(glicko, n = 15)
-#plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
+plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
 ```
 
 Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analyzed. `rating` object contains following elements:
@@ -195,7 +195,7 @@ Main functionality which is common between all algorithms is to specify prior `r
 
 ```{r}
 model <- glicko_run(data = gpheats[1:16, ], 
-                    rank | id ~ rider)
+                    rank | id ~ team(rider))
 ```
 
 We can also run models re-using previously estimated parameters from `model$final_r` 
@@ -203,7 +203,7 @@ and `model$final_rd` in the future when new data appear.
 
 ```{r}
 glicko_run(
-  formula = rank | id ~ rider, 
+  formula = rank | id ~ team(rider), 
   data = gpheats[17:20, ], 
   r    = model$final_r, 
   rd   = model$final_rd
@@ -216,7 +216,7 @@ All algorithms have a weight argument which increases or decreases update change
 
 ```{r}
 data <- dplyr::mutate(data, weight = ifelse(heat >= (max(heat) - 3), 2, 1))
-glicko <- glicko_run(formula = rank | id ~ rider, 
+glicko <- glicko_run(formula = rank | id ~ team(rider), 
                      data = data, 
                      weight = "weight")
 ```
@@ -226,8 +226,8 @@ glicko <- glicko_run(formula = rank | id ~ rider,
 In situation when games are playing very frequently by a player, `rd` can quickly decrease to zero, making further changes limited. Setting `kappa` disallows deviation decrease to be lower than specified fraction of `rd`. In other words final `rd` can't be lower than initial `RD` times `kappa` $\small RD' \geq RD * kappa$.
 
 ```{r}
-bbt1 <- bbt_run(formula = rank | id ~ rider, data = data, kappa = 0.9)
-bbt2 <- bbt_run(formula = rank | id ~ rider, data = data, kappa = 0.5)
+bbt1 <- bbt_run(formula = rank | id ~ team(rider), data = data, kappa = 0.9)
+bbt2 <- bbt_run(formula = rank | id ~ team(rider), data = data, kappa = 0.5)
 
 all(bbt1$final_rd >= bbt2$final_rd)
 ```
@@ -248,7 +248,7 @@ one ought to set `lambda` greater than 1.
 
 ```{r}
 data <- dplyr::mutate(data, lambda = ifelse(heat >= (max(heat) - 3), 2, 1))
-dbl <- dbl_run(rank | id ~ rider, 
+dbl <- dbl_run(rank | id ~ team(rider), 
                lambda = "lambda", 
                data = data) 
 ```
@@ -260,7 +260,7 @@ In some periods player ratings tends to fluctuate more, when players form is mor
 - In glicko2 `sigma` is another parameter per player estimated simultaneously with `r` and `rd`. One can specify prior sigma in the same manner as `r` and `rd` by creating named vector of positive values. Sigma values depends on a particular application, and priors should be chosen by user.
 
 ```{r}
-glicko2 <- glicko2_run(rank | id ~ rider, data, lambda = "lambda")
+glicko2 <- glicko2_run(rank | id ~ team(rider), data, lambda = "lambda")
 ```
 
 In glicko and bbt `lambda` needs to be fixed before iteration by adding new column to input data. For example sigma can be column of time difference between events in which player participated - The longer break in competing, the higher sigma is. It is recommended to keep values close to `data$lambda`.
@@ -274,7 +274,7 @@ data <- data %>%
  days_scaled = if_else(days_scaled>1,1.0, days_scaled)) %>%
  filter(!is.na(days_scaled))
 
-bbt <- bbt_run(rank | id ~ rider,
+bbt <- bbt_run(rank | id ~ team(rider),
                data = data, 
                lambda = "days_scaled")
 ```

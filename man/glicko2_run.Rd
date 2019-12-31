@@ -13,7 +13,6 @@ glicko2_run(
   lambda = NULL,
   share = NULL,
   weight = NULL,
-  idlab = NULL,
   init_r = 1500,
   init_rd = 350,
   init_sigma = 0.05,
@@ -66,10 +65,6 @@ be used only if formula is specified with players nested within teams (`team(pla
 one constant (eg. `weight = colname` or `weight = 0.5`). 
 Weights increasing (weight > 1) or decreasing (weight < 1) update change. 
 Higher weight increasing impact of event result on rating estimate.}
-
-\item{idlab}{name of column in `data` containing date. Doesn't affect
-estimation process. If specified, charts displays estimates changes in time
- instead of by observation `id`.}
 
 \item{init_r}{initial values for `r` if not provided. 
 Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}

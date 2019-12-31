@@ -1,5 +1,146 @@
 context("terms")
 
+test_that("valid lhs formula", {
+  expect_error(
+    is_formula_missing(NULL),
+    "Formula is not specified"
+  )
+  
+  expect_error(
+    is_lhs_valid(formula = rank:id ~ field, gpheats),
+    "LHS of formula must be seperated by `\\|` operator eg."
+  )
+  
+  expect_error(
+    is_lhs_valid(formula = rank + id ~ field, gpheats),
+    "LHS of formula must be seperated by `\\|` operator eg."
+  )
+  
+  expect_warning(
+    is_lhs_valid(formula = rank ~ field, gpheats),
+    "all belongs to the same event id"
+  )
+  
+  expect_error(
+    is_lhs_valid(formula = rank | wrong ~ field, gpheats),
+    "Variable\\(s\\) wrong specified in formula are not present in data"
+  )
+  
+  expect_silent(is_lhs_valid(formula = rank | field ~ rider, gpheats))
+  
+  expect_silent(is_lhs_valid(formula = rank | id ~ team(rider | name), gpheats))
+})
+
+test_that("check team term", {
+  expect_identical(
+    extract_team_terms(formula = rank + id ~ team(rider)),
+    "rider"
+  )
+  
+  expect_identical(
+    extract_team_terms(formula = rank + id ~ team(rider|name)),
+    c("rider", "name")
+  )
+  
+  expect_error(
+    extract_team_terms(formula = rank + id ~ team(rider|name|elo)),
+    "Only one or two variables are allowed within team"
+  )
+  
+})
+
+test_that("valid rhs", {
+  expect_error(
+    is_rhs_valid(1 ~ 1, gpheats, only_team_term = TRUE, single = FALSE),
+    "Formula requires specifying team"
+  )
+  
+  expect_error(
+    is_rhs_valid(1 ~ ., gpheats, only_team_term = TRUE, single = FALSE),
+    "'.' in formula and no 'data' argument"
+  )
+  
+  expect_error(
+    is_rhs_valid(1 ~ rider, gpheats, only_team_term = TRUE, single = FALSE),
+    "Formula requires specifying team"
+  )
+  
+  expect_error(
+    is_rhs_valid(1 ~ team() + field, gpheats, only_team_term = TRUE, single = FALSE),
+    "This formula requires only one RHS term which is team"
+  )
+    
+  expect_error(
+    is_rhs_valid(1 ~ rider, gpheats, only_team_term = FALSE, single = TRUE),
+    "Formula requires specifying team"
+  )
+
+  expect_silent(
+    is_rhs_valid(1 ~ team(rider), gpheats, only_team_term = FALSE, single = TRUE)
+  )
+  
+  expect_silent(
+    is_rhs_valid(1 ~ team(rider), gpheats, only_team_term = FALSE, single = FALSE)
+  )
+  
+  expect_error(
+    is_rhs_valid(1 ~ team(rider | team), gpheats, only_team_term = FALSE, single = TRUE),
+    "Please specify only one variable inside of the team"
+  )
+  
+  expect_error(
+    is_rhs_valid(1 ~ team(rider | team | elo), gpheats, only_team_term = FALSE, single = FALSE),
+    "Only one or two variables are allowed within team"
+  )
+  
+  expect_error(
+    is_rhs_valid(1 ~ team(rider | team) + field, gpheats, only_team_term = TRUE, single = FALSE),
+    "This formula requires only one RHS term which is team"
+  )
+  
+  expect_error(
+    is_rhs_valid(1 ~ team(rider | team) + field, gpheats, only_team_term = FALSE, single = FALSE),
+    "team specified in formula not present in data"
+  )
+  
+  expect_silent(
+    is_rhs_valid(1 ~ team(rider | name) + field, gpheats, only_team_term = FALSE, single = FALSE)
+  )
+
+})
+
+test_that("valid team term", {
+  expect_silent(
+    is_team_term_valid(formula = 1 ~ team(player), single = TRUE)
+  )  
+  
+  expect_silent(
+    is_team_term_valid(formula = 1 ~ team(player), single = FALSE)
+  )
+  
+  expect_silent(
+    is_team_term_valid(formula = 1 ~ team(player | team), single = FALSE)
+  )
+  
+  
+  
+  expect_error(
+    is_team_term_valid(formula = 1 ~ team(),
+                       "Formula requires specifying team")      
+  )
+  
+  expect_error(
+    is_team_term_valid(formula = 1 ~ team(player | team), single = TRUE),
+    "Please specify only one variable inside of the team"
+  )
+  
+  expect_error(
+    is_team_term_valid(formula = 1 ~ team(player | team | country), single = FALSE),
+    "Only one or two variables are allowed within team"
+  )
+  
+})
+
 test_that("get_type", {
   int <- as.integer(1:5)
   num <- as.numeric(0.5, 1.5, 2.5, 3.5)
@@ -80,13 +221,51 @@ test_that("get terms", {
                       heat = "numeric"))
   expect_identical(term5, expected5)
   
+  term6 <- get_terms(
+    gpheats,
+    rank|id ~ team(rider) + round + field*heat
+  )
+  expected6 <- list(c(rider = "character"),
+                    c(round = "numeric"),
+                    c(field = "numeric"),
+                    c(heat = "numeric"),
+                    c(field = "numeric", 
+                      heat = "numeric"))
+  expect_identical(term6, expected6)
+  
+  
+  term7 <- get_terms(
+    gpheats,
+    rank|id ~ round + field*heat + team(rider)
+  )
+  expected7 <- list(c(rider = "character"),
+                    c(round = "numeric"),
+                    c(field = "numeric"),
+                    c(heat = "numeric"),
+                    c(field = "numeric", 
+                      heat = "numeric"))
+  expect_identical(term7, expected7)
+  
+  
+  term8 <- get_terms(
+    gpheats,
+    rank|id ~ round + field*heat + team(rider|name)
+  )
+  expected8 <- list(c(rider = "character"),
+                    c(name = "character"),
+                    c(round = "numeric"),
+                    c(field = "numeric"),
+                    c(heat = "numeric"),
+                    c(field = "numeric", 
+                      heat = "numeric"))
+  expect_identical(term8, expected8)
   
   expect_error(
     get_terms(
       gpheats,
       rank|id ~ rider + round + field:heat + heat:field_f + unknown
     ),
-    "Variable\\(s\\) .+ specified in formula are missing in data"
+    "Variable\\(s\\) .+ specified in formula not present in data"
   )
   
   expect_error(
@@ -94,15 +273,7 @@ test_that("get terms", {
       gpheats,
       rank|id ~ rider + round + field:heat + heat:field_f:unknown
     ),
-    "Variable\\(s\\) .+ specified in formula are missing in data"
-  )
-  
-  expect_error(
-    get_terms(
-      gpheats,
-      rank|id ~ team(rider) + round + field:heat + heat:field_f:unknown
-    ),
-    "Specifying team\\([^)]+\\) in dbl_run is not possible"
+    "Variable\\(s\\) .+ specified in formula not present in data"
   )
   
 })
@@ -270,3 +441,4 @@ test_that("get terms cls", {
   expected5 <- c("character", "numeric", "numeric", "character")
   expect_identical(terms_cls5, expected5)
 })
+
