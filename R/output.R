@@ -105,8 +105,8 @@ print.rating <- function(x, ...) {
 #' Plot rating object
 #'
 #' @param x of class rating
-#' @param n number of players to be plotted
-#' @param players optional vector with names of the contestants to plot 
+#' @param n number of teams to be plotted
+#' @param teams optional vector with names of the contestants (coefficients) to plot 
 #' their evolution in time.
 #' @param ... optional arguments
 #' @export
@@ -132,7 +132,7 @@ plot.rating <- function(x, n = 10, teams, ...) {
     
     data <- data[order(data$r, decreasing = TRUE), ][1:n, ]
     data$team <- reorder(data$team, nrow(data):1)
-    ggplot(data, aes(x = team, y = r)) +
+    ggplot(data, aes_string(x = "team", y = "r")) +
       ggtitle("Actual ratings") +
       geom_linerange(aes(ymin = r - rd * 1.98, 
                          ymax = r + rd * 1.98), 
