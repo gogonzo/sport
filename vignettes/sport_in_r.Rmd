@@ -30,6 +30,7 @@ Package contains actual data from Speedway Grand-Prix. There are two data.frames
 2. `gpsquads` - summarized results of the events, with sum of point and final position.
 
 ```{r echo=TRUE}
+library(sport)
 data <- gpheats[1:1002, ]
 str(data)
 ```

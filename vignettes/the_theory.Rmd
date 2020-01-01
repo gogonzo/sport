@@ -1,6 +1,12 @@
 ---
 title: "The theory of the online update algorithms"
-output: html_document
+author: "Dawid Kałędkowski"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+ %\VignetteIndexEntry{The theory of the online update algorithms}
+ %\VignetteEngine{knitr::rmarkdown}
+ %\usepackage[utf8]{inputenc}
 ---
 
 
