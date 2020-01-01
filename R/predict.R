@@ -6,7 +6,8 @@
 #' @param ... optional arguments
 #' @return probabilities of winning challange by player over his opponent in all provided events.
 #' @examples
-#' glicko <- glicko_run(data = gpheats[1:16, ], rank | id ~ team(rider))
+#' glicko <- glicko_run(data = gpheats[1:16, ], 
+#'                      formula = rank | id ~ team(rider))
 #' predict(glicko, gpheats[17:20, ])
 #' @export
 predict.rating <- function(object, newdata, ...) {
