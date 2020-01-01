@@ -257,21 +257,26 @@ rating_run <- function(
 #' @examples
 #' # the simplest example
 #' data <- data.frame(
-#'   name = c("A", "B", "C", "D"),
-#'   rank = c(3, 4, 1, 2)
+#'   id = c(1, 1, 1, 1),
+#'   team = c("A", "A", "B", "B"),
+#'   player = c("a", "b", "c", "d"),
+#'   rank_team = c(1, 1, 2, 2),
+#'   rank_player = c(3, 4, 1, 2)
 #' )
-#' glicko <- glicko_run(
-#'   data = data, 
-#'   formula = rank ~ name
-#'  )
 #' 
 #' # Example from Glickman
 #' glicko <- glicko_run(
 #'   data = data, 
-#'   formula = rank ~ name,
-#'    r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")),
-#'    rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("A", "B", "C", "D"))
+#'   formula = rank_player | id ~ team(player),
+#'    r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("a", "b", "c", "d")),
+#'    rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("a", "b", "c", "d"))
 #'   )
+#'   
+#' # nested matchup
+#' glicko <- glicko_run(
+#'   data = data, 
+#'   formula = rank_team | id ~ team(player | team)
+#'  )
 #' @export
 glicko_run <- function(data, formula,
                        r = numeric(0),
@@ -350,21 +355,26 @@ glicko_run <- function(data, formula,
 #' @examples
 #' # the simplest example
 #' data <- data.frame(
-#'   name = c("A", "B", "C", "D"),
-#'   rank = c(3, 4, 1, 2)
+#'   id = c(1, 1, 1, 1),
+#'   team = c("A", "A", "B", "B"),
+#'   player = c("a", "b", "c", "d"),
+#'   rank_team = c(1, 1, 2, 2),
+#'   rank_player = c(3, 4, 1, 2)
 #' )
-#' glicko2 <- glicko_run(
-#'   data = data, 
-#'   formula = rank ~ name
-#'  )
 #' 
 #' # Example from Glickman
 #' glicko2 <- glicko2_run(
 #'   data = data, 
-#'   formula = rank ~ name,
-#'    r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")),
-#'    rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("A", "B", "C", "D"))
+#'   formula = rank_player | id ~ team(player),
+#'    r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("a", "b", "c", "d")),
+#'    rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("a", "b", "c", "d"))
 #'   )
+#'   
+#' # nested matchup
+#' glicko2 <- glicko2_run(
+#'   data = data, 
+#'   formula = rank_team | id ~ team(player | team)
+#'  )
 #' @export
 glicko2_run <- function(formula,
                         data,
@@ -450,20 +460,26 @@ glicko2_run <- function(formula,
 #' @examples
 #' # the simplest example
 #' data <- data.frame(
-#'   name = c("A", "B", "C", "D"),
-#'   rank = c(3, 4, 1, 2)
+#'   id = c(1, 1, 1, 1),
+#'   team = c("A", "A", "B", "B"),
+#'   player = c("a", "b", "c", "d"),
+#'   rank_team = c(1, 1, 2, 2),
+#'   rank_player = c(3, 4, 1, 2)
 #' )
-#' bbt <- bbt_run(
-#'   data = data, 
-#'   formula = rank ~ name
-#'  )
 #' 
 #' bbt <- bbt_run(
 #'   data = data, 
-#'   formula = rank ~ name,
-#'    r = setNames(c(25, 23.3, 25.83, 28.33), c("A", "B", "C", "D")),
-#'    rd = setNames(c(4.76, 0.71, 2.38, 7.14), c("A", "B", "C", "D"))
+#'   formula = rank_player | id ~ team(player),
+#'    r = setNames(c(25, 23.3, 25.83, 28.33), c("a", "b", "c", "d")),
+#'    rd = setNames(c(4.76, 0.71, 2.38, 7.14), c("a", "b", "c", "d"))
 #'   )
+#'   
+#' # nested matchup
+#' bbt <- bbt_run(
+#'   data = data, 
+#'   formula = rank_team | id ~ team(player | team)
+#'  )
+#' 
 #' @export
 bbt_run <- function(formula,
                     data,
@@ -518,9 +534,10 @@ bbt_run <- function(formula,
 #' 
 #' @inheritParams rating_run
 #' @param formula formula which specifies the model. Unlike other algorithms
-#' in the packages (glicko_run, glicko2_run, bbt_run), this doesn't allow
-#' players nested in teams with `team(player | team)` but instead let user
-#' specify multiple parameters also in interaction with others.
+#' in the packages (glicko_run, glicko2_run, bbt_run), this method doesn't allow
+#' players nested in teams with `team(player | team)` and user should matchup
+#' in formula using `team(player)`. DBL allows user specify multiple parameters 
+#' also in interaction with others. 
 #' 
 #' @return
 #' 
@@ -545,7 +562,9 @@ bbt_run <- function(formula,
 #' 
 #' @examples
 #' # the simplest example
+#' 
 #' data <- data.frame(
+#'   id = c(1, 1, 1, 1),
 #'   name = c("A", "B", "C", "D"),
 #'   rank = c(3, 4, 1, 2),
 #'   gate = c(1, 2, 3, 4),
@@ -555,12 +574,12 @@ bbt_run <- function(formula,
 #' 
 #' dbl <- dbl_run(
 #'   data = data, 
-#'   formula = rank ~ name
+#'   formula = rank | id ~ team(name)
 #'  )
 #' 
 #' dbl <- dbl_run(
 #'   data = data, 
-#'   formula = rank ~ team(name) + gate * factor1)
+#'   formula = rank | id ~ team(name) + gate * factor1)
 #' @export
 dbl_run <- function(formula,
                     data,

@@ -18,9 +18,10 @@ dbl_run(
 }
 \arguments{
 \item{formula}{formula which specifies the model. Unlike other algorithms
-in the packages (glicko_run, glicko2_run, bbt_run), this doesn't allow
-players nested in teams with `team(player | team)` but instead let user
-specify multiple parameters also in interaction with others.}
+in the packages (glicko_run, glicko2_run, bbt_run), this method doesn't allow
+players nested in teams with `team(player | team)` and user should matchup
+in formula using `team(player)`. DBL allows user specify multiple parameters 
+also in interaction with others.}
 
 \item{data}{data.frame which contains columns specified in formula, and
 optionaly columns defined by `lambda`, `weight`.}
@@ -78,7 +79,9 @@ Dynamic Bayesian Logit
 }
 \examples{
 # the simplest example
+
 data <- data.frame(
+  id = c(1, 1, 1, 1),
   name = c("A", "B", "C", "D"),
   rank = c(3, 4, 1, 2),
   gate = c(1, 2, 3, 4),
@@ -88,10 +91,10 @@ data <- data.frame(
 
 dbl <- dbl_run(
   data = data, 
-  formula = rank ~ name
+  formula = rank | id ~ team(name)
  )
 
 dbl <- dbl_run(
   data = data, 
-  formula = rank ~ team(name) + gate * factor1)
+  formula = rank | id ~ team(name) + gate * factor1)
 }

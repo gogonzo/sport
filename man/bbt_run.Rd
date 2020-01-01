@@ -94,18 +94,24 @@ Bayesian Bradley-Terry
 \examples{
 # the simplest example
 data <- data.frame(
-  name = c("A", "B", "C", "D"),
-  rank = c(3, 4, 1, 2)
+  id = c(1, 1, 1, 1),
+  team = c("A", "A", "B", "B"),
+  player = c("a", "b", "c", "d"),
+  rank_team = c(1, 1, 2, 2),
+  rank_player = c(3, 4, 1, 2)
 )
-bbt <- bbt_run(
-  data = data, 
-  formula = rank ~ name
- )
 
 bbt <- bbt_run(
   data = data, 
-  formula = rank ~ name,
-   r = setNames(c(25, 23.3, 25.83, 28.33), c("A", "B", "C", "D")),
-   rd = setNames(c(4.76, 0.71, 2.38, 7.14), c("A", "B", "C", "D"))
+  formula = rank_player | id ~ team(player),
+   r = setNames(c(25, 23.3, 25.83, 28.33), c("a", "b", "c", "d")),
+   rd = setNames(c(4.76, 0.71, 2.38, 7.14), c("a", "b", "c", "d"))
   )
+  
+# nested matchup
+bbt <- bbt_run(
+  data = data, 
+  formula = rank_team | id ~ team(player | team)
+ )
+
 }

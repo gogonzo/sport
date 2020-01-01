@@ -115,19 +115,24 @@ Glicko2 rating algorithm
 \examples{
 # the simplest example
 data <- data.frame(
-  name = c("A", "B", "C", "D"),
-  rank = c(3, 4, 1, 2)
+  id = c(1, 1, 1, 1),
+  team = c("A", "A", "B", "B"),
+  player = c("a", "b", "c", "d"),
+  rank_team = c(1, 1, 2, 2),
+  rank_player = c(3, 4, 1, 2)
 )
-glicko2 <- glicko_run(
-  data = data, 
-  formula = rank ~ name
- )
 
 # Example from Glickman
 glicko2 <- glicko2_run(
   data = data, 
-  formula = rank ~ name,
-   r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")),
-   rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("A", "B", "C", "D"))
+  formula = rank_player | id ~ team(player),
+   r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("a", "b", "c", "d")),
+   rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("a", "b", "c", "d"))
   )
+  
+# nested matchup
+glicko2 <- glicko2_run(
+  data = data, 
+  formula = rank_team | id ~ team(player | team)
+ )
 }
