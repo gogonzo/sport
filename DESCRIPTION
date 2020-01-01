@@ -38,6 +38,7 @@ Suggests:
   knitr, 
   lobstr,
   magrittr,
+  pkgdown,
   rmarkdown, 
   testthat
 VignetteBuilder: knitr

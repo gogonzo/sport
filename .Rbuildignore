@@ -16,3 +16,4 @@ TODO
 ^_pkgdown\.yml$
 ^cran-comments\.md$
 \.xcf
+^docs$
