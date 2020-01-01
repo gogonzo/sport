@@ -32,6 +32,7 @@ Summarizing rating objects
 Summary for object of class `rating`
 }
 \examples{
-model <- glicko_run(rank|id~rider, gpheats[1:100,]) 
+model <- glicko_run(formula = rank | id ~ team(rider), 
+                    data = gpheats[1:102, ])
 summary(model)
 }

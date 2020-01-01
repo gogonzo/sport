@@ -13,5 +13,6 @@ TODO
 ^\.travis\.yml$
 ^codecov\.yml$
 ^appveyor\.yml$
+^_pkgdown\.yml$
 ^cran-comments\.md$
 \.xcf

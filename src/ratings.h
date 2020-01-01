@@ -6,17 +6,17 @@ double rd2phi(double rd){
 }
 double calcGRd( double rd){
   double pi = std::atan(1)*4, 
-         q  = log(10.0)/400.0;
-  return 1.0/sqrt(1.0 + 3.0 * pow(q,2.0) * pow(rd, 2.0) / pow(pi,2.0) );
+         q  = log(10.0) / 400.0;
+  return 1.0 / sqrt(1.0 + 3.0 * pow(q,2.0) * pow(rd, 2.0) / pow(pi,2.0));
 }
 double calcGPhi( double phi ){
-  double pi = std::atan(1)*4.0;
-  return 1 / sqrt( 1.0 + 3.0 * pow(phi, 2.0) / pow(pi, 2.0) );
+  double pi = std::atan(1) * 4.0;
+  return 1 / sqrt(1.0 + 3.0 * pow(phi, 2.0) / pow(pi, 2.0));
 }
 double calcPGlicko( double g_rd_j, double r_i, double r_j){
   return  1/(1 + pow(10.0, -g_rd_j * (r_i - r_j)/400));
 }
-double calcPGlicko2( double g_phi_j, double mu_i, double mu_j){
+double calcPGlicko2(double g_phi_j, double mu_i, double mu_j){
   return 1/(1 + exp(-g_phi_j * (mu_i - mu_j)));
 }
 double calcVar( double g_rd_j, double E_s_ij){
@@ -99,17 +99,71 @@ double optimSigma( double delta, double sigma, double phi, double var, double ta
 
 double updatePhi( double phi, double var, double sigma) {
   double prerating_phi;
-  prerating_phi = sqrt( pow(phi, 2.0) + pow(sigma, 2.0));
+  prerating_phi = sqrt(pow(phi, 2.0) + pow(sigma, 2.0));
   return 1 / sqrt( 1/pow(prerating_phi,2.0) + 1/var);
 }
 
-double updateMu( double mu, double phi, double err, double weight) {
+double updateMu(double mu, double phi, double err, double weight) {
   return mu + pow(phi,2.0) * err * weight;
 }
 
-double mu2r(double mu){
+double mu2r(double mu) {
   return mu * 173.7178 + 1500;
 }
-double phi2rd(double phi){
+double phi2rd(double phi) {
   return phi * 173.7178;
+}
+
+double dbl_calc_y(int rank_i, int rank_j){
+  if(rank_i < rank_j ){
+    return 1.0;
+  } else if( rank_i==rank_j){
+    return .5;
+  } else {
+    return 0.0;
+  }
+}
+
+
+template <int rtype>
+Rcpp::Matrix<rtype> subset_matrix(Rcpp::Matrix<rtype> input, Rcpp::NumericVector idx) {
+  int n = idx.size();
+  int k = input.ncol();
+  Rcpp::Matrix<rtype> output(n, k);
+  
+  for (int i = 0; i < n; i++) {
+    output(i,Rcpp::_) = input(idx(i),Rcpp::_);
+  }
+  
+  return(output);
+}
+
+Rcpp::IntegerMatrix term_matrix_idx(Rcpp::StringMatrix term, Rcpp::StringVector param_names) {
+  int n = term.nrow();
+  int k = term.ncol();
+  Rcpp::IntegerMatrix output(n, k);
+  Rcpp::StringVector terms_i; 
+  
+  for (int i = 0; i < n; i++) {
+    terms_i = term(i, Rcpp::_);
+    output(i,Rcpp::_) = Rcpp::match(terms_i, param_names) - 1;
+  }
+  
+  return(output);
+}
+
+Rcpp::NumericMatrix term_matrix(Rcpp::IntegerMatrix Idx, 
+                                Rcpp::NumericVector r) {
+  
+  int n = Idx.nrow();
+  int k = Idx.ncol();
+  Rcpp::NumericMatrix term(n, k);
+  
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < k; j++) {
+      term(i, j) = r(Idx(i, j));
+    }
+  }
+  
+  return(term);
 }

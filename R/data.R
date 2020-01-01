@@ -1,4 +1,4 @@
-#' Heat results of Speedway Grand-Prix 
+#' Heat results of Speedway Grand-Prix
 #'
 #' Actual dataset containing heats results of all Speedway Grand-Prix turnaments
 #' gpheats.
@@ -22,7 +22,7 @@
 NULL
 
 
-#' Turnament results of Speedway Grand-Prix 
+#' Turnament results of Speedway Grand-Prix
 #'
 #' Actual dataset containing turnament results of all Speedway Grand-Prix events
 #' gpsquads
