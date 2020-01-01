@@ -41,3 +41,4 @@ vignettes/*.pdf
 
 # gimp file
 *.xcf
+docs/
