@@ -59,7 +59,7 @@ is_team_term_valid <- function(formula, single) {
   team_term_vars <- trimws(unlist(strsplit(x = team_term_vars, split =  "[|]")))
   
   if (!length(team_term_vars) %in% c(1, 2) &&
-      team_term_vars != "") {
+      all(team_term_vars != "")) {
     stop("Only one or two variables are allowed within team(...) term function: 
          Please specify as one of following:
          * team(player_var | team_var)
