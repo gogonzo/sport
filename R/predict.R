@@ -15,7 +15,10 @@ predict.rating <- function(object, newdata, ...) {
   method <- attr(object, "method")
   formula <- attr(object, "formula")
   all_vars <- all.vars(formula)
-  is_newdata_consistent(all_vars[-1], colnames(newdata))
+  is_newdata_consistent(
+    c(get_team_name(formula), get_player_name(formula), all_vars[-1]), 
+    colnames(newdata)
+  )
   
   if (!all_vars[1] %in% colnames(newdata)) {
     newdata[all_vars[1]] <- 1
@@ -30,7 +33,6 @@ predict.rating <- function(object, newdata, ...) {
       lambda = attr(object, "settings")$lambda,
       share  = attr(object, "settings")$share,
       weight = attr(object, "settings")$weight,
-      #idlab  = attr(object, "settings")$idlab,
       init_r = attr(object, "settings")$init_r,
       init_rd = attr(object, "settings")$init_rd,
       kappa  = attr(object, "settings")$kappa
@@ -46,7 +48,6 @@ predict.rating <- function(object, newdata, ...) {
       lambda = attr(object, "settings")$lambda,
       share  = attr(object, "settings")$share,
       weight = attr(object, "settings")$weight,
-      #idlab  = attr(object, "settings")$idlab,
       init_r = attr(object, "settings")$init_r,
       init_rd = attr(object, "settings")$init_rd,
       init_sigma = attr(object, "settings")$init_sigma,
@@ -61,7 +62,6 @@ predict.rating <- function(object, newdata, ...) {
       lambda = attr(object, "settings")$lambda,
       share  = attr(object, "settings")$share,
       weight = attr(object, "settings")$weight,
-      #idlab  = attr(object, "settings")$idlab,
       init_r = attr(object, "settings")$init_r,
       init_rd = attr(object, "settings")$init_rd,
       kappa  = attr(object, "settings")$kappa
@@ -74,7 +74,6 @@ predict.rating <- function(object, newdata, ...) {
       rd = object$final_rd,
       lambda = attr(object, "settings")$lambda,
       weight = attr(object, "settings")$weight,
-      #idlab  = attr(object, "settings")$idlab,
       init_r = attr(object, "settings")$init_r,
       init_rd = attr(object, "settings")$init_rd,
       kappa  = attr(object, "settings")$kappa
