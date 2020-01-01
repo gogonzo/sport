@@ -537,7 +537,7 @@ bbt_run <- function(formula,
 #' in the packages (glicko_run, glicko2_run, bbt_run), this method doesn't allow
 #' players nested in teams with `team(player | team)` and user should matchup
 #' in formula using `team(player)`. DBL allows user specify multiple parameters 
-#' also in interaction with others. 
+#' also in interaction with others.
 #' 
 #' @return
 #' 

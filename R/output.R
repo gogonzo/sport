@@ -26,7 +26,7 @@ NULL
 #' }
 #'
 #' @examples
-#' model <- glicko_run(rank | id ~ rider, gpheats[1:100, ])
+#' model <- glicko_run(rank | id ~ team(rider), gpheats[1:100, ])
 #' summary(model)
 #' @export
 summary.rating <- function(object, ...) {
