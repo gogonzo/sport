@@ -40,5 +40,6 @@ Suggests:
   magrittr,
   pkgdown,
   rmarkdown, 
+  spelling,
   testthat
 VignetteBuilder: knitr

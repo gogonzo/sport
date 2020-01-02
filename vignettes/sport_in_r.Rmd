@@ -10,8 +10,16 @@ vignette: >
 ---
 
 # About
-Name `sport` is an abbreviation for Sequential Pairwise Online Rating Techniques. Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challenge. 
-Algorithms are based on Bayesian Approximation Method, and they don't involve any matrix inversions nor likelihood estimation. `sport` incorporates methods such glicko, glicko2, bayesian Bradley-Terry, dynamic logistic regression. Parameters are updated sequentially, and computation doesn't require any additional RAM to make estimation feasible. Additionally, base of the package is written in `C++` what makes `sport` computation even faster.
+Name `sport` is an abbreviation for Sequential Pairwise Online Rating Techniques.
+Package contains functions calculating ratings for two-player or multi-player
+matchups. Methods included in package are able to estimate ratings 
+(players strengths) and their evolution in time, also able to predict output of
+challenge. Algorithms are based on Bayesian Approximation Method, and they don't
+involve any matrix inversions nor likelihood estimation. `sport` incorporates
+methods such glicko, glicko2, bayesian Bradley-Terry, dynamic logistic 
+regression. Parameters are updated sequentially, and computation doesn't require
+any additional RAM to make estimation feasible. Additionally, package is written
+in `c++` what makes computations even faster.
 
 Package can be installed from CRAN or from github.
 
@@ -26,8 +34,10 @@ devtools::install_github("gogonzo/sport")
 ## Available Data
 Package contains actual data from Speedway Grand-Prix. There are two data.frames: 
 
-1. `gpheats` - results SGP heats. Column `rank` is a numeric version of column `position` - rider position in race.
-2. `gpsquads` - summarized results of the events, with sum of point and final position.
+1. `gpheats` - results SGP heats. Column `rank` is a numeric version of column 
+`position` - rider position in race.
+2. `gpsquads` - summarized results of the events, with sum of point and final 
+position.
 
 ```{r echo=TRUE}
 library(sport)
@@ -35,7 +45,13 @@ data <- gpheats[1:1002, ]
 str(data)
 ```
 
-Data used in `sport` package must be in so called long format. Typically data.frame contains at least `id`, `name` and `rank`, with one row for one player within specific match. Package allows for any number of players within event and allows ties also. For all games, *output needs to be a rank/position in event*. Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output for two player game is 1-winner 2-looser. Below example of two matches with 4 players each.
+Data used in `sport` package must be in so called long format. Typically 
+`data.frame` contains at least `id`, `name` and `rank`, with one row for one 
+player within specific match. Package allows for any number of players within 
+event and allows ties also. For all games, *output needs to be a rank/position in event*. 
+Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output 
+for two player game is 1-winner 2-looser. Below example of two matches with 4 
+players each.
 
 ```{r echo=FALSE}
 data[1:8, c("id","rider","rank")]
@@ -43,8 +59,11 @@ data[1:8, c("id","rider","rank")]
 
 ## Estimate dynamic ratings
 
-To compute ratings using each algorithms one has to specify formula. Form `rank | id ~ name` is required, which estimates `name` - rating of a player, by observing outputs - `rank`, nested within particular event - `id`. Variable names in formula are unrestricted, but model structure remains the same. All methods are named `method_run`.
-`formula = rank | id ~ team(name)` 
+To compute ratings using each algorithms one has to specify formula. Form 
+`rank | id ~ name` is required, which estimates `name` - rating of a player, by 
+observing outputs - `rank`, nested within particular event - `id`. Variable 
+names in formula are unrestricted, but model structure remains the same. All 
+methods are named `method_run`.
 
 ```{r message=FALSE}
 glicko <- glicko_run(formula = rank | id ~ team(rider), data = data)
@@ -56,28 +75,41 @@ print(dbl)
 
 ## Output
 
-Objects returned by `method_run` are of class `rating` and have their own `print` `summary` which provides most important informations. -`print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.
+Objects returned by `<method>_run` are of class `rating` and have their own 
+`print` and `summary` which provides most important informations. `print.sport` 
+shows  condensed informations about model performance like accuracy and 
+consistency of model predictions with observed probabilities. More profound 
+summarization are  given by `summary` by showing ratings, ratings deviations and 
+comparing model win probabilities with observed.
 
 ```{r}
-summary(dbl)
+summary(glicko)
 ```
 
-To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coefficients are presented not necessarily ratings. It's also possible to examine ratings evolution in time, by specifying `players` argument.
+To visualize top n ratings with their 95% confidence interval one can use 
+dedicated `plot.rating` function. For "bdl" method top coefficients are 
+presented not necessarily ratings. It's also possible to examine ratings 
+evolution in time, by specifying `players` argument.
 
 ```{r}
 plot(glicko, n = 15)
 plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
 ```
 
-Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analyzed. `rating` object contains following elements:
+Except dedicated `print`,`summary` and `plot` there is possibility to extract 
+more detailed information to be analyzed. `rating` object contains following 
+elements:
 
 ```{r}
 names(glicko)
 ```
 
-* `rating$final_r` and `rating$final_rd` contains ratings and ratings deviations estimations.
-* `r` contains data.frame with sequential ratings estimations from first event to the last. Number of rows in `r` equals number of rows in input data.
-* `pairs` pairwise combinations of players in analyzed events with prior probability and result of a challenge. 
+* `rating$final_r` and `rating$final_rd` contains ratings and ratings deviations 
+estimations.
+* `r` contains data.frame with sequential ratings estimations from first event 
+to the last. Number of rows in `r` equals number of rows in input data.
+* `pairs` pairwise combinations of players in analyzed events with prior 
+probability and result of a challenge. 
 
 ```{r}
 tail(glicko$r)
@@ -85,10 +117,22 @@ tail(glicko$pairs)
 ```
 
 # Advanced sport
-Examples presented in package overview might be sufficient in most cases, but sometimes it is necessary to adjust algorithms to fit data better. One characteristic of the online update algorithms is that variance other parameters quickly drops to zero. Especially, when the number of events for the player is big ($\small n_i>100 $), after hundreds iterations rating parameters are very difficult to change, and output probabilities are so extreme. To avoid these mistakes some additional controls should be applied, which is explained in this section with easy to learn examples.
+Examples presented in package overview might be sufficient in most cases, but 
+sometimes it is necessary to adjust algorithms to fit data better. One 
+characteristic of the online update algorithms is that variance other parameters 
+quickly drops to zero. Especially, when the number of events for the player is
+big ($\small n_i>100 $), after hundreds iterations rating parameters are very
+difficult to change, and output probabilities are so extreme. To avoid these 
+mistakes some additional controls should be applied, which is explained in this 
+section with easy to learn examples.
 
 ## Prior beliefs about `r` and `rd`
-Main functionality which is common between all algorithms is to specify prior `r` and `rd`. Both parameters can be set by creating named vectors. Let's suppose we have 4 players `c("A","B","C","D")` competing in an event, and we have players prior `r` and `rd` estimates. It's important to have `r` and `rd` names corresponding with levels of `name` variable. One can run algorithm, to obtain new estimates.
+Main functionality which is common between all algorithms is to specify prior `r`
+and `rd`. Both parameters can be set by creating named vectors. Let's suppose we
+have 4 players `c("A","B","C","D")` competing in an event, and we have players 
+prior `r` and `rd` estimates. It's important to have `r` and `rd` names 
+corresponding with levels of `name` variable. One can run algorithm, to obtain 
+new estimates.
 
 ```{r}
 model <- glicko_run(data = gpheats[1:16, ], 
@@ -109,7 +153,14 @@ glicko_run(
 
 ## Tuning update size by `weight`
 
-All algorithms have a weight argument which increases or decreases update change. Higher weight increasing impact of corresponding event. Effect of the weight on update size can be expressed directly by following formula - $\small R_i^{'} \leftarrow R_i + weight \sum_{j \neq i}{ K (Y_{ij} - \hat{Y_{ij}}} )$. To specify weight one needs to add create additional column in input data, and name a column in `weight` argument. For example weight could depend on importance of competition. In speedway Grand-Prix last three heats determine event winner and thus have higher weight.
+All algorithms have a weight argument which increases or decreases update change. 
+Higher weight increasing impact of corresponding event. Effect of the weight on 
+update size can be expressed directly by following formula - 
+$\small R_i^{'} \leftarrow R_i + weight \sum_{j \neq i}{ K (Y_{ij} - \hat{Y_{ij}}})$. 
+To specify weight one needs to add create additional column in input data, and
+name a column in `weight` argument. For example weight could depend on
+importance of competition. In speedway Grand-Prix last three heats determine 
+event winner and thus have higher weight.
 
 ```{r}
 data <- dplyr::mutate(data, weight = ifelse(heat >= (max(heat) - 3), 2, 1))
@@ -120,7 +171,11 @@ glicko <- glicko_run(formula = rank | id ~ team(rider),
 
 ## Avoiding excessive RD shringe with `kappa`
 
-In situation when games are playing very frequently by a player, `rd` can quickly decrease to zero, making further changes limited. Setting `kappa` disallows deviation decrease to be lower than specified fraction of `rd`. In other words final `rd` can't be lower than initial `RD` times `kappa` $\small RD' \geq RD * kappa$.
+In situation when games are playing very frequently by a player, `rd` can 
+quickly decrease to zero, making further changes limited. Setting `kappa` 
+disallows deviation decrease to be lower than specified fraction of `rd`. In 
+other words final `rd` can't be lower than initial `RD` times 
+`kappa` $\small RD' \geq RD * kappa$.
 
 ```{r}
 bbt1 <- bbt_run(formula = rank | id ~ team(rider), data = data, kappa = 0.9)
@@ -135,32 +190,37 @@ To increase/decrease uncertainty of challenge output one can define `lambda`.
 Increasing `lambda` flatten probabilities of winning challenge equalizing 
 competitors chances. This argument can be used by identifying column in input 
 data where `lambda` values are stored. `lambda` can be used differently in 
-several type of events. For example constant value for all participants in particular
-event in cases when level of competition is higher than usual e.g. derby, 
-knock-out phase, decisive matches, exhibitions and friendlies. In other case
-different `lambda` for all players means that something has changed variance
-of some estimates - for example when some player has not played for a longer
-period of time. For players which performance is more uncertain in particular event
-one ought to set `lambda` greater than 1.
+several type of events. For example constant value for all participants in 
+particular event in cases when level of competition is higher than usual 
+e.g. derby, knock-out phase, decisive matches, exhibitions and friendlies. In 
+other case different `lambda` for all players means that something has changed 
+variance of some estimates - for example when some player has not played for a 
+longer period of time. For players which performance is more uncertain in
+particular event one ought to set `lambda` greater than 1.
+
+In some periods player ratings tends to fluctuate more, when players form is 
+more unstable. Sigma is na additional parameter controlling volatility of the
+ratings, making update bigger for higher values of sigma. Strictly, sigma can be
+expressed by $\small rd_i' = \sqrt{rd_i^2+\sigma_i^2}$. Sigma can be specified 
+in two ways:
+- In glicko2 `sigma` is another parameter per player estimated simultaneously 
+with `r` and `rd`. One can specify prior sigma in the same manner as `r` and `rd`
+by creating named vector of positive values. Sigma values depends on a 
+particular application, and priors should be chosen by user.
 
 ```{r}
-data <- dplyr::mutate(data, lambda = ifelse(heat >= (max(heat) - 3), 2, 1))
-dbl <- dbl_run(rank | id ~ team(rider), 
-               lambda = "lambda", 
-               data = data) 
+data <- dplyr::mutate(data, 
+                      lambda = ifelse(heat >= (max(heat) - 3), 2, 1))
+
+glicko2 <- glicko2_run(rank | id ~ team(rider), 
+                       data, 
+                       lambda = "lambda")
 ```
 
-
-## Influence ratings volatility by `lambda`
-
-In some periods player ratings tends to fluctuate more, when players form is more unstable. Sigma is na additional parameter controlling volatility of the ratings, making update bigger for higher values of sigma. Strictly, sigma can be expressed by $\small rd_i' = \sqrt{rd_i^2+\sigma_i^2}$. Sigma can be specified in two ways:
-- In glicko2 `sigma` is another parameter per player estimated simultaneously with `r` and `rd`. One can specify prior sigma in the same manner as `r` and `rd` by creating named vector of positive values. Sigma values depends on a particular application, and priors should be chosen by user.
-
-```{r}
-glicko2 <- glicko2_run(rank | id ~ team(rider), data, lambda = "lambda")
-```
-
-In glicko and bbt `lambda` needs to be fixed before iteration by adding new column to input data. For example sigma can be column of time difference between events in which player participated - The longer break in competing, the higher sigma is. It is recommended to keep values close to `data$lambda`.
+In glicko and bbt `lambda` needs to be fixed before iteration by adding new 
+column to input data. For example sigma can be column of time difference between
+events in which player participated - The longer break in competing, the higher 
+sigma is. It is recommended to keep values close to `data$lambda`.
 
 ```{r}
 # bbt example
