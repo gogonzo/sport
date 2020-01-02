@@ -448,4 +448,3 @@ test_that("dbl result", {
     )
   )
 })
-

@@ -22,6 +22,8 @@ another to buy, similarly, better player is more preferred to win over worst.
 As player/event and alternative/experiment can be used interchangeably, for ease
 of use sport nomenclature is adapted (player/event). 
 
+### Bayesian update rule
+
 Algorithms implemented in a `sport` package performs similarly, as all using 
 Bayesian Approximation Method. Algorithms works as follows:
 At some moment player `p` competes with player `q` while both have prior $R_p$ 
@@ -32,21 +34,46 @@ the prediction error $(Y_{pq} - \hat{Y_{pq}} )$ and some constant $K$. Updates
 are summed as player can compete with more than one player in particular event.
 
 $$\large R_p^{'} \leftarrow R_p + \sum_{q \neq p}{ K * (Y_{pq} - \hat{Y_{pq}}} )$$
-Where: 
- $$\large \hat{Y} = P(X_i > X_j)$$ 
- $$K - learning rate$$
+Where:  
+
+ * $\hat{Y} = P(X_p > X_q) = \frac{exp(\pi_p)}{exp(\pi_p) + exp(\pi_q)}$  
+ 
+ * $K$ - learning rate
 
 Outcome probability function is based on 
 [Bradley-Terry model](https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model) 
-designed to predict outcome of pairwise comparison. For multi-player matchups 
+designed to predict outcome of pairwise comparison. Algorithms from this package
+uses extended BT model, which takes into account performance uncertainty by 
+including rating variance.
+
+For multi-player matchups 
 where output is a ranking, `sport` package uses the same data transformation as
 in [exploded logit](https://www.jstor.org/stable/270983) - ranking is then 
 presented as combination of all possible pairs competing within same event.
 
+### Players nested within team
+
+In some cases individual results are not observed when individuals (players)
+competes in the teams. In team sports, results are registered on the team level 
+and players contribution is hidden. This means that update rule impacts directly 
+team aggregated rating, and players true abilities needs to be estimated in 
+another step. 
+
+Consider each $i$th team has $k_i$ players with ratings $N(R_{ij}, RD^2_{ij})$. 
+We assume that team abilities is simply sum of players skills, so:
+
+$$R_i = \sum_{j=1}^{k_i}R_{ij}$$
+$$RD_i^2 = \sum_{j=1}^{k_i}RD_{ij}^2$$
+
+Depending on algorithm type, update rule is computed as usual on the team level.
+In the next stop update is re-distributed back to the players proportionally to
+their contribution. 
+
+
 ## Glicko rating system
 Glicko is the first bayesian online update algorithm incorporating rating 
 volatility to rating and outcome computation. Glicko system is not balanced, and
-sum of rating rewards of all players are not zero. In one 2-players event, 
+sum of rating changes across all players are not zero. In one 2-players event, 
 reward of player `i` differs from reward of player `q` as it depends on their 
 individual ratings deviation. Rating values oscillates around `r=1500` with max 
 deviation `rd<=350`.
@@ -71,18 +98,18 @@ For deeper knowledge read
 
 Update Rules:
 
-$$\hat{Y_{ij}} = P(X_i>X_j) = \frac{1}{ 1 + 10^{-g(RD_{ij}) * (R_i-R_j)/400}}$$
+$$\hat{Y_{pq}} = P(X_p>X_q) = \frac{1}{ 1 + 10^{-g(RD_{pq}) * (R_p-R_q)/400}}$$
 
-$${R'}_i = R_i + \frac{1}{\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}} * \sum_j{g(RD_j) * (Y_{ij} - \hat{Y_{ij}}) }$$
+$${R'}_p = R_p + \frac{1}{\frac{1}{{RD}^2_{p}} + \frac{1}{d^2_p}} * \sum_q{g(RD_q) * (Y_{pq} - \hat{Y_{pq}}) }$$
 
-$${RD'}_i = \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}$$
+$${RD'}_p = \sqrt{(\frac{1}{{RD}^2_{p}} + \frac{1}{d^2_p}})^{-1}$$
 
 ## Glicko2 rating system
-Glicko2 improved predecessor by adding volatile parameter $\sigma_i$ which 
+Glicko2 improved predecessor by adding volatile parameter $\sigma_p$ which 
 increase/decrease rating deviation in periods when player performance differs 
 from expected. Sigma is estimated iteratively using Illinois algorithm, which 
 converges quickly not affecting computation time. Rating values oscillates 
-around `r=1500` with max deviation `rd<=350`.
+around `r = 1500` with max deviation `rd <= 350`.
 
 ```{r message=FALSE, warning=FALSE}
 # example taken from Glickman (2013)
@@ -102,11 +129,11 @@ print(model$final_r)
 For further knowledge read 
 [Mark E. Glickman (2013)](http://www.glicko.net/glicko/glicko2.pdf)
 
-$$ \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i - \mu_j)} }$$
+$$ \hat{Y_{pq}} = \frac{1}{1 + e^{-g(\phi_{pq})*(\mu_p - \mu_q)} }$$
 
-$$ {\phi'}_i = \frac{1}{\sqrt{ \frac{1}{ { {\phi_i}^2 + {\sigma'_i}^2}} + \frac{1}{v} }}$$
+$$ {\phi'}_i = \frac{1}{\sqrt{ \frac{1}{ { {\phi_p}^2 + {\sigma'_p}^2}} + \frac{1}{v} }}$$
 
-$$ {\mu'_i} = \mu_i + {\phi'}_i * \sum_j{g(\phi_j)*(Y_{ij} - \hat{Y_{ij}})} $$
+$$ {\mu'_p} = \mu_p + {\phi'}_p * \sum_q{g(\phi_q)*(Y_{pq} - \hat{Y_{pq}})} $$
 
 
 ## Bayesian Bradley Terry
@@ -116,11 +143,11 @@ prevents against fast `rd` decline to zero using `gamma` and `kappa`.
 
 For further knowledge read [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf)
 
-$$\hat{Y_{ij}} = P(X_i>X_j) = \frac{e^{R_i/c_{i_j}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}} $$
+$$\hat{Y_{pq}} = P(X_p>X_q) = \frac{e^{R_p/c_{p_q}}}{e^{R_p/c_{pq}} + e^{R_q/c_{pq}}} $$
 
-$${R'}_i = R_i + \sum_j{\frac{RD_i^2}{c_{ij}}*(Y_{ij} - \hat{Y_{ij}})}$$
+$${R'}_p = R_p + \sum_q{\frac{RD_p^2}{c_{pq}}*(Y_{pq} - \hat{Y_{pq}})}$$
 
-$${RD'}_i = RD_i * [ 1 - \frac{RD_{ij}^2}{RD_i^2}\sum_j{ \gamma_j * (\frac{RD_i}{c_{ij}})^2* \hat{Y_{ij}}\hat{Y_{ji}} } ]$$
+$${RD'}_p = RD_p * [ 1 - \frac{RD_{pq}^2}{RD_p^2}\sum_q{ \gamma_q * (\frac{RD_p}{c_{pq}})^2* \hat{Y_{pq}}\hat{Y_{qp}} } ]$$
 
 
 
@@ -135,10 +162,10 @@ by modeling differences in players characteristics. Classic Bradley-Terry model
 is enriched by moderation element $K(s_t)$ which adds prior uncertainty to 
 output prediction.
 
-$$\hat{Y_{ij}} = \frac{ e^{-K(s_t)w _t^T(x_{it}-x_{jt})} }{1+e^{-K(s_t)w _t^T(x_{it}-x_{jt})}}$$
+$$\hat{Y_{pq}} = \frac{ e^{-K(s_t)w _t^T(x_{pt}-x_{qt})} }{1+e^{-K(s_t)w _t^T(x_{pt}-x_{qt})}}$$
 Parameters for player `i` competing with player `j` are estimated using EKF update rule.
-$$\hat{\omega}_{it} = \hat{\omega}_{i(t-1)} + \frac{RD^2_{i(t-1)}}{1+\hat{Y_{ij}} (1-\hat{Y_{ij}})} x_t (Y_{ij} - \hat{Y_{ij}})$$
-$$RD^2_{i t} = RD^2_{i(t-1)} - \frac{\hat{Y_{ij}}(1-\hat{Y_{ij}})}{1+\hat{Y_{ij}} (1-\hat{Y_{ij}})s_t^2}(RD^2_{i(t-1)}x_i)(RD^2_{i(t-1)}x_i)^T$$
+$$\hat{\omega}_{pt} = \hat{\omega}_{p(t-1)} + \frac{RD^2_{p(t-1)}}{1+\hat{Y_{pq}} (1-\hat{Y_{pq}})} x_t (Y_{pq} - \hat{Y_{pq}})$$
+$$RD^2_{p t} = RD^2_{i(t-1)} - \frac{\hat{Y_{pq}}(1-\hat{Y_{pq}})}{1+\hat{Y_{pq}} (1-\hat{Y_{pq}})s_t^2}(RD^2_{p(t-1)}x_p)(RD^2_{p(t-1)}x_p)^T$$
 
 
 For further knowledge read [Stephen J. Roberts, William Penny (2011)](https://www.researchgate.net/publication/2465226_Dynamic_Logistic_Regression)
