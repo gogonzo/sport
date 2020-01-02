@@ -36,7 +36,7 @@ Users can also specify formula in in different way:
  and results are observed for teams not for players. For more see vignette.}
 
 \item{data}{data.frame which contains columns specified in formula, and
-optionaly columns defined by `lambda`, `weight`.}
+optional columns defined by `lambda`, `weight`.}
 
 \item{r}{named vector of initial players ratings estimates. If not specified 
 then `r` will be created automatically for parameters specified in `formula`
@@ -66,15 +66,6 @@ one constant (eg. `weight = colname` or `weight = 0.5`).
 Weights increasing (weight > 1) or decreasing (weight < 1) update change. 
 Higher weight increasing impact of event result on rating estimate.}
 
-\item{init_r}{initial values for `r` if not provided. 
-Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
-
-\item{init_rd}{initial values for `rd` if not provided. 
-Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
-
-\item{init_sigma}{initial values for `sigma` if not provided. 
-Default = 0.5}
-
 \item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
 `kappa=1` means that `rd` will not be decreased.}
 
@@ -94,13 +85,13 @@ A "rating" object is returned: \itemize{
 
 \item \code{final_rd} named vector containing players ratings deviations.
 
-\item \code{final_sigma} named vector containing players ratings volatiles.
+\item \code{final_sigma} named vector containing players ratings volatile.
 
 \item \code{r} data.frame with evolution of the ratings and ratings deviations
  estimated at each event.
  
 \item \code{pairs} pairwise combinations of players in analysed events with 
-prior probability and result of a challange.
+prior probability and result of a challenge.
 
 \item \code{class} of the object.
 

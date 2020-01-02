@@ -43,7 +43,7 @@ differs in details, which can be noticed in formulas.
 For multi-player matchups where output is a ranking, `sport` package uses the 
 same data transformation as in
 [exploded logit](https://www.jstor.org/stable/270983) - ranking is then 
-transormed to a combination of all possible pairs competing within same event, 
+transformed to a combination of all possible pairs competing within same event, 
 which is reflected in above formula where update for $i$th player is 
 $\Omega_{i} = \sum_{j \neq i} \Omega_{ij}$.
 
@@ -103,11 +103,15 @@ print(model$final_r)
 
 Output probability and update formulas looks as follows:
 
-$$\hat{Y_{pq}} = P(X_p>X_q) = \frac{1}{ 1 + 10^{-g(RD_{pq}) * (R_p-R_q)/400}}$$
+$$\hat{Y_{ij}} = P(X_i>X_j) = \frac{1}
+{ 1 + 10^{-g(RD_{ij}) * (R_i-R_j)/400}}$$
 
-$${R'}_p = R_p + \frac{1}{\frac{1}{{RD}^2_{p}} + \frac{1}{d^2_p}} * \sum_q{g(RD_q) * (Y_{pq} - \hat{Y_{pq}}) }$$
+$${R'}_i = R_i + 
+\frac{1}{\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}} * 
+\sum_q{g(RD_j) * 
+(Y_{ij} - \hat{Y_{ij}})}$$
 
-$${RD'}_p = \sqrt{(\frac{1}{{RD}^2_{p}} + \frac{1}{d^2_p}})^{-1}$$
+$${RD'}_i = \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}$$
 
 
 For more details read [Mark E. Glickman (1999)](http://www.glicko.net/research/glicko.pdf).
@@ -134,9 +138,9 @@ print(model$final_r)
 
 Output probability and update formulas looks as follows:
 
-$$ \hat{Y_{pq}} = \frac{1}{1 + e^{-g(\phi_{pq})*(\mu_p - \mu_q)} }$$
+$$ \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i - \mu_j)} }$$
 
-$$ {\phi'}_i = \frac{1}{\sqrt{ \frac{1}{ { {\phi_p}^2 + {\sigma'_p}^2}} + \frac{1}{v} }}$$
+$$ {\phi'}_i = \frac{1}{\sqrt{ \frac{1}{ { {\phi_i}^2 + {\sigma'_i}^2}} + \frac{1}{v} }}$$
 
 $$ {\mu'_p} = \mu_p + {\phi'}_p * \sum_q{g(\phi_q)*(Y_{pq} - \hat{Y_{pq}})} $$
 
@@ -148,11 +152,14 @@ The fastest algorithm with simple formula. Original BT formula lacks variance
 parameter, and this method incorporates rating deviation into model (as other
 models). BBT also prevents against fast `RD` decline to zero using `gamma`.
 
-$$\hat{Y_{pq}} = P(X_p>X_q) = \frac{e^{R_p/c_{p_q}}}{e^{R_p/c_{pq}} + e^{R_q/c_{pq}}} $$
+$$\hat{Y_{ij}} = P(X_i>X_j) = \frac{e^{R_i/c_{ij}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}} $$
 
-$${R'}_p = R_p + \sum_q{\frac{RD_p^2}{c_{pq}}*(Y_{pq} - \hat{Y_{pq}})}$$
+$${R'}_i = R_i + \sum_i{\frac{RD_i^2}{c_{ij}}*(Y_{ij} - \hat{Y_{ij}})}$$
 
-$${RD'}_p = RD_p * [ 1 - \frac{RD_{pq}^2}{RD_p^2}\sum_q{ \gamma_q * (\frac{RD_p}{c_{pq}})^2* \hat{Y_{pq}}\hat{Y_{qp}} } ]$$
+$${RD'}_i = RD_i * 
+[1 - \frac{RD_{ij}^2}{RD_i^2}\sum_j{ \gamma_j * 
+(\frac{RD_i}{c_{ij}})^2 * 
+\hat{Y_{ij}}\hat{Y_{ij}} } ]$$
 
 ```{r message=FALSE, warning=FALSE}
 data <- data.frame(
@@ -235,7 +242,7 @@ For more details read [Stephen J. Roberts, William Penny (2011)](https://www.res
 $RD$ estimation is based only on previous estimate and difference between
 expected matchup output and true result, but sometimes one can have prior 
 knowledge about particular player or event to have a higher volatility. `lambda`
-proportionaly changes prior `RD` before update, to increase or decrease 
+proportionally changes prior `RD` before update, to increase or decrease 
 uncertainty of challenge. 
 `lambda` can be used differently in several type of events:
  - Increasing `lambda` for all players flatten probabilities of winning challenge 

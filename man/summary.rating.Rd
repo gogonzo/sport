@@ -13,7 +13,7 @@
 }
 \value{
 List with following elements \itemize{
-\item \code{formula} modelled formula.
+\item \code{formula} modeled formula.
 \item \code{method} type of algorithm used.
 \item \code{Overall Accuracy} named vector containing players ratings.
 \item \code{r} data.frame summarized players ratings and model winning probabilities. Probabilities are returned only in models with one variable (ratings) \itemize{
@@ -21,9 +21,9 @@ List with following elements \itemize{
 \item \code{r} players ratings
 \item \code{rd} players ratings deviation
 \item \code{`Model probability`} mean predicted probability of winning the challange by the player.
-\item \code{`True probability`} mean observed probability of winninh the challange by the player.
+\item \code{`True probability`} mean observed probability of winning the challange by the player.
 \item \code{`Accuracy`} Accuracy of prediction.
-\item \code{`pairings`} number of pairwise occurences.
+\item \code{`pairings`} number of pairwise occurrences.
 }
 }
 }

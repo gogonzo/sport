@@ -25,7 +25,7 @@ rating_run(
 \item{method}{one of `c("glicko", "glicko2", "bbt", "dbl")`}
 
 \item{data}{data.frame which contains columns specified in formula, and
-optionaly columns defined by `lambda`, `weight`.}
+optional columns defined by `lambda`, `weight`.}
 
 \item{formula}{formula which specifies the model. RHS Allows only player 
 rating parameter and it should be specified in following manner:
@@ -52,15 +52,6 @@ with initial value `init_rd`.}
 \item{sigma}{(only for glicko2) named vector of initial players ratings 
 estimates. If not specified then `sigma` will be created automatically for 
 parameters specified in `formula` with initial value `init_sigma`.}
-
-\item{init_r}{initial values for `r` if not provided. 
-Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
-
-\item{init_rd}{initial values for `rd` if not provided. 
-Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
-
-\item{init_sigma}{initial values for `sigma` if not provided. 
-Default = 0.5}
 
 \item{lambda}{name of the column in `data` containing lambda values or one 
 constant value (eg. `lambda = colname` or `lambda = 0.5`).
@@ -89,6 +80,15 @@ from changing by largeamounts, which in turn prevent enormous changes in
 ratings based on very improbable results. If the application of Glicko-2 is 
 expected to involve extremely improbable collections of game outcomes, then 
 `tau` should be set to a small value, even as small as, say, `tau= 0`.}
+
+\item{\code{init_r}}{initial values for `r` if not provided. 
+Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
+
+\item{\code{init_rd}}{initial values for `rd` if not provided. 
+Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
+
+\item{\code{init_sigma}}{initial values for \code{sigma} if not provided. 
+Default = 0.5}
 }
 \description{
 Apply rating algorithm

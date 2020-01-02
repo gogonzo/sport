@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 # sport <img src="man/figures/hexlogo.png" align="right" />
 
 <div id="badges">
-[![Cran badge](https://cranlogs.r-pkg.org/badges/sport)](https://cran.r-project.org/web/packages/sport/index.html)
+[![CRAN badge](https://cranlogs.r-pkg.org/badges/sport)](https://cran.r-project.org/web/packages/sport/index.html)
 [![Travis-CI Build Status](https://travis-ci.org/gogonzo/sport.svg?branch=master)](https://travis-ci.org/gogonzo/sport)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/gogonzo/sport?branch=master&svg=true)](https://ci.appveyor.com/project/gogonzo/sport)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
@@ -68,7 +68,12 @@ print(dbl)
 
 ## Output
 
-Objects returned by `method_run` are of class `rating` and have their own `print` `summary` which provides most important informations. -`print.sport` shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by `summary` by showing ratings, ratings deviations and comparing model win probabilities with observed.
+Objects returned by `method_run` are of class `rating` and have their own `print`
+`summary` which provides most important informations. -`print.sport` shows 
+condensed informations about model performance like accuracy and consistency of 
+model predictions with observed probabilities. More profound summary are given 
+by `summary` by showing ratings, ratings deviations and comparing model win 
+probabilities with observed.
 
 ```{r message=FALSE}
 summary(dbl)

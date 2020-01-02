@@ -4,7 +4,7 @@
 #' @param object of class rating
 #' @param newdata data.frame with data to predict
 #' @param ... optional arguments
-#' @return probabilities of winning challange by player over his opponent in all provided events.
+#' @return probabilities of winning challenge by player over his opponent in all provided events.
 #' @examples
 #' glicko <- glicko_run(data = gpheats[1:16, ], 
 #'                      formula = rank | id ~ team(rider))

@@ -1,11 +1,12 @@
 Package: sport
 Type: Package
 Title: Sequential Pairwise Online Rating Techniques
-Version: 0.1.2
+Version: 0.2
 Depends: R (>= 3.0)
 Authors@R: person("Dawid", 
                   "Kałędkowski", 
                   email = "dawid.kaledkowski@gmail.com",
+                  comment = c(ORCID = "0000-0001-9533-457X"),
                   role = c("aut", "cre"))
 Maintainer: Dawid Kałędkowski <dawid.kaledkowski@gmail.com>
 Description: Calculates ratings for two-player or 
@@ -30,9 +31,10 @@ Imports:
 LinkingTo: Rcpp
 License: GPL-2
 Encoding: UTF-8
+Language: en-US
 URL: https://github.com/gogonzo/sport
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Suggests: 
   dplyr,
   knitr, 

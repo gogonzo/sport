@@ -33,7 +33,7 @@ Users can also specify formula in in different way:
  and results are observed for teams not for players. For more see vignette.}
 
 \item{data}{data.frame which contains columns specified in formula, and
-optionaly columns defined by `lambda`, `weight`.}
+optional columns defined by `lambda`, `weight`.}
 
 \item{r}{named vector of initial players ratings estimates. If not specified 
 then `r` will be created automatically for parameters specified in `formula`
@@ -42,12 +42,6 @@ with initial value `init_r`.}
 \item{rd}{rd named vector of initial rating deviation estimates. If not specified 
 then `rd` will be created automatically for parameters specified in `formula`
 with initial value `init_rd`.}
-
-\item{init_r}{initial values for `r` if not provided. 
-Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
-
-\item{init_rd}{initial values for `rd` if not provided. 
-Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
 
 \item{lambda}{name of the column in `data` containing lambda values or one 
 constant value (eg. `lambda = colname` or `lambda = 0.5`).
@@ -79,7 +73,7 @@ A "rating" object is returned: \itemize{
  estimated at each event.
  
 \item \code{pairs} pairwise combinations of players in analysed events with 
-prior probability and result of a challange.
+prior probability and result of a challenge.
 
 \item \code{class} of the object.
 

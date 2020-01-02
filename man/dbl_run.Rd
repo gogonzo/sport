@@ -24,7 +24,7 @@ in formula using `team(player)`. DBL allows user specify multiple parameters
 also in interaction with others.}
 
 \item{data}{data.frame which contains columns specified in formula, and
-optionaly columns defined by `lambda`, `weight`.}
+optional columns defined by `lambda`, `weight`.}
 
 \item{r}{named vector of initial players ratings estimates. If not specified 
 then `r` will be created automatically for parameters specified in `formula`
@@ -47,12 +47,6 @@ Higher weight increasing impact of event result on rating estimate.}
 
 \item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
 `kappa=1` means that `rd` will not be decreased.}
-
-\item{init_r}{initial values for `r` if not provided. 
-Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
-
-\item{init_rd}{initial values for `rd` if not provided. 
-Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
 }
 \value{
 A "rating" object is returned: \itemize{
@@ -65,7 +59,7 @@ A "rating" object is returned: \itemize{
  estimated at each event.
  
 \item \code{pairs} pairwise combinations of players in analysed events with 
-prior probability and result of a challange.
+prior probability and result of a challenge.
 
 \item \code{class} of the object.
 

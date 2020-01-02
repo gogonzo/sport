@@ -14,7 +14,7 @@
 \item{...}{optional arguments}
 }
 \value{
-probabilities of winning challange by player over his opponent in all provided events.
+probabilities of winning challenge by player over his opponent in all provided events.
 }
 \description{
 Predict rating model

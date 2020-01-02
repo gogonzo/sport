@@ -23,7 +23,7 @@ NULL
 #' @param method one of `c("glicko", "glicko2", "bbt", "dbl")` 
 #'  
 #' @param data data.frame which contains columns specified in formula, and
-#'  optionaly columns defined by `lambda`, `weight`.
+#'  optional columns defined by `lambda`, `weight`.
 #'  
 #' @param r named vector of initial players ratings estimates. If not specified 
 #' then `r` will be created automatically for parameters specified in `formula`
@@ -65,13 +65,13 @@ NULL
 #'  expected to involve extremely improbable collections of game outcomes, then 
 #'  `tau` should be set to a small value, even as small as, say, `tau= 0`.
 #'  
-#' @param init_r initial values for `r` if not provided. 
+#' @param \code{init_r} initial values for `r` if not provided. 
 #' Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)
 #' 
-#' @param init_rd initial values for `rd` if not provided. 
+#' @param \code{init_rd} initial values for `rd` if not provided. 
 #' Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)
 #' 
-#' @param init_sigma initial values for `sigma` if not provided. 
+#' @param \code{init_sigma} initial values for \code{sigma} if not provided. 
 #' Default = 0.5
 rating_run <- function(
   method,
@@ -245,7 +245,7 @@ rating_run <- function(
 #'  estimated at each event.
 #'  
 #' \item \code{pairs} pairwise combinations of players in analysed events with 
-#' prior probability and result of a challange.
+#' prior probability and result of a challenge.
 #' 
 #' \item \code{class} of the object.
 #' 
@@ -337,13 +337,13 @@ glicko_run <- function(data, formula,
 #' 
 #' \item \code{final_rd} named vector containing players ratings deviations.
 #' 
-#' \item \code{final_sigma} named vector containing players ratings volatiles.
+#' \item \code{final_sigma} named vector containing players ratings volatile.
 #' 
 #' \item \code{r} data.frame with evolution of the ratings and ratings deviations
 #'  estimated at each event.
 #'  
 #' \item \code{pairs} pairwise combinations of players in analysed events with 
-#' prior probability and result of a challange.
+#' prior probability and result of a challenge.
 #' 
 #' \item \code{class} of the object.
 #' 
@@ -448,7 +448,7 @@ glicko2_run <- function(formula,
 #'  estimated at each event.
 #'  
 #' \item \code{pairs} pairwise combinations of players in analysed events with 
-#' prior probability and result of a challange.
+#' prior probability and result of a challenge.
 #' 
 #' \item \code{class} of the object.
 #' 
@@ -551,7 +551,7 @@ bbt_run <- function(formula,
 #'  estimated at each event.
 #'  
 #' \item \code{pairs} pairwise combinations of players in analysed events with 
-#' prior probability and result of a challange.
+#' prior probability and result of a challenge.
 #' 
 #' \item \code{class} of the object.
 #' 

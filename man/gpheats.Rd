@@ -22,5 +22,5 @@ internal
 }
 \description{
 Actual dataset containing heats results of all Speedway Grand-Prix turnaments
-gpheats.
+\code{gpheats}.
 }

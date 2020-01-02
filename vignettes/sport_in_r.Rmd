@@ -240,7 +240,7 @@ glicko <- glicko_run(formula = rank | id ~ team(rider),
                      weight = "weight")
 ```
 
-## Avoiding excessive RD shringe with `kappa`
+## Avoiding excessive RD shrinkage with `kappa`
 
 In situation when games are playing very frequently by a player, `rd` can 
 quickly decrease to zero, making further changes limited. Setting `kappa` (single
@@ -287,7 +287,7 @@ are obtained per team. `sport` is able to compute player ratings, and requires
 only changing formula from `team(player)` to `team(player | team)`. `data.frame`
 should always be a long format, with one player for each row. Ratings are update
 according to their contribution in team efforts. `share` argument can be added
-optionaly if scientist have some knowledge about players contribution in match 
+optionally if scientist have some knowledge about players contribution in match 
 (eg. minutes spent on the field from all possible minutes).
 
 ```{r}
