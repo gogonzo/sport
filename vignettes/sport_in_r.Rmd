@@ -77,7 +77,8 @@ glicko <- glicko_run(formula = rank | id ~ team(rider), data = data)
 glicko2 <- glicko2_run(formula = rank | id ~ team(rider), data = data)
 bbt <- bbt_run(formula = rank | id ~ team(rider), data = data)
 dbl <- dbl_run(formula = rank | id ~ team(rider), data = data)
-print(glicko)
+
+print(dbl)
 ```
 
 ## Output
@@ -162,35 +163,35 @@ are stored. `team(...)` can be specified in two ways:
   observed per team. This option is not available in `dbl_run` which requires only
   formula for player matchups.
   
-    ```{r}
-    glicko2 <- glicko2_run(
-      data = data.frame(
-        id = c(1, 1, 1, 1),
-        team = c("A", "A", "B", "B"),
-        player = c("a", "b", "c", "d"),
-        rank_team = c(1, 1, 2, 2),
-      ), 
-      formula = rank_team | id ~ team(player | team)
-     )
-    ```
-  
+      ```{r}
+      glicko2 <- glicko2_run(
+        data = data.frame(
+          id = c(1, 1, 1, 1),
+          team = c("A", "A", "B", "B"),
+          player = c("a", "b", "c", "d"),
+          rank_team = c(1, 1, 2, 2)
+        ), 
+        formula = rank_team | id ~ team(player | team)
+       )
+      ```
+    
 
 - other variables - available only in `dbl_run`, which allows to specify other 
 factors in model. 
 
-```{r}
-dbl <- dbl_run(
-  data = data.frame(
-    id = c(1, 1, 1, 1),
-    name = c("A", "B", "C", "D"),
-    rank = c(3, 4, 1, 2),
-    gate = c(1, 2, 3, 4),
-    factor1 = c("a", "a", "b", "b"),
-    factor2 = c("a", "b", "a", "b")
-  ), 
-  formula = rank | id ~ team(name) + gate * factor1)
-
-```
+  ```{r}
+  dbl <- dbl_run(
+    data = data.frame(
+      id = c(1, 1, 1, 1),
+      name = c("A", "B", "C", "D"),
+      rank = c(3, 4, 1, 2),
+      gate = c(1, 2, 3, 4),
+      factor1 = c("a", "a", "b", "b"),
+      factor2 = c("a", "b", "a", "b")
+    ), 
+    formula = rank | id ~ team(name) + gate * factor1)
+  
+  ```
 
 
 ## Prior beliefs about `r` and `rd`
@@ -270,13 +271,12 @@ might create another column with relevant values and pass the column name to
 # bbt example
 data <- data %>%
  group_by(rider) %>%
- mutate(idle_30d = as.integer(date - lag(date)) > 30,
- days_scaled = if_else(idle_30d, 1.0, 2.0)) %>%
+ mutate(idle_30d = if_else(as.integer(date - lag(date)) > 30, 1.0, 2.0)) %>%
  filter(!is.na(idle_30d))
 
 bbt <- bbt_run(rank | id ~ team(rider),
                data = data, 
-               lambda = "days_scaled")
+               lambda = "idle_30d")
 ```
 
 ## Players nested within teams
@@ -291,16 +291,14 @@ optionaly if scientist have some knowledge about players contribution in match
 (eg. minutes spent on the field from all possible minutes).
 
 ```{r}
-data <- data.frame(
-  id = c(1, 1, 1, 1),
-  team = c("A", "A", "B", "B"),
-  player = c("a", "b", "c", "d"),
-  rank_team = c(1, 1, 2, 2),
-  share = c(0.4, 0.6, 0.5, 0.5)
-)
-
 glicko2 <- glicko2_run(
-  data = data, 
+    data = data.frame(
+    id = c(1, 1, 1, 1),
+    team = c("A", "A", "B", "B"),
+    player = c("a", "b", "c", "d"),
+    rank_team = c(1, 1, 2, 2),
+    share = c(0.4, 0.6, 0.5, 0.5)
+  ), 
   formula = rank_team | id ~ team(player | team),
   share = "share"
  )

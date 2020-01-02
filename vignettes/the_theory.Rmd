@@ -165,11 +165,11 @@ data <- data.frame(
 model <- bbt_run(
   data = data, 
   formula = rank_player | id ~ team(player),
-   r = setNames(c(25, 23.3, 25.83, 28.33), 
-                c("a", "b", "c", "d")),
-   rd = setNames(c(4.76, 0.71, 2.38, 7.14), 
-                 c("a", "b", "c", "d"))
-  )
+  r = setNames(c(25, 23.3, 25.83, 28.33), 
+               c("a", "b", "c", "d")),
+  rd = setNames(c(4.76, 0.71, 2.38, 7.14), 
+                c("a", "b", "c", "d"))
+)
 print(model$final_r)
 ```
 
