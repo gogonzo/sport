@@ -103,7 +103,7 @@ to examine ratings evolution in time, by specifying `players` argument.
 
 ```{r}
 plot(glicko, n = 15)
-plot(glicko, players = c("Greg Hancock","Tomasz Gollob","Tony Rickardsson"))
+plot(glicko, players = c("Greg HANCOCK","Tomasz GOLLOB","Tony RICKARDSSON"))
 ```
 
 Except dedicated `print`,`summary` and `plot` there is possibility to extract 

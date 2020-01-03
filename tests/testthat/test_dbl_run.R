@@ -69,7 +69,7 @@ test_that("initial",{
     dbl_run(
       formula <- rank | id ~ player(rider),
       data = gpheats[1:8, ],
-      r = setNames(.5, "rider=Tomasz Gollob")),
+      r = setNames(.5, "rider=Tomasz GOLLOB")),
     "Missing parameters will be added with init_r"
   )
   
@@ -77,7 +77,7 @@ test_that("initial",{
     dbl_run(
       formula <- rank | id ~ player(rider),
       data = gpheats[1:8, ],
-      rd = setNames(.5, "rider=Tomasz Gollob")),
+      rd = setNames(.5, "rider=Tomasz GOLLOB")),
     "Missing parameters will be added with init_rd"
   )
 
@@ -98,7 +98,7 @@ test_that("output", {
     out1$final_r,
     setNames(
       c(1/3, -1, 1, -1/3),
-      c("rider=Tomasz Gollob", "rider=Gary Havelock", "rider=Chris Louis", "rider=Tony Rickardsson")
+      c("rider=Tomasz GOLLOB", "rider=Gary HAVELOCK", "rider=Chris LOUIS", "rider=Tony RICKARDSSON")
     )
   )
   
