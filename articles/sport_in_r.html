@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sport</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -121,28 +121,128 @@
 <a class="sourceLine" id="cb2-2" data-line-number="2">data &lt;-<span class="st"> </span>gpheats[<span class="dv">1</span><span class="op">:</span><span class="dv">1002</span>, ]</a>
 <a class="sourceLine" id="cb2-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(data)</a></code></pre></div>
 <pre><code>## 'data.frame':    1002 obs. of  11 variables:
-##  $ id      : num  1 1 1 1 2 2 2 2 3 3 ...
+##  $ id      :List of 1002
+##   ..$ : num 1
+##   ..$ : num 1
+##   ..$ : num 1
+##   ..$ : num 1
+##   ..$ : num 2
+##   ..$ : num 2
+##   ..$ : num 2
+##   ..$ : num 2
+##   ..$ : num 3
+##   ..$ : num 3
+##   ..$ : num 3
+##   ..$ : num 3
+##   ..$ : num 4
+##   ..$ : num 4
+##   ..$ : num 4
+##   ..$ : num 4
+##   ..$ : num 5
+##   ..$ : num 5
+##   ..$ : num 5
+##   ..$ : num 5
+##   ..$ : num 6
+##   ..$ : num 6
+##   ..$ : num 6
+##   ..$ : num 6
+##   ..$ : num 7
+##   ..$ : num 7
+##   ..$ : num 7
+##   ..$ : num 7
+##   ..$ : num 8
+##   ..$ : num 8
+##   ..$ : num 8
+##   ..$ : num 8
+##   ..$ : num 9
+##   ..$ : num 9
+##   ..$ : num 9
+##   ..$ : num 10
+##   ..$ : num 10
+##   ..$ : num 10
+##   ..$ : num 10
+##   ..$ : num 11
+##   ..$ : num 11
+##   ..$ : num 11
+##   ..$ : num 11
+##   ..$ : num 12
+##   ..$ : num 12
+##   ..$ : num 12
+##   ..$ : num 12
+##   ..$ : num 13
+##   ..$ : num 13
+##   ..$ : num 13
+##   ..$ : num 13
+##   ..$ : num 14
+##   ..$ : num 14
+##   ..$ : num 14
+##   ..$ : num 14
+##   ..$ : num 15
+##   ..$ : num 15
+##   ..$ : num 15
+##   ..$ : num 15
+##   ..$ : num 16
+##   ..$ : num 16
+##   ..$ : num 16
+##   ..$ : num 16
+##   ..$ : num 17
+##   ..$ : num 17
+##   ..$ : num 17
+##   ..$ : num 17
+##   ..$ : num 18
+##   ..$ : num 18
+##   ..$ : num 18
+##   ..$ : num 18
+##   ..$ : num 19
+##   ..$ : num 19
+##   ..$ : num 19
+##   ..$ : num 19
+##   ..$ : num 20
+##   ..$ : num 20
+##   ..$ : num 20
+##   ..$ : num 20
+##   ..$ : num 21
+##   ..$ : num 21
+##   ..$ : num 21
+##   ..$ : num 21
+##   ..$ : num 22
+##   ..$ : num 22
+##   ..$ : num 22
+##   ..$ : num 22
+##   ..$ : num 23
+##   ..$ : num 23
+##   ..$ : num 23
+##   ..$ : num 23
+##   ..$ : num 24
+##   ..$ : num 24
+##   ..$ : num 24
+##   ..$ : num 24
+##   ..$ : num 25
+##   ..$ : num 25
+##   ..$ : num 25
+##   ..$ : num 25
+##   .. [list output truncated]
 ##  $ season  : int  1995 1995 1995 1995 1995 1995 1995 1995 1995 1995 ...
 ##  $ date    : POSIXct, format: "1995-05-20 17:00:00" "1995-05-20 17:00:00" ...
 ##  $ round   : int  1 1 1 1 1 1 1 1 1 1 ...
 ##  $ name    : chr  "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" ...
 ##  $ heat    : int  1 1 1 1 2 2 2 2 3 3 ...
 ##  $ field   : int  1 2 3 4 1 2 3 4 1 2 ...
-##  $ rider   : chr  "Tomasz Gollob" "Gary Havelock" "Chris Louis" "Tony Rickardsson" ...
+##  $ rider   : chr  "Tomasz GOLLOB" "Gary HAVELOCK" "Chris LOUIS" "Tony RICKARDSSON" ...
 ##  $ points  : int  2 0 3 1 3 0 1 2 0 2 ...
 ##  $ position: chr  "2" "4" "1" "3" ...
 ##  $ rank    : num  2 4 1 3 1 4 3 2 4 2 ...</code></pre>
 <p>Data used in <code>sport</code> package must be in so called long format. Typically <code>data.frame</code> contains at least <code>id</code>, <code>name</code> of the player and <code>rank</code>, with one row for one player within specific match. Package allows for any number of players within event and allows ties also.</p>
 <p>In all methods, output variable needs to be expressed as a rank/position in event. Don’t mix up rank output with typical 1-win, 0-lost. In <code>sport</code> package output for two player game should be coded as 1=winner 2=looser. Below example of two matches with 4 players each.</p>
 <pre><code>##   id             rider rank
-## 1  1     Tomasz Gollob    2
-## 2  1     Gary Havelock    4
-## 3  1       Chris Louis    1
-## 4  1  Tony Rickardsson    3
-## 5  2     Sam Ermolenko    1
-## 6  2    Jan Staechmann    4
-## 7  2     Tommy Knudsen    3
-## 8  2 Henrik Gustafsson    2</code></pre>
+## 1  1     Tomasz GOLLOB    2
+## 2  1     Gary HAVELOCK    4
+## 3  1       Chris LOUIS    1
+## 4  1  Tony RICKARDSSON    3
+## 5  2     Sam ERMOLENKO    1
+## 6  2    Jan STAECHMANN    4
+## 7  2     Tommy KNUDSEN    3
+## 8  2 Henrik GUSTAFSSON    2</code></pre>
 </div>
 <div id="estimate-dynamic-ratings" class="section level2">
 <h2 class="hasAnchor">
@@ -195,37 +295,37 @@ given by <code>summary</code> by showing ratings, ratings deviations and compari
 ## 
 ## $r
 ##                       rider      r    rd
-##  1:     rider=Tomasz Gollob  0.523 0.073
-##  2:     rider=Gary Havelock  0.865 0.116
-##  3:       rider=Chris Louis  0.355 0.048
-##  4:  rider=Tony Rickardsson  1.167 0.048
-##  5:     rider=Sam Ermolenko  0.243 0.049
-##  6:    rider=Jan Staechmann -1.769 0.292
-##  7:     rider=Tommy Knudsen  0.855 0.122
-##  8: rider=Henrik Gustafsson  0.957 0.048
-##  9:   rider=Mikael Karlsson -1.464 0.292
-## 10:      rider=Hans Nielsen  1.522 0.053
-## 11:        rider=Andy Smith -0.946 0.068
-## 12:        rider=Mark Loram -0.082 0.048
-## 13:      rider=Greg Hancock  1.079 0.049
-## 14:        rider=Marvyn Cox -1.011 0.054
-## 15:     rider=Dariusz Śledź  0.103 0.774
-## 16:       rider=Craig Boyce -0.330 0.059
-## 17:      rider=Billy Hamill  1.235 0.054
-## 18:    rider=Peter Karlsson  0.600 0.175
-## 19:     rider=Franz Leitner -0.597 0.735
-## 20:         rider=Gerd Riss  0.002 0.540
-## 21:       rider=Josh Larsen -2.481 0.735
-## 22:    rider=Lars Gunnestad -0.480 0.735
-## 23:       rider=Jason Crump -0.167 0.264
-## 24:       rider=Leigh Adams -0.333 0.358
-## 25:        rider=Joe Screen -0.155 0.264
-## 26:   rider=Stefano Alfonso -1.733 0.735
+##  1:     rider=Tomasz GOLLOB  0.523 0.073
+##  2:     rider=Gary HAVELOCK  0.865 0.116
+##  3:       rider=Chris LOUIS  0.355 0.048
+##  4:  rider=Tony RICKARDSSON  1.167 0.048
+##  5:     rider=Sam ERMOLENKO  0.243 0.049
+##  6:    rider=Jan STAECHMANN -1.769 0.292
+##  7:     rider=Tommy KNUDSEN  0.855 0.122
+##  8: rider=Henrik GUSTAFSSON  0.957 0.048
+##  9:   rider=Mikael KARLSSON -1.464 0.292
+## 10:      rider=Hans NIELSEN  1.522 0.053
+## 11:        rider=Andy SMITH -0.946 0.068
+## 12:        rider=Mark LORAM -0.082 0.048
+## 13:      rider=Greg HANCOCK  1.079 0.049
+## 14:        rider=Marvyn COX -1.011 0.054
+## 15:     rider=Dariusz ŚLEDŹ  0.103 0.774
+## 16:       rider=Craig BOYCE -0.330 0.059
+## 17:      rider=Billy HAMILL  1.235 0.054
+## 18:    rider=Peter KARLSSON  0.600 0.175
+## 19:     rider=Franz LEITNER -0.597 0.735
+## 20:         rider=Gerd RISS  0.002 0.540
+## 21:       rider=Josh LARSEN -2.481 0.735
+## 22:    rider=Lars GUNNESTAD -0.480 0.735
+## 23:       rider=Jason CRUMP -0.167 0.264
+## 24:       rider=Leigh ADAMS -0.333 0.358
+## 25:        rider=Joe SCREEN -0.155 0.264
+## 26:   rider=Stefano ALFONSO -1.733 0.735
 ##                       rider      r    rd</code></pre>
 <p>To visualize top n ratings with their 95% confidence interval one can use dedicated <code>plot.rating</code> function. For <code>dbl</code> method top coefficients are presented which doesn’t have to be player specific (ratings). It’s also possible to examine ratings evolution in time, by specifying <code>players</code> argument.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(glicko, <span class="dt">n =</span> <span class="dv">15</span>)</a></code></pre></div>
 <p><img src="sport_in_r_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(glicko, <span class="dt">players =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Greg Hancock"</span>,<span class="st">"Tomasz Gollob"</span>,<span class="st">"Tony Rickardsson"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(glicko, <span class="dt">players =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Greg HANCOCK"</span>,<span class="st">"Tomasz GOLLOB"</span>,<span class="st">"Tony RICKARDSSON"</span>))</a></code></pre></div>
 <p><img src="sport_in_r_files/figure-html/unnamed-chunk-6-2.png" width="700"></p>
 <p>Except dedicated <code>print</code>,<code>summary</code> and <code>plot</code> there is possibility to extract more detailed information for analyses. <code>rating</code> object contains following elements:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(glicko)</a></code></pre></div>
@@ -237,20 +337,20 @@ given by <code>summary</code> by showing ratings, ratings deviations and compari
 </ul>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(glicko<span class="op">$</span>r)</a></code></pre></div>
 <pre><code>##     id          rider        r       rd
-## 1: 250 Peter Karlsson 1597.472 37.17764
-## 2: 250  Tomasz Gollob 1552.346 32.34887
-## 3: 250   Billy Hamill 1697.257 30.04788
-## 4: 251    Craig Boyce 1477.183 30.23765
-## 5: 251   Hans Nielsen 1778.792 34.01788
-## 6: 251    Chris Louis 1579.143 28.47306</code></pre>
+## 1: 250 Peter KARLSSON 1597.472 37.17764
+## 2: 250  Tomasz GOLLOB 1552.346 32.34887
+## 3: 250   Billy HAMILL 1697.257 30.04788
+## 4: 251    Craig BOYCE 1477.183 30.23765
+## 5: 251   Hans NIELSEN 1778.792 34.01788
+## 6: 251    Chris LOUIS 1579.143 28.47306</code></pre>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(glicko<span class="op">$</span>pairs)</a></code></pre></div>
 <pre><code>##     id        rider     opponent Y         P
-## 1: 251  Craig Boyce Hans Nielsen 0 0.1520817
-## 2: 251  Craig Boyce  Chris Louis 1 0.3584955
-## 3: 251 Hans Nielsen  Craig Boyce 1 0.8479183
-## 4: 251 Hans Nielsen  Chris Louis 1 0.7573203
-## 5: 251  Chris Louis  Craig Boyce 0 0.6415045
-## 6: 251  Chris Louis Hans Nielsen 0 0.2426797</code></pre>
+## 1: 251  Craig BOYCE Hans NIELSEN 0 0.1520817
+## 2: 251  Craig BOYCE  Chris LOUIS 1 0.3584955
+## 3: 251 Hans NIELSEN  Craig BOYCE 1 0.8479183
+## 4: 251 Hans NIELSEN  Chris LOUIS 1 0.7573203
+## 5: 251  Chris LOUIS  Craig BOYCE 0 0.6415045
+## 6: 251  Chris LOUIS Hans NIELSEN 0 0.2426797</code></pre>
 </div>
 </div>
 <div id="advanced-sport" class="section level1">
@@ -321,13 +421,13 @@ given by <code>summary</code> by showing ratings, ratings deviations and compari
 <a class="sourceLine" id="cb21-4" data-line-number="4">  <span class="dt">r    =</span> model<span class="op">$</span>final_r, </a>
 <a class="sourceLine" id="cb21-5" data-line-number="5">  <span class="dt">rd   =</span> model<span class="op">$</span>final_rd</a>
 <a class="sourceLine" id="cb21-6" data-line-number="6">  )<span class="op">$</span>final_r</a></code></pre></div>
-<pre><code>##     Tomasz Gollob     Gary Havelock       Chris Louis  Tony Rickardsson 
+<pre><code>##     Tomasz GOLLOB     Gary HAVELOCK       Chris LOUIS  Tony RICKARDSSON 
 ##          1696.809          1200.487          1799.513          1400.162 
-##     Sam Ermolenko    Jan Staechmann     Tommy Knudsen Henrik Gustafsson 
+##     Sam ERMOLENKO    Jan STAECHMANN     Tommy KNUDSEN Henrik GUSTAFSSON 
 ##          1940.042          1200.487          1400.162          1599.838 
-##   Mikael Karlsson      Hans Nielsen        Andy Smith        Mark Loram 
+##   Mikael KARLSSON      Hans NIELSEN        Andy SMITH        Mark LORAM 
 ##          1200.487          1599.838          1455.702          1799.513 
-##      Greg Hancock        Marvyn Cox     Dariusz Śledź       Craig Boyce 
+##      Greg HANCOCK        Marvyn COX     Dariusz ŚLEDŹ       Craig BOYCE 
 ##          1599.838          1200.487          1400.162          1508.129</code></pre>
 </div>
 <div id="controlling-update-size-by-weight" class="section level2">
