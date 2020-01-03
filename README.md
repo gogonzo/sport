@@ -3,20 +3,24 @@
 
 # sport <img src="man/figures/hexlogo.png" align="right" />
 
-<div id="badges">
+<!-- badges: start -->
 
 [![CRAN
 badge](https://cranlogs.r-pkg.org/badges/sport)](https://cran.r-project.org/web/packages/sport/index.html)
+
 [![Travis-CI Build
 Status](https://travis-ci.org/gogonzo/sport.svg?branch=master)](https://travis-ci.org/gogonzo/sport)
+
 [![AppVeyor Build
 Status](https://ci.appveyor.com/api/projects/status/github/gogonzo/sport?branch=master&svg=true)](https://ci.appveyor.com/project/gogonzo/sport)
+
 [![License: GPL
 v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
+
 [![Coverage
 status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)](https://codecov.io/gh/gogonzo/sport)
 
-</div>
+<!-- badges: end -->
 
 # About
 
@@ -58,15 +62,115 @@ data.frames:
 ``` r
 library(sport) 
 str(gpheats)
-#> 'data.frame':    20649 obs. of  11 variables:
-#>  $ id      : num  1 1 1 1 2 2 2 2 3 3 ...
+#> 'data.frame':    21932 obs. of  11 variables:
+#>  $ id      :List of 21932
+#>   ..$ : num 1
+#>   ..$ : num 1
+#>   ..$ : num 1
+#>   ..$ : num 1
+#>   ..$ : num 2
+#>   ..$ : num 2
+#>   ..$ : num 2
+#>   ..$ : num 2
+#>   ..$ : num 3
+#>   ..$ : num 3
+#>   ..$ : num 3
+#>   ..$ : num 3
+#>   ..$ : num 4
+#>   ..$ : num 4
+#>   ..$ : num 4
+#>   ..$ : num 4
+#>   ..$ : num 5
+#>   ..$ : num 5
+#>   ..$ : num 5
+#>   ..$ : num 5
+#>   ..$ : num 6
+#>   ..$ : num 6
+#>   ..$ : num 6
+#>   ..$ : num 6
+#>   ..$ : num 7
+#>   ..$ : num 7
+#>   ..$ : num 7
+#>   ..$ : num 7
+#>   ..$ : num 8
+#>   ..$ : num 8
+#>   ..$ : num 8
+#>   ..$ : num 8
+#>   ..$ : num 9
+#>   ..$ : num 9
+#>   ..$ : num 9
+#>   ..$ : num 10
+#>   ..$ : num 10
+#>   ..$ : num 10
+#>   ..$ : num 10
+#>   ..$ : num 11
+#>   ..$ : num 11
+#>   ..$ : num 11
+#>   ..$ : num 11
+#>   ..$ : num 12
+#>   ..$ : num 12
+#>   ..$ : num 12
+#>   ..$ : num 12
+#>   ..$ : num 13
+#>   ..$ : num 13
+#>   ..$ : num 13
+#>   ..$ : num 13
+#>   ..$ : num 14
+#>   ..$ : num 14
+#>   ..$ : num 14
+#>   ..$ : num 14
+#>   ..$ : num 15
+#>   ..$ : num 15
+#>   ..$ : num 15
+#>   ..$ : num 15
+#>   ..$ : num 16
+#>   ..$ : num 16
+#>   ..$ : num 16
+#>   ..$ : num 16
+#>   ..$ : num 17
+#>   ..$ : num 17
+#>   ..$ : num 17
+#>   ..$ : num 17
+#>   ..$ : num 18
+#>   ..$ : num 18
+#>   ..$ : num 18
+#>   ..$ : num 18
+#>   ..$ : num 19
+#>   ..$ : num 19
+#>   ..$ : num 19
+#>   ..$ : num 19
+#>   ..$ : num 20
+#>   ..$ : num 20
+#>   ..$ : num 20
+#>   ..$ : num 20
+#>   ..$ : num 21
+#>   ..$ : num 21
+#>   ..$ : num 21
+#>   ..$ : num 21
+#>   ..$ : num 22
+#>   ..$ : num 22
+#>   ..$ : num 22
+#>   ..$ : num 22
+#>   ..$ : num 23
+#>   ..$ : num 23
+#>   ..$ : num 23
+#>   ..$ : num 23
+#>   ..$ : num 24
+#>   ..$ : num 24
+#>   ..$ : num 24
+#>   ..$ : num 24
+#>   ..$ : num 25
+#>   ..$ : num 25
+#>   ..$ : num 25
+#>   ..$ : num 25
+#>   .. [list output truncated]
 #>  $ season  : int  1995 1995 1995 1995 1995 1995 1995 1995 1995 1995 ...
 #>  $ date    : POSIXct, format: "1995-05-20 19:00:00" "1995-05-20 19:00:00" ...
 #>  $ round   : int  1 1 1 1 1 1 1 1 1 1 ...
 #>  $ name    : chr  "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" "Speedway Grand Prix of Poland" ...
 #>  $ heat    : int  1 1 1 1 2 2 2 2 3 3 ...
 #>  $ field   : int  1 2 3 4 1 2 3 4 1 2 ...
-#>  $ rider   : chr  "Tomasz Gollob" "Gary Havelock" "Chris Louis" "Tony Rickardsson" ...
+#>  $ rider   : chr  "Tomasz GOLLOB" "Gary HAVELOCK" "Chris LOUIS" "Tony RICKARDSSON" ...
 #>  $ points  : int  2 0 3 1 3 0 1 2 0 2 ...
 #>  $ position: chr  "2" "4" "1" "3" ...
 #>  $ rank    : num  2 4 1 3 1 4 3 2 4 2 ...
@@ -81,14 +185,14 @@ to be a rank/position in event*. Don’t mix up rank output with typical
 2-looser. Below example of two matches with 4 players each.
 
     #>   id             rider rank
-    #> 1  1     Tomasz Gollob    2
-    #> 2  1     Gary Havelock    4
-    #> 3  1       Chris Louis    1
-    #> 4  1  Tony Rickardsson    3
-    #> 5  2     Sam Ermolenko    1
-    #> 6  2    Jan Staechmann    4
-    #> 7  2     Tommy Knudsen    3
-    #> 8  2 Henrik Gustafsson    2
+    #> 1  1     Tomasz GOLLOB    2
+    #> 2  1     Gary HAVELOCK    4
+    #> 3  1       Chris LOUIS    1
+    #> 4  1  Tony RICKARDSSON    3
+    #> 5  2     Sam ERMOLENKO    1
+    #> 6  2    Jan STAECHMANN    4
+    #> 7  2     Tommy KNUDSEN    3
+    #> 8  2 Henrik GUSTAFSSON    2
 
 ## Estimate dynamic ratings
 
@@ -109,22 +213,22 @@ print(dbl)
 #> 
 #> Call: rank | id ~ player(rider)
 #> 
-#> Number of unique pairs: 31081
+#> Number of unique pairs: 33003
 #> 
 #> Accuracy of the model: 0.61
 #> 
 #> True probabilities and Accuracy in predicted intervals:
 #>      Interval Model probability True probability Accuracy     n
-#>  1:   [0,0.1]             0.074            0.211    0.788   538
-#>  2: (0.1,0.2]             0.156            0.264    0.735  2109
-#>  3: (0.2,0.3]             0.258            0.315    0.684  4998
-#>  4: (0.3,0.4]             0.353            0.378    0.620 10247
-#>  5: (0.4,0.5]             0.451            0.458    0.540 13232
-#>  6: (0.5,0.6]             0.550            0.542    0.541 13146
-#>  7: (0.6,0.7]             0.647            0.622    0.620 10247
-#>  8: (0.7,0.8]             0.742            0.685    0.684  4998
-#>  9: (0.8,0.9]             0.844            0.736    0.735  2109
-#> 10:   (0.9,1]             0.926            0.789    0.788   538
+#>  1:   [0,0.1]             0.075            0.211    0.788   562
+#>  2: (0.1,0.2]             0.156            0.258    0.741  2229
+#>  3: (0.2,0.3]             0.258            0.316    0.683  5246
+#>  4: (0.3,0.4]             0.354            0.379    0.619 10887
+#>  5: (0.4,0.5]             0.451            0.460    0.539 14122
+#>  6: (0.5,0.6]             0.549            0.540    0.539 14036
+#>  7: (0.6,0.7]             0.646            0.621    0.619 10887
+#>  8: (0.7,0.8]             0.742            0.684    0.683  5246
+#>  9: (0.8,0.9]             0.844            0.742    0.741  2229
+#> 10:   (0.9,1]             0.925            0.789    0.788   562
 ```
 
 ## Output
@@ -146,24 +250,24 @@ summary(dbl)
 #> [1] "dbl"
 #> 
 #> $`Overall Accuracy`
-#> [1] 0.6073003
+#> [1] 0.6062934
 #> 
 #> $`Number of pairs`
-#> [1] 62162
+#> [1] 66006
 #> 
 #> $r
-#>                       rider      r    rd
-#>   1:    rider=Tomasz Gollob  0.966 0.002
-#>   2:    rider=Gary Havelock  0.865 0.116
-#>   3:      rider=Chris Louis  0.351 0.009
-#>   4: rider=Tony Rickardsson  1.516 0.004
-#>   5:    rider=Sam Ermolenko  0.479 0.037
-#>  ---                                    
-#> 209:   rider=Justin Sedgmen -1.214 0.774
-#> 210:    rider=Rohan Tungate  2.688 0.902
-#> 211:    rider=Maksym Drabik  0.341 0.902
-#> 212:       rider=Dan Bewley -0.495 0.950
-#> 213:       rider=Joel Kling  0.351 0.950
+#>                            rider      r    rd
+#>   1:         rider=Tomasz GOLLOB  0.965 0.002
+#>   2:         rider=Gary HAVELOCK  0.865 0.116
+#>   3:           rider=Chris LOUIS  0.351 0.009
+#>   4:      rider=Tony RICKARDSSON  1.516 0.004
+#>   5:         rider=Sam ERMOLENKO  0.479 0.037
+#>  ---                                         
+#> 213:        rider=Szymon WOŹNIAK  0.173 0.774
+#> 214:        rider=Kevin WOELBERT  0.318 0.815
+#> 215: rider=Igor KOPEĆ-SOBCZYŃSKI -0.377 0.950
+#> 216:          rider=Zdenek HOLUB -0.409 0.950
+#> 217:        rider=Charles WRIGHT -0.655 0.774
 ```
 
 To visualize top n ratings with their 95% confidence interval one can
@@ -209,19 +313,19 @@ names(glicko)
 
 ``` r
 tail(glicko$r)
-#>      id            rider        r        rd
-#> 1: 5154   Martin Vaculik 1555.046 15.643086
-#> 2: 5154     Patryk Dudek 1670.666 19.559234
-#> 3: 5155      Matej Žagar 1587.699  9.016050
-#> 4: 5155 Fredrik Lindgren 1589.087  8.325517
-#> 5: 5155   Martin Vaculik 1556.186 15.598332
-#> 6: 5155   Nicki Pedersen 1651.995  6.680547
+#>      id                  rider        r        rd
+#> 1: 5476       Fredrik LINDGREN 1118.692  8.905272
+#> 2: 5476          Tai WOFFINDEN 1173.871 10.590947
+#> 3: 5477            Leon MADSEN 1017.895 29.091069
+#> 4: 5477       Bartosz ZMARZLIK 1152.014 13.676939
+#> 5: 5477 Niels Kristian IVERSEN 1080.873 10.637088
+#> 6: 5477       Emil SAJFUTDINOW 1197.553 11.088176
 tail(glicko$pairs)
-#>      id          rider         opponent Y         P
-#> 1: 5155 Martin Vaculik      Matej Žagar 0 0.4548475
-#> 2: 5155 Martin Vaculik Fredrik Lindgren 0 0.4528676
-#> 3: 5155 Martin Vaculik   Nicki Pedersen 0 0.3656971
-#> 4: 5155 Nicki Pedersen      Matej Žagar 1 0.5914313
-#> 5: 5155 Nicki Pedersen Fredrik Lindgren 1 0.5895059
-#> 6: 5155 Nicki Pedersen   Martin Vaculik 1 0.6343029
+#>      id                  rider               opponent Y         P
+#> 1: 5477 Niels Kristian IVERSEN            Leon MADSEN 0 0.5892316
+#> 2: 5477 Niels Kristian IVERSEN       Bartosz ZMARZLIK 1 0.3991746
+#> 3: 5477 Niels Kristian IVERSEN       Emil SAJFUTDINOW 0 0.3383024
+#> 4: 5477       Emil SAJFUTDINOW            Leon MADSEN 0 0.7367575
+#> 5: 5477       Emil SAJFUTDINOW       Bartosz ZMARZLIK 1 0.5650626
+#> 6: 5477       Emil SAJFUTDINOW Niels Kristian IVERSEN 1 0.6616976
 ```

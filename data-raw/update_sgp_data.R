@@ -7,6 +7,7 @@ update_sgp_data <- function() {
   con <- dbConnect(drv = MySQL(), 
                    username = "root", 
                    dbname = "speedway", 
+                   password = "Elo#21ok",
                    encoding = "UTF-8")
   dbGetQuery(con, "SET NAMES utf8")
   gpsquads <- customQuery({
@@ -53,7 +54,7 @@ update_sgp_data <- function() {
   gpheats <-
     gpheats %>%
     arrange(date, heat) %>%
-    mutate(id = runner::sum_run(paste(date, heat) != lag(paste(date, heat), default = ""))) %>%
+    mutate(id = runner::sum_run(as.integer(paste(date, heat) != lag(paste(date, heat), default = "")))) %>%
     filter(!is.na(position)) %>%
     filter(!is.na(points)) %>%
     filter(!position %in% c("F", "N")) %>%
