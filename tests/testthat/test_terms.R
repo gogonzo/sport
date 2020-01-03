@@ -44,7 +44,7 @@ test_that("check team term", {
   
   expect_error(
     extract_team_terms(formula = rank + id ~ player(rider|name|elo)),
-    "Only one or two variables are allowed within team"
+    "Only one or two variables are allowed within player"
   )
   
 })
@@ -52,7 +52,7 @@ test_that("check team term", {
 test_that("valid rhs", {
   expect_error(
     is_rhs_valid(1 ~ 1, gpheats, only_team_term = TRUE, single = FALSE),
-    "Formula requires specifying team"
+    "Formula requires specifying player"
   )
   
   expect_error(
@@ -62,17 +62,17 @@ test_that("valid rhs", {
   
   expect_error(
     is_rhs_valid(1 ~ rider, gpheats, only_team_term = TRUE, single = FALSE),
-    "Formula requires specifying team"
+    "Formula requires specifying player"
   )
   
   expect_error(
     is_rhs_valid(1 ~ player() + field, gpheats, only_team_term = TRUE, single = FALSE),
-    "This formula requires only one RHS term which is team"
+    "This formula requires only one RHS term which is player"
   )
     
   expect_error(
     is_rhs_valid(1 ~ rider, gpheats, only_team_term = FALSE, single = TRUE),
-    "Formula requires specifying team"
+    "Formula requires specifying player"
   )
 
   expect_silent(
@@ -85,17 +85,17 @@ test_that("valid rhs", {
   
   expect_error(
     is_rhs_valid(1 ~ player(rider | team), gpheats, only_team_term = FALSE, single = TRUE),
-    "Please specify only one variable inside of the team"
+    "Please specify only one variable inside of the player"
   )
   
   expect_error(
     is_rhs_valid(1 ~ player(rider | team | elo), gpheats, only_team_term = FALSE, single = FALSE),
-    "Only one or two variables are allowed within team"
+    "Only one or two variables are allowed within player"
   )
   
   expect_error(
     is_rhs_valid(1 ~ player(rider | team) + field, gpheats, only_team_term = TRUE, single = FALSE),
-    "This formula requires only one RHS term which is team"
+    "This formula requires only one RHS term which is player"
   )
   
   expect_error(
@@ -125,18 +125,18 @@ test_that("valid team term", {
   
   
   expect_error(
-    is_team_term_valid(formula = 1 ~ player(),
-                       "Formula requires specifying team")      
+    is_team_term_valid(formula = 1 ~ player(), single = TRUE),
+    "Formula requires specifying player"      
   )
   
   expect_error(
     is_team_term_valid(formula = 1 ~ player(player | team), single = TRUE),
-    "Please specify only one variable inside of the team"
+    "Please specify only one variable inside of the player"
   )
   
   expect_error(
     is_team_term_valid(formula = 1 ~ player(player | team | country), single = FALSE),
-    "Only one or two variables are allowed within team"
+    "Only one or two variables are allowed within player"
   )
   
 })

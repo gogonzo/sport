@@ -6,7 +6,7 @@ test_that("wrong formula", {
       formula <- rank | id ~ player(rider|team),
       data = gpheats[1:8, ]
     ),
-    "Please specify only one variable inside of the team"
+    "Please specify only one variable inside of the player"
   )
   
   expect_error(
@@ -22,7 +22,7 @@ test_that("wrong formula", {
       formula <- rank | id ~ rider,
       data = gpheats[1:8, ]
     ),
-    "Formula requires specifying team"
+    "Formula requires specifying player"
   )
   
   expect_warning(

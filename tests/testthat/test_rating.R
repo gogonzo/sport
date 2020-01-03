@@ -217,7 +217,7 @@ test_that("rating (argument) errors", {
   
   expect_error(
     glicko_run(data = df, formula = rank | id ~ player),
-    "Formula requires specifying team\\(...\\) term"
+    "Formula requires specifying player\\(...\\) term"
   )
   
   # stats::terms need also data if `.` specified
@@ -225,7 +225,7 @@ test_that("rating (argument) errors", {
                "in formula and no 'data' argument") 
   
   expect_error(glicko_run(data = df, formula = rank | id ~ 1),
-               "Formula requires specifying team\\(...\\) term")
+               "Formula requires specifying player\\(...\\) term")
   
   expect_error(glicko_run(data = df, formula = rank | id ~ player(wrong)),
                "Variable\\(s\\) wrong specified in formula not present in data")
@@ -233,7 +233,7 @@ test_that("rating (argument) errors", {
   expect_silent(glicko_run(data = df, formula = rank | id ~ player(player)))
   expect_silent(glicko_run(data = df, formula = rank | id ~ player(player | team)))
   expect_error(dbl_run(data = df, formula = rank | id ~ player(player | team)),
-               "Please specify only one variable inside of the team")
+               "Please specify only one variable inside of the player")
 })
 
 test_that("glicko result", {
