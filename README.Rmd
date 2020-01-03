@@ -94,7 +94,7 @@ by specifying `players` argument.
 ```{r message=FALSE}
 plot(glicko, n = 15)
 plot(glicko, 
-     players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
+     players = c("Greg HANCOCK","Tomasz GOLLOB","Tony RICKARDSSON"))
 ```
 </div>
 
