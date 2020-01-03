@@ -16,7 +16,7 @@ test_that("check rating default arguments", {
     g1 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       r = NULL,
       rd = NULL,
       init_r = 1500,
@@ -32,7 +32,7 @@ test_that("check rating default arguments", {
     g2 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       r = NULL,
       rd = NULL,
       init_r = 1500,
@@ -48,7 +48,7 @@ test_that("check rating default arguments", {
     g3 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 1500,
       init_rd = 350,
       kappa = 0.5
@@ -58,7 +58,7 @@ test_that("check rating default arguments", {
   expect_silent(
     g4 <- glicko_run(
       data = df,
-      formula = rank | id ~ team(player | team)
+      formula = rank | id ~ player(player | team)
     )
   )
 
@@ -71,7 +71,7 @@ test_that("check rating default arguments", {
     g5 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 1500,
       init_rd = 350,
       kappa = 0.5
@@ -82,7 +82,7 @@ test_that("check rating default arguments", {
     g6 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 1500,
       init_rd = 350
     )
@@ -94,7 +94,7 @@ test_that("check rating default arguments", {
     g7 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 1500,
       init_rd = 350
     )
@@ -104,7 +104,7 @@ test_that("check rating default arguments", {
     g8 <- rating_run(
       method = "glicko",
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 1500,
       init_rd = 350
     )
@@ -116,7 +116,7 @@ test_that("check rating default arguments", {
     g9 <- rating_run(
       method = "glicko2",
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 1500,
       init_rd = 350,
       init_sigma = 0.05,
@@ -128,7 +128,7 @@ test_that("check rating default arguments", {
   expect_silent(
     g10 <- glicko2_run(
       data = df,
-      formula = rank | id ~ team(player | team)
+      formula = rank | id ~ player(player | team)
     )
   )
   
@@ -141,7 +141,7 @@ test_that("check rating default arguments", {
     g11 <- rating_run(
       method = "bbt",
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       init_r = 25.0,
       init_rd = 25 / 3,
       kappa = 0.5
@@ -151,7 +151,7 @@ test_that("check rating default arguments", {
   expect_silent(
     g12 <- bbt_run(
       data = df,
-      formula = rank | id ~ team(player | team)
+      formula = rank | id ~ player(player | team)
     )
   )
   
@@ -162,7 +162,7 @@ test_that("check rating default arguments", {
   expect_warning(
     glicko_run(
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       r = setNames(.5, "c")
     ),
     "Missing parameters will be added with init_r"
@@ -171,7 +171,7 @@ test_that("check rating default arguments", {
   expect_warning(
     glicko_run(
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       rd = setNames(.5, "c")
     ),
     "Missing parameters will be added with init_rd"
@@ -180,7 +180,7 @@ test_that("check rating default arguments", {
   expect_warning(
     glicko2_run(
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       sigma = setNames(.5, "c")
     ),
     "Missing parameters will be added with init_sigma"
@@ -189,7 +189,7 @@ test_that("check rating default arguments", {
   expect_warning(
     glicko2_run(
       data = df,
-      formula = rank | id ~ team(player | team),
+      formula = rank | id ~ player(player | team),
       sigma = setNames(.5, "unknown")
     ),
     "Missing parameters will be added with init_sigma"
@@ -217,7 +217,7 @@ test_that("rating (argument) errors", {
   
   expect_error(
     glicko_run(data = df, formula = rank | id ~ player),
-    "Formula requires specifying team\\(...\\) term"
+    "Formula requires specifying player\\(...\\) term"
   )
   
   # stats::terms need also data if `.` specified
@@ -225,15 +225,15 @@ test_that("rating (argument) errors", {
                "in formula and no 'data' argument") 
   
   expect_error(glicko_run(data = df, formula = rank | id ~ 1),
-               "Formula requires specifying team\\(...\\) term")
+               "Formula requires specifying player\\(...\\) term")
   
-  expect_error(glicko_run(data = df, formula = rank | id ~ team(wrong)),
+  expect_error(glicko_run(data = df, formula = rank | id ~ player(wrong)),
                "Variable\\(s\\) wrong specified in formula not present in data")
   
-  expect_silent(glicko_run(data = df, formula = rank | id ~ team(player)))
-  expect_silent(glicko_run(data = df, formula = rank | id ~ team(player | team)))
-  expect_error(dbl_run(data = df, formula = rank | id ~ team(player | team)),
-               "Please specify only one variable inside of the team")
+  expect_silent(glicko_run(data = df, formula = rank | id ~ player(player)))
+  expect_silent(glicko_run(data = df, formula = rank | id ~ player(player | team)))
+  expect_error(dbl_run(data = df, formula = rank | id ~ player(player | team)),
+               "Please specify only one variable inside of the player")
 })
 
 test_that("glicko result", {
@@ -268,7 +268,7 @@ test_that("glicko result", {
         player = c("A", "B", "C", "D"),
         stringsAsFactors = FALSE
       ),
-      rank ~ team(player),
+      rank ~ player(player),
       r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("A", "B", "C", "D")),
       rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("A", "B", "C", "D"))
     )
@@ -303,7 +303,7 @@ test_that("glicko2 result", {
   )
   
   r_glicko2 <- glicko2_run(
-    formula = rank | id ~ team(player | team),
+    formula = rank | id ~ player(player | team),
     data = data.frame(
       id = c(1, 1, 1, 1),
       rank = c(3, 4, 1, 2),
@@ -379,7 +379,7 @@ test_that("bbt result", {
   )
   
   r_bbt <- bbt_run(
-    formula = rank | id ~ team(player | team),
+    formula = rank | id ~ player(player | team),
     data = data.frame(
       id = c(1, 1, 1, 1),
       rank = c(3, 4, 1, 2),
@@ -417,7 +417,7 @@ test_that("bbt result", {
 
 test_that("dbl result", {
   r_dbl <- dbl_run(
-    formula = rank | id ~ team(player) + gate:factor,
+    formula = rank | id ~ player(player) + gate:factor,
     data = data.frame(
       id = c(1, 1, 1, 1),
       rank = c(3, 4, 1, 2),
@@ -448,4 +448,3 @@ test_that("dbl result", {
     )
   )
 })
-

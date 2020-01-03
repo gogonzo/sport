@@ -4,14 +4,14 @@
 \alias{plot.rating}
 \title{Plot rating object}
 \usage{
-\method{plot}{rating}(x, n = 10, teams, ...)
+\method{plot}{rating}(x, n = 10, players, ...)
 }
 \arguments{
 \item{x}{of class rating}
 
 \item{n}{number of teams to be plotted}
 
-\item{teams}{optional vector with names of the contestants (coefficients) to plot 
+\item{players}{optional vector with names of the contestants (coefficients) to plot 
 their evolution in time.}
 
 \item{...}{optional arguments}

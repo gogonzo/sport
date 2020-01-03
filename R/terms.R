@@ -37,33 +37,33 @@ is_lhs_valid <- function(formula, data) {
 
 is_team_term_valid <- function(formula, single) {
   rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
-  team_term <- grep("team\\(.+\\)", rhs_terms, value = TRUE)
+  team_term <- grep("player\\(.+\\)", rhs_terms, value = TRUE)
  
   if (length(team_term) > 1) {
-    stop("Only one team(...) term is allowed with one or two variables.", 
+    stop("Only one player(...) term is allowed with one or two variables.", 
         call. = FALSE)
     
-  } else if (!any(grepl("team\\(.+\\)$", rhs_terms))) {
-    stop("Formula requires specifying team(...) term.", 
+  } else if (!any(grepl("player\\(.+\\)$", rhs_terms))) {
+    stop("Formula requires specifying player(...) term.", 
          call. = FALSE)
     
-  } else if (single && any(grepl("team\\([^)]+[|][^)]+\\)", rhs_terms))) {
+  } else if (single && any(grepl("player\\([^)]+[|][^)]+\\)", rhs_terms))) {
     stop("This algorithm doesn't allow nesting players in teams.
-        Formula should not contain team(...) term function with two variables. 
-        Please specify only one variable inside of the team(...).",
+        Formula should not contain player(...) term function with two variables. 
+        Please specify only one variable inside of the player(...).",
         call. = FALSE)
   }
   
   
-  team_term_vars <- gsub("team\\(|\\)", "", team_term)
+  team_term_vars <- gsub("player\\(|\\)", "", team_term)
   team_term_vars <- trimws(unlist(strsplit(x = team_term_vars, split =  "[|]")))
   
   if (!length(team_term_vars) %in% c(1, 2) &&
       all(team_term_vars != "")) {
-    stop("Only one or two variables are allowed within team(...) term function: 
+    stop("Only one or two variables are allowed within player(...) term function: 
          Please specify as one of following:
-         * team(player_var | team_var)
-         * team(team_var)",
+         * player(player_var | team_var)
+         * player(team_var)",
          call. = FALSE)
   }
   
@@ -73,11 +73,11 @@ is_team_term_valid <- function(formula, single) {
 is_rhs_valid <- function(formula, data, only_team_term = FALSE, single = FALSE) {
   rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
   if (only_team_term && length(rhs_terms) > 1) {
-    stop("This formula requires only one RHS term which is team(...) function.")
+    stop("This formula requires only one RHS term which is player(...) function.")
   }
  
   is_team_term_valid(formula, single)
-  rhs_terms <- grep("team\\(", rhs_terms, value = TRUE, invert = TRUE)
+  rhs_terms <- grep("player\\(", rhs_terms, value = TRUE, invert = TRUE)
 
   are_variables_in_dataset(
     union(unique(unlist(strsplit(rhs_terms, "[*:+|]+"))), 
@@ -111,9 +111,9 @@ get_id_name <- function(formula) {
 extract_team_terms <- function(formula) {
   is_team_term_valid(formula = formula, single = FALSE)
   rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
-  team_terms <- grep("team\\(", rhs_terms, value = TRUE)
+  team_terms <- grep("player\\(", rhs_terms, value = TRUE)
   
-  x <- gsub("team\\(([^)]*)\\)", "\\1", team_terms, perl = TRUE) 
+  x <- gsub("player\\(([^)]*)\\)", "\\1", team_terms, perl = TRUE) 
   vars <- trimws(unlist(strsplit(x, "[+|:*]")))
   
   return(vars)
@@ -150,9 +150,9 @@ get_type <- function(x) {
 
 get_terms <- function(data, formula) {
   trm <- unlist(strsplit(attr(terms(formula), "term.labels"), "[ ][+][ ]+"))
-  team_term_idx <- grep("team\\(", trm)
+  team_term_idx <- grep("player\\(", trm)
   if (length(team_term_idx) > 0) {
-    x <- gsub("team\\(([^)]*)\\)", 
+    x <- gsub("player\\(([^)]*)\\)", 
               "\\1", 
               trm[team_term_idx], 
               perl = TRUE)

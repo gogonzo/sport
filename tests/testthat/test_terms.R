@@ -28,23 +28,23 @@ test_that("valid lhs formula", {
   
   expect_silent(is_lhs_valid(formula = rank | field ~ rider, gpheats))
   
-  expect_silent(is_lhs_valid(formula = rank | id ~ team(rider | name), gpheats))
+  expect_silent(is_lhs_valid(formula = rank | id ~ player(rider | name), gpheats))
 })
 
 test_that("check team term", {
   expect_identical(
-    extract_team_terms(formula = rank + id ~ team(rider)),
+    extract_team_terms(formula = rank + id ~ player(rider)),
     "rider"
   )
   
   expect_identical(
-    extract_team_terms(formula = rank + id ~ team(rider|name)),
+    extract_team_terms(formula = rank + id ~ player(rider|name)),
     c("rider", "name")
   )
   
   expect_error(
-    extract_team_terms(formula = rank + id ~ team(rider|name|elo)),
-    "Only one or two variables are allowed within team"
+    extract_team_terms(formula = rank + id ~ player(rider|name|elo)),
+    "Only one or two variables are allowed within player"
   )
   
 })
@@ -52,7 +52,7 @@ test_that("check team term", {
 test_that("valid rhs", {
   expect_error(
     is_rhs_valid(1 ~ 1, gpheats, only_team_term = TRUE, single = FALSE),
-    "Formula requires specifying team"
+    "Formula requires specifying player"
   )
   
   expect_error(
@@ -62,81 +62,81 @@ test_that("valid rhs", {
   
   expect_error(
     is_rhs_valid(1 ~ rider, gpheats, only_team_term = TRUE, single = FALSE),
-    "Formula requires specifying team"
+    "Formula requires specifying player"
   )
   
   expect_error(
-    is_rhs_valid(1 ~ team() + field, gpheats, only_team_term = TRUE, single = FALSE),
-    "This formula requires only one RHS term which is team"
+    is_rhs_valid(1 ~ player() + field, gpheats, only_team_term = TRUE, single = FALSE),
+    "This formula requires only one RHS term which is player"
   )
     
   expect_error(
     is_rhs_valid(1 ~ rider, gpheats, only_team_term = FALSE, single = TRUE),
-    "Formula requires specifying team"
+    "Formula requires specifying player"
   )
 
   expect_silent(
-    is_rhs_valid(1 ~ team(rider), gpheats, only_team_term = FALSE, single = TRUE)
+    is_rhs_valid(1 ~ player(rider), gpheats, only_team_term = FALSE, single = TRUE)
   )
   
   expect_silent(
-    is_rhs_valid(1 ~ team(rider), gpheats, only_team_term = FALSE, single = FALSE)
+    is_rhs_valid(1 ~ player(rider), gpheats, only_team_term = FALSE, single = FALSE)
   )
   
   expect_error(
-    is_rhs_valid(1 ~ team(rider | team), gpheats, only_team_term = FALSE, single = TRUE),
-    "Please specify only one variable inside of the team"
+    is_rhs_valid(1 ~ player(rider | team), gpheats, only_team_term = FALSE, single = TRUE),
+    "Please specify only one variable inside of the player"
   )
   
   expect_error(
-    is_rhs_valid(1 ~ team(rider | team | elo), gpheats, only_team_term = FALSE, single = FALSE),
-    "Only one or two variables are allowed within team"
+    is_rhs_valid(1 ~ player(rider | team | elo), gpheats, only_team_term = FALSE, single = FALSE),
+    "Only one or two variables are allowed within player"
   )
   
   expect_error(
-    is_rhs_valid(1 ~ team(rider | team) + field, gpheats, only_team_term = TRUE, single = FALSE),
-    "This formula requires only one RHS term which is team"
+    is_rhs_valid(1 ~ player(rider | team) + field, gpheats, only_team_term = TRUE, single = FALSE),
+    "This formula requires only one RHS term which is player"
   )
   
   expect_error(
-    is_rhs_valid(1 ~ team(rider | team) + field, gpheats, only_team_term = FALSE, single = FALSE),
+    is_rhs_valid(1 ~ player(rider | team) + field, gpheats, only_team_term = FALSE, single = FALSE),
     "team specified in formula not present in data"
   )
   
   expect_silent(
-    is_rhs_valid(1 ~ team(rider | name) + field, gpheats, only_team_term = FALSE, single = FALSE)
+    is_rhs_valid(1 ~ player(rider | name) + field, gpheats, only_team_term = FALSE, single = FALSE)
   )
 
 })
 
 test_that("valid team term", {
   expect_silent(
-    is_team_term_valid(formula = 1 ~ team(player), single = TRUE)
+    is_team_term_valid(formula = 1 ~ player(player), single = TRUE)
   )  
   
   expect_silent(
-    is_team_term_valid(formula = 1 ~ team(player), single = FALSE)
+    is_team_term_valid(formula = 1 ~ player(player), single = FALSE)
   )
   
   expect_silent(
-    is_team_term_valid(formula = 1 ~ team(player | team), single = FALSE)
+    is_team_term_valid(formula = 1 ~ player(player | team), single = FALSE)
   )
   
   
   
   expect_error(
-    is_team_term_valid(formula = 1 ~ team(),
-                       "Formula requires specifying team")      
+    is_team_term_valid(formula = 1 ~ player(), single = TRUE),
+    "Formula requires specifying player"      
   )
   
   expect_error(
-    is_team_term_valid(formula = 1 ~ team(player | team), single = TRUE),
-    "Please specify only one variable inside of the team"
+    is_team_term_valid(formula = 1 ~ player(player | team), single = TRUE),
+    "Please specify only one variable inside of the player"
   )
   
   expect_error(
-    is_team_term_valid(formula = 1 ~ team(player | team | country), single = FALSE),
-    "Only one or two variables are allowed within team"
+    is_team_term_valid(formula = 1 ~ player(player | team | country), single = FALSE),
+    "Only one or two variables are allowed within player"
   )
   
 })
@@ -223,7 +223,7 @@ test_that("get terms", {
   
   term6 <- get_terms(
     gpheats,
-    rank|id ~ team(rider) + round + field*heat
+    rank|id ~ player(rider) + round + field*heat
   )
   expected6 <- list(c(rider = "character"),
                     c(round = "numeric"),
@@ -236,7 +236,7 @@ test_that("get terms", {
   
   term7 <- get_terms(
     gpheats,
-    rank|id ~ round + field*heat + team(rider)
+    rank|id ~ round + field*heat + player(rider)
   )
   expected7 <- list(c(rider = "character"),
                     c(round = "numeric"),
@@ -249,7 +249,7 @@ test_that("get terms", {
   
   term8 <- get_terms(
     gpheats,
-    rank|id ~ round + field*heat + team(rider|name)
+    rank|id ~ round + field*heat + player(rider|name)
   )
   expected8 <- list(c(rider = "character"),
                     c(name = "character"),

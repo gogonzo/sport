@@ -9,36 +9,36 @@ NULL
 #' @param formula formula which specifies the model. RHS Allows only player 
 #' rating parameter and it should be specified in following manner:
 #' 
-#' `rank | id ~ team(name)`.
+#' \code{rank | id ~ player(name)}.
 #' \itemize{
 #'   \item {rank} player position in event.
 #'   \item {id} event identifier in which pairwise comparison is assessed.
-#'   \item {team(name)} name of the contestant. In this case \code{team(name)} 
+#'   \item {player(name)} name of the contestant. In this case \code{player(name)} 
 #'     helps algorithm point name of the column where player names are stored.
 #' }
 #' Users can also specify formula in in different way:
-#'  `rank | id ~ team(name|team)`. Which means that players are playing in teams, 
+#'  \code{rank | id ~ player(name|team)}. Which means that players are playing in teams, 
 #'  and results are observed for teams not for players. For more see vignette.
 #'
-#' @param method one of `c("glicko", "glicko2", "bbt", "dbl")` 
+#' @param method one of \code{c("glicko", "glicko2", "bbt", "dbl")} 
 #'  
 #' @param data data.frame which contains columns specified in formula, and
-#'  optionaly columns defined by `lambda`, `weight`.
+#'  optional columns defined by \code{lambda}, \code{weight}.
 #'  
 #' @param r named vector of initial players ratings estimates. If not specified 
-#' then `r` will be created automatically for parameters specified in `formula`
-#' with initial value `init_r`.
+#' then \code{r} will be created automatically for parameters specified in \code{formula}
+#' with initial value \code{init_r}.
 #' 
 #' @param rd rd named vector of initial rating deviation estimates. If not specified 
-#' then `rd` will be created automatically for parameters specified in `formula`
-#' with initial value `init_rd`.
+#' then \code{rd} will be created automatically for parameters specified in \code{formula}
+#' with initial value \code{init_rd}.
 #' 
 #' @param sigma (only for glicko2) named vector of initial players ratings 
-#' estimates. If not specified then `sigma` will be created automatically for 
-#' parameters specified in `formula` with initial value `init_sigma`.
+#' estimates. If not specified then \code{sigma} will be created automatically for 
+#' parameters specified in \code{formula} with initial value \code{init_sigma}.
 #' 
 #' @param lambda name of the column in `data` containing lambda values or one 
-#' constant value (eg. `lambda = colname` or `lambda = 0.5`).
+#' constant value (eg. \code{lambda = colname} or \code{lambda = 0.5}).
 #' Lambda impact prior variance, and uncertainty of the matchup result. The 
 #' higher lambda, the higher prior variance and more uncertain result of the 
 #' matchup. Higher lambda flattens chances of winning. 
@@ -46,32 +46,33 @@ NULL
 #' @param share name of the column in `data` containing player share in team 
 #' efforts. It's used to first calculate combined rating of the team and
 #' then redistribute ratings update back to players level. Warning - it should
-#' be used only if formula is specified with players nested within teams (`team(player|team)`).
+#' be used only if formula is specified with players nested within teams (`player(player|team)`).
 #' 
 #' 
 #' @param weight name of the column in `data` containing weights values or
-#' one constant (eg. `weight = colname` or `weight = 0.5`). 
+#' one constant (eg. \code{weight = colname} or \code{weight = 0.5}). 
 #' Weights increasing (weight > 1) or decreasing (weight < 1) update change. 
 #' Higher weight increasing impact of event result on rating estimate.
 #' 
-#' @param kappa controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
-#'  `kappa=1` means that `rd` will not be decreased.
+#' @param kappa controls \code{rd} shrinkage not to be greater than \code{rd*(1 - kappa)}.
+#'  `kappa=1` means that  \code{rd} will not be decreased.
 #' @param tau The system constant. Which constrains the change in volatility over
-#'  time. Reasonable choices are between 0.3 and 1.2 (`default = 0.5`), though 
+#'  time. Reasonable choices are between 0.3 and 1.2 (\code{default = 0.5}), though 
 #'  the system should be tested to decide which value results in greatest 
-#'  predictive accuracy. Smaller values of `tau` prevent the volatility measures 
-#'  from changing by largeamounts, which in turn prevent enormous changes in 
+#'  predictive accuracy. Smaller values of \code{tau} prevent the volatility measures 
+#'  from changing by large amounts, which in turn prevent enormous changes in 
 #'  ratings based on very improbable results. If the application of Glicko-2 is 
 #'  expected to involve extremely improbable collections of game outcomes, then 
-#'  `tau` should be set to a small value, even as small as, say, `tau= 0`.
+#'  `tau` should be set to a small value, even as small as, say, \code{tau= 0}.
 #'  
-#' @param init_r initial values for `r` if not provided. 
-#' Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)
+#' @param init_r initial values for \code{r} if not provided. 
+#' Default (\code{glicko = 1500}, \code{glicko2 = 1500}, \code{bbt = 25}, 
+#' \code{dbl = 0})
 #' 
-#' @param init_rd initial values for `rd` if not provided. 
-#' Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)
+#' @param init_rd initial values for \code{rd} if not provided. 
+#' Default (\code{glicko = 350}, \code{glicko2 = 350}, \code{bbt = 25/3}, \code{dbl = 1})
 #' 
-#' @param init_sigma initial values for `sigma` if not provided. 
+#' @param init_sigma initial values for \code{sigma} if not provided. 
 #' Default = 0.5
 rating_run <- function(
   method,
@@ -245,7 +246,7 @@ rating_run <- function(
 #'  estimated at each event.
 #'  
 #' \item \code{pairs} pairwise combinations of players in analysed events with 
-#' prior probability and result of a challange.
+#' prior probability and result of a challenge.
 #' 
 #' \item \code{class} of the object.
 #' 
@@ -267,7 +268,7 @@ rating_run <- function(
 #' # Example from Glickman
 #' glicko <- glicko_run(
 #'   data = data, 
-#'   formula = rank_player | id ~ team(player),
+#'   formula = rank_player | id ~ player(player),
 #'    r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("a", "b", "c", "d")),
 #'    rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("a", "b", "c", "d"))
 #'   )
@@ -275,7 +276,7 @@ rating_run <- function(
 #' # nested matchup
 #' glicko <- glicko_run(
 #'   data = data, 
-#'   formula = rank_team | id ~ team(player | team)
+#'   formula = rank_team | id ~ player(player | team)
 #'  )
 #' @export
 glicko_run <- function(data, formula,
@@ -337,13 +338,13 @@ glicko_run <- function(data, formula,
 #' 
 #' \item \code{final_rd} named vector containing players ratings deviations.
 #' 
-#' \item \code{final_sigma} named vector containing players ratings volatiles.
+#' \item \code{final_sigma} named vector containing players ratings volatile.
 #' 
 #' \item \code{r} data.frame with evolution of the ratings and ratings deviations
 #'  estimated at each event.
 #'  
 #' \item \code{pairs} pairwise combinations of players in analysed events with 
-#' prior probability and result of a challange.
+#' prior probability and result of a challenge.
 #' 
 #' \item \code{class} of the object.
 #' 
@@ -365,7 +366,7 @@ glicko_run <- function(data, formula,
 #' # Example from Glickman
 #' glicko2 <- glicko2_run(
 #'   data = data, 
-#'   formula = rank_player | id ~ team(player),
+#'   formula = rank_player | id ~ player(player),
 #'    r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("a", "b", "c", "d")),
 #'    rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("a", "b", "c", "d"))
 #'   )
@@ -373,7 +374,7 @@ glicko_run <- function(data, formula,
 #' # nested matchup
 #' glicko2 <- glicko2_run(
 #'   data = data, 
-#'   formula = rank_team | id ~ team(player | team)
+#'   formula = rank_team | id ~ player(player | team)
 #'  )
 #' @export
 glicko2_run <- function(formula,
@@ -448,7 +449,7 @@ glicko2_run <- function(formula,
 #'  estimated at each event.
 #'  
 #' \item \code{pairs} pairwise combinations of players in analysed events with 
-#' prior probability and result of a challange.
+#' prior probability and result of a challenge.
 #' 
 #' \item \code{class} of the object.
 #' 
@@ -469,7 +470,7 @@ glicko2_run <- function(formula,
 #' 
 #' bbt <- bbt_run(
 #'   data = data, 
-#'   formula = rank_player | id ~ team(player),
+#'   formula = rank_player | id ~ player(player),
 #'    r = setNames(c(25, 23.3, 25.83, 28.33), c("a", "b", "c", "d")),
 #'    rd = setNames(c(4.76, 0.71, 2.38, 7.14), c("a", "b", "c", "d"))
 #'   )
@@ -477,7 +478,7 @@ glicko2_run <- function(formula,
 #' # nested matchup
 #' bbt <- bbt_run(
 #'   data = data, 
-#'   formula = rank_team | id ~ team(player | team)
+#'   formula = rank_team | id ~ player(player | team)
 #'  )
 #' 
 #' @export
@@ -535,8 +536,8 @@ bbt_run <- function(formula,
 #' @inheritParams rating_run
 #' @param formula formula which specifies the model. Unlike other algorithms
 #' in the packages (glicko_run, glicko2_run, bbt_run), this method doesn't allow
-#' players nested in teams with `team(player | team)` and user should matchup
-#' in formula using `team(player)`. DBL allows user specify multiple parameters 
+#' players nested in teams with `player(player | team)` and user should matchup
+#' in formula using `player(player)`. DBL allows user specify multiple parameters 
 #' also in interaction with others.
 #' 
 #' @return
@@ -551,7 +552,7 @@ bbt_run <- function(formula,
 #'  estimated at each event.
 #'  
 #' \item \code{pairs} pairwise combinations of players in analysed events with 
-#' prior probability and result of a challange.
+#' prior probability and result of a challenge.
 #' 
 #' \item \code{class} of the object.
 #' 
@@ -574,12 +575,12 @@ bbt_run <- function(formula,
 #' 
 #' dbl <- dbl_run(
 #'   data = data, 
-#'   formula = rank | id ~ team(name)
+#'   formula = rank | id ~ player(name)
 #'  )
 #' 
 #' dbl <- dbl_run(
 #'   data = data, 
-#'   formula = rank | id ~ team(name) + gate * factor1)
+#'   formula = rank | id ~ player(name) + gate * factor1)
 #' @export
 dbl_run <- function(formula,
                     data,

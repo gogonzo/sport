@@ -20,5 +20,5 @@ internal
 }
 \description{
 Actual dataset containing turnament results of all Speedway Grand-Prix events
-gpsquads
+\code{gpsquads}
 }

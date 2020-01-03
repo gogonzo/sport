@@ -9,47 +9,80 @@ vignette: >
  %\usepackage[utf8]{inputenc}
 ---
 
-
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-```
-
 # Theory
-Problem of sport matchups falls into subject of paired comparison modeling and 
+Problem of sport matchups fits into subject of paired comparison modeling and 
 choice modeling. Estimating player skills is equivalent to estimating preference 
 of choice between two alternatives. Just as one product is more preferred over 
 another to buy, similarly, better player is more preferred to win over worst. 
-As player/event and alternative/experiment can be used interchangeably, for ease
-of use sport nomenclature is adapted (player/event). 
+As player/event and alternative/experiment can be used interchangeably, for 
+consistency with package name, sport nomenclature is adapted. 
 
-Algorithms implemented in a `sport` package performs similarly, as all using 
-Bayesian Approximation Method. Algorithms works as follows:
-At some moment player `p` competes with player `q` while both have prior $R_p$ 
-and $R_q$ ratings. Prior to event, probability that player `p` win over player 
-`q` is $\hat{Y_{pq}}$. After event occurs, true result $Y_{pq}$ is observed, and
-initial believes about rating is changed $R_p^{'} \leftarrow R_q$ according to 
-the prediction error $(Y_{pq} - \hat{Y_{pq}} )$ and some constant $K$. Updates 
+### Bayesian update rule
+
+Methods implemented in a `sport` package performs similarly, as all using 
+Bayesian Approximation Method. Algorithms works as follows:  
+
+At some moment player `i` competes with player `j` while both have prior $R_i$ 
+and $R_j$ ratings. Prior to event, probability that player `i` win over player 
+`j` is $\hat{Y_{ij}}$. After event occurs, true result $Y_{ij}$ is observed, and
+initial believes about rating is changed $R_i^{'} \leftarrow R_j$ according to 
+the prediction error $(Y_{ij} - \hat{Y_{ij}} )$ and some constant $K$. Updates 
 are summed as player can compete with more than one player in particular event.
 
-$$\large R_p^{'} \leftarrow R_p + \sum_{q \neq p}{ K * (Y_{pq} - \hat{Y_{pq}}} )$$
-Where: 
- $$\large \hat{Y} = P(X_i > X_j)$$ 
- $$K - learning rate$$
+$$\large R_i^{'} \leftarrow R_i + \sum_{j \neq i}{ K * (Y_{ij} - \hat{Y_{ij}}}) \quad (1)$$
 
-Outcome probability function is based on 
-[Bradley-Terry model](https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model) 
-designed to predict outcome of pairwise comparison. For multi-player matchups 
-where output is a ranking, `sport` package uses the same data transformation as
-in [exploded logit](https://www.jstor.org/stable/270983) - ranking is then 
-presented as combination of all possible pairs competing within same event.
+Where:  
+
+ * $\hat{Y} = P(X_i > X_j) = \frac{exp(\pi_i)}{exp(\pi_i) + exp(\pi_j)}$  
+ 
+ * $K$ - learning rate
+
+Outcome probability function is based on extended Bradley-Terry model where 
+$\pi_i = \frac{R_i}{RD_{ij}}$ ($RD$ stands for rating deviation). However, 
+expected outcome functions slightly differs in details, which can be noticed in 
+formulas presented further in this document.
+
+For multi-player matchups where output is a ranking, `sport` package uses the 
+same data transformation as in
+[exploded logit](https://www.jstor.org/stable/270983) - ranking is then 
+transformed to a combination of all possible pairs competing within same event, 
+which is reflected in above formula where update for $i$th player is 
+$\Omega_{i} = \sum_{j \neq i} \Omega_{ij}$.
+
+### Players nested within team
+
+In some cases individual results are not observed when individuals (players)
+competes in the teams. In team sports, results are reported on the team level 
+and players contribution is implicit, so that $Y_{ij}$ refers only to the teams. 
+This means that update rule described in (1) impacts directly team aggregated 
+rating, and players true abilities need to be estimated in another step.  
+
+Consider that $t$th team has $k_t$ players with ratings $N(R_{ti}, RD^2_{ti})$. 
+We assume that team abilities is sum of players skills weighted by known 
+$s_{ti}$, so:
+
+$$R_t = \sum_{i=1}^{k_t}R_{ti} * s_{ti}$$
+
+$$RD_t^2 = \sum_{i=1}^{k_t}RD_{ti}^2 * s_{ti}$$
+
+In above formula $s_{ti}$ denotes knows measurable share in team total efforts - 
+for example share of time spend on the field by player $ti$ in total time.
+
+Depending on algorithm type, update ($\Omega$, $\Delta$) are computed as usual 
+on the team level, and then parameters change is distributed proportionally by 
+to the players.
+
+$$R_{ti}^{'} \leftarrow R_{ti} * \Omega_i * s_{ti} \frac{RD_{ti}^2}{RD_t^2}$$
+$$RD_{ti}^{'} \leftarrow RD_{ti} * (1 - \Delta * s_{ti} \frac{RD_{ti}^2}{RD_t^2})$$
 
 ## Glicko rating system
+
 Glicko is the first bayesian online update algorithm incorporating rating 
 volatility to rating and outcome computation. Glicko system is not balanced, and
-sum of rating rewards of all players are not zero. In one 2-players event, 
-reward of player `i` differs from reward of player `q` as it depends on their 
-individual ratings deviation. Rating values oscillates around `r=1500` with max 
-deviation `rd<=350`.
+sum of rating changes across all players are not zero. In one 2-players event, 
+reward of player `i` differs from reward of player `i` as it depends on their 
+individual ratings deviation. Rating values oscillates around $R \sim 1500$ with max 
+deviation $rd \leq 350$.
 
 ```{r message=FALSE, warning=FALSE}
 library(sport)
@@ -61,28 +94,32 @@ data <- data.frame(id = 1,
 r <- setNames(c(1500, 1400, 1550, 1700), c("A","B","C","D"))
 rd <- setNames(c(200, 30, 100, 300), c("A","B","C","D"))
 
-model <- glicko_run(rank | id ~ team(name), data = data, r = r, rd = rd)
+model <- glicko_run(rank | id ~ player(name), data = data, r = r, rd = rd)
 print(model$final_r)
-
 ```
 
-For deeper knowledge read 
-[Mark E. Glickman (1999)](http://www.glicko.net/research/glicko.pdf).
+Output probability and update formulas looks as follows:
 
-Update Rules:
+$$\hat{Y_{ij}} = P(X_i>X_j) = \frac{1}
+{ 1 + 10^{-g(RD_{ij}) * (R_i-R_j)/400}}$$
 
-$$\hat{Y_{ij}} = P(X_i>X_j) = \frac{1}{ 1 + 10^{-g(RD_{ij}) * (R_i-R_j)/400}}$$
+$${R'}_i \leftarrow R_i + 
+\frac{1}{\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}} * 
+\sum_{j \neq i}{g(RD_j) * 
+(Y_{ij} - \hat{Y_{ij}})}$$
 
-$${R'}_i = R_i + \frac{1}{\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}} * \sum_j{g(RD_j) * (Y_{ij} - \hat{Y_{ij}}) }$$
+$${RD'}_i \leftarrow \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}$$
 
-$${RD'}_i = \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}$$
+
+For more details read [Mark E. Glickman (1999)](http://www.glicko.net/research/glicko.pdf).
 
 ## Glicko2 rating system
 Glicko2 improved predecessor by adding volatile parameter $\sigma_i$ which 
 increase/decrease rating deviation in periods when player performance differs 
 from expected. Sigma is estimated iteratively using Illinois algorithm, which 
-converges quickly not affecting computation time. Rating values oscillates 
-around `r=1500` with max deviation `rd<=350`.
+converges quickly not affecting computation time. Ratings in Glicko2 are scaled
+($\mu = \frac{R}{c}$, $\phi = \frac{RD}{c}$) but final output remains consistent
+with Glicko and values revolves around $R\sim1500$ with max deviation $RD \leq 350$.
 
 ```{r message=FALSE, warning=FALSE}
 # example taken from Glickman (2013)
@@ -92,53 +129,155 @@ data <- data.frame(id = 1,
 r <- setNames(c(1500, 1400, 1550, 1700), c("A","B","C","D"))
 rd <- setNames(c(200, 30, 100, 300), c("A","B","C","D"))
 
-model <- glicko2_run(rank | id ~ team(name), data = data, r = r, rd = rd)
+model <- glicko2_run(rank | id ~ player(name), data = data, r = r, rd = rd)
 print(model$final_r)
 
 ```
 
-** write about modification of g_phi **
-
-For further knowledge read 
-[Mark E. Glickman (2013)](http://www.glicko.net/glicko/glicko2.pdf)
+Output probability and update formulas looks as follows:
 
 $$ \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i - \mu_j)} }$$
 
-$$ {\phi'}_i = \frac{1}{\sqrt{ \frac{1}{ { {\phi_i}^2 + {\sigma'_i}^2}} + \frac{1}{v} }}$$
+$$ {\phi'}_i \leftarrow \frac{1}{\sqrt{ \frac{1}{ { {\phi_i}^2 + {\sigma'_i}^2}} + \frac{1}{v} }}$$
 
-$$ {\mu'_i} = \mu_i + {\phi'}_i * \sum_j{g(\phi_j)*(Y_{ij} - \hat{Y_{ij}})} $$
+$$ {\mu'_i} \leftarrow \mu_i + 
+{\phi'}_i * 
+\sum_{j \neq i}{g(\phi_j) * (Y_{ij} - \hat{Y_{ij}})} $$
 
+For more details read 
+[Mark E. Glickman (2013)](http://www.glicko.net/glicko/glicko2.pdf)
 
 ## Bayesian Bradley Terry
 The fastest algorithm with simple formula. Original BT formula lacks variance 
-parameter, and this method incorporates rating deviation into model. BBT also 
-prevents against fast `rd` decline to zero using `gamma` and `kappa`.
+parameter, and this method incorporates rating deviation into model (as other
+models). BBT also prevents against fast `RD` decline to zero using `gamma`.
 
-For further knowledge read [Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf)
+$$\hat{Y_{ij}} = P(X_i>X_j) = \frac{e^{R_i/c_{ij}}}
+{e^{R_i / c_{ij}} + e^{R_j / c_{ij}}} $$
 
-$$\hat{Y_{ij}} = P(X_i>X_j) = \frac{e^{R_i/c_{i_j}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}} $$
+$${R'}_i \leftarrow R_i + \sum_i{\frac{RD_i^2}{c_{ij}}*(Y_{ij} - \hat{Y_{ij}})}$$
 
-$${R'}_i = R_i + \sum_j{\frac{RD_i^2}{c_{ij}}*(Y_{ij} - \hat{Y_{ij}})}$$
+$${RD'}_i \leftarrow RD_i * 
+(1 - \sum_{j \neq i}{ \gamma_j * 
+  (\frac{RD_i}{c_{ij}})^2 * 
+  \hat{Y_{ij}} \hat{Y_{ji}}}
+)$$
 
-$${RD'}_i = RD_i * [ 1 - \frac{RD_{ij}^2}{RD_i^2}\sum_j{ \gamma_j * (\frac{RD_i}{c_{ij}})^2* \hat{Y_{ij}}\hat{Y_{ji}} } ]$$
 
+```{r message=FALSE, warning=FALSE}
+data <- data.frame(
+  id = c(1, 1, 1, 1),
+  team = c("A", "A", "B", "B"),
+  player = c("a", "b", "c", "d"),
+  rank_player = c(3, 4, 1, 2)
+)
 
+model <- bbt_run(
+  data = data, 
+  formula = rank_player | id ~ player(player),
+  r = setNames(c(25, 23.3, 25.83, 28.33), 
+               c("a", "b", "c", "d")),
+  rd = setNames(c(4.76, 0.71, 2.38, 7.14), 
+                c("a", "b", "c", "d"))
+)
+print(model$final_r)
+```
+
+For more details read
+[Ruby C. Weng and Chih-Jen Lin (2011)](http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf)
 
 ## Dynamic Bayesian Logit
-Following algorithm gives some advantages over mentioned rating systems, adding 
-other important factors to estimation process making final ratings unbiased. 
-Algorithm perform better in disciples where other variables can make a 
-difference in result eg. home field advantage. DBL implements Extended Kalman 
-Filter learning rule, and allows to estimate multiple parameters in addition to
-player ratings. DBL is a Dynamic Logit extended to usage in pairwise comparisons 
-by modeling differences in players characteristics. Classic Bradley-Terry model 
-is enriched by moderation element $K(s_t)$ which adds prior uncertainty to 
+Following algorithm gives some advantages over mentioned rating systems, allowing 
+to add other factors to the model. Algorithm perform better in disciples where 
+other variables can make a difference in result eg. home field advantage.  
+
+DBL implements Extended Kalman Filter learning rule, and allows to estimate 
+multiple parameters in addition to player ratings. DBL is a dynamic logit 
+extended to usage in pairwise comparisons by modeling differences of parameters 
+instead of parameters itself. For sake of consistency with other algorithms $R$ 
+and $RD$ is used instead of $\beta$ and $\sigma$ (in EKF $\omega$ and $\Sigma$).
+In DBL $R$ denotes weights/parameters not only player ratings and $RD$ is 
+parameter standard deviation.
+
+$$\hat{Y_{ij}} = \frac{e^{-K(s_t) (\pi_{it} - \pi_{jt})}}
+{1 + e^{-K(s_t) (\pi_{it}-\pi_{jt})}}$$
+
+where:
+* $\pi_{it} = R_i x_{it}$ - $i$-th player strength in $t$-th matchup composed of
+player raw skills and other factors affecting his abilities.
+
+* $K(s_t)$ - value moderating output which adds prior uncertainty to 
 output prediction.
 
-$$\hat{Y_{ij}} = \frac{ e^{-K(s_t)w _t^T(x_{it}-x_{jt})} }{1+e^{-K(s_t)w _t^T(x_{it}-x_{jt})}}$$
 Parameters for player `i` competing with player `j` are estimated using EKF update rule.
-$$\hat{\omega}_{it} = \hat{\omega}_{i(t-1)} + \frac{RD^2_{i(t-1)}}{1+\hat{Y_{ij}} (1-\hat{Y_{ij}})} x_t (Y_{ij} - \hat{Y_{ij}})$$
-$$RD^2_{i t} = RD^2_{i(t-1)} - \frac{\hat{Y_{ij}}(1-\hat{Y_{ij}})}{1+\hat{Y_{ij}} (1-\hat{Y_{ij}})s_t^2}(RD^2_{i(t-1)}x_i)(RD^2_{i(t-1)}x_i)^T$$
+$$\hat{R}^{'}_{i} \leftarrow \hat{R}_{i} + \frac{RD^2_{i}}
+{1 + \hat{Y_{ij}} (1 - \hat{Y_{ij}})} * 
+x_i (Y_{ij} - \hat{Y_{ij}})$$
 
 
-For further knowledge read [Stephen J. Roberts, William Penny (2011)](https://www.researchgate.net/publication/2465226_Dynamic_Logistic_Regression)
+$$RD^{'2}_{i} \leftarrow RD^2_{i} - 
+\frac{\hat{Y_{ij}}(1 - \hat{Y_{ij}})}
+{1+\hat{Y_{ij}} (1-\hat{Y_{ij}})s^2} * 
+(RD^2_i x_i)(RD^2_i x_i)^T$$
+
+```{r message=FALSE, warning=FALSE}
+data <- data.frame(
+  id = c(1, 1, 1, 1),
+  name = c("A", "B", "C", "D"),
+  rank = c(3, 4, 1, 2),
+  gate = c(1, 2, 3, 4),
+  factor1 = c("a", "a", "b", "b"),
+  factor2 = c("a", "b", "a", "b")
+)
+
+dbl <- dbl_run(
+  data = data, 
+  formula = rank | id ~ player(name) + gate * factor1)
+
+print(dbl$final_r)
+```
+
+For more details read [Stephen J. Roberts, William Penny (2011)](https://www.researchgate.net/publication/2465226_Dynamic_Logistic_Regression)
+
+
+## Additional controls
+### lambda
+
+$RD$ estimation is based only on previous estimate and difference between
+expected matchup output and real result. Sometimes scientist can have prior 
+knowledge about particular player or event which are characterized by higher 
+volatility. `lambda` proportionally changes prior `RD` before update, to 
+increase or decrease uncertainty of challenge. `lambda` can be used differently 
+in several situations:
+
+ - Increasing `lambda` for all players flatten probabilities of winning challenge 
+equalizing competitors chances. Rational when level of competition is different 
+than usual e.g. derby, knock-out phase, decisive matches, exhibitions and 
+friendlies.
+
+- Increasing `lambda` for one player makes his matchup more uncertain, and 
+ rating change to be higher than usual. Applicable  when some player has not 
+ played for a longer period of time.
+Lambda should be empirically set by researcher as it's not optimized by 
+algorithms. 
+
+$$RD_i = RD_i * lambda_{i}$$
+### kappa
+
+Depending on the frequency of events, $RD$ tends to decrease quickly to near
+zero, which results in freezing $R$ in time (as $R$ update size depends on $RD$ 
+size). To keep $RD$ change below some (proportional) size we use $\kappa$, which 
+is expressed as follows:
+
+$$RD_i^{'} \leftarrow RD_i - pmin(\Delta_i, RD_i (1 - \kappa))$$
+
+
+### weight
+
+Events can differ in importance, for all teams and for particular players.
+Weight can directly impact update size:
+
+$$RD_i^{'} \leftarrow RD_i \pm \Delta_i * \omega_i$$
+$$R_i^{'} \leftarrow R_i \pm \Omega_i * \omega_i$$
+
+

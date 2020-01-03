@@ -3,15 +3,15 @@ context("dbl_run")
 test_that("wrong formula", {
   expect_error(
     dbl_run(
-      formula <- rank | id ~ team(rider|team),
+      formula <- rank | id ~ player(rider|team),
       data = gpheats[1:8, ]
     ),
-    "Please specify only one variable inside of the team"
+    "Please specify only one variable inside of the player"
   )
   
   expect_error(
     dbl_run(
-      formula <- rank + id ~ team(rider),
+      formula <- rank + id ~ player(rider),
       data = gpheats[1:8, ]
     ),
     "LHS"
@@ -22,12 +22,12 @@ test_that("wrong formula", {
       formula <- rank | id ~ rider,
       data = gpheats[1:8, ]
     ),
-    "Formula requires specifying team"
+    "Formula requires specifying player"
   )
   
   expect_warning(
     dbl_run(
-      formula <- rank ~ team(rider),
+      formula <- rank ~ player(rider),
       data = gpheats[1:8, ]
     ),
     "LHS"
@@ -43,7 +43,7 @@ test_that("wrong formula", {
   
   expect_silent(
     dbl_run(
-      formula <- rank | id ~ team(rider),
+      formula <- rank | id ~ player(rider),
       data = gpheats[1:8, ]
     )
   )
@@ -51,14 +51,14 @@ test_that("wrong formula", {
   
   expect_silent(
     dbl_run(
-      formula <- rank | id ~ team(rider) + field,
+      formula <- rank | id ~ player(rider) + field,
       data = gpheats[1:8, ]
     )
   )
   
   expect_silent(
     dbl_run(
-      formula <- rank | id ~ team(rider) + field*heat + heat:rider,
+      formula <- rank | id ~ player(rider) + field*heat + heat:rider,
       data = gpheats[1:8, ]
     )
   )
@@ -67,7 +67,7 @@ test_that("wrong formula", {
 test_that("initial",{
   expect_warning(
     dbl_run(
-      formula <- rank | id ~ team(rider),
+      formula <- rank | id ~ player(rider),
       data = gpheats[1:8, ],
       r = setNames(.5, "rider=Tomasz Gollob")),
     "Missing parameters will be added with init_r"
@@ -75,7 +75,7 @@ test_that("initial",{
   
   expect_warning(
     dbl_run(
-      formula <- rank | id ~ team(rider),
+      formula <- rank | id ~ player(rider),
       data = gpheats[1:8, ],
       rd = setNames(.5, "rider=Tomasz Gollob")),
     "Missing parameters will be added with init_rd"
@@ -86,7 +86,7 @@ test_that("initial",{
 
 test_that("output", {
   out1 <- dbl_run(
-    formula = formula <- rank | id ~ team(rider),
+    formula = formula <- rank | id ~ player(rider),
     data = gpheats[1:4, ],
     lambda = 1,
     weight = 1,
@@ -108,7 +108,7 @@ test_that("output", {
   
   
   out2 <- dbl_run(
-    formula = formula <- rank | id ~ team(rider),
+    formula = formula <- rank | id ~ player(rider),
     data = gpheats[1:4, ],
     lambda = 1,
     weight = 1,

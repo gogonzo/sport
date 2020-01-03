@@ -19,38 +19,39 @@ glicko_run(
 }
 \arguments{
 \item{data}{data.frame which contains columns specified in formula, and
-optionaly columns defined by `lambda`, `weight`.}
+optional columns defined by \code{lambda}, \code{weight}.}
 
 \item{formula}{formula which specifies the model. RHS Allows only player 
 rating parameter and it should be specified in following manner:
 
-`rank | id ~ team(name)`.
+\code{rank | id ~ player(name)}.
 \itemize{
   \item {rank} player position in event.
   \item {id} event identifier in which pairwise comparison is assessed.
-  \item {team(name)} name of the contestant. In this case \code{team(name)} 
+  \item {player(name)} name of the contestant. In this case \code{player(name)} 
     helps algorithm point name of the column where player names are stored.
 }
 Users can also specify formula in in different way:
- `rank | id ~ team(name|team)`. Which means that players are playing in teams, 
+ \code{rank | id ~ player(name|team)}. Which means that players are playing in teams, 
  and results are observed for teams not for players. For more see vignette.}
 
 \item{r}{named vector of initial players ratings estimates. If not specified 
-then `r` will be created automatically for parameters specified in `formula`
-with initial value `init_r`.}
+then \code{r} will be created automatically for parameters specified in \code{formula}
+with initial value \code{init_r}.}
 
 \item{rd}{rd named vector of initial rating deviation estimates. If not specified 
-then `rd` will be created automatically for parameters specified in `formula`
-with initial value `init_rd`.}
+then \code{rd} will be created automatically for parameters specified in \code{formula}
+with initial value \code{init_rd}.}
 
-\item{init_r}{initial values for `r` if not provided. 
-Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
+\item{init_r}{initial values for \code{r} if not provided. 
+Default (\code{glicko = 1500}, \code{glicko2 = 1500}, \code{bbt = 25}, 
+\code{dbl = 0})}
 
-\item{init_rd}{initial values for `rd` if not provided. 
-Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
+\item{init_rd}{initial values for \code{rd} if not provided. 
+Default (\code{glicko = 350}, \code{glicko2 = 350}, \code{bbt = 25/3}, \code{dbl = 1})}
 
 \item{lambda}{name of the column in `data` containing lambda values or one 
-constant value (eg. `lambda = colname` or `lambda = 0.5`).
+constant value (eg. \code{lambda = colname} or \code{lambda = 0.5}).
 Lambda impact prior variance, and uncertainty of the matchup result. The 
 higher lambda, the higher prior variance and more uncertain result of the 
 matchup. Higher lambda flattens chances of winning.}
@@ -58,15 +59,15 @@ matchup. Higher lambda flattens chances of winning.}
 \item{share}{name of the column in `data` containing player share in team 
 efforts. It's used to first calculate combined rating of the team and
 then redistribute ratings update back to players level. Warning - it should
-be used only if formula is specified with players nested within teams (`team(player|team)`).}
+be used only if formula is specified with players nested within teams (`player(player|team)`).}
 
 \item{weight}{name of the column in `data` containing weights values or
-one constant (eg. `weight = colname` or `weight = 0.5`). 
+one constant (eg. \code{weight = colname} or \code{weight = 0.5}). 
 Weights increasing (weight > 1) or decreasing (weight < 1) update change. 
 Higher weight increasing impact of event result on rating estimate.}
 
-\item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
-`kappa=1` means that `rd` will not be decreased.}
+\item{kappa}{controls \code{rd} shrinkage not to be greater than \code{rd*(1 - kappa)}.
+`kappa=1` means that  \code{rd} will not be decreased.}
 }
 \value{
 A "rating" object is returned: \itemize{
@@ -79,7 +80,7 @@ A "rating" object is returned: \itemize{
  estimated at each event.
  
 \item \code{pairs} pairwise combinations of players in analysed events with 
-prior probability and result of a challange.
+prior probability and result of a challenge.
 
 \item \code{class} of the object.
 
@@ -104,7 +105,7 @@ data <- data.frame(
 # Example from Glickman
 glicko <- glicko_run(
   data = data, 
-  formula = rank_player | id ~ team(player),
+  formula = rank_player | id ~ player(player),
    r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("a", "b", "c", "d")),
    rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("a", "b", "c", "d"))
   )
@@ -112,6 +113,6 @@ glicko <- glicko_run(
 # nested matchup
 glicko <- glicko_run(
   data = data, 
-  formula = rank_team | id ~ team(player | team)
+  formula = rank_team | id ~ player(player | team)
  )
 }

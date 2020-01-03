@@ -1,6 +1,6 @@
 context("print, summary")
-glicko <- glicko_run(rank | id ~ team(rider), data = gpheats[1:32, ])
-dbl <- dbl_run(rank | id ~ team(rider), data = gpheats[1:32, ])
+glicko <- glicko_run(rank | id ~ player(rider), data = gpheats[1:32, ])
+dbl <- dbl_run(rank | id ~ player(rider), data = gpheats[1:32, ])
 
 test_that("summary", {
   expect_identical(

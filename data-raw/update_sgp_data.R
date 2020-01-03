@@ -67,5 +67,5 @@ update_sgp_data <- function() {
   Encoding(gpsquads$place) <- "UTF-8"
   Encoding(gpsquads$rider) <- "UTF-8"
 
-  devtools::use_data(gpsquads, gpheats, overwrite = T)
+  devtools::use_data(gpsquads, gpheats, overwrite = TRUE)
 }

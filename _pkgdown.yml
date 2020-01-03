@@ -4,14 +4,12 @@ toc:
 
 reference:
   - title: "Sequential Pairwise Online Rating Techniques"
-    desc: "Various lgorithms"
+    desc: "Various algorithms"
     contents:
       - glicko_run
       - glicko2_run
       - bbt_run
       - dbl_run
-
-article:
 
 template:
   params:

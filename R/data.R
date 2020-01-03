@@ -1,7 +1,7 @@
 #' Heat results of Speedway Grand-Prix
 #'
 #' Actual dataset containing heats results of all Speedway Grand-Prix turnaments
-#' gpheats.
+#' \code{gpheats}.
 #'
 #' @format A data frame with >19000 rows and 11 variables:
 #' \describe{
@@ -25,7 +25,7 @@ NULL
 #' Turnament results of Speedway Grand-Prix
 #'
 #' Actual dataset containing turnament results of all Speedway Grand-Prix events
-#' gpsquads
+#' \code{gpsquads}
 #'
 #' @format A data frame with >4000 rows and 9 variables:
 #' \describe{
