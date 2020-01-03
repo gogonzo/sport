@@ -59,10 +59,11 @@ To compute ratings using each algorithms one has to specify formula. Form `rank 
 `formula = rank|id ~ name` 
 
 ```{r warning=FALSE, message=FALSE}
-glicko  <- glicko_run(  formula = rank|id ~ rider, data = gpheats )
-glicko2 <- glicko2_run( formula = rank|id ~ rider, data = gpheats )
-bbt     <- bbt_run(     formula = rank|id ~ rider, data = gpheats )
-dbl     <- dbl_run(     formula = rank|id ~ rider, data = gpheats )
+glicko  <- glicko_run(formula = rank|id ~ player(rider), data = gpheats)
+glicko2 <- glicko2_run(formula = rank|id ~ player(rider), data = gpheats)
+bbt     <- bbt_run(formula = rank|id ~ player(rider), data = gpheats)
+dbl     <- dbl_run(formula = rank|id ~ player(rider), data = gpheats)
+
 print(dbl)
 ```
 
@@ -79,12 +80,16 @@ probabilities with observed.
 summary(dbl)
 ```
 
-To visualize top n ratings with their 95% confidence interval one can use dedicated `plot.rating` function. For "bdl" method top coefficients are presented not necessarily ratings. It's also possible to examine ratings evolution in time, by specifying `players` argument.
+To visualize top n ratings with their 95% confidence interval one can use 
+dedicated `plot.rating` function. For DBL method top coefficients are presented 
+not necessarily ratings. It's also possible to examine ratings evolution in time, 
+by specifying `players` argument.
 
 <div class="col2">
 ```{r message=FALSE}
-plot(glicko, n=15)
-plot(glicko, players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
+plot(glicko, n = 15)
+plot(glicko, 
+     players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
 ```
 </div>
 

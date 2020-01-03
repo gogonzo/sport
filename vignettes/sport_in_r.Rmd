@@ -88,7 +88,7 @@ print(glicko)
 Objects returned by `<method>_run` are of class `rating` and have their own 
 `print` and `summary` which provides simple overview. `print.sport` shows  
 condensed informations about model performance like accuracy and consistency of 
-model predictions with observed probabilities. More precise summarization are  
+model predictions with observed probabilities. More precise overview are  
 given by `summary` by showing ratings, ratings deviations and comparing model 
 win probabilities with observed.
 
@@ -229,7 +229,7 @@ All algorithms have a weight argument which increases or decreases update size.
 Higher weight increasing impact of corresponding event. Effect of the weight on 
 update size can be expressed directly by following formula - 
 $\small R_i^{'} \leftarrow R_i \pm \omega_i * \Omega_i$. 
-To specify weight $\omaga_i$  one needs to create additional column in input 
+To specify weight $\omega_i$  one needs to create additional column in input 
 data, and pass the name of the column to `weight` argument. For example weight 
 could depend on importance of competition. In speedway Grand-Prix last three 
 heats determine event winner, thus they weight more.
@@ -268,7 +268,7 @@ all(bbt1$final_rd >= bbt2$final_rd)
 ## Control output uncertainty by `lambda`
 
 In some cases player ratings tend to be more uncertain. If scientist have prior
-knowledge about higher risk of event or undertainty of specific player 
+knowledge about higher risk of event or uncertainty of specific player 
 performance, then one might create another column with relevant values and pass 
 the column name to `lambda` argument.
 

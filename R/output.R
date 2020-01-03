@@ -18,8 +18,8 @@ NULL
 #' \item \code{name} of a player
 #' \item \code{r} players ratings
 #' \item \code{rd} players ratings deviation
-#' \item \code{`Model probability`} mean predicted probability of winning the challange by the player.
-#' \item \code{`True probability`} mean observed probability of winning the challange by the player.
+#' \item \code{`Model probability`} mean predicted probability of winning the challenge by the player.
+#' \item \code{`True probability`} mean observed probability of winning the challenge by the player.
 #' \item \code{`Accuracy`} Accuracy of prediction.
 #' \item \code{`pairings`} number of pairwise occurrences.
 #' }

@@ -117,7 +117,7 @@ For more details read [Mark E. Glickman (1999)](http://www.glicko.net/research/g
 Glicko2 improved predecessor by adding volatile parameter $\sigma_i$ which 
 increase/decrease rating deviation in periods when player performance differs 
 from expected. Sigma is estimated iteratively using Illinois algorithm, which 
-converges quickly not affecting computation time. Ratings in Glicko2 are scalled
+converges quickly not affecting computation time. Ratings in Glicko2 are scaled
 ($\mu = \frac{R}{c}$, $\phi = \frac{RD}{c}$) but final output remains consistent
 with Glicko and values revolves around $R\sim1500$ with max deviation $RD \leq 350$.
 
