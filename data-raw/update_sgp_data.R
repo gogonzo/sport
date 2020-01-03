@@ -7,7 +7,6 @@ update_sgp_data <- function() {
   con <- dbConnect(drv = MySQL(), 
                    username = "root", 
                    dbname = "speedway", 
-                   password = "Elo#21ok",
                    encoding = "UTF-8")
   dbGetQuery(con, "SET NAMES utf8")
   gpsquads <- customQuery({
