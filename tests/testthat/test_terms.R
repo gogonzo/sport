@@ -69,12 +69,12 @@ test_that("valid rhs", {
     is_rhs_valid(1 ~ player() + field, gpheats, only_team_term = TRUE, single = FALSE),
     "This formula requires only one RHS term which is player"
   )
-    
+  
   expect_error(
     is_rhs_valid(1 ~ rider, gpheats, only_team_term = FALSE, single = TRUE),
     "Formula requires specifying player"
   )
-
+  
   expect_silent(
     is_rhs_valid(1 ~ player(rider), gpheats, only_team_term = FALSE, single = TRUE)
   )
@@ -106,7 +106,7 @@ test_that("valid rhs", {
   expect_silent(
     is_rhs_valid(1 ~ player(rider | name) + field, gpheats, only_team_term = FALSE, single = FALSE)
   )
-
+  
 })
 
 test_that("valid team term", {
