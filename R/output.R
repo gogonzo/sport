@@ -26,7 +26,7 @@ NULL
 #' }
 #'
 #' @examples
-#' model <- glicko_run(formula = rank | id ~ team(rider), 
+#' model <- glicko_run(formula = rank | id ~ player(rider), 
 #'                     data = gpheats[1:102, ])
 #' summary(model)
 #' @export
@@ -107,18 +107,21 @@ print.rating <- function(x, ...) {
 #'
 #' @param x of class rating
 #' @param n number of teams to be plotted
-#' @param teams optional vector with names of the contestants (coefficients) to plot 
+#' @param players optional vector with names of the contestants (coefficients) to plot 
 #' their evolution in time.
 #' @param ... optional arguments
 #' @export
-plot.rating <- function(x, n = 10, teams, ...) {
-  if (!missing(teams)) {
-    data <- x$r[x$r$team %in% teams, ]
+plot.rating <- function(x, n = 10, players, ...) {
+  formula <- attr(x, "formula")
+  variable <- extract_team_terms(formula)[1]
+  
+  if (!missing(players)) {
+    data <- x$r[x$r[[variable]] %in% players, ]
     ggplot(data, 
            aes_string(x = "id", 
                       y = "r", 
-                      group = "team", 
-                      color = "team")) +
+                      group = variable, 
+                      color = variable)) +
       geom_line() +
       ggtitle("Ratings evolution") +
       theme_bw()
@@ -130,10 +133,12 @@ plot.rating <- function(x, n = 10, teams, ...) {
       row.names = NULL,
       stringsAsFactors = F
     )
+    names(data)[1] <- variable
     
     data <- data[order(data$r, decreasing = TRUE), ][1:n, ]
-    data$team <- reorder(data$team, nrow(data):1)
-    ggplot(data, aes_string(x = "team", y = "r")) +
+    data[[variable]] <- reorder(data[[variable]], nrow(data):1)
+    ggplot(data, aes_string(x = variable, 
+                            y = "r")) +
       ggtitle("Actual ratings") +
       geom_linerange(aes(ymin = r - rd * 1.98, 
                          ymax = r + rd * 1.98), 
@@ -141,7 +146,7 @@ plot.rating <- function(x, n = 10, teams, ...) {
                      alpha = 0.4) +
       geom_point(colour = "grey20", size = 1) +
       coord_flip() +
-      scale_x_discrete("team") +
+      scale_x_discrete(variable) +
       scale_y_continuous("r") +
       theme_bw()
   }

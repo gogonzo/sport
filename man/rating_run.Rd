@@ -30,15 +30,15 @@ optional columns defined by `lambda`, `weight`.}
 \item{formula}{formula which specifies the model. RHS Allows only player 
 rating parameter and it should be specified in following manner:
 
-`rank | id ~ team(name)`.
+`rank | id ~ player(name)`.
 \itemize{
   \item {rank} player position in event.
   \item {id} event identifier in which pairwise comparison is assessed.
-  \item {team(name)} name of the contestant. In this case \code{team(name)} 
+  \item {player(name)} name of the contestant. In this case \code{player(name)} 
     helps algorithm point name of the column where player names are stored.
 }
 Users can also specify formula in in different way:
- `rank | id ~ team(name|team)`. Which means that players are playing in teams, 
+ `rank | id ~ player(name|team)`. Which means that players are playing in teams, 
  and results are observed for teams not for players. For more see vignette.}
 
 \item{r}{named vector of initial players ratings estimates. If not specified 
@@ -53,6 +53,15 @@ with initial value `init_rd`.}
 estimates. If not specified then `sigma` will be created automatically for 
 parameters specified in `formula` with initial value `init_sigma`.}
 
+\item{init_r}{initial values for `r` if not provided. 
+Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
+
+\item{init_rd}{initial values for `rd` if not provided. 
+Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
+
+\item{init_sigma}{initial values for \code{sigma} if not provided. 
+Default = 0.5}
+
 \item{lambda}{name of the column in `data` containing lambda values or one 
 constant value (eg. `lambda = colname` or `lambda = 0.5`).
 Lambda impact prior variance, and uncertainty of the matchup result. The 
@@ -62,7 +71,7 @@ matchup. Higher lambda flattens chances of winning.}
 \item{share}{name of the column in `data` containing player share in team 
 efforts. It's used to first calculate combined rating of the team and
 then redistribute ratings update back to players level. Warning - it should
-be used only if formula is specified with players nested within teams (`team(player|team)`).}
+be used only if formula is specified with players nested within teams (`player(player|team)`).}
 
 \item{weight}{name of the column in `data` containing weights values or
 one constant (eg. `weight = colname` or `weight = 0.5`). 
@@ -80,15 +89,6 @@ from changing by largeamounts, which in turn prevent enormous changes in
 ratings based on very improbable results. If the application of Glicko-2 is 
 expected to involve extremely improbable collections of game outcomes, then 
 `tau` should be set to a small value, even as small as, say, `tau= 0`.}
-
-\item{\code{init_r}}{initial values for `r` if not provided. 
-Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
-
-\item{\code{init_rd}}{initial values for `rd` if not provided. 
-Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
-
-\item{\code{init_sigma}}{initial values for \code{sigma} if not provided. 
-Default = 0.5}
 }
 \description{
 Apply rating algorithm

@@ -19,8 +19,8 @@ dbl_run(
 \arguments{
 \item{formula}{formula which specifies the model. Unlike other algorithms
 in the packages (glicko_run, glicko2_run, bbt_run), this method doesn't allow
-players nested in teams with `team(player | team)` and user should matchup
-in formula using `team(player)`. DBL allows user specify multiple parameters 
+players nested in teams with `player(player | team)` and user should matchup
+in formula using `player(player)`. DBL allows user specify multiple parameters 
 also in interaction with others.}
 
 \item{data}{data.frame which contains columns specified in formula, and
@@ -47,6 +47,12 @@ Higher weight increasing impact of event result on rating estimate.}
 
 \item{kappa}{controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
 `kappa=1` means that `rd` will not be decreased.}
+
+\item{init_r}{initial values for `r` if not provided. 
+Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)}
+
+\item{init_rd}{initial values for `rd` if not provided. 
+Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)}
 }
 \value{
 A "rating" object is returned: \itemize{
@@ -85,10 +91,10 @@ data <- data.frame(
 
 dbl <- dbl_run(
   data = data, 
-  formula = rank | id ~ team(name)
+  formula = rank | id ~ player(name)
  )
 
 dbl <- dbl_run(
   data = data, 
-  formula = rank | id ~ team(name) + gate * factor1)
+  formula = rank | id ~ player(name) + gate * factor1)
 }

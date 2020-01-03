@@ -9,15 +9,15 @@ NULL
 #' @param formula formula which specifies the model. RHS Allows only player 
 #' rating parameter and it should be specified in following manner:
 #' 
-#' `rank | id ~ team(name)`.
+#' `rank | id ~ player(name)`.
 #' \itemize{
 #'   \item {rank} player position in event.
 #'   \item {id} event identifier in which pairwise comparison is assessed.
-#'   \item {team(name)} name of the contestant. In this case \code{team(name)} 
+#'   \item {player(name)} name of the contestant. In this case \code{player(name)} 
 #'     helps algorithm point name of the column where player names are stored.
 #' }
 #' Users can also specify formula in in different way:
-#'  `rank | id ~ team(name|team)`. Which means that players are playing in teams, 
+#'  `rank | id ~ player(name|team)`. Which means that players are playing in teams, 
 #'  and results are observed for teams not for players. For more see vignette.
 #'
 #' @param method one of `c("glicko", "glicko2", "bbt", "dbl")` 
@@ -46,7 +46,7 @@ NULL
 #' @param share name of the column in `data` containing player share in team 
 #' efforts. It's used to first calculate combined rating of the team and
 #' then redistribute ratings update back to players level. Warning - it should
-#' be used only if formula is specified with players nested within teams (`team(player|team)`).
+#' be used only if formula is specified with players nested within teams (`player(player|team)`).
 #' 
 #' 
 #' @param weight name of the column in `data` containing weights values or
@@ -65,13 +65,13 @@ NULL
 #'  expected to involve extremely improbable collections of game outcomes, then 
 #'  `tau` should be set to a small value, even as small as, say, `tau= 0`.
 #'  
-#' @param \code{init_r} initial values for `r` if not provided. 
+#' @param init_r initial values for `r` if not provided. 
 #' Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)
 #' 
-#' @param \code{init_rd} initial values for `rd` if not provided. 
+#' @param init_rd initial values for `rd` if not provided. 
 #' Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)
 #' 
-#' @param \code{init_sigma} initial values for \code{sigma} if not provided. 
+#' @param init_sigma initial values for \code{sigma} if not provided. 
 #' Default = 0.5
 rating_run <- function(
   method,
@@ -267,7 +267,7 @@ rating_run <- function(
 #' # Example from Glickman
 #' glicko <- glicko_run(
 #'   data = data, 
-#'   formula = rank_player | id ~ team(player),
+#'   formula = rank_player | id ~ player(player),
 #'    r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("a", "b", "c", "d")),
 #'    rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("a", "b", "c", "d"))
 #'   )
@@ -275,7 +275,7 @@ rating_run <- function(
 #' # nested matchup
 #' glicko <- glicko_run(
 #'   data = data, 
-#'   formula = rank_team | id ~ team(player | team)
+#'   formula = rank_team | id ~ player(player | team)
 #'  )
 #' @export
 glicko_run <- function(data, formula,
@@ -365,7 +365,7 @@ glicko_run <- function(data, formula,
 #' # Example from Glickman
 #' glicko2 <- glicko2_run(
 #'   data = data, 
-#'   formula = rank_player | id ~ team(player),
+#'   formula = rank_player | id ~ player(player),
 #'    r = setNames(c(1500.0, 1400.0, 1550.0, 1700.0), c("a", "b", "c", "d")),
 #'    rd = setNames(c(200.0, 30.0, 100.0, 300.0), c("a", "b", "c", "d"))
 #'   )
@@ -373,7 +373,7 @@ glicko_run <- function(data, formula,
 #' # nested matchup
 #' glicko2 <- glicko2_run(
 #'   data = data, 
-#'   formula = rank_team | id ~ team(player | team)
+#'   formula = rank_team | id ~ player(player | team)
 #'  )
 #' @export
 glicko2_run <- function(formula,
@@ -469,7 +469,7 @@ glicko2_run <- function(formula,
 #' 
 #' bbt <- bbt_run(
 #'   data = data, 
-#'   formula = rank_player | id ~ team(player),
+#'   formula = rank_player | id ~ player(player),
 #'    r = setNames(c(25, 23.3, 25.83, 28.33), c("a", "b", "c", "d")),
 #'    rd = setNames(c(4.76, 0.71, 2.38, 7.14), c("a", "b", "c", "d"))
 #'   )
@@ -477,7 +477,7 @@ glicko2_run <- function(formula,
 #' # nested matchup
 #' bbt <- bbt_run(
 #'   data = data, 
-#'   formula = rank_team | id ~ team(player | team)
+#'   formula = rank_team | id ~ player(player | team)
 #'  )
 #' 
 #' @export
@@ -535,8 +535,8 @@ bbt_run <- function(formula,
 #' @inheritParams rating_run
 #' @param formula formula which specifies the model. Unlike other algorithms
 #' in the packages (glicko_run, glicko2_run, bbt_run), this method doesn't allow
-#' players nested in teams with `team(player | team)` and user should matchup
-#' in formula using `team(player)`. DBL allows user specify multiple parameters 
+#' players nested in teams with `player(player | team)` and user should matchup
+#' in formula using `player(player)`. DBL allows user specify multiple parameters 
 #' also in interaction with others.
 #' 
 #' @return
@@ -574,12 +574,12 @@ bbt_run <- function(formula,
 #' 
 #' dbl <- dbl_run(
 #'   data = data, 
-#'   formula = rank | id ~ team(name)
+#'   formula = rank | id ~ player(name)
 #'  )
 #' 
 #' dbl <- dbl_run(
 #'   data = data, 
-#'   formula = rank | id ~ team(name) + gate * factor1)
+#'   formula = rank | id ~ player(name) + gate * factor1)
 #' @export
 dbl_run <- function(formula,
                     data,
