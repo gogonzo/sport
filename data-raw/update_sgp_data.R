@@ -4,7 +4,11 @@ update_sgp_data <- function() {
   library(dplyr)
   library(RMySQL)
   library(runner)
-  con <- dbConnect(drv = MySQL(), username = "root", dbname = "speedway")
+  con <- dbConnect(drv = MySQL(), 
+                   username = "root", 
+                   dbname = "speedway", 
+                   encoding = "UTF-8")
+  dbGetQuery(con, "SET NAMES utf8")
   gpsquads <- customQuery({
     "
     SELECT 
@@ -60,12 +64,6 @@ update_sgp_data <- function() {
       rank = ifelse(is.na(rank), max(rank, na.rm = T) + 1, rank)
     )
 
-
-  Encoding(gpheats$name) <- "UTF-8"
-  Encoding(gpheats$rider) <- "UTF-8"
-  Encoding(gpsquads$name) <- "UTF-8"
-  Encoding(gpsquads$place) <- "UTF-8"
-  Encoding(gpsquads$rider) <- "UTF-8"
-
-  devtools::use_data(gpsquads, gpheats, overwrite = TRUE)
+  usethis::use_data(gpsquads, 
+                   gpheats, overwrite = TRUE)
 }
