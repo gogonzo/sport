@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sport</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2</span>
       </span>
     </div>
 
@@ -152,46 +152,47 @@
       <th>formula</th>
       <td><p>formula which specifies the model. RHS Allows only player 
 rating parameter and it should be specified in following manner:</p>
-<p>`rank | id ~ team(name)`.</p><ul>
+<p><code>rank | id ~ player(name)</code>.</p><ul>
 <li><p>rank player position in event.</p></li>
 <li><p>id event identifier in which pairwise comparison is assessed.</p></li>
-<li><p>team(name) name of the contestant. In this case <code>team(name)</code> 
+<li><p>player(name) name of the contestant. In this case <code>player(name)</code> 
     helps algorithm point name of the column where player names are stored.</p></li>
 </ul><p>Users can also specify formula in in different way:
- `rank | id ~ team(name|team)`. Which means that players are playing in teams, 
+ <code>rank | id ~ player(name|team)</code>. Which means that players are playing in teams, 
  and results are observed for teams not for players. For more see vignette.</p></td>
     </tr>
     <tr>
       <th>data</th>
       <td><p>data.frame which contains columns specified in formula, and
-optionaly columns defined by `lambda`, `weight`.</p></td>
+optional columns defined by <code>lambda</code>, <code>weight</code>.</p></td>
     </tr>
     <tr>
       <th>r</th>
       <td><p>named vector of initial players ratings estimates. If not specified 
-then `r` will be created automatically for parameters specified in `formula`
-with initial value `init_r`.</p></td>
+then <code>r</code> will be created automatically for parameters specified in <code>formula</code>
+with initial value <code>init_r</code>.</p></td>
     </tr>
     <tr>
       <th>rd</th>
       <td><p>rd named vector of initial rating deviation estimates. If not specified 
-then `rd` will be created automatically for parameters specified in `formula`
-with initial value `init_rd`.</p></td>
+then <code>rd</code> will be created automatically for parameters specified in <code>formula</code>
+with initial value <code>init_rd</code>.</p></td>
     </tr>
     <tr>
       <th>init_r</th>
-      <td><p>initial values for `r` if not provided. 
-Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`, `dbl = 0`)</p></td>
+      <td><p>initial values for <code>r</code> if not provided. 
+Default (<code>glicko = 1500</code>, <code>glicko2 = 1500</code>, <code>bbt = 25</code>, 
+<code>dbl = 0</code>)</p></td>
     </tr>
     <tr>
       <th>init_rd</th>
-      <td><p>initial values for `rd` if not provided. 
-Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)</p></td>
+      <td><p>initial values for <code>rd</code> if not provided. 
+Default (<code>glicko = 350</code>, <code>glicko2 = 350</code>, <code>bbt = 25/3</code>, <code>dbl = 1</code>)</p></td>
     </tr>
     <tr>
       <th>lambda</th>
       <td><p>name of the column in `data` containing lambda values or one 
-constant value (eg. `lambda = colname` or `lambda = 0.5`).
+constant value (eg. <code>lambda = colname</code> or <code>lambda = 0.5</code>).
 Lambda impact prior variance, and uncertainty of the matchup result. The 
 higher lambda, the higher prior variance and more uncertain result of the 
 matchup. Higher lambda flattens chances of winning.</p></td>
@@ -201,19 +202,19 @@ matchup. Higher lambda flattens chances of winning.</p></td>
       <td><p>name of the column in `data` containing player share in team 
 efforts. It's used to first calculate combined rating of the team and
 then redistribute ratings update back to players level. Warning - it should
-be used only if formula is specified with players nested within teams (`team(player|team)`).</p></td>
+be used only if formula is specified with players nested within teams (`player(player|team)`).</p></td>
     </tr>
     <tr>
       <th>weight</th>
       <td><p>name of the column in `data` containing weights values or
-one constant (eg. `weight = colname` or `weight = 0.5`). 
+one constant (eg. <code>weight = colname</code> or <code>weight = 0.5</code>). 
 Weights increasing (weight &gt; 1) or decreasing (weight &lt; 1) update change. 
 Higher weight increasing impact of event result on rating estimate.</p></td>
     </tr>
     <tr>
       <th>kappa</th>
-      <td><p>controls `rd` shrinkage not to be greater than `rd*(1 - kappa)`.
-`kappa=1` means that `rd` will not be decreased.</p></td>
+      <td><p>controls <code>rd</code> shrinkage not to be greater than <code>rd*(1 - kappa)</code>.
+`kappa=1` means that  <code>rd</code> will not be decreased.</p></td>
     </tr>
     </table>
 
@@ -225,7 +226,7 @@ Higher weight increasing impact of event result on rating estimate.</p></td>
 <li><p><code>r</code> data.frame with evolution of the ratings and ratings deviations
  estimated at each event.</p></li>
 <li><p><code>pairs</code> pairwise combinations of players in analysed events with 
-prior probability and result of a challange.</p></li>
+prior probability and result of a challenge.</p></li>
 <li><p><code>class</code> of the object.</p></li>
 <li><p><code>method</code> type of algorithm used.</p></li>
 <li><p><code>settings</code> arguments specified in function call.</p></li>
@@ -244,7 +245,7 @@ prior probability and result of a challange.</p></li>
 
 <span class='no'>bbt</span> <span class='kw'>&lt;-</span> <span class='fu'>bbt_run</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>data</span>,
-  <span class='kw'>formula</span> <span class='kw'>=</span> <span class='no'>rank_player</span> <span class='kw'>|</span> <span class='no'>id</span> ~ <span class='fu'>team</span>(<span class='no'>player</span>),
+  <span class='kw'>formula</span> <span class='kw'>=</span> <span class='no'>rank_player</span> <span class='kw'>|</span> <span class='no'>id</span> ~ <span class='fu'>player</span>(<span class='no'>player</span>),
    <span class='kw'>r</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/setNames.html'>setNames</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>25</span>, <span class='fl'>23.3</span>, <span class='fl'>25.83</span>, <span class='fl'>28.33</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>, <span class='st'>"d"</span>)),
    <span class='kw'>rd</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/setNames.html'>setNames</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>4.76</span>, <span class='fl'>0.71</span>, <span class='fl'>2.38</span>, <span class='fl'>7.14</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>, <span class='st'>"d"</span>))
   )
@@ -252,7 +253,7 @@ prior probability and result of a challange.</p></li>
 <span class='co'># nested matchup</span>
 <span class='no'>bbt</span> <span class='kw'>&lt;-</span> <span class='fu'>bbt_run</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>data</span>,
-  <span class='kw'>formula</span> <span class='kw'>=</span> <span class='no'>rank_team</span> <span class='kw'>|</span> <span class='no'>id</span> ~ <span class='fu'>team</span>(<span class='no'>player</span> <span class='kw'>|</span> <span class='no'>team</span>)
+  <span class='kw'>formula</span> <span class='kw'>=</span> <span class='no'>rank_team</span> <span class='kw'>|</span> <span class='no'>id</span> ~ <span class='fu'>player</span>(<span class='no'>player</span> <span class='kw'>|</span> <span class='no'>team</span>)
  )</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

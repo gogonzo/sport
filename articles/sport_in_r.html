@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sport</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2</span>
       </span>
     </div>
 
@@ -88,7 +88,7 @@
       <h1>sport an R package for online update algorithms</h1>
                         <h4 class="author">Dawid Kałędkowski</h4>
             
-            <h4 class="date">2020-01-01</h4>
+            <h4 class="date">2020-01-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/gogonzo/sport/blob/master/vignettes/sport_in_r.Rmd"><code>vignettes/sport_in_r.Rmd</code></a></small>
       <div class="hidden name"><code>sport_in_r.Rmd</code></div>
@@ -100,7 +100,8 @@
 <div id="about" class="section level1">
 <h1 class="hasAnchor">
 <a href="#about" class="anchor"></a>About</h1>
-<p>Name <code>sport</code> is an abbreviation for Sequential Pairwise Online Rating Techniques. Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challenge. Algorithms are based on Bayesian Approximation Method, and they don’t involve any matrix inversions nor likelihood estimation. <code>sport</code> incorporates methods such glicko, glicko2, bayesian Bradley-Terry, dynamic logistic regression. Parameters are updated sequentially, and computation doesn’t require any additional RAM to make estimation feasible. Additionally, base of the package is written in <code>C++</code> what makes <code>sport</code> computation even faster.</p>
+<p>Name <code>sport</code> is an abbreviation for Sequential Pairwise Online Rating Techniques. Package contains functions calculating ratings for two-player or multi-player matchups. Methods included in package are able to estimate ratings (players strengths) and their evolution in time, also able to predict output of challenge. Algorithms are based on Bayesian Approximation Method, and they don’t involve any matrix inversions nor likelihood estimation. <code>sport</code> incorporates glicko algorithm, glicko2, bayesian Bradley-Terry and dynamic logistic regression. Parameters are updated sequentially, and computation doesn’t require any additional RAM to make estimation feasible. Additionally, package is written in <code>c++</code> what makes computations even faster.</p>
+<p>Before start, it’s recommended to read theoretical foundations of algorithms in other <code>sport</code> vignette “The theory of the online update algorithms”.</p>
 <p>Package can be installed from CRAN or from github.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"sport"</span>)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">devtools<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"gogonzo/sport"</span>)</a></code></pre></div>
@@ -113,10 +114,8 @@
 <a href="#available-data" class="anchor"></a>Available Data</h2>
 <p>Package contains actual data from Speedway Grand-Prix. There are two data.frames:</p>
 <ol style="list-style-type: decimal">
-<li>
-<code>gpheats</code> - results SGP heats. Column <code>rank</code> is a numeric version of column <code>position</code> - rider position in race.</li>
-<li>
-<code>gpsquads</code> - summarized results of the events, with sum of point and final position.</li>
+<li><p><code>gpheats</code> - results SGP heats. Column <code>rank</code> is a numeric version of column <code>position</code> - rider position in race.</p></li>
+<li><p><code>gpsquads</code> - summarized results of the events, with sum of point and final position.</p></li>
 </ol>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(sport)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2">data &lt;-<span class="st"> </span>gpheats[<span class="dv">1</span><span class="op">:</span><span class="dv">1002</span>, ]</a>
@@ -133,7 +132,8 @@
 ##  $ points  : int  2 0 3 1 3 0 1 2 0 2 ...
 ##  $ position: chr  "2" "4" "1" "3" ...
 ##  $ rank    : num  2 4 1 3 1 4 3 2 4 2 ...</code></pre>
-<p>Data used in <code>sport</code> package must be in so called long format. Typically data.frame contains at least <code>id</code>, <code>name</code> and <code>rank</code>, with one row for one player within specific match. Package allows for any number of players within event and allows ties also. For all games, <em>output needs to be a rank/position in event</em>. Don’t mix up rank output with typical 1-win, 0-lost. In <code>sport</code> package output for two player game is 1-winner 2-looser. Below example of two matches with 4 players each.</p>
+<p>Data used in <code>sport</code> package must be in so called long format. Typically <code>data.frame</code> contains at least <code>id</code>, <code>name</code> of the player and <code>rank</code>, with one row for one player within specific match. Package allows for any number of players within event and allows ties also.</p>
+<p>In all methods, output variable needs to be expressed as a rank/position in event. Don’t mix up rank output with typical 1-win, 0-lost. In <code>sport</code> package output for two player game should be coded as 1=winner 2=looser. Below example of two matches with 4 players each.</p>
 <pre><code>##   id             rider rank
 ## 1  1     Tomasz Gollob    2
 ## 2  1     Gary Havelock    4
@@ -147,39 +147,42 @@
 <div id="estimate-dynamic-ratings" class="section level2">
 <h2 class="hasAnchor">
 <a href="#estimate-dynamic-ratings" class="anchor"></a>Estimate dynamic ratings</h2>
-<p>To compute ratings using each algorithms one has to specify formula. Form <code>rank | id ~ name</code> is required, which estimates <code>name</code> - rating of a player, by observing outputs - <code>rank</code>, nested within particular event - <code>id</code>. Variable names in formula are unrestricted, but model structure remains the same. All methods are named <code>method_run</code>. <code>formula = rank | id ~ team(name)</code></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">glicko &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko_run.html">glicko_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(rider), <span class="dt">data =</span> data)</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">glicko2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko2_run.html">glicko2_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(rider), <span class="dt">data =</span> data)</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3">bbt &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bbt_run.html">bbt_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(rider), <span class="dt">data =</span> data)</a>
-<a class="sourceLine" id="cb5-4" data-line-number="4">dbl &lt;-<span class="st"> </span><span class="kw"><a href="../reference/dbl_run.html">dbl_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(rider), <span class="dt">data =</span> data)</a>
-<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(dbl)</a></code></pre></div>
+<p>To compute ratings using each algorithms one has to specify formula. - RHS of the formula have to be specified with <code>player(player)</code> term or <code>player(player | team)</code> when players competes in team match. <code>player(...)</code> is a term function which helps identify column with <code>player</code> names and/or <code>team</code> names. - LHS of the formula should contain <code>rank</code> term which points to column where results (ranks) are stored and <code>id</code> (optional). RHS should rather be specified by <code>rank | id</code> to split matches - if <code>id</code> is missing all data will be computed under same event id.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">glicko &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko_run.html">glicko_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(rider), <span class="dt">data =</span> data)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">glicko2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko2_run.html">glicko2_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(rider), <span class="dt">data =</span> data)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">bbt &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bbt_run.html">bbt_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(rider), <span class="dt">data =</span> data)</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">dbl &lt;-<span class="st"> </span><span class="kw"><a href="../reference/dbl_run.html">dbl_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(rider), <span class="dt">data =</span> data)</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(glicko)</a></code></pre></div>
 <pre><code>## 
-## Call: rank | id ~ team(rider)
+## Call: rank | id ~ player(rider)
 ## 
 ## Number of unique pairs: 1500
 ## 
-## Accuracy of the model: 0.64
+## Accuracy of the model: 0.63
 ## 
 ## True probabilities and Accuracy in predicted intervals:
 ##      Interval Model probability True probability Accuracy   n
-##  1:   [0,0.1]             0.067            0.195    0.805 123
-##  2: (0.1,0.2]             0.150            0.282    0.718 259
-##  3: (0.2,0.3]             0.251            0.347    0.653 323
-##  4: (0.3,0.4]             0.352            0.416    0.583 403
-##  5: (0.4,0.5]             0.458            0.436    0.560 423
-##  6: (0.5,0.6]             0.549            0.575    0.571 361
-##  7: (0.6,0.7]             0.648            0.584    0.583 403
-##  8: (0.7,0.8]             0.749            0.653    0.653 323
-##  9: (0.8,0.9]             0.850            0.718    0.718 259
-## 10:   (0.9,1]             0.933            0.805    0.805 123</code></pre>
+##  1:   [0,0.1]             0.066            0.196    0.804  92
+##  2: (0.1,0.2]             0.152            0.305    0.695 243
+##  3: (0.2,0.3]             0.251            0.294    0.706 299
+##  4: (0.3,0.4]             0.350            0.424    0.575 416
+##  5: (0.4,0.5]             0.454            0.448    0.549 481
+##  6: (0.5,0.6]             0.553            0.560    0.556 419
+##  7: (0.6,0.7]             0.650            0.576    0.575 416
+##  8: (0.7,0.8]             0.749            0.706    0.706 299
+##  9: (0.8,0.9]             0.848            0.695    0.695 243
+## 10:   (0.9,1]             0.934            0.804    0.804  92</code></pre>
 </div>
 <div id="output" class="section level2">
 <h2 class="hasAnchor">
 <a href="#output" class="anchor"></a>Output</h2>
-<p>Objects returned by <code>method_run</code> are of class <code>rating</code> and have their own <code>print</code> <code>summary</code> which provides most important informations. -<code>print.sport</code> shows condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More profound summarization are given by <code>summary</code> by showing ratings, ratings deviations and comparing model win probabilities with observed.</p>
+<p>Objects returned by <code>&lt;method&gt;_run</code> are of class <code>rating</code> and have their own <code>print</code> and <code>summary</code> which provides simple overview. <code>print.sport</code> shows<br>
+condensed informations about model performance like accuracy and consistency of model predictions with observed probabilities. More precise overview are<br>
+given by <code>summary</code> by showing ratings, ratings deviations and comparing model win probabilities with observed.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(dbl)</a></code></pre></div>
 <pre><code>## $formula
-## rank | id ~ team(rider)
+## rank | id ~ player(rider)
 ## 
 ## $method
 ## [1] "dbl"
@@ -219,21 +222,18 @@
 ## 25:        rider=Joe Screen -0.155 0.264
 ## 26:   rider=Stefano Alfonso -1.733 0.735
 ##                       rider      r    rd</code></pre>
-<p>To visualize top n ratings with their 95% confidence interval one can use dedicated <code>plot.rating</code> function. For “bdl” method top coefficients are presented not necessarily ratings. It’s also possible to examine ratings evolution in time, by specifying <code>players</code> argument.</p>
+<p>To visualize top n ratings with their 95% confidence interval one can use dedicated <code>plot.rating</code> function. For <code>dbl</code> method top coefficients are presented which doesn’t have to be player specific (ratings). It’s also possible to examine ratings evolution in time, by specifying <code>players</code> argument.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(glicko, <span class="dt">n =</span> <span class="dv">15</span>)</a></code></pre></div>
 <p><img src="sport_in_r_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(glicko, <span class="dt">players =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Greg Hancock"</span>,<span class="st">"Nicki Pedersen"</span>,<span class="st">"Jason Crump"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(glicko, <span class="dt">players =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Greg Hancock"</span>,<span class="st">"Tomasz Gollob"</span>,<span class="st">"Tony Rickardsson"</span>))</a></code></pre></div>
 <p><img src="sport_in_r_files/figure-html/unnamed-chunk-6-2.png" width="700"></p>
-<p>Except dedicated <code>print</code>,<code>summary</code> and <code>plot</code> there is possibility to extract more detailed information to be analyzed. <code>rating</code> object contains following elements:</p>
+<p>Except dedicated <code>print</code>,<code>summary</code> and <code>plot</code> there is possibility to extract more detailed information for analyses. <code>rating</code> object contains following elements:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(glicko)</a></code></pre></div>
 <pre><code>## [1] "final_r"  "final_rd" "r"        "pairs"</code></pre>
 <ul>
-<li>
-<code>rating$final_r</code> and <code>rating$final_rd</code> contains ratings and ratings deviations estimations.</li>
-<li>
-<code>r</code> contains data.frame with sequential ratings estimations from first event to the last. Number of rows in <code>r</code> equals number of rows in input data.</li>
-<li>
-<code>pairs</code> pairwise combinations of players in analyzed events with prior probability and result of a challenge.</li>
+<li><p><code>rating$final_r</code> and <code>rating$final_rd</code> contains the last estimate of the ratings and ratings deviations. For <code>glicko2</code> there is also <code>rating$final_sigma</code>.</p></li>
+<li><p><code>r</code> contains <code>data.table</code> with prior ratings estimations from first event to the last. Number of rows in <code>r</code> equals number of rows in input data.</p></li>
+<li><p><code>pairs</code> pairwise combinations of players in analyzed events with prior probability and result of a challenge.</p></li>
 </ul>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(glicko<span class="op">$</span>r)</a></code></pre></div>
 <pre><code>##     id          rider        r       rd
@@ -256,21 +256,71 @@
 <div id="advanced-sport" class="section level1">
 <h1 class="hasAnchor">
 <a href="#advanced-sport" class="anchor"></a>Advanced sport</h1>
-<p>Examples presented in package overview might be sufficient in most cases, but sometimes it is necessary to adjust algorithms to fit data better. One characteristic of the online update algorithms is that variance other parameters quickly drops to zero. Especially, when the number of events for the player is big ($n_i&gt;100 $), after hundreds iterations rating parameters are very difficult to change, and output probabilities are so extreme. To avoid these mistakes some additional controls should be applied, which is explained in this section with easy to learn examples.</p>
+<p>Examples presented in package overview might be sufficient in most cases, but sometimes it is necessary to adjust algorithms to fit data better. One characteristic of the online update algorithms is that variance of the parameters drops quickly to zero. Especially, when the number of events for the player is big ($n_i&gt;100 $), after hundreds iterations rating parameters are very difficult to change, and output probabilities use to be extreme. To avoid these mistakes some additional controls should be applied, which is explained in this section with easy to learn examples.</p>
+<div id="formula" class="section level2">
+<h2 class="hasAnchor">
+<a href="#formula" class="anchor"></a>Formula</h2>
+<p>In all methods formula must contain <code>rank | id ~ player(player)</code> elements, to correctly specify the model.</p>
+<ul>
+<li><p><code>rank</code> denotes column with output (order).</p></li>
+<li><p><code>id</code> denotes event id, within which update is computed.</p></li>
+<li>
+<p><code>player(...)</code> function helps to identify column in which names of the players are stored. <code>player(...)</code> can be specified in two ways:</p>
+<ol style="list-style-type: decimal">
+<li>
+<p><code>player(player)</code> if results of the event are observed per player.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">glicko2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko2_run.html">glicko2_run</a></span>(</a>
+<a class="sourceLine" id="cb17-2" data-line-number="2">  <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(</a>
+<a class="sourceLine" id="cb17-3" data-line-number="3">    <span class="dt">id =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">    <span class="dt">player =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"d"</span>),</a>
+<a class="sourceLine" id="cb17-5" data-line-number="5">    <span class="dt">rank_player =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb17-6" data-line-number="6">  ), </a>
+<a class="sourceLine" id="cb17-7" data-line-number="7">  <span class="dt">formula =</span> rank_player <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(player)</a>
+<a class="sourceLine" id="cb17-8" data-line-number="8">)</a></code></pre></div>
+</li>
+<li>
+<p><code>player(player | team)</code> when players competes within teams, and results are observed per team. This option is not available in <code>dbl_run</code> which requires only formula for player matchups.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">glicko2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko2_run.html">glicko2_run</a></span>(</a>
+<a class="sourceLine" id="cb18-2" data-line-number="2">  <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(</a>
+<a class="sourceLine" id="cb18-3" data-line-number="3">    <span class="dt">id =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb18-4" data-line-number="4">    <span class="dt">team =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>),</a>
+<a class="sourceLine" id="cb18-5" data-line-number="5">    <span class="dt">player =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"d"</span>),</a>
+<a class="sourceLine" id="cb18-6" data-line-number="6">    <span class="dt">rank_team =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb18-7" data-line-number="7">  ), </a>
+<a class="sourceLine" id="cb18-8" data-line-number="8">  <span class="dt">formula =</span> rank_team <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(player <span class="op">|</span><span class="st"> </span>team)</a>
+<a class="sourceLine" id="cb18-9" data-line-number="9"> )</a></code></pre></div>
+</li>
+</ol>
+</li>
+<li>
+<p>other variables - available only in <code>dbl_run</code>, which allows to specify other factors in model.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">dbl &lt;-<span class="st"> </span><span class="kw"><a href="../reference/dbl_run.html">dbl_run</a></span>(</a>
+<a class="sourceLine" id="cb19-2" data-line-number="2">  <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(</a>
+<a class="sourceLine" id="cb19-3" data-line-number="3">    <span class="dt">id =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb19-4" data-line-number="4">    <span class="dt">name =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>),</a>
+<a class="sourceLine" id="cb19-5" data-line-number="5">    <span class="dt">rank =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb19-6" data-line-number="6">    <span class="dt">gate =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>),</a>
+<a class="sourceLine" id="cb19-7" data-line-number="7">    <span class="dt">factor1 =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"b"</span>),</a>
+<a class="sourceLine" id="cb19-8" data-line-number="8">    <span class="dt">factor2 =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>)</a>
+<a class="sourceLine" id="cb19-9" data-line-number="9">  ), </a>
+<a class="sourceLine" id="cb19-10" data-line-number="10">  <span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(name) <span class="op">+</span><span class="st"> </span>gate <span class="op">*</span><span class="st"> </span>factor1)</a></code></pre></div>
+</li>
+</ul>
+</div>
 <div id="prior-beliefs-about-r-and-rd" class="section level2">
 <h2 class="hasAnchor">
 <a href="#prior-beliefs-about-r-and-rd" class="anchor"></a>Prior beliefs about <code>r</code> and <code>rd</code>
 </h2>
 <p>Main functionality which is common between all algorithms is to specify prior <code>r</code> and <code>rd</code>. Both parameters can be set by creating named vectors. Let’s suppose we have 4 players <code><a href="https://rdrr.io/r/base/c.html">c("A","B","C","D")</a></code> competing in an event, and we have players prior <code>r</code> and <code>rd</code> estimates. It’s important to have <code>r</code> and <code>rd</code> names corresponding with levels of <code>name</code> variable. One can run algorithm, to obtain new estimates.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko_run.html">glicko_run</a></span>(<span class="dt">data =</span> gpheats[<span class="dv">1</span><span class="op">:</span><span class="dv">16</span>, ], </a>
-<a class="sourceLine" id="cb17-2" data-line-number="2">                    rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(rider))</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko_run.html">glicko_run</a></span>(<span class="dt">data =</span> gpheats[<span class="dv">1</span><span class="op">:</span><span class="dv">16</span>, ], </a>
+<a class="sourceLine" id="cb20-2" data-line-number="2">                    rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(rider))</a></code></pre></div>
 <p>We can also run models re-using previously estimated parameters from <code>model$final_r</code> and <code>model$final_rd</code> in the future when new data appear.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw"><a href="../reference/glicko_run.html">glicko_run</a></span>(</a>
-<a class="sourceLine" id="cb18-2" data-line-number="2">  <span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(rider), </a>
-<a class="sourceLine" id="cb18-3" data-line-number="3">  <span class="dt">data =</span> gpheats[<span class="dv">17</span><span class="op">:</span><span class="dv">20</span>, ], </a>
-<a class="sourceLine" id="cb18-4" data-line-number="4">  <span class="dt">r    =</span> model<span class="op">$</span>final_r, </a>
-<a class="sourceLine" id="cb18-5" data-line-number="5">  <span class="dt">rd   =</span> model<span class="op">$</span>final_rd</a>
-<a class="sourceLine" id="cb18-6" data-line-number="6">  )<span class="op">$</span>final_r</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="kw"><a href="../reference/glicko_run.html">glicko_run</a></span>(</a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">  <span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(rider), </a>
+<a class="sourceLine" id="cb21-3" data-line-number="3">  <span class="dt">data =</span> gpheats[<span class="dv">17</span><span class="op">:</span><span class="dv">20</span>, ], </a>
+<a class="sourceLine" id="cb21-4" data-line-number="4">  <span class="dt">r    =</span> model<span class="op">$</span>final_r, </a>
+<a class="sourceLine" id="cb21-5" data-line-number="5">  <span class="dt">rd   =</span> model<span class="op">$</span>final_rd</a>
+<a class="sourceLine" id="cb21-6" data-line-number="6">  )<span class="op">$</span>final_r</a></code></pre></div>
 <pre><code>##     Tomasz Gollob     Gary Havelock       Chris Louis  Tony Rickardsson 
 ##          1696.809          1200.487          1799.513          1400.162 
 ##     Sam Ermolenko    Jan Staechmann     Tommy Knudsen Henrik Gustafsson 
@@ -280,46 +330,12 @@
 ##      Greg Hancock        Marvyn Cox     Dariusz Śledź       Craig Boyce 
 ##          1599.838          1200.487          1400.162          1508.129</code></pre>
 </div>
-<div id="tuning-update-size-by-weight" class="section level2">
+<div id="controlling-update-size-by-weight" class="section level2">
 <h2 class="hasAnchor">
-<a href="#tuning-update-size-by-weight" class="anchor"></a>Tuning update size by <code>weight</code>
+<a href="#controlling-update-size-by-weight" class="anchor"></a>Controlling update size by <code>weight</code>
 </h2>
-<p>All algorithms have a weight argument which increases or decreases update change. Higher weight increasing impact of corresponding event. Effect of the weight on update size can be expressed directly by following formula - <span class="math inline">\(\small R_i^{'} \leftarrow R_i + weight \sum_{j \neq i}{ K (Y_{ij} - \hat{Y_{ij}}} )\)</span>. To specify weight one needs to add create additional column in input data, and name a column in <code>weight</code> argument. For example weight could depend on importance of competition. In speedway Grand-Prix last three heats determine event winner and thus have higher weight.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">data &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(data, <span class="dt">weight =</span> <span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(heat <span class="op">&gt;=</span><span class="st"> </span>(<span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(heat) <span class="op">-</span><span class="st"> </span><span class="dv">3</span>), <span class="dv">2</span>, <span class="dv">1</span>))</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2">glicko &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko_run.html">glicko_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(rider), </a>
-<a class="sourceLine" id="cb20-3" data-line-number="3">                     <span class="dt">data =</span> data, </a>
-<a class="sourceLine" id="cb20-4" data-line-number="4">                     <span class="dt">weight =</span> <span class="st">"weight"</span>)</a></code></pre></div>
-</div>
-<div id="avoiding-excessive-rd-shringe-with-kappa" class="section level2">
-<h2 class="hasAnchor">
-<a href="#avoiding-excessive-rd-shringe-with-kappa" class="anchor"></a>Avoiding excessive RD shringe with <code>kappa</code>
-</h2>
-<p>In situation when games are playing very frequently by a player, <code>rd</code> can quickly decrease to zero, making further changes limited. Setting <code>kappa</code> disallows deviation decrease to be lower than specified fraction of <code>rd</code>. In other words final <code>rd</code> can’t be lower than initial <code>RD</code> times <code>kappa</code> <span class="math inline">\(\small RD' \geq RD * kappa\)</span>.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">bbt1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bbt_run.html">bbt_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(rider), <span class="dt">data =</span> data, <span class="dt">kappa =</span> <span class="fl">0.9</span>)</a>
-<a class="sourceLine" id="cb21-2" data-line-number="2">bbt2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bbt_run.html">bbt_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(rider), <span class="dt">data =</span> data, <span class="dt">kappa =</span> <span class="fl">0.5</span>)</a>
-<a class="sourceLine" id="cb21-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb21-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/r/base/all.html">all</a></span>(bbt1<span class="op">$</span>final_rd <span class="op">&gt;=</span><span class="st"> </span>bbt2<span class="op">$</span>final_rd)</a></code></pre></div>
-<pre><code>## [1] TRUE</code></pre>
-</div>
-<div id="control-output-uncertainty-by-lambda" class="section level2">
-<h2 class="hasAnchor">
-<a href="#control-output-uncertainty-by-lambda" class="anchor"></a>Control output uncertainty by <code>lambda</code>
-</h2>
-<p>To increase/decrease uncertainty of challenge output one can define <code>lambda</code>. Increasing <code>lambda</code> flatten probabilities of winning challenge equalizing competitors chances. This argument can be used by identifying column in input data where <code>lambda</code> values are stored. <code>lambda</code> can be used differently in several type of events. For example constant value for all participants in particular event in cases when level of competition is higher than usual e.g. derby, knock-out phase, decisive matches, exhibitions and friendlies. In other case different <code>lambda</code> for all players means that something has changed variance of some estimates - for example when some player has not played for a longer period of time. For players which performance is more uncertain in particular event one ought to set <code>lambda</code> greater than 1.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">data &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(data, <span class="dt">lambda =</span> <span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(heat <span class="op">&gt;=</span><span class="st"> </span>(<span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(heat) <span class="op">-</span><span class="st"> </span><span class="dv">3</span>), <span class="dv">2</span>, <span class="dv">1</span>))</a>
-<a class="sourceLine" id="cb23-2" data-line-number="2">dbl &lt;-<span class="st"> </span><span class="kw"><a href="../reference/dbl_run.html">dbl_run</a></span>(rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(rider), </a>
-<a class="sourceLine" id="cb23-3" data-line-number="3">               <span class="dt">lambda =</span> <span class="st">"lambda"</span>, </a>
-<a class="sourceLine" id="cb23-4" data-line-number="4">               <span class="dt">data =</span> data) </a></code></pre></div>
-</div>
-<div id="influence-ratings-volatility-by-lambda" class="section level2">
-<h2 class="hasAnchor">
-<a href="#influence-ratings-volatility-by-lambda" class="anchor"></a>Influence ratings volatility by <code>lambda</code>
-</h2>
-<p>In some periods player ratings tends to fluctuate more, when players form is more unstable. Sigma is na additional parameter controlling volatility of the ratings, making update bigger for higher values of sigma. Strictly, sigma can be expressed by <span class="math inline">\(\small rd_i' = \sqrt{rd_i^2+\sigma_i^2}\)</span>. Sigma can be specified in two ways: - In glicko2 <code>sigma</code> is another parameter per player estimated simultaneously with <code>r</code> and <code>rd</code>. One can specify prior sigma in the same manner as <code>r</code> and <code>rd</code> by creating named vector of positive values. Sigma values depends on a particular application, and priors should be chosen by user.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">glicko2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko2_run.html">glicko2_run</a></span>(rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(rider), data, <span class="dt">lambda =</span> <span class="st">"lambda"</span>)</a></code></pre></div>
-<p>In glicko and bbt <code>lambda</code> needs to be fixed before iteration by adding new column to input data. For example sigma can be column of time difference between events in which player participated - The longer break in competing, the higher sigma is. It is recommended to keep values close to <code>data$lambda</code>.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="co"># bbt example</span></a>
-<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(dplyr)</a></code></pre></div>
+<p>All algorithms have a weight argument which increases or decreases update size. Higher weight increasing impact of corresponding event. Effect of the weight on update size can be expressed directly by following formula - <span class="math inline">\(\small R_i^{'} \leftarrow R_i \pm \omega_i * \Omega_i\)</span>. To specify weight <span class="math inline">\(\omega_i\)</span> one needs to create additional column in input data, and pass the name of the column to <code>weight</code> argument. For example weight could depend on importance of competition. In speedway Grand-Prix last three heats determine event winner, thus they weight more.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(dplyr)</a></code></pre></div>
 <pre><code>## 
 ## Attaching package: 'dplyr'</code></pre>
 <pre><code>## The following objects are masked from 'package:stats':
@@ -328,15 +344,75 @@
 <pre><code>## The following objects are masked from 'package:base':
 ## 
 ##     intersect, setdiff, setequal, union</code></pre>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">data &lt;-<span class="st"> </span>data <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb29-2" data-line-number="2"><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(rider) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb29-3" data-line-number="3"><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">days_scaled =</span> <span class="kw"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span>(date <span class="op">-</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/lead-lag.html">lag</a></span>(date))<span class="op">/</span><span class="dv">90</span>,</a>
-<a class="sourceLine" id="cb29-4" data-line-number="4"> <span class="dt">days_scaled =</span> <span class="kw"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span>(days_scaled<span class="op">&gt;</span><span class="dv">1</span>,<span class="fl">1.0</span>, days_scaled)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb29-5" data-line-number="5"><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(days_scaled))</a>
-<a class="sourceLine" id="cb29-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb29-7" data-line-number="7">bbt &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bbt_run.html">bbt_run</a></span>(rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(rider),</a>
-<a class="sourceLine" id="cb29-8" data-line-number="8">               <span class="dt">data =</span> data, </a>
-<a class="sourceLine" id="cb29-9" data-line-number="9">               <span class="dt">lambda =</span> <span class="st">"days_scaled"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1">data &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(data, </a>
+<a class="sourceLine" id="cb27-2" data-line-number="2">               <span class="dt">weight =</span> <span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(heat <span class="op">&gt;=</span><span class="st"> </span>(<span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(heat) <span class="op">-</span><span class="st"> </span><span class="dv">3</span>), <span class="dv">2</span>, <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb27-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb27-4" data-line-number="4">glicko &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko_run.html">glicko_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(rider), </a>
+<a class="sourceLine" id="cb27-5" data-line-number="5">                     <span class="dt">data =</span> data, </a>
+<a class="sourceLine" id="cb27-6" data-line-number="6">                     <span class="dt">weight =</span> <span class="st">"weight"</span>)</a></code></pre></div>
+</div>
+<div id="avoiding-excessive-rd-shrinkage-with-kappa" class="section level2">
+<h2 class="hasAnchor">
+<a href="#avoiding-excessive-rd-shrinkage-with-kappa" class="anchor"></a>Avoiding excessive RD shrinkage with <code>kappa</code>
+</h2>
+<p>In situation when player plays games very frequently, <code>rd</code> can quickly decrease to zero, making further changes limited. Setting <code>kappa</code> (single value) avoids rating deviation decrease to be lower than specified fraction of <code>rd</code>. In other words final <code>rd</code> can’t be lower than initial <code>RD</code> times <code>kappa</code></p>
+<p><span class="math display">\[\small RD' \geq RD * kappa\]</span></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1">bbt1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bbt_run.html">bbt_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(rider),</a>
+<a class="sourceLine" id="cb28-2" data-line-number="2">                <span class="dt">data =</span> data, </a>
+<a class="sourceLine" id="cb28-3" data-line-number="3">                <span class="dt">kappa =</span> <span class="fl">0.99</span>) <span class="co"># RD decreases at most 1%</span></a>
+<a class="sourceLine" id="cb28-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb28-5" data-line-number="5">bbt2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bbt_run.html">bbt_run</a></span>(<span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(rider), </a>
+<a class="sourceLine" id="cb28-6" data-line-number="6">                <span class="dt">data =</span> data, </a>
+<a class="sourceLine" id="cb28-7" data-line-number="7">                <span class="dt">kappa =</span> <span class="fl">0.8</span>)  <span class="co"># RD decreases at most 20%</span></a>
+<a class="sourceLine" id="cb28-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb28-9" data-line-number="9"><span class="kw"><a href="https://rdrr.io/r/base/all.html">all</a></span>(bbt1<span class="op">$</span>final_rd <span class="op">&gt;=</span><span class="st"> </span>bbt2<span class="op">$</span>final_rd)</a></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+<div id="control-output-uncertainty-by-lambda" class="section level2">
+<h2 class="hasAnchor">
+<a href="#control-output-uncertainty-by-lambda" class="anchor"></a>Control output uncertainty by <code>lambda</code>
+</h2>
+<p>In some cases player ratings tend to be more uncertain. If scientist have prior knowledge about higher risk of event or uncertainty of specific player performance, then one might create another column with relevant values and pass the column name to <code>lambda</code> argument.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="co"># bbt example</span></a>
+<a class="sourceLine" id="cb30-2" data-line-number="2">data &lt;-<span class="st"> </span>data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb30-3" data-line-number="3"><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(rider) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb30-4" data-line-number="4"><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">idle_30d =</span> <span class="kw"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span>(date <span class="op">-</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/lead-lag.html">lag</a></span>(date)) <span class="op">&gt;</span><span class="st"> </span><span class="dv">30</span>, <span class="fl">1.0</span>, <span class="fl">2.0</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb30-5" data-line-number="5"><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(idle_30d))</a>
+<a class="sourceLine" id="cb30-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb30-7" data-line-number="7">bbt &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bbt_run.html">bbt_run</a></span>(rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(rider),</a>
+<a class="sourceLine" id="cb30-8" data-line-number="8">               <span class="dt">data =</span> data, </a>
+<a class="sourceLine" id="cb30-9" data-line-number="9">               <span class="dt">lambda =</span> <span class="st">"idle_30d"</span>)</a></code></pre></div>
+</div>
+<div id="players-nested-within-teams" class="section level2">
+<h2 class="hasAnchor">
+<a href="#players-nested-within-teams" class="anchor"></a>Players nested within teams</h2>
+<p>In above examples players competes as individuals, and each is ranked at the finish line. There are sports where players, competes in teams, and results are reported per team. <code>sport</code> is able to compute player ratings, and requires only changing formula from <code>player(player)</code> to <code>player(player | team)</code>. <code>data.frame</code> should always be a long format, with one player for each row. Ratings are updated according to their contribution in team efforts. <code>share</code> argument can be added optionally if scientist have some knowledge about players contribution in match (eg. minutes spent on the field from all possible minutes).</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1">glicko2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko2_run.html">glicko2_run</a></span>(</a>
+<a class="sourceLine" id="cb31-2" data-line-number="2">    <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(</a>
+<a class="sourceLine" id="cb31-3" data-line-number="3">    <span class="dt">id =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb31-4" data-line-number="4">    <span class="dt">team =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>),</a>
+<a class="sourceLine" id="cb31-5" data-line-number="5">    <span class="dt">player =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"d"</span>),</a>
+<a class="sourceLine" id="cb31-6" data-line-number="6">    <span class="dt">rank_team =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb31-7" data-line-number="7">    <span class="dt">share =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.4</span>, <span class="fl">0.6</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>)</a>
+<a class="sourceLine" id="cb31-8" data-line-number="8">  ), </a>
+<a class="sourceLine" id="cb31-9" data-line-number="9">  <span class="dt">formula =</span> rank_team <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(player <span class="op">|</span><span class="st"> </span>team),</a>
+<a class="sourceLine" id="cb31-10" data-line-number="10">  <span class="dt">share =</span> <span class="st">"share"</span></a>
+<a class="sourceLine" id="cb31-11" data-line-number="11"> )</a>
+<a class="sourceLine" id="cb31-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb31-13" data-line-number="13">glicko2<span class="op">$</span>final_r</a></code></pre></div>
+<pre><code>##        a        b        c        d 
+## 1583.660 1625.489 1394.845 1394.845</code></pre>
+<p>Output object contains the same elements as normal, with one difference - <code>pairs</code> contains probability and output per team, and <code>r</code> contains prior ratings per individuals.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1">glicko2<span class="op">$</span>pairs</a></code></pre></div>
+<pre><code>##    id team opponent Y   P
+## 1:  1    A        B 1 0.5
+## 2:  1    B        A 0 0.5</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1">glicko2<span class="op">$</span>r</a></code></pre></div>
+<pre><code>##    id team player    r  rd sigma
+## 1:  1    A      a 1500 350  0.05
+## 2:  1    A      b 1500 350  0.05
+## 3:  1    B      c 1500 350  0.05
+## 4:  1    B      d 1500 350  0.05</code></pre>
 </div>
 </div>
   </div>
@@ -357,11 +433,12 @@
 </li>
       <li>
 <a href="#advanced-sport">Advanced sport</a><ul class="nav nav-pills nav-stacked">
-<li><a href="#prior-beliefs-about-r-and-rd">Prior beliefs about <code>r</code> and <code>rd</code></a></li>
-      <li><a href="#tuning-update-size-by-weight">Tuning update size by <code>weight</code></a></li>
-      <li><a href="#avoiding-excessive-rd-shringe-with-kappa">Avoiding excessive RD shringe with <code>kappa</code></a></li>
+<li><a href="#formula">Formula</a></li>
+      <li><a href="#prior-beliefs-about-r-and-rd">Prior beliefs about <code>r</code> and <code>rd</code></a></li>
+      <li><a href="#controlling-update-size-by-weight">Controlling update size by <code>weight</code></a></li>
+      <li><a href="#avoiding-excessive-rd-shrinkage-with-kappa">Avoiding excessive RD shrinkage with <code>kappa</code></a></li>
       <li><a href="#control-output-uncertainty-by-lambda">Control output uncertainty by <code>lambda</code></a></li>
-      <li><a href="#influence-ratings-volatility-by-lambda">Influence ratings volatility by <code>lambda</code></a></li>
+      <li><a href="#players-nested-within-teams">Players nested within teams</a></li>
       </ul>
 </li>
       </ul>

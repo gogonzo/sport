@@ -70,7 +70,7 @@ Summary for object of class `rating`" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sport</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2</span>
       </span>
     </div>
 
@@ -153,27 +153,27 @@ Summary for object of class `rating`</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>List with following elements</p><ul>
-<li><p><code>formula</code> modelled formula.</p></li>
+<li><p><code>formula</code> modeled formula.</p></li>
 <li><p><code>method</code> type of algorithm used.</p></li>
 <li><p><code>Overall Accuracy</code> named vector containing players ratings.</p></li>
 <li><p><code>r</code> data.frame summarized players ratings and model winning probabilities. Probabilities are returned only in models with one variable (ratings)</p><ul>
 <li><p><code>name</code> of a player</p></li>
 <li><p><code>r</code> players ratings</p></li>
 <li><p><code>rd</code> players ratings deviation</p></li>
-<li><p><code>`Model probability`</code> mean predicted probability of winning the challange by the player.</p></li>
-<li><p><code>`True probability`</code> mean observed probability of winninh the challange by the player.</p></li>
+<li><p><code>`Model probability`</code> mean predicted probability of winning the challenge by the player.</p></li>
+<li><p><code>`True probability`</code> mean observed probability of winning the challenge by the player.</p></li>
 <li><p><code>`Accuracy`</code> Accuracy of prediction.</p></li>
-<li><p><code>`pairings`</code> number of pairwise occurences.</p></li>
+<li><p><code>`pairings`</code> number of pairwise occurrences.</p></li>
 </ul></li>
 </ul>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='glicko_run.html'>glicko_run</a></span>(<span class='kw'>formula</span> <span class='kw'>=</span> <span class='no'>rank</span> <span class='kw'>|</span> <span class='no'>id</span> ~ <span class='fu'>team</span>(<span class='no'>rider</span>),
+    <pre class="examples"><div class='input'><span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='glicko_run.html'>glicko_run</a></span>(<span class='kw'>formula</span> <span class='kw'>=</span> <span class='no'>rank</span> <span class='kw'>|</span> <span class='no'>id</span> ~ <span class='fu'>player</span>(<span class='no'>rider</span>),
                     <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>gpheats</span>[<span class='fl'>1</span>:<span class='fl'>102</span>, ])
 <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>model</span>)</div><div class='output co'>#&gt; $formula
-#&gt; rank | id ~ team(rider)
-#&gt; &lt;environment: 0xaa2178&gt;
+#&gt; rank | id ~ player(rider)
+#&gt; &lt;environment: 0x6f6ac68&gt;
 #&gt; 
 #&gt; $method
 #&gt; [1] "glicko"

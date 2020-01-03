@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sport</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2</span>
       </span>
     </div>
 
@@ -88,7 +88,7 @@
       <h1>The theory of the online update algorithms</h1>
                         <h4 class="author">Dawid Kałędkowski</h4>
             
-            <h4 class="date">2020-01-01</h4>
+            <h4 class="date">2020-01-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/gogonzo/sport/blob/master/vignettes/the_theory.Rmd"><code>vignettes/the_theory.Rmd</code></a></small>
       <div class="hidden name"><code>the_theory.Rmd</code></div>
@@ -100,14 +100,36 @@
 <div id="theory" class="section level1">
 <h1 class="hasAnchor">
 <a href="#theory" class="anchor"></a>Theory</h1>
-<p>Problem of sport matchups falls into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preference of choice between two alternatives. Just as one product is more preferred over another to buy, similarly, better player is more preferred to win over worst. As player/event and alternative/experiment can be used interchangeably, for ease of use sport nomenclature is adapted (player/event).</p>
-<p>Algorithms implemented in a <code>sport</code> package performs similarly, as all using Bayesian Approximation Method. Algorithms works as follows: At some moment player <code>p</code> competes with player <code>q</code> while both have prior <span class="math inline">\(R_p\)</span> and <span class="math inline">\(R_q\)</span> ratings. Prior to event, probability that player <code>p</code> win over player <code>q</code> is <span class="math inline">\(\hat{Y_{pq}}\)</span>. After event occurs, true result <span class="math inline">\(Y_{pq}\)</span> is observed, and initial believes about rating is changed <span class="math inline">\(R_p^{'} \leftarrow R_q\)</span> according to the prediction error <span class="math inline">\((Y_{pq} - \hat{Y_{pq}} )\)</span> and some constant <span class="math inline">\(K\)</span>. Updates are summed as player can compete with more than one player in particular event.</p>
-<p><span class="math display">\[\large R_p^{'} \leftarrow R_p + \sum_{q \neq p}{ K * (Y_{pq} - \hat{Y_{pq}}} )\]</span> Where: <span class="math display">\[\large \hat{Y} = P(X_i &gt; X_j)\]</span> <span class="math display">\[K - learning rate\]</span></p>
-<p>Outcome probability function is based on <a href="https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model">Bradley-Terry model</a> designed to predict outcome of pairwise comparison. For multi-player matchups where output is a ranking, <code>sport</code> package uses the same data transformation as in <a href="https://www.jstor.org/stable/270983">exploded logit</a> - ranking is then presented as combination of all possible pairs competing within same event.</p>
+<p>Problem of sport matchups fits into subject of paired comparison modeling and choice modeling. Estimating player skills is equivalent to estimating preference of choice between two alternatives. Just as one product is more preferred over another to buy, similarly, better player is more preferred to win over worst. As player/event and alternative/experiment can be used interchangeably, for consistency with package name, sport nomenclature is adapted.</p>
+<div id="bayesian-update-rule" class="section level3">
+<h3 class="hasAnchor">
+<a href="#bayesian-update-rule" class="anchor"></a>Bayesian update rule</h3>
+<p>Methods implemented in a <code>sport</code> package performs similarly, as all using Bayesian Approximation Method. Algorithms works as follows:</p>
+<p>At some moment player <code>i</code> competes with player <code>j</code> while both have prior <span class="math inline">\(R_i\)</span> and <span class="math inline">\(R_j\)</span> ratings. Prior to event, probability that player <code>i</code> win over player <code>j</code> is <span class="math inline">\(\hat{Y_{ij}}\)</span>. After event occurs, true result <span class="math inline">\(Y_{ij}\)</span> is observed, and initial believes about rating is changed <span class="math inline">\(R_i^{'} \leftarrow R_j\)</span> according to the prediction error <span class="math inline">\((Y_{ij} - \hat{Y_{ij}} )\)</span> and some constant <span class="math inline">\(K\)</span>. Updates are summed as player can compete with more than one player in particular event.</p>
+<p><span class="math display">\[\large R_i^{'} \leftarrow R_i + \sum_{j \neq i}{ K * (Y_{ij} - \hat{Y_{ij}}}) \quad (1)\]</span></p>
+<p>Where:</p>
+<ul>
+<li><p><span class="math inline">\(\hat{Y} = P(X_i &gt; X_j) = \frac{exp(\pi_i)}{exp(\pi_i) + exp(\pi_j)}\)</span></p></li>
+<li><p><span class="math inline">\(K\)</span> - learning rate</p></li>
+</ul>
+<p>Outcome probability function is based on extended Bradley-Terry model where <span class="math inline">\(\pi_i = \frac{R_i}{RD_{ij}}\)</span> (<span class="math inline">\(RD\)</span> stands for rating deviation). However, expected outcome functions slightly differs in details, which can be noticed in formulas presented further in this document.</p>
+<p>For multi-player matchups where output is a ranking, <code>sport</code> package uses the same data transformation as in <a href="https://www.jstor.org/stable/270983">exploded logit</a> - ranking is then transformed to a combination of all possible pairs competing within same event, which is reflected in above formula where update for <span class="math inline">\(i\)</span>th player is <span class="math inline">\(\Omega_{i} = \sum_{j \neq i} \Omega_{ij}\)</span>.</p>
+</div>
+<div id="players-nested-within-team" class="section level3">
+<h3 class="hasAnchor">
+<a href="#players-nested-within-team" class="anchor"></a>Players nested within team</h3>
+<p>In some cases individual results are not observed when individuals (players) competes in the teams. In team sports, results are reported on the team level and players contribution is implicit, so that <span class="math inline">\(Y_{ij}\)</span> refers only to the teams. This means that update rule described in (1) impacts directly team aggregated rating, and players true abilities need to be estimated in another step.</p>
+<p>Consider that <span class="math inline">\(t\)</span>th team has <span class="math inline">\(k_t\)</span> players with ratings <span class="math inline">\(N(R_{ti}, RD^2_{ti})\)</span>. We assume that team abilities is sum of players skills weighted by known <span class="math inline">\(s_{ti}\)</span>, so:</p>
+<p><span class="math display">\[R_t = \sum_{i=1}^{k_t}R_{ti} * s_{ti}\]</span></p>
+<p><span class="math display">\[RD_t^2 = \sum_{i=1}^{k_t}RD_{ti}^2 * s_{ti}\]</span></p>
+<p>In above formula <span class="math inline">\(s_{ti}\)</span> denotes knows measurable share in team total efforts - for example share of time spend on the field by player <span class="math inline">\(ti\)</span> in total time.</p>
+<p>Depending on algorithm type, update (<span class="math inline">\(\Omega\)</span>, <span class="math inline">\(\Delta\)</span>) are computed as usual on the team level, and then parameters change is distributed proportionally by to the players.</p>
+<p><span class="math display">\[R_{ti}^{'} \leftarrow R_{ti} * \Omega_i * s_{ti} \frac{RD_{ti}^2}{RD_t^2}\]</span> <span class="math display">\[RD_{ti}^{'} \leftarrow RD_{ti} * (1 - \Delta * s_{ti} \frac{RD_{ti}^2}{RD_t^2})\]</span></p>
+</div>
 <div id="glicko-rating-system" class="section level2">
 <h2 class="hasAnchor">
 <a href="#glicko-rating-system" class="anchor"></a>Glicko rating system</h2>
-<p>Glicko is the first bayesian online update algorithm incorporating rating volatility to rating and outcome computation. Glicko system is not balanced, and sum of rating rewards of all players are not zero. In one 2-players event, reward of player <code>i</code> differs from reward of player <code>q</code> as it depends on their individual ratings deviation. Rating values oscillates around <code>r=1500</code> with max deviation <code>rd&lt;=350</code>.</p>
+<p>Glicko is the first bayesian online update algorithm incorporating rating volatility to rating and outcome computation. Glicko system is not balanced, and sum of rating changes across all players are not zero. In one 2-players event, reward of player <code>i</code> differs from reward of player <code>i</code> as it depends on their individual ratings deviation. Rating values oscillates around <span class="math inline">\(R \sim 1500\)</span> with max deviation <span class="math inline">\(rd \leq 350\)</span>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(sport)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co"># example taken from Glickman (1999)</span></a>
@@ -117,52 +139,135 @@
 <a class="sourceLine" id="cb1-7" data-line-number="7">r &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1500</span>, <span class="dv">1400</span>, <span class="dv">1550</span>, <span class="dv">1700</span>), <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"D"</span>))</a>
 <a class="sourceLine" id="cb1-8" data-line-number="8">rd &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">200</span>, <span class="dv">30</span>, <span class="dv">100</span>, <span class="dv">300</span>), <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"D"</span>))</a>
 <a class="sourceLine" id="cb1-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko_run.html">glicko_run</a></span>(rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(name), <span class="dt">data =</span> data, <span class="dt">r =</span> r, <span class="dt">rd =</span> rd)</a>
-<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(model<span class="op">$</span>final_r)</a>
-<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co">#&gt;        A        B        C        D </span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co">#&gt; 1464.297 1396.039 1606.521 1674.836</span></a></code></pre></div>
-<p>For deeper knowledge read <a href="http://www.glicko.net/research/glicko.pdf">Mark E. Glickman (1999)</a>.</p>
-<p>Update Rules:</p>
-<p><span class="math display">\[\hat{Y_{ij}} = P(X_i&gt;X_j) = \frac{1}{ 1 + 10^{-g(RD_{ij}) * (R_i-R_j)/400}}\]</span></p>
-<p><span class="math display">\[{R'}_i = R_i + \frac{1}{\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}} * \sum_j{g(RD_j) * (Y_{ij} - \hat{Y_{ij}}) }\]</span></p>
-<p><span class="math display">\[{RD'}_i = \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}\]</span></p>
+<a class="sourceLine" id="cb1-10" data-line-number="10">model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko_run.html">glicko_run</a></span>(rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(name), <span class="dt">data =</span> data, <span class="dt">r =</span> r, <span class="dt">rd =</span> rd)</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(model<span class="op">$</span>final_r)</a></code></pre></div>
+<pre><code>##        A        B        C        D 
+## 1464.297 1396.039 1606.521 1674.836</code></pre>
+<p>Output probability and update formulas looks as follows:</p>
+<p><span class="math display">\[\hat{Y_{ij}} = P(X_i&gt;X_j) = \frac{1}
+{ 1 + 10^{-g(RD_{ij}) * (R_i-R_j)/400}}\]</span></p>
+<p><span class="math display">\[{R'}_i \leftarrow R_i + 
+\frac{1}{\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}} * 
+\sum_{j \neq i}{g(RD_j) * 
+(Y_{ij} - \hat{Y_{ij}})}\]</span></p>
+<p><span class="math display">\[{RD'}_i \leftarrow \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}\]</span></p>
+<p>For more details read <a href="http://www.glicko.net/research/glicko.pdf">Mark E. Glickman (1999)</a>.</p>
 </div>
 <div id="glicko2-rating-system" class="section level2">
 <h2 class="hasAnchor">
 <a href="#glicko2-rating-system" class="anchor"></a>Glicko2 rating system</h2>
-<p>Glicko2 improved predecessor by adding volatile parameter <span class="math inline">\(\sigma_i\)</span> which increase/decrease rating deviation in periods when player performance differs from expected. Sigma is estimated iteratively using Illinois algorithm, which converges quickly not affecting computation time. Rating values oscillates around <code>r=1500</code> with max deviation <code>rd&lt;=350</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># example taken from Glickman (2013)</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">data &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">id =</span> <span class="dv">1</span>, </a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">                   <span class="dt">name =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>), </a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">                   <span class="dt">rank =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">r &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1500</span>, <span class="dv">1400</span>, <span class="dv">1550</span>, <span class="dv">1700</span>), <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"D"</span>))</a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">rd &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">200</span>, <span class="dv">30</span>, <span class="dv">100</span>, <span class="dv">300</span>), <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"D"</span>))</a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko2_run.html">glicko2_run</a></span>(rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">team</span>(name), <span class="dt">data =</span> data, <span class="dt">r =</span> r, <span class="dt">rd =</span> rd)</a>
-<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(model<span class="op">$</span>final_r)</a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co">#&gt;        A        B        C        D </span></a>
-<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co">#&gt; 1468.919 1396.836 1606.055 1601.161</span></a></code></pre></div>
-<p>** write about modification of g_phi **</p>
-<p>For further knowledge read <a href="http://www.glicko.net/glicko/glicko2.pdf">Mark E. Glickman (2013)</a></p>
+<p>Glicko2 improved predecessor by adding volatile parameter <span class="math inline">\(\sigma_i\)</span> which increase/decrease rating deviation in periods when player performance differs from expected. Sigma is estimated iteratively using Illinois algorithm, which converges quickly not affecting computation time. Ratings in Glicko2 are scaled (<span class="math inline">\(\mu = \frac{R}{c}\)</span>, <span class="math inline">\(\phi = \frac{RD}{c}\)</span>) but final output remains consistent with Glicko and values revolves around <span class="math inline">\(R\sim1500\)</span> with max deviation <span class="math inline">\(RD \leq 350\)</span>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># example taken from Glickman (2013)</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">data &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">id =</span> <span class="dv">1</span>, </a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">                   <span class="dt">name =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>), </a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">                   <span class="dt">rank =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">r &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1500</span>, <span class="dv">1400</span>, <span class="dv">1550</span>, <span class="dv">1700</span>), <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"D"</span>))</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">rd &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">200</span>, <span class="dv">30</span>, <span class="dv">100</span>, <span class="dv">300</span>), <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"D"</span>))</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8">model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/glicko2_run.html">glicko2_run</a></span>(rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(name), <span class="dt">data =</span> data, <span class="dt">r =</span> r, <span class="dt">rd =</span> rd)</a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(model<span class="op">$</span>final_r)</a></code></pre></div>
+<pre><code>##        A        B        C        D 
+## 1468.919 1396.836 1606.055 1601.161</code></pre>
+<p>Output probability and update formulas looks as follows:</p>
 <p><span class="math display">\[ \hat{Y_{ij}} = \frac{1}{1 + e^{-g(\phi_{ij})*(\mu_i - \mu_j)} }\]</span></p>
-<p><span class="math display">\[ {\phi'}_i = \frac{1}{\sqrt{ \frac{1}{ { {\phi_i}^2 + {\sigma'_i}^2}} + \frac{1}{v} }}\]</span></p>
-<p><span class="math display">\[ {\mu'_i} = \mu_i + {\phi'}_i * \sum_j{g(\phi_j)*(Y_{ij} - \hat{Y_{ij}})} \]</span></p>
+<p><span class="math display">\[ {\phi'}_i \leftarrow \frac{1}{\sqrt{ \frac{1}{ { {\phi_i}^2 + {\sigma'_i}^2}} + \frac{1}{v} }}\]</span></p>
+<p><span class="math display">\[ {\mu'_i} \leftarrow \mu_i + 
+{\phi'}_i * 
+\sum_{j \neq i}{g(\phi_j) * (Y_{ij} - \hat{Y_{ij}})} \]</span></p>
+<p>For more details read <a href="http://www.glicko.net/glicko/glicko2.pdf">Mark E. Glickman (2013)</a></p>
 </div>
 <div id="bayesian-bradley-terry" class="section level2">
 <h2 class="hasAnchor">
 <a href="#bayesian-bradley-terry" class="anchor"></a>Bayesian Bradley Terry</h2>
-<p>The fastest algorithm with simple formula. Original BT formula lacks variance parameter, and this method incorporates rating deviation into model. BBT also prevents against fast <code>rd</code> decline to zero using <code>gamma</code> and <code>kappa</code>.</p>
-<p>For further knowledge read <a href="http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf">Ruby C. Weng and Chih-Jen Lin (2011)</a></p>
-<p><span class="math display">\[\hat{Y_{ij}} = P(X_i&gt;X_j) = \frac{e^{R_i/c_{i_j}}}{e^{R_i/c_{ij}} + e^{R_j/c_{ij}}} \]</span></p>
-<p><span class="math display">\[{R'}_i = R_i + \sum_j{\frac{RD_i^2}{c_{ij}}*(Y_{ij} - \hat{Y_{ij}})}\]</span></p>
-<p><span class="math display">\[{RD'}_i = RD_i * [ 1 - \frac{RD_{ij}^2}{RD_i^2}\sum_j{ \gamma_j * (\frac{RD_i}{c_{ij}})^2* \hat{Y_{ij}}\hat{Y_{ji}} } ]\]</span></p>
+<p>The fastest algorithm with simple formula. Original BT formula lacks variance parameter, and this method incorporates rating deviation into model (as other models). BBT also prevents against fast <code>RD</code> decline to zero using <code>gamma</code>.</p>
+<p><span class="math display">\[\hat{Y_{ij}} = P(X_i&gt;X_j) = \frac{e^{R_i/c_{ij}}}
+{e^{R_i / c_{ij}} + e^{R_j / c_{ij}}} \]</span></p>
+<p><span class="math display">\[{R'}_i \leftarrow R_i + \sum_i{\frac{RD_i^2}{c_{ij}}*(Y_{ij} - \hat{Y_{ij}})}\]</span></p>
+<p><span class="math display">\[{RD'}_i \leftarrow RD_i * 
+(1 - \sum_{j \neq i}{ \gamma_j * 
+  (\frac{RD_i}{c_{ij}})^2 * 
+  \hat{Y_{ij}} \hat{Y_{ji}}}
+)\]</span></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">data &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">  <span class="dt">id =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">  <span class="dt">team =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>),</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">  <span class="dt">player =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"d"</span>),</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">  <span class="dt">rank_player =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">)</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8">model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bbt_run.html">bbt_run</a></span>(</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9">  <span class="dt">data =</span> data, </a>
+<a class="sourceLine" id="cb5-10" data-line-number="10">  <span class="dt">formula =</span> rank_player <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(player),</a>
+<a class="sourceLine" id="cb5-11" data-line-number="11">  <span class="dt">r =</span> <span class="kw"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">25</span>, <span class="fl">23.3</span>, <span class="fl">25.83</span>, <span class="fl">28.33</span>), </a>
+<a class="sourceLine" id="cb5-12" data-line-number="12">               <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"d"</span>)),</a>
+<a class="sourceLine" id="cb5-13" data-line-number="13">  <span class="dt">rd =</span> <span class="kw"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">4.76</span>, <span class="fl">0.71</span>, <span class="fl">2.38</span>, <span class="fl">7.14</span>), </a>
+<a class="sourceLine" id="cb5-14" data-line-number="14">                <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"d"</span>))</a>
+<a class="sourceLine" id="cb5-15" data-line-number="15">)</a>
+<a class="sourceLine" id="cb5-16" data-line-number="16"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(model<span class="op">$</span>final_r)</a></code></pre></div>
+<pre><code>##        a        b        c        d 
+## 23.98191 23.20410 27.05331 29.30904</code></pre>
+<p>For more details read <a href="http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf">Ruby C. Weng and Chih-Jen Lin (2011)</a></p>
 </div>
 <div id="dynamic-bayesian-logit" class="section level2">
 <h2 class="hasAnchor">
 <a href="#dynamic-bayesian-logit" class="anchor"></a>Dynamic Bayesian Logit</h2>
-<p>Following algorithm gives some advantages over mentioned rating systems, adding other important factors to estimation process making final ratings unbiased. Algorithm perform better in disciples where other variables can make a difference in result eg. home field advantage. DBL implements Extended Kalman Filter learning rule, and allows to estimate multiple parameters in addition to player ratings. DBL is a Dynamic Logit extended to usage in pairwise comparisons by modeling differences in players characteristics. Classic Bradley-Terry model is enriched by moderation element <span class="math inline">\(K(s_t)\)</span> which adds prior uncertainty to output prediction.</p>
-<p><span class="math display">\[\hat{Y_{ij}} = \frac{ e^{-K(s_t)w _t^T(x_{it}-x_{jt})} }{1+e^{-K(s_t)w _t^T(x_{it}-x_{jt})}}\]</span> Parameters for player <code>i</code> competing with player <code>j</code> are estimated using EKF update rule. <span class="math display">\[\hat{\omega}_{it} = \hat{\omega}_{i(t-1)} + \frac{RD^2_{i(t-1)}}{1+\hat{Y_{ij}} (1-\hat{Y_{ij}})} x_t (Y_{ij} - \hat{Y_{ij}})\]</span> <span class="math display">\[RD^2_{i t} = RD^2_{i(t-1)} - \frac{\hat{Y_{ij}}(1-\hat{Y_{ij}})}{1+\hat{Y_{ij}} (1-\hat{Y_{ij}})s_t^2}(RD^2_{i(t-1)}x_i)(RD^2_{i(t-1)}x_i)^T\]</span></p>
-<p>For further knowledge read <a href="https://www.researchgate.net/publication/2465226_Dynamic_Logistic_Regression">Stephen J. Roberts, William Penny (2011)</a></p>
+<p>Following algorithm gives some advantages over mentioned rating systems, allowing to add other factors to the model. Algorithm perform better in disciples where other variables can make a difference in result eg. home field advantage.</p>
+<p>DBL implements Extended Kalman Filter learning rule, and allows to estimate multiple parameters in addition to player ratings. DBL is a dynamic logit extended to usage in pairwise comparisons by modeling differences of parameters instead of parameters itself. For sake of consistency with other algorithms <span class="math inline">\(R\)</span> and <span class="math inline">\(RD\)</span> is used instead of <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\sigma\)</span> (in EKF <span class="math inline">\(\omega\)</span> and <span class="math inline">\(\Sigma\)</span>). In DBL <span class="math inline">\(R\)</span> denotes weights/parameters not only player ratings and <span class="math inline">\(RD\)</span> is parameter standard deviation.</p>
+<p><span class="math display">\[\hat{Y_{ij}} = \frac{e^{-K(s_t) (\pi_{it} - \pi_{jt})}}
+{1 + e^{-K(s_t) (\pi_{it}-\pi_{jt})}}\]</span></p>
+<p>where: * <span class="math inline">\(\pi_{it} = R_i x_{it}\)</span> - <span class="math inline">\(i\)</span>-th player strength in <span class="math inline">\(t\)</span>-th matchup composed of player raw skills and other factors affecting his abilities.</p>
+<ul>
+<li>
+<span class="math inline">\(K(s_t)\)</span> - value moderating output which adds prior uncertainty to output prediction.</li>
+</ul>
+<p>Parameters for player <code>i</code> competing with player <code>j</code> are estimated using EKF update rule. <span class="math display">\[\hat{R}^{'}_{i} \leftarrow \hat{R}_{i} + \frac{RD^2_{i}}
+{1 + \hat{Y_{ij}} (1 - \hat{Y_{ij}})} * 
+x_i (Y_{ij} - \hat{Y_{ij}})\]</span></p>
+<p><span class="math display">\[RD^{'2}_{i} \leftarrow RD^2_{i} - 
+\frac{\hat{Y_{ij}}(1 - \hat{Y_{ij}})}
+{1+\hat{Y_{ij}} (1-\hat{Y_{ij}})s^2} * 
+(RD^2_i x_i)(RD^2_i x_i)^T\]</span></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">data &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">  <span class="dt">id =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">  <span class="dt">name =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>),</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">  <span class="dt">rank =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">  <span class="dt">gate =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>),</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">  <span class="dt">factor1 =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"b"</span>),</a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">  <span class="dt">factor2 =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>)</a>
+<a class="sourceLine" id="cb7-8" data-line-number="8">)</a>
+<a class="sourceLine" id="cb7-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb7-10" data-line-number="10">dbl &lt;-<span class="st"> </span><span class="kw"><a href="../reference/dbl_run.html">dbl_run</a></span>(</a>
+<a class="sourceLine" id="cb7-11" data-line-number="11">  <span class="dt">data =</span> data, </a>
+<a class="sourceLine" id="cb7-12" data-line-number="12">  <span class="dt">formula =</span> rank <span class="op">|</span><span class="st"> </span>id <span class="op">~</span><span class="st"> </span><span class="kw">player</span>(name) <span class="op">+</span><span class="st"> </span>gate <span class="op">*</span><span class="st"> </span>factor1)</a>
+<a class="sourceLine" id="cb7-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb7-14" data-line-number="14"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(dbl<span class="op">$</span>final_r)</a></code></pre></div>
+<pre><code>##         name=A         name=B         name=C         name=D           gate 
+##   -0.001984127   -0.052900327    0.041183715    0.013700739    0.070569320 
+##      factor1=a      factor1=b factor1=a:gate factor1=b:gate 
+##   -0.054884454    0.054884454   -0.107784781    0.178354100</code></pre>
+<p>For more details read <a href="https://www.researchgate.net/publication/2465226_Dynamic_Logistic_Regression">Stephen J. Roberts, William Penny (2011)</a></p>
+</div>
+<div id="additional-controls" class="section level2">
+<h2 class="hasAnchor">
+<a href="#additional-controls" class="anchor"></a>Additional controls</h2>
+<div id="lambda" class="section level3">
+<h3 class="hasAnchor">
+<a href="#lambda" class="anchor"></a>lambda</h3>
+<p><span class="math inline">\(RD\)</span> estimation is based only on previous estimate and difference between expected matchup output and real result. Sometimes scientist can have prior knowledge about particular player or event which are characterized by higher volatility. <code>lambda</code> proportionally changes prior <code>RD</code> before update, to increase or decrease uncertainty of challenge. <code>lambda</code> can be used differently in several situations:</p>
+<ul>
+<li><p>Increasing <code>lambda</code> for all players flatten probabilities of winning challenge equalizing competitors chances. Rational when level of competition is different than usual e.g. derby, knock-out phase, decisive matches, exhibitions and friendlies.</p></li>
+<li><p>Increasing <code>lambda</code> for one player makes his matchup more uncertain, and rating change to be higher than usual. Applicable when some player has not played for a longer period of time. Lambda should be empirically set by researcher as it’s not optimized by algorithms.</p></li>
+</ul>
+<p><span class="math display">\[RD_i = RD_i * lambda_{i}\]</span> ### kappa</p>
+<p>Depending on the frequency of events, <span class="math inline">\(RD\)</span> tends to decrease quickly to near zero, which results in freezing <span class="math inline">\(R\)</span> in time (as <span class="math inline">\(R\)</span> update size depends on <span class="math inline">\(RD\)</span> size). To keep <span class="math inline">\(RD\)</span> change below some (proportional) size we use <span class="math inline">\(\kappa\)</span>, which is expressed as follows:</p>
+<p><span class="math display">\[RD_i^{'} \leftarrow RD_i - pmin(\Delta_i, RD_i (1 - \kappa))\]</span></p>
+</div>
+<div id="weight" class="section level3">
+<h3 class="hasAnchor">
+<a href="#weight" class="anchor"></a>weight</h3>
+<p>Events can differ in importance, for all teams and for particular players. Weight can directly impact update size:</p>
+<p><span class="math display">\[RD_i^{'} \leftarrow RD_i \pm \Delta_i * \omega_i\]</span> <span class="math display">\[R_i^{'} \leftarrow R_i \pm \Omega_i * \omega_i\]</span></p>
+</div>
 </div>
 </div>
   </div>
@@ -175,10 +280,18 @@
       <ul class="nav nav-pills nav-stacked">
 <li>
 <a href="#theory">Theory</a><ul class="nav nav-pills nav-stacked">
-<li><a href="#glicko-rating-system">Glicko rating system</a></li>
+<li><a href="#bayesian-update-rule">Bayesian update rule</a></li>
+      <li><a href="#players-nested-within-team">Players nested within team</a></li>
+      <li><a href="#glicko-rating-system">Glicko rating system</a></li>
       <li><a href="#glicko2-rating-system">Glicko2 rating system</a></li>
       <li><a href="#bayesian-bradley-terry">Bayesian Bradley Terry</a></li>
       <li><a href="#dynamic-bayesian-logit">Dynamic Bayesian Logit</a></li>
+      <li>
+<a href="#additional-controls">Additional controls</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#lambda">lambda</a></li>
+      <li><a href="#weight">weight</a></li>
+      </ul>
+</li>
       </ul>
 </li>
       </ul>
