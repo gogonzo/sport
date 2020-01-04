@@ -85,13 +85,11 @@ dedicated `plot.rating` function. For DBL method top coefficients are presented
 not necessarily ratings. It's also possible to examine ratings evolution in time, 
 by specifying `players` argument.
 
-<div class="col2">
-```{r message=FALSE}
+```{r message=FALSE, fig.show='hold', out.width = "50%"}
 plot(glicko, n = 15)
 plot(glicko, 
      players = c("Greg HANCOCK","Tomasz GOLLOB","Tony RICKARDSSON"))
 ```
-</div>
 
 Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analyzed. `rating` object contains following elements:
 
