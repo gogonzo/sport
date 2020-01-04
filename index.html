@@ -230,25 +230,13 @@
 <a class="sourceLine" id="cb5-25" data-line-number="25"><span class="co">#&gt; 216:          rider=Zdenek HOLUB -0.409 0.950</span></a>
 <a class="sourceLine" id="cb5-26" data-line-number="26"><span class="co">#&gt; 217:        rider=Charles WRIGHT -0.655 0.774</span></a></code></pre></div>
 <p>To visualize top n ratings with their 95% confidence interval one can use dedicated <code>plot.rating</code> function. For DBL method top coefficients are presented not necessarily ratings. It’s also possible to examine ratings evolution in time, by specifying <code>players</code> argument.</p>
-<div class="col2">
-
-``` r
-plot(glicko, n = 15)
-```
-
-![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
-
-``` r
-plot(glicko, 
-     players = c("Greg HANCOCK","Tomasz GOLLOB","Tony RICKARDSSON"))
-```
-
-![](man/figures/README-unnamed-chunk-7-2.png)<!-- -->
-
-</div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(glicko, <span class="dt">n =</span> <span class="dv">15</span>)</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(glicko, </a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">     <span class="dt">players =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Greg HANCOCK"</span>,<span class="st">"Tomasz GOLLOB"</span>,<span class="st">"Tony RICKARDSSON"</span>))</a></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-7-1.png" width="50%"><img src="reference/figures/README-unnamed-chunk-7-2.png" width="50%"></p>
 <p>Except dedicated <code>print</code>,<code>summary</code> and <code>plot</code> there is possibility to extract more detailed information to be analyzed. <code>rating</code> object contains following elements:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(glicko)</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="co">#&gt; [1] "final_r"  "final_rd" "r"        "pairs"</span></a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(glicko)</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">#&gt; [1] "final_r"  "final_rd" "r"        "pairs"</span></a></code></pre></div>
 <ul>
 <li>
 <code>rating$final_r</code> and <code>rating$final_rd</code> contains ratings and ratings deviations estimations.</li>
@@ -257,22 +245,22 @@ plot(glicko,
 <li>
 <code>pairs</code> pairwise combinations of players in analyzed events with prior probability and result of a challenge.</li>
 </ul>
-<!-- end list --><div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(glicko<span class="op">$</span>r)</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">#&gt;      id                  rider        r        rd</span></a>
-<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co">#&gt; 1: 5476       Fredrik LINDGREN 1595.713  7.815778</span></a>
-<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co">#&gt; 2: 5476          Tai WOFFINDEN 1675.975  9.294484</span></a>
-<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co">#&gt; 3: 5477            Leon MADSEN 1640.216 21.792118</span></a>
-<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co">#&gt; 4: 5477       Bartosz ZMARZLIK 1698.159 12.272463</span></a>
-<a class="sourceLine" id="cb7-7" data-line-number="7"><span class="co">#&gt; 5: 5477 Niels Kristian IVERSEN 1580.907  9.192937</span></a>
-<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="co">#&gt; 6: 5477       Emil SAJFUTDINOW 1666.851  9.764087</span></a>
-<a class="sourceLine" id="cb7-9" data-line-number="9"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(glicko<span class="op">$</span>pairs)</a>
-<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="co">#&gt;      id                  rider               opponent Y         P</span></a>
-<a class="sourceLine" id="cb7-11" data-line-number="11"><span class="co">#&gt; 1: 5477 Niels Kristian IVERSEN            Leon MADSEN 0 0.4156996</span></a>
-<a class="sourceLine" id="cb7-12" data-line-number="12"><span class="co">#&gt; 2: 5477 Niels Kristian IVERSEN       Bartosz ZMARZLIK 1 0.3375662</span></a>
-<a class="sourceLine" id="cb7-13" data-line-number="13"><span class="co">#&gt; 3: 5477 Niels Kristian IVERSEN       Emil SAJFUTDINOW 0 0.3788837</span></a>
-<a class="sourceLine" id="cb7-14" data-line-number="14"><span class="co">#&gt; 4: 5477       Emil SAJFUTDINOW            Leon MADSEN 0 0.5381477</span></a>
-<a class="sourceLine" id="cb7-15" data-line-number="15"><span class="co">#&gt; 5: 5477       Emil SAJFUTDINOW       Bartosz ZMARZLIK 1 0.4551217</span></a>
-<a class="sourceLine" id="cb7-16" data-line-number="16"><span class="co">#&gt; 6: 5477       Emil SAJFUTDINOW Niels Kristian IVERSEN 1 0.6211163</span></a></code></pre></div>
+<!-- end list --><div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(glicko<span class="op">$</span>r)</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">#&gt;      id                  rider        r        rd</span></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co">#&gt; 1: 5476       Fredrik LINDGREN 1595.713  7.815778</span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="co">#&gt; 2: 5476          Tai WOFFINDEN 1675.975  9.294484</span></a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co">#&gt; 3: 5477            Leon MADSEN 1640.216 21.792118</span></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="co">#&gt; 4: 5477       Bartosz ZMARZLIK 1698.159 12.272463</span></a>
+<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="co">#&gt; 5: 5477 Niels Kristian IVERSEN 1580.907  9.192937</span></a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="co">#&gt; 6: 5477       Emil SAJFUTDINOW 1666.851  9.764087</span></a>
+<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(glicko<span class="op">$</span>pairs)</a>
+<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="co">#&gt;      id                  rider               opponent Y         P</span></a>
+<a class="sourceLine" id="cb8-11" data-line-number="11"><span class="co">#&gt; 1: 5477 Niels Kristian IVERSEN            Leon MADSEN 0 0.4156996</span></a>
+<a class="sourceLine" id="cb8-12" data-line-number="12"><span class="co">#&gt; 2: 5477 Niels Kristian IVERSEN       Bartosz ZMARZLIK 1 0.3375662</span></a>
+<a class="sourceLine" id="cb8-13" data-line-number="13"><span class="co">#&gt; 3: 5477 Niels Kristian IVERSEN       Emil SAJFUTDINOW 0 0.3788837</span></a>
+<a class="sourceLine" id="cb8-14" data-line-number="14"><span class="co">#&gt; 4: 5477       Emil SAJFUTDINOW            Leon MADSEN 0 0.5381477</span></a>
+<a class="sourceLine" id="cb8-15" data-line-number="15"><span class="co">#&gt; 5: 5477       Emil SAJFUTDINOW       Bartosz ZMARZLIK 1 0.4551217</span></a>
+<a class="sourceLine" id="cb8-16" data-line-number="16"><span class="co">#&gt; 6: 5477       Emil SAJFUTDINOW Niels Kristian IVERSEN 1 0.6211163</span></a></code></pre></div>
 </div>
 </div>
 
