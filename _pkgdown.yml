@@ -1,3 +1,14 @@
+template:
+  params:
+    bootswatch: cerulean
+    ganalytics: UA-155297851-1
+
+development:
+  mode: "release"
+
+home:
+  strip_header: true
+
 destination: docs
 toc:
   depth: 3
@@ -10,7 +21,9 @@ reference:
       - glicko2_run
       - bbt_run
       - dbl_run
+  - title: "Data"
+    desc: "Speedway Grand-Prix results"
+    contents:
+      - gpsquads
+      - gpheats
 
-template:
-  params:
-    bootswatch: cerulean

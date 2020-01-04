@@ -62,6 +62,7 @@ public:
   
   void gatherTeams(int id_i) {
     idx_i = utils::find<int>(id_i, id_vec);
+    if (idx_i.size() == 1) return;
     team_vec_i = team_vec[idx_i];
     player_vec_i = player_vec[idx_i];
     
@@ -136,7 +137,7 @@ public:
     out_r.push_back(out_r_i);
   };
   void precalculateGlicko() {
-    
+    if (idx_i.size() == 1) return;
     // precalculate g
     int k = unique_team_i.size();
     Rcpp::NumericVector g_it_(k);
@@ -148,7 +149,7 @@ public:
     this -> g_it = g_it_;
   };
   void precalculateGlicko2() {
-    
+    if (idx_i.size() == 1) return;
     // precalculate g
     int k = unique_team_i.size();
     Rcpp::NumericVector g_it_(k);
@@ -162,6 +163,7 @@ public:
     this -> g_it = g_it_;
   };
   void updateGlicko() {
+    if (idx_i.size() == 1) return;
     // GLICKO RATING
     double var, err, q = log(10.0) / 400.0;
     int idx = 0, k = unique_team_i.size();
@@ -252,6 +254,7 @@ public:
     out_p.push_back(out_p_i);
   }
   void updateGlicko2() {
+    if (idx_i.size() == 1) return;
     double var, err;
     int idx = 0, k = unique_team_i.size();
     CharacterVector team1(k * k - k);
@@ -342,6 +345,7 @@ public:
     }
   }
   void updateBBT() {
+    if (idx_i.size() == 1) return;
     int idx = 0, k = unique_team_i.size();
     double c, gamma;
     
@@ -684,6 +688,7 @@ Rcpp::List
     for (int i = 0; i < unique_id.size(); i++) {
       id_i  = unique_id(i);
       idx_i = utils::find<int>(id_i, id_vec);
+      if (idx_i.size() == 1) continue;
       
       team_vec_i = team_vec[idx_i];
       rank_vec_i = rank_vec[idx_i];
