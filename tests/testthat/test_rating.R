@@ -195,7 +195,42 @@ test_that("check rating default arguments", {
     "Missing parameters will be added with init_sigma"
   )
   
+  expect_warning(
+    glicko_run(
+      data = df,
+      formula = rank | id ~ player(player | team),
+      r = setNames(.5, "c"),
+      rd = setNames(0, "f")
+    ),
+    "init_rd"
+  )
   
+  expect_warning(
+    glicko <- glicko_run(
+      data = df,
+      formula = rank | id ~ player(player | team),
+      r = setNames(.5, "c"),
+      rd = setNames(0, "ff")
+    ),
+    "init_r"
+  )
+ 
+   
+  expect_true(
+    !"ff" %in% glicko$final_rd
+  )
+  
+  
+  glicko <- glicko_run(rank | id ~ player(rider), data = gpheats[1:4,])
+  expect_warning(
+    glicko_run(
+      formula = rank | id ~ player(rider),
+      data = gpheats[5:8,],
+      r = glicko$final_r,
+      rd = glicko$final_rd
+    ),
+    "Missing parameters will be added with init"
+  )
 })
 
 test_that("rating (argument) errors", {
@@ -414,7 +449,6 @@ test_that("bbt result", {
   )
 })
 
-
 test_that("dbl result", {
   r_dbl <- dbl_run(
     formula = rank | id ~ player(player) + gate:factor,
@@ -446,5 +480,182 @@ test_that("dbl result", {
       c(0.95, 0.95, 0.95, 0.95, 0.90, 0.90),
       c("player=A", "player=B", "player=C", "player=D", "factor=a:gate", "factor=b:gate")
     )
+  )
+})
+
+test_that("Reasonable estimates", {
+  glicko <- glicko_run(rank | id ~ player(rider), data = gpheats[1:10000,])
+  glicko2 <- glicko2_run(rank | id ~ player(rider), data = gpheats[1:10000,])
+  bbt <- bbt_run(rank | id ~ player(rider), data = gpheats[1:10000,])
+  dbl <- dbl_run(rank | id ~ player(rider), data = gpheats[1:10000,])
+
+  library(dplyr)
+  by_rank <- gpheats %>%
+    head(10000) %>%
+    group_by(rider) %>%
+    summarize(mean_rank = mean(rank, na.rm = TRUE)) %>%
+    ungroup %>%
+    arrange(mean_rank)
+  
+  worst <- unique(c(
+    names(sort(glicko$final_r)[1:10]),
+    names(sort(glicko2$final_r)[1:10]),
+    names(sort(bbt$final_r)[1:10]),
+    gsub("rider\\=", "", x = names(sort(dbl$final_r)[1:10])),
+    tail(by_rank$rider, 10)
+  ))
+  
+  best <- unique(c(
+    names(sort(glicko$final_r, decreasing = TRUE)[1:10]),
+    names(sort(glicko2$final_r, decreasing = TRUE)[1:10]),
+    names(sort(bbt$final_r, decreasing = TRUE)[1:10]),
+    gsub("rider\\=", "", x = names(sort(dbl$final_r, decreasing = TRUE)[1:10]))),
+    head(by_rank$rider, 10)
+  )
+  
+
+  expect_true(all(!worst %in% best))
+  expect_true(all(!best %in% worst))
+})
+
+test_that("Weighting", {
+  data <- data.frame(
+    id = rep(1L, 8),
+    rank = rep(c(3, 4, 1, 2), each = 2),
+    team = c("A", "A", "B", "B", "C", "C", "D", "D"),
+    player = sample(letters, 8, replace = FALSE),
+    lambda = 1,
+    share = 1,
+    weight = 2,
+    stringsAsFactors = FALSE
+  )
+
+  bbt1 <- bbt_run(rank | id ~ player(player),
+                  data = data)  
+  
+  bbt2 <- bbt_run(rank | id ~ player(player),
+                  data = data,
+                  weight = "weight")
+  
+  expect_equal(
+    abs(bbt2$final_r - 25),   
+    abs(bbt1$final_r - 25) * 2
+  )
+  
+  expect_equal(
+    abs(bbt2$final_rd - 25/3),   
+    abs(bbt1$final_rd - 25/3) * 2
+  )
+})
+
+test_that("Lambda", {
+  data <- data.frame(
+    id = rep(1L, 8),
+    rank = rep(c(3, 4, 1, 2), each = 2),
+    team = c("A", "A", "B", "B", "C", "C", "D", "D"),
+    player = sample(letters, 8, replace = FALSE),
+    lambda = 2,
+    share = 1,
+    weight = 2,
+    stringsAsFactors = FALSE
+  )
+  
+  glicko1 <- glicko_run(rank | id ~ player(player),
+                  data = data)  
+  
+  glicko2 <- glicko_run(rank | id ~ player(player),
+                  data = data,
+                  lambda = "lambda")
+  
+  expect_true(
+    all(
+      abs(glicko2$final_r - 1500) <    
+      abs(glicko1$final_r - 1500)
+    )
+  )
+  
+  expect_true(
+    all(
+      abs(glicko2$final_rd - 350) <    
+        abs(glicko1$final_rd - 350)
+    )
+  )
+})
+
+test_that("kappa", {
+  glicko1 <- glicko2_run(rank | id ~ player(player), 
+                         data = df,
+                         kappa = 1)  
+
+  expect_true(all(
+    glicko1$final_rd == 350    
+    )
+  )
+  
+  
+  glicko2 <- glicko_run(rank | id ~ player(player),
+                        data = df,
+                        kappa = 0.99)
+  
+
+  expect_true(all(
+    glicko2$final_rd == (350 * 0.99)    
+    )
+  )
+  
+  glicko3 <- bbt_run(rank | id ~ player(player),
+                     data = df,
+                     kappa = 0.98)
+  
+  expect_true(all(
+    glicko3$final_rd ==  (25 / 3 * 0.98)
+  )
+  )
+})
+
+
+test_that("share", {
+  df <- data.frame(
+    id = rep(1L, 8),
+    rank = rep(c(3, 4, 1, 2), each = 2),
+    team = c("A", "A", "B", "B", "C", "C", "D", "D"),
+    player = letters[1:8],
+    contribution = c(0.9, 0.1,
+              0.1, 0.9,
+              0.5, 0.5,
+              1, 0),
+    stringsAsFactors = FALSE
+  )
+
+  x <- glicko_run(rank | id ~ player(player|team),
+                  data = df,
+                  share = "contribution")  
+  
+  expect_true(
+    all(
+      (x$final_r[1:4] - 1500) < 0
+    )
+  )
+  
+  expect_true(
+    all(
+      (x$final_r[5:8] - 1500) >= 0
+    )
+  )
+  
+  
+  expect_equal(
+    (1500 - x$final_r[1:2]) / sum((1500 - x$final_r[1:2])),
+    setNames(c(0.9, 0.1), c("a", "b"))
+  )
+  
+  expect_equal(
+    (1500 - x$final_r[3:4]) / sum((1500 - x$final_r[3:4])),
+    setNames(c(0.1, 0.9), c("c", "d"))
+  )
+  
+  expect_equal(
+    (x$final_r[5:6] - 1500) / sum((x$final_r[5:6] - 1500)),
+    setNames(c(0.5, 0.5), c("e", "f"))
   )
 })
