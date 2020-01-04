@@ -170,22 +170,13 @@ use dedicated `plot.rating` function. For DBL method top coefficients
 are presented not necessarily ratings. It’s also possible to examine
 ratings evolution in time, by specifying `players` argument.
 
-<div class="col2">
-
 ``` r
 plot(glicko, n = 15)
-```
-
-![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
-
-``` r
 plot(glicko, 
      players = c("Greg HANCOCK","Tomasz GOLLOB","Tony RICKARDSSON"))
 ```
 
-![](man/figures/README-unnamed-chunk-7-2.png)<!-- -->
-
-</div>
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="50%" /><img src="man/figures/README-unnamed-chunk-7-2.png" width="50%" />
 
 Except dedicated `print`,`summary` and `plot` there is possibility to
 extract more detailed information to be analyzed. `rating` object
