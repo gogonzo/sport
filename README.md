@@ -63,107 +63,7 @@ data.frames:
 library(sport) 
 str(gpheats)
 #> 'data.frame':    21932 obs. of  11 variables:
-#>  $ id      :List of 21932
-#>   ..$ : num 1
-#>   ..$ : num 1
-#>   ..$ : num 1
-#>   ..$ : num 1
-#>   ..$ : num 2
-#>   ..$ : num 2
-#>   ..$ : num 2
-#>   ..$ : num 2
-#>   ..$ : num 3
-#>   ..$ : num 3
-#>   ..$ : num 3
-#>   ..$ : num 3
-#>   ..$ : num 4
-#>   ..$ : num 4
-#>   ..$ : num 4
-#>   ..$ : num 4
-#>   ..$ : num 5
-#>   ..$ : num 5
-#>   ..$ : num 5
-#>   ..$ : num 5
-#>   ..$ : num 6
-#>   ..$ : num 6
-#>   ..$ : num 6
-#>   ..$ : num 6
-#>   ..$ : num 7
-#>   ..$ : num 7
-#>   ..$ : num 7
-#>   ..$ : num 7
-#>   ..$ : num 8
-#>   ..$ : num 8
-#>   ..$ : num 8
-#>   ..$ : num 8
-#>   ..$ : num 9
-#>   ..$ : num 9
-#>   ..$ : num 9
-#>   ..$ : num 10
-#>   ..$ : num 10
-#>   ..$ : num 10
-#>   ..$ : num 10
-#>   ..$ : num 11
-#>   ..$ : num 11
-#>   ..$ : num 11
-#>   ..$ : num 11
-#>   ..$ : num 12
-#>   ..$ : num 12
-#>   ..$ : num 12
-#>   ..$ : num 12
-#>   ..$ : num 13
-#>   ..$ : num 13
-#>   ..$ : num 13
-#>   ..$ : num 13
-#>   ..$ : num 14
-#>   ..$ : num 14
-#>   ..$ : num 14
-#>   ..$ : num 14
-#>   ..$ : num 15
-#>   ..$ : num 15
-#>   ..$ : num 15
-#>   ..$ : num 15
-#>   ..$ : num 16
-#>   ..$ : num 16
-#>   ..$ : num 16
-#>   ..$ : num 16
-#>   ..$ : num 17
-#>   ..$ : num 17
-#>   ..$ : num 17
-#>   ..$ : num 17
-#>   ..$ : num 18
-#>   ..$ : num 18
-#>   ..$ : num 18
-#>   ..$ : num 18
-#>   ..$ : num 19
-#>   ..$ : num 19
-#>   ..$ : num 19
-#>   ..$ : num 19
-#>   ..$ : num 20
-#>   ..$ : num 20
-#>   ..$ : num 20
-#>   ..$ : num 20
-#>   ..$ : num 21
-#>   ..$ : num 21
-#>   ..$ : num 21
-#>   ..$ : num 21
-#>   ..$ : num 22
-#>   ..$ : num 22
-#>   ..$ : num 22
-#>   ..$ : num 22
-#>   ..$ : num 23
-#>   ..$ : num 23
-#>   ..$ : num 23
-#>   ..$ : num 23
-#>   ..$ : num 24
-#>   ..$ : num 24
-#>   ..$ : num 24
-#>   ..$ : num 24
-#>   ..$ : num 25
-#>   ..$ : num 25
-#>   ..$ : num 25
-#>   ..$ : num 25
-#>   .. [list output truncated]
+#>  $ id      : num  1 1 1 1 2 2 2 2 3 3 ...
 #>  $ season  : int  1995 1995 1995 1995 1995 1995 1995 1995 1995 1995 ...
 #>  $ date    : POSIXct, format: "1995-05-20 19:00:00" "1995-05-20 19:00:00" ...
 #>  $ round   : int  1 1 1 1 1 1 1 1 1 1 ...
@@ -285,7 +185,7 @@ plot(glicko, n = 15)
 
 ``` r
 plot(glicko, 
-     players = c("Greg Hancock","Nicki Pedersen","Jason Crump"))
+     players = c("Greg HANCOCK","Tomasz GOLLOB","Tony RICKARDSSON"))
 ```
 
 ![](man/figures/README-unnamed-chunk-7-2.png)<!-- -->
@@ -314,18 +214,18 @@ names(glicko)
 ``` r
 tail(glicko$r)
 #>      id                  rider        r        rd
-#> 1: 5476       Fredrik LINDGREN 1118.692  8.905272
-#> 2: 5476          Tai WOFFINDEN 1173.871 10.590947
-#> 3: 5477            Leon MADSEN 1017.895 29.091069
-#> 4: 5477       Bartosz ZMARZLIK 1152.014 13.676939
-#> 5: 5477 Niels Kristian IVERSEN 1080.873 10.637088
-#> 6: 5477       Emil SAJFUTDINOW 1197.553 11.088176
+#> 1: 5476       Fredrik LINDGREN 1595.713  7.815778
+#> 2: 5476          Tai WOFFINDEN 1675.975  9.294484
+#> 3: 5477            Leon MADSEN 1640.216 21.792118
+#> 4: 5477       Bartosz ZMARZLIK 1698.159 12.272463
+#> 5: 5477 Niels Kristian IVERSEN 1580.907  9.192937
+#> 6: 5477       Emil SAJFUTDINOW 1666.851  9.764087
 tail(glicko$pairs)
 #>      id                  rider               opponent Y         P
-#> 1: 5477 Niels Kristian IVERSEN            Leon MADSEN 0 0.5892316
-#> 2: 5477 Niels Kristian IVERSEN       Bartosz ZMARZLIK 1 0.3991746
-#> 3: 5477 Niels Kristian IVERSEN       Emil SAJFUTDINOW 0 0.3383024
-#> 4: 5477       Emil SAJFUTDINOW            Leon MADSEN 0 0.7367575
-#> 5: 5477       Emil SAJFUTDINOW       Bartosz ZMARZLIK 1 0.5650626
-#> 6: 5477       Emil SAJFUTDINOW Niels Kristian IVERSEN 1 0.6616976
+#> 1: 5477 Niels Kristian IVERSEN            Leon MADSEN 0 0.4156996
+#> 2: 5477 Niels Kristian IVERSEN       Bartosz ZMARZLIK 1 0.3375662
+#> 3: 5477 Niels Kristian IVERSEN       Emil SAJFUTDINOW 0 0.3788837
+#> 4: 5477       Emil SAJFUTDINOW            Leon MADSEN 0 0.5381477
+#> 5: 5477       Emil SAJFUTDINOW       Bartosz ZMARZLIK 1 0.4551217
+#> 6: 5477       Emil SAJFUTDINOW Niels Kristian IVERSEN 1 0.6211163
 ```
