@@ -109,7 +109,10 @@ init_check_r <- function(r, init_r, unique_names, player) {
     )
     
     r2 <- setNames(rep(init_r, length(unique_names)), unique_names)
-    r2[names(r)] <- r
+    if (any(names(r) %in% unique_names)) {
+      r2[names(r)] <- r      
+    }
+
     r <- r2
     
   } else if (any(is.na(r))) {

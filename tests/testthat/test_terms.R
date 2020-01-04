@@ -7,6 +7,11 @@ test_that("valid lhs formula", {
   )
   
   expect_error(
+    is_formula_missing("y ~ x"),
+    "Formula incorrectly specified"
+  )
+  
+  expect_error(
     is_lhs_valid(formula = rank:id ~ field, gpheats),
     "LHS of formula must be seperated by `\\|` operator eg."
   )
@@ -137,6 +142,11 @@ test_that("valid team term", {
   expect_error(
     is_team_term_valid(formula = 1 ~ player(player | team | country), single = FALSE),
     "Only one or two variables are allowed within player"
+  )
+  
+  expect_error(
+    is_team_term_valid(formula = 1 ~ player(player) + player(team), single = FALSE),
+    "Only one player\\(...\\) term is allowed with one or two variables."
   )
   
 })
@@ -338,6 +348,16 @@ test_that("get terms map", {
     )
   )
   expect_identical(terms_map5, expected5)  
+  
+  term6 <- get_terms(
+    gpheats,
+    rank|id ~ rider + round + field:heat:name
+  )
+  
+  expect_error(
+    get_terms_map(gpheats[1:6,], term6),
+    "Only two-variable interactions are possible"
+  )
 })
 
 test_that("get terms mat", {
@@ -402,6 +422,17 @@ test_that("get terms mat", {
     )
   )
   expect_identical(terms_mat5, expected5)
+  
+  
+  term6 <- get_terms(
+    gpheats,
+    rank|id ~ rider + round + field:heat:name
+  )
+  
+  expect_error(
+    get_terms_mat(gpheats[1:6,], term6),
+    "Only two-variable interactions are possible"
+  )
 })
 
 
@@ -440,5 +471,16 @@ test_that("get terms cls", {
   terms_cls5 <- get_terms_cls(gpheats[1:6,], term5)
   expected5 <- c("character", "numeric", "numeric", "character")
   expect_identical(terms_cls5, expected5)
+  
+  
+  term6 <- get_terms(
+    gpheats,
+    rank|id ~ rider + round + field:heat:name
+  )
+  
+  expect_error(
+    get_terms_cls(gpheats[1:6,], term6),
+    "Only two-variable interactions are possible"
+  )
 })
 

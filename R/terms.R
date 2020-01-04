@@ -132,12 +132,7 @@ get_team_name <- function(formula) {
 
 get_player_name <- function(formula) {
   terms <- extract_team_terms(formula)
-  
-  if (length(terms) == 2) {
-    terms[1]
-  } else {
-    character(0)
-  }
+  terms[1]
 }
 
 get_type <- function(x) {

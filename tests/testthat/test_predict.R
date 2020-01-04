@@ -117,3 +117,19 @@ test_that("valid dbl predict computation", {
   expect_true(all(pred$Y == .5))
 })
 
+test_that("New data consistent", {
+  glicko <- glicko_run(rank | id ~ player(rider), data = gpheats[1:4,])
+  expect_error(
+    predict(glicko, newdata = data),
+    "Variables \\(rider\\) are not present in newdata"
+  )
+  
+  test_that("New data consistent", {
+    glicko <- glicko_run(rank | id ~ player(rider), data = gpheats[1:4,])
+    expect_warning(
+      predict(glicko, newdata = gpheats[5:8,]),
+      "Missing parameters will be added with init_rd"
+    )
+  })
+  
+})
