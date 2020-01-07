@@ -253,16 +253,10 @@ words final `rd` can't be lower than initial `RD` times `kappa`
 
 $$\small RD' \geq RD * kappa$$
 
-```{r warning=FALSE , message=FALSE}
+```{r warning=FALSE , message=FALSE, echo=FALSE}
 bbt1 <- bbt_run(formula = rank | id ~ player(rider),
                 data = data, 
                 kappa = 0.99) # RD decreases at most 1%
-
-bbt2 <- bbt_run(formula = rank | id ~ player(rider), 
-                data = data, 
-                kappa = 0.8)  # RD decreases at most 20%
-
-all(bbt1$final_rd >= bbt2$final_rd)
 ```
 
 ## Control output uncertainty by `lambda`
