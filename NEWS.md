@@ -1,4 +1,4 @@
-sport v0.2.0 (Release date: 2019-01-06)
+sport v0.2.0 (Release date: 2019-01-07)
 ==============
 
 Changes:
