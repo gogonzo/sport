@@ -43,7 +43,7 @@ Package contains actual data from Speedway Grand-Prix. There are two data.frames
 2. `gpsquads` - summarized results of the events, with sum of point and final 
 position.
 
-```{r echo=TRUE}
+```{r echo=TRUE, warning=FALSE , message=FALSE}
 library(sport)
 data <- gpheats[1:1002, ]
 str(data)
@@ -59,7 +59,7 @@ Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output
 for two player game should be coded as 1=winner 2=looser. Below example of two
 matches with 4 players each.
 
-```{r echo=FALSE}
+```{r echo=FALSE, warning=FALSE , message=FALSE}
 data[1:8, c("id","rider","rank")]
 ```
 
@@ -74,7 +74,7 @@ results (ranks) are stored and `id` (optional). RHS should rather be specified
 by `rank | id` to split matches - if `id` is missing all data will be computed 
 under same event id.
 
-```{r message=FALSE}
+```{r warning=FALSE , message=FALSE}
 glicko <- glicko_run(formula = rank | id ~ player(rider), data = data)
 glicko2 <- glicko2_run(formula = rank | id ~ player(rider), data = data)
 bbt <- bbt_run(formula = rank | id ~ player(rider), data = data)
@@ -92,7 +92,7 @@ model predictions with observed probabilities. More precise overview are
 given by `summary` by showing ratings, ratings deviations and comparing model 
 win probabilities with observed.
 
-```{r}
+```{r warning=FALSE , message=FALSE}
 summary(dbl)
 ```
 
@@ -101,7 +101,7 @@ dedicated `plot.rating` function. For `dbl` method top coefficients are
 presented which doesn't have to be player specific (ratings). It's also possible 
 to examine ratings evolution in time, by specifying `players` argument.
 
-```{r message=FALSE, fig.show='hold', out.width = "50%"}
+```{r message=FALSE, fig.show='hold', out.width = "50%", warnings=FALSE}
 plot(glicko, n = 15)
 plot(glicko, players = c("Greg HANCOCK","Tomasz GOLLOB","Tony RICKARDSSON"))
 ```
@@ -110,7 +110,7 @@ Except dedicated `print`,`summary` and `plot` there is possibility to extract
 more detailed information for analyses. `rating` object contains following 
 elements:
 
-```{r}
+```{r warning=FALSE , message=FALSE}
 names(glicko)
 ```
 
@@ -123,7 +123,7 @@ to the last. Number of rows in `r` equals number of rows in input data.
 * `pairs` pairwise combinations of players in analyzed events with prior 
 probability and result of a challenge. 
 
-```{r}
+```{r warning=FALSE , message=FALSE}
 tail(glicko$r)
 tail(glicko$pairs)
 ```
@@ -206,7 +206,7 @@ prior `r` and `rd` estimates. It's important to have `r` and `rd` names
 corresponding with levels of `name` variable. One can run algorithm, to obtain 
 new estimates.
 
-```{r}
+```{r warning=FALSE , message=FALSE}
 model <- glicko_run(data = gpheats[1:16, ], 
                     rank | id ~ player(rider))
 ```
@@ -214,7 +214,7 @@ model <- glicko_run(data = gpheats[1:16, ],
 We can also run models re-using previously estimated parameters from `model$final_r` 
 and `model$final_rd` in the future when new data appear.
 
-```{r}
+```{r warning=FALSE , message=FALSE}
 glicko_run(
   formula = rank | id ~ player(rider), 
   data = gpheats[17:20, ], 
@@ -234,7 +234,7 @@ data, and pass the name of the column to `weight` argument. For example weight
 could depend on importance of competition. In speedway Grand-Prix last three 
 heats determine event winner, thus they weight more.
 
-```{r}
+```{r warning=FALSE , message=FALSE, echo=FALSE}
 library(dplyr)
 data <- mutate(data, 
                weight = ifelse(heat >= (max(heat) - 3), 2, 1))
@@ -253,7 +253,7 @@ words final `rd` can't be lower than initial `RD` times `kappa`
 
 $$\small RD' \geq RD * kappa$$
 
-```{r}
+```{r warning=FALSE , message=FALSE}
 bbt1 <- bbt_run(formula = rank | id ~ player(rider),
                 data = data, 
                 kappa = 0.99) # RD decreases at most 1%
@@ -272,7 +272,7 @@ knowledge about higher risk of event or uncertainty of specific player
 performance, then one might create another column with relevant values and pass 
 the column name to `lambda` argument.
 
-```{r}
+```{r warning=FALSE , message=FALSE}
 # bbt example
 data <- data %>%
  group_by(rider) %>%
@@ -295,7 +295,7 @@ according to their contribution in team efforts. `share` argument can be added
 optionally if scientist have some knowledge about players contribution in match 
 (eg. minutes spent on the field from all possible minutes).
 
-```{r}
+```{r warning=FALSE , message=FALSE}
 glicko2 <- glicko2_run(
     data = data.frame(
     id = c(1, 1, 1, 1),
@@ -316,7 +316,7 @@ Output object contains the same elements as normal, with one difference -
 `pairs` contains probability and output per team, and `r` contains prior ratings 
 per individuals.
 
-```{r}
+```{r warning=FALSE , message=FALSE}
 glicko2$pairs
 glicko2$r
 ```
