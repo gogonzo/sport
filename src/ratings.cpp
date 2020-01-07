@@ -6,7 +6,7 @@
 using namespace Rcpp;
 // [[Rcpp::plugins(cpp11)]]
 
-#define DBG(MSG,X) Rprintf("%20s SEXP=<%p>. List=%p\n", MSG, (SEXP)X, &X ) ;
+#define DBG(MSG,X) Rprintf("%20s SEXP=<%p>. List=%p\n", MSG, (SEXP)X, &X);
 
 class Ratings {
 private:
