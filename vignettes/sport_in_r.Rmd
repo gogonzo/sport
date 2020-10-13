@@ -10,7 +10,7 @@ vignette: >
 ---
 
 # About
-Name `sport` is an abbreviation for Sequential Pairwise Online Rating Techniques.
+The name `sport` is an abbreviation for Sequential Pairwise Online Rating Techniques.
 Package contains functions calculating ratings for two-player or multi-player
 matchups. Methods included in package are able to estimate ratings 
 (players strengths) and their evolution in time, also able to predict output of
