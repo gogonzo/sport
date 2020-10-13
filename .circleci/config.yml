@@ -12,7 +12,7 @@ jobs:
           name: Build package
           command: R CMD build .
       - run:
-          name: Build package
+          name: Build vignette
           command: R CMD Rd2pdf .
       - run:
           name: Check package
