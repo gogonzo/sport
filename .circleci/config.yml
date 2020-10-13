@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: rocker/verse:3.5.3
+      - image: rocker/verse:4.0.2
     steps:
       - checkout
       - run:
@@ -11,6 +11,9 @@ jobs:
       - run:
           name: Build package
           command: R CMD build .
+      - run:
+          name: Build package
+          command: R CMD Rd2pdf .
       - run:
           name: Check package
           command: R CMD check *tar.gz

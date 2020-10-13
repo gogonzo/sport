@@ -11,6 +11,7 @@
 \.gitignore
 TODO
 ^\.travis\.yml$
+^.*\.circleci
 ^codecov\.yml$
 ^appveyor\.yml$
 ^_pkgdown\.yml$
