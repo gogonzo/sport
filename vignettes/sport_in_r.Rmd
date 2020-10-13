@@ -7,7 +7,6 @@ vignette: >
  %\VignetteIndexEntry{sport an R package for online update algorithms}
  %\VignetteEngine{knitr::rmarkdown}
  %\usepackage[utf8]{inputenc}
- %\usepackage[T1]{fontenc}
 ---
 
 # About
