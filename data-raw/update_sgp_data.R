@@ -118,6 +118,7 @@ update_league_data <- function() {
       "SELECT 
       e.id,
       e.season,
+      e.competition,
       e.date,
       e.round,
       e.name, 
