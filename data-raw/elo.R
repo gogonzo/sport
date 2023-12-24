@@ -25,20 +25,20 @@ test <- function() {
   teams <- customQuery(
     {
       "
-      SELECT 
-        e.id event_id, 
+      SELECT
+        e.id event_id,
         lc.type,
         e.round,
         lc.stage,
         lc.stage_level,
-        et.team_idx, 
-        et.team_name, 
+        et.team_idx,
+        et.team_name,
         et.points_scored
-      FROM league_competitions lc 
+      FROM league_competitions lc
       LEFT JOIN events e using(competition, season, stage)
       LEFT JOIN event_teams et on et.event_id = e.id
-      WHERE 
-        e.competition = '%s' and 
+      WHERE
+        e.competition = '%s' and
         e.season = %s and
         team_name is not null
       ORDER BY et.id
