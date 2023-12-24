@@ -11,7 +11,6 @@ test_that("summary", {
     c("formula", "method", "Overall Accuracy", "Number of pairs", "r"),
     names(summary(glicko))
   )
-
 })
 
 test_that("Plot layers match", {
@@ -35,4 +34,3 @@ test_that("Scale range is NULL", {
   p <- plot(dbl)
   expect_null(p$scales$scales[[1]]$range$range)
 })
-
