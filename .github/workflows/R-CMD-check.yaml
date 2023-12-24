@@ -61,7 +61,7 @@ jobs:
           upload-snapshots: true
 
   check-r-devel-san:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container: rocker/r-devel-san
     steps:
       - name: Checkout repository 🛎
@@ -82,7 +82,7 @@ jobs:
           )
 
   check-r-devel-ubsan-clang:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container: rocker/r-devel-ubsan-clang
     steps:
       - name: Checkout repository 🛎
