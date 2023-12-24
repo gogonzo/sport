@@ -17,3 +17,4 @@ TODO
 ^cran-comments\.md$
 \.xcf
 ^docs$
+^\.github$
