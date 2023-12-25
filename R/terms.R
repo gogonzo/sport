@@ -14,10 +14,12 @@ is_lhs_valid <- function(formula, data) {
   if (length(all.vars(update(formula, . ~ 0))) == 1) {
     warning("LHS of formula doesn't contain `| id` element.
             It will be assummed that all belongs to the same event id",
-      call. = F
+      call. = FALSE
     )
-  } else if (length(all.vars(update(formula, . ~ 0))) == 2 &
-    !grepl("[|]", format(update(formula, . ~ 0)))) {
+  } else if (
+    length(all.vars(update(formula, . ~ 0))) == 2 &&
+      !grepl("[|]", format(update(formula, . ~ 0)))
+  ) {
     stop("LHS of formula must be seperated by `|` operator eg. `rank | id ~ .`",
       call. = FALSE
     )
@@ -62,8 +64,7 @@ is_team_term_valid <- function(formula, single) {
   team_term_vars <- gsub("player\\(|\\)", "", team_term)
   team_term_vars <- trimws(unlist(strsplit(x = team_term_vars, split = "[|]")))
 
-  if (!length(team_term_vars) %in% c(1, 2) &&
-    all(team_term_vars != "")) {
+  if (!length(team_term_vars) %in% c(1, 2) && all(team_term_vars != "")) {
     stop("Only one or two variables are allowed within player(...) term function:
          Please specify as one of following:
          * player(player_var | team_var)

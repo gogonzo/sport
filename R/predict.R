@@ -13,7 +13,7 @@
 #' predict(glicko, gpheats[17:20, ])
 #' @export
 predict.rating <- function(object, newdata, ...) {
-  if (missing(newdata)) stop("newdata is requested to predict", call. = F)
+  if (missing(newdata)) stop("newdata is requested to predict", call. = FALSE)
   method <- attr(object, "method")
   formula <- attr(object, "formula")
   all_vars <- all.vars(formula)
@@ -89,8 +89,8 @@ predict.rating <- function(object, newdata, ...) {
     )
   }
 
-  P <- model$pairs # data.table
-  P <- P[, Y := ifelse(P > .5, 1, ifelse(P == .5, .5, 0))]
+  pairs <- model$pairs # data.table
+  pairs <- pairs[, Y := ifelse(P > .5, 1, ifelse(P == .5, .5, 0))]
 
-  return(P)
+  return(pairs)
 }

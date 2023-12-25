@@ -19,18 +19,20 @@ bbt_run(
 }
 \arguments{
 \item{formula}{formula which specifies the model. RHS Allows only player
-rating parameter and it should be specified in following manner:
+rating parameter and it should be specified in following manner:\cr
 
 \code{rank | id ~ player(name)}.
 \itemize{
-  \item {rank} player position in event.
-  \item {id} event identifier in which pairwise comparison is assessed.
-  \item {player(name)} name of the contestant. In this case \code{player(name)}
-    helps algorithm point name of the column where player names are stored.
+\item \code{rank} player position in event.
+\item \code{id} event identifier in which pairwise comparison is assessed.
+\item \code{player(name)} name of the contestant. In this case \code{player(name)}
+helps algorithm point name of the column where player names are stored.
 }
-Users can also specify formula in in different way:
- \code{rank | id ~ player(name|team)}. Which means that players are playing in teams,
- and results are observed for teams not for players. For more see vignette.}
+
+Users can also specify formula in in different way:\cr
+
+\code{rank | id ~ player(name|team)}. Which means that players are playing in teams,
+and results are observed for teams not for players. For more see vignette.}
 
 \item{data}{data.frame which contains columns specified in formula, and
 optional columns defined by \code{lambda}, \code{weight}.}
@@ -50,42 +52,36 @@ Default (\code{glicko = 1500}, \code{glicko2 = 1500}, \code{bbt = 25},
 \item{init_rd}{initial values for \code{rd} if not provided.
 Default (\code{glicko = 350}, \code{glicko2 = 350}, \code{bbt = 25/3}, \code{dbl = 1})}
 
-\item{lambda}{name of the column in `data` containing lambda values or one
+\item{lambda}{name of the column in \code{data} containing lambda values or one
 constant value (eg. \code{lambda = colname} or \code{lambda = 0.5}).
 Lambda impact prior variance, and uncertainty of the matchup result. The
 higher lambda, the higher prior variance and more uncertain result of the
 matchup. Higher lambda flattens chances of winning.}
 
-\item{share}{name of the column in `data` containing player share in team
+\item{share}{name of the column in \code{data} containing player share in team
 efforts. It's used to first calculate combined rating of the team and
 then redistribute ratings update back to players level. Warning - it should
-be used only if formula is specified with players nested within teams (`player(player|team)`).}
+be used only if formula is specified with players nested within teams (\code{player(player|team)}).}
 
-\item{weight}{name of the column in `data` containing weights values or
+\item{weight}{name of the column in \code{data} containing weights values or
 one constant (eg. \code{weight = colname} or \code{weight = 0.5}).
 Weights increasing (weight > 1) or decreasing (weight < 1) update change.
 Higher weight increasing impact of event result on rating estimate.}
 
 \item{kappa}{controls \code{rd} shrinkage not to be greater than \code{rd*(1 - kappa)}.
-`kappa=1` means that  \code{rd} will not be decreased.}
+\code{kappa=1} means that  \code{rd} will not be decreased.}
 }
 \value{
-A "rating" object is returned: \itemize{
-
+A "rating" object is returned:
+\itemize{
 \item \code{final_r} named vector containing players ratings.
-
 \item \code{final_rd} named vector containing players ratings deviations.
-
 \item \code{r} data.frame with evolution of the ratings and ratings deviations
- estimated at each event.
-
+estimated at each event.
 \item \code{pairs} pairwise combinations of players in analysed events with
 prior probability and result of a challenge.
-
 \item \code{class} of the object.
-
 \item \code{method} type of algorithm used.
-
 \item \code{settings} arguments specified in function call.
 }
 }

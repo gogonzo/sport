@@ -10,20 +10,20 @@ NULL
 #' @param object of class rating
 #' @param ... optional arguments
 #' @return
-#' List with following elements \itemize{
-#' \item \code{formula} modeled formula.
-#' \item \code{method} type of algorithm used.
-#' \item \code{Overall Accuracy} named vector containing players ratings.
-#' \item \code{r} data.frame summarized players ratings and model winning probabilities. Probabilities are returned only in models with one variable (ratings) \itemize{
-#' \item \code{name} of a player
-#' \item \code{r} players ratings
-#' \item \code{rd} players ratings deviation
-#' \item \code{`Model probability`} mean predicted probability of winning the challenge by the player.
-#' \item \code{`True probability`} mean observed probability of winning the challenge by the player.
-#' \item \code{`Accuracy`} Accuracy of prediction.
-#' \item \code{`pairings`} number of pairwise occurrences.
-#' }
-#' }
+#' List with following elements:
+#' - `formula` modeled formula.
+#' - `method` type of algorithm used.
+#' - `Overall Accuracy` named vector containing players ratings.
+#' - `r` data.frame summarized players ratings and model winning probabilities.
+#'
+#' Probabilities are returned only in models with one variable (ratings):
+#'   - `name` of a player
+#'   - `r` players ratings
+#'   - `rd` players ratings deviation
+#'   - `Model probability` mean predicted probability of winning the challenge by the player.
+#'   - `True probability` mean observed probability of winning the challenge by the player.
+#'   - `Accuracy` Accuracy of prediction.
+#'   - `pairings` number of pairwise occurrences.
 #'
 #' @examples
 #' model <- glicko_run(
@@ -141,7 +141,7 @@ plot.rating <- function(x, n = 10, players, ...) {
     names(data)[1] <- variable
 
     data <- data[order(data$r, decreasing = TRUE), ][1:n, ]
-    data[[variable]] <- reorder(data[[variable]], nrow(data):1)
+    data[[variable]] <- reorder(data[[variable]], rev(seq_len(nrow(data))))
     ggplot(data, aes(x = .data[[variable]], y = .data$r)) +
       ggtitle("Actual ratings") +
       geom_linerange(

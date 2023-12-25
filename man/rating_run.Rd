@@ -28,18 +28,20 @@ rating_run(
 optional columns defined by \code{lambda}, \code{weight}.}
 
 \item{formula}{formula which specifies the model. RHS Allows only player
-rating parameter and it should be specified in following manner:
+rating parameter and it should be specified in following manner:\cr
 
 \code{rank | id ~ player(name)}.
 \itemize{
-  \item {rank} player position in event.
-  \item {id} event identifier in which pairwise comparison is assessed.
-  \item {player(name)} name of the contestant. In this case \code{player(name)}
-    helps algorithm point name of the column where player names are stored.
+\item \code{rank} player position in event.
+\item \code{id} event identifier in which pairwise comparison is assessed.
+\item \code{player(name)} name of the contestant. In this case \code{player(name)}
+helps algorithm point name of the column where player names are stored.
 }
-Users can also specify formula in in different way:
- \code{rank | id ~ player(name|team)}. Which means that players are playing in teams,
- and results are observed for teams not for players. For more see vignette.}
+
+Users can also specify formula in in different way:\cr
+
+\code{rank | id ~ player(name|team)}. Which means that players are playing in teams,
+and results are observed for teams not for players. For more see vignette.}
 
 \item{r}{named vector of initial players ratings estimates. If not specified
 then \code{r} will be created automatically for parameters specified in \code{formula}
@@ -63,24 +65,24 @@ Default (\code{glicko = 350}, \code{glicko2 = 350}, \code{bbt = 25/3}, \code{dbl
 \item{init_sigma}{initial values for \code{sigma} if not provided.
 Default = 0.5}
 
-\item{lambda}{name of the column in `data` containing lambda values or one
+\item{lambda}{name of the column in \code{data} containing lambda values or one
 constant value (eg. \code{lambda = colname} or \code{lambda = 0.5}).
 Lambda impact prior variance, and uncertainty of the matchup result. The
 higher lambda, the higher prior variance and more uncertain result of the
 matchup. Higher lambda flattens chances of winning.}
 
-\item{share}{name of the column in `data` containing player share in team
+\item{share}{name of the column in \code{data} containing player share in team
 efforts. It's used to first calculate combined rating of the team and
 then redistribute ratings update back to players level. Warning - it should
-be used only if formula is specified with players nested within teams (`player(player|team)`).}
+be used only if formula is specified with players nested within teams (\code{player(player|team)}).}
 
-\item{weight}{name of the column in `data` containing weights values or
+\item{weight}{name of the column in \code{data} containing weights values or
 one constant (eg. \code{weight = colname} or \code{weight = 0.5}).
 Weights increasing (weight > 1) or decreasing (weight < 1) update change.
 Higher weight increasing impact of event result on rating estimate.}
 
 \item{kappa}{controls \code{rd} shrinkage not to be greater than \code{rd*(1 - kappa)}.
-`kappa=1` means that  \code{rd} will not be decreased.}
+\code{kappa=1} means that  \code{rd} will not be decreased.}
 
 \item{tau}{The system constant. Which constrains the change in volatility over
 time. Reasonable choices are between 0.3 and 1.2 (\code{default = 0.5}), though
@@ -89,7 +91,7 @@ predictive accuracy. Smaller values of \code{tau} prevent the volatility measure
 from changing by large amounts, which in turn prevent enormous changes in
 ratings based on very improbable results. If the application of Glicko-2 is
 expected to involve extremely improbable collections of game outcomes, then
-`tau` should be set to a small value, even as small as, say, \code{tau= 0}.}
+\code{tau} should be set to a small value, even as small as, say, \code{tau= 0}.}
 }
 \description{
 Apply rating algorithm

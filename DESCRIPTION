@@ -35,6 +35,7 @@ Language: en-US
 URL: https://github.com/gogonzo/sport
 LazyData: true
 RoxygenNote: 7.2.3
+Roxygen: list(markdown = TRUE)
 Suggests: 
   dplyr,
   knitr, 

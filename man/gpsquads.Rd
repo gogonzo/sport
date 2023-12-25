@@ -6,15 +6,17 @@
 \format{
 A data frame with >4000 rows and 9 variables:
 \describe{
-  \item{id}{event identifier}
-  \item{season}{year of Grand-Prix, 1995-now}
-  \item{date}{date of turnament}
-  \item{place}{stadium of event}
-  \item{round}{round in season}
-  \item{name}{Turnament name}
-  \item{rider}{rider names, 1-6}
-  \item{points}{points gained, integer}
-  \item{classification}{classification after an event}
+\itemize{
+\item \code{id} - event identifier
+\item \code{season} - year of Grand-Prix, 1995-now
+\item \code{date} - date of turnament
+\item \code{place} - stadium of event
+\item \code{round} - round in season
+\item \code{name} - Turnament name
+\item \code{rider} - rider names, 1-6
+\item \code{points} - points gained, integer
+\item \code{classification} - classification after an event
+}
 }
 }
 \source{

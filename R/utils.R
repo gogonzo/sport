@@ -38,7 +38,8 @@ check_numeric_argument <- function(x, var_name, min = -Inf, max = Inf) {
       call. = FALSE
     )
   } else if (any(!is.finite(x))) {
-    stop(sprintf("Variable %s contains non-finite values. All elements should be finite.", var_name),
+    stop(
+      sprintf("Variable %s contains non-finite values. All elements should be finite.", var_name),
       call. = FALSE
     )
   } else if (any(x < min | x > max)) {
@@ -69,11 +70,10 @@ check_integer_argument <- function(x, var_name, min = -Inf, max = Inf) {
 
 check_string_argument <- function(x, var_name) {
   if (!is.character(x)) {
-    stop(sprintf("Variable %s should be of type character.", var_name),
-      call. = FALSE
-    )
+    stop(sprintf("Variable %s should be of type character.", var_name), call. = FALSE)
   } else if (any(is.na(x))) {
-    stop(sprintf("Variable %s contains non-finite values. All elements should be finite.", var_name),
+    stop(
+      sprintf("Variable %s contains non-finite values. All elements should be finite.", var_name),
       call. = FALSE
     )
   }
@@ -232,14 +232,15 @@ initialize_vec <- function(var, data, argname, min = -Inf, max = Inf) {
         var, argname
       ))
     }
-    var_vec <- data[[var]] # 1/n_it
+    var_vec <- data[[var]] # 1 divided by n_it
     check_numeric_argument(var_vec, var, min = min, max = max)
   } else if (is.numeric(var) && length(var) == 1) {
     check_numeric_argument(var, argname, min = min, max = max)
     var_vec <- rep(var, nrow(data))
   } else {
-    stop(sprintf("%s should be variable name from `data` argument or
-                 single numeric value.", argname))
+    stop(
+      sprintf("%s should be variable name from `data` argument or single numeric value.", argname)
+    )
   }
 
   return(var_vec)
