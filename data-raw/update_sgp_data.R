@@ -53,14 +53,14 @@ update_sgp_data <- function() {
   gpheats$date <- as.POSIXct(strptime(gpheats$date, "%Y-%m-%d %H:%M:%S"))
 
   gpheats <-
-    gpheats |>
-    arrange(date, heat) |>
-    mutate(id = runner::sum_run(as.integer(paste(date, heat) != lag(paste(date, heat), default = "")))) |>
-    filter(!is.na(position)) |>
-    filter(!is.na(points)) |>
-    filter(!position %in% c("F", "N")) |>
-    filter(!is.na(field)) |>
-    filter(!is.na(rider)) |>
+    gpheats %>%
+    arrange(date, heat) %>%
+    mutate(id = runner::sum_run(as.integer(paste(date, heat) != lag(paste(date, heat), default = "")))) %>%
+    filter(!is.na(position)) %>%
+    filter(!is.na(points)) %>%
+    filter(!position %in% c("F", "N")) %>%
+    filter(!is.na(field)) %>%
+    filter(!is.na(rider)) %>%
     mutate(
       rank = as.integer(position),
       rank = ifelse(is.na(rank), max(rank, na.rm = T) + 1, rank)

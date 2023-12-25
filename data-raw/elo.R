@@ -82,11 +82,11 @@ testScript1 <- function() {
                   d1.id2 != d2.id2
                   ")
 
-    colnames(df) %<>% paste0("_i")
-    grid %<>% left_join(df)
+    colnames(df) <- paste0(colnames(df), "_i")
+    grid <- left_join(grid, df)
 
-    colnames(df) %<>% gsub("_i", "_j", x = .)
-    grid %<>% left_join(df)
+    colnames(df) <- gsub(colnames(df), "_i", "_j", x = .)
+    grid <- left_join(grid, df)
     return(grid)
   }
 
@@ -112,38 +112,40 @@ testScript1 <- function() {
 
   # wrangle events -----
   events <- raw_events
-  events$date %<>% strptime("%Y-%m-%d %H:%M:%S") |> as.POSIXct()
+  events$date <- as.POSIXct(strptime(events$date, "%Y-%m-%d %H:%M:%S"))
 
   # wrangle heats ----
   heats <- raw_heats
-  heats %<>%
-    left_join(events[, c("event_id", "date")]) |>
-    arrange(date) |>
+  heats <- heats %>%
+    left_join(events[, c("event_id", "date")]) %>%
+    arrange(date) %>%
     mutate(
       id =  paste0(event_id, heat),
       id = cumsum(!duplicated(id))
     )
 
-  heats %<>%
-    filter(!is.na(points)) |>
-    group_by(id) |>
+  heats <- heats %>%
+    filter(!is.na(points)) %>%
+    group_by(id) %>%
     mutate(
       id2 = 1:n(),
       rank = as.integer(-points),
       rank = rank(rank, na.last = T, ties.method = "first")
-    ) |>
-    ungroup() |>
+    ) %>%
+    ungroup() %>%
     select(-date, -position, -event_id, -points, -position)
 
   # initial parameters ----
 
-  R <-
-    rep(1500, length(unique(heats$rider_name))) |>
-    setNames(unique(heats$rider_name))
+  R <- setNames(
+    rep(1500, length(unique(heats$rider_name))),
+    unique(heats$rider_name)
+  )
 
-  RD <-
-    rep(350, length(unique(heats$rider_name))) |>
-    setNames(unique(heats$rider_name))
+  RD <- setNames(
+    rep(350, length(unique(heats$rider_name))),
+    unique(heats$rider_name)
+  )
 
   q <- log(10) / 400
   g <- function(x, q) {
@@ -173,32 +175,30 @@ testScript1 <- function() {
   }
 
   # steps -----
-  heats_list <- heats |> split(heats$id)
+  heats_list <- split(heats, heats$id)
   output_list <- list()
 
   for (inID in 1:length(heats_list)) {
-    heat <-
-      heats_list[[inID]] |>
-      mutate(
-        r = R[rider_name],
-        rd = RD[rider_name]
-      )
+    heat <- mutate(
+      heats_list[[inID]],
+      r = R[rider_name],
+      rd = RD[rider_name]
+    )
 
     if (nrow(heat) < 2) next
 
     heat_grid <- expandPairwise(heat)
-    heat_grid %<>%
-      mutate(
-        grd_j = g(rd_j, q),
-        grd_ij = g(sqrt(rd_i^2 + rd_j^2), q),
-        out = as.integer(rank_i < rank_j),
-        out_hat = out_hat(r_i, r_j, grd_j),
-        e_out = out_hat(r_i, r_j, grd_ij)
-      )
+    heat_grid <- mutate(
+      heat_grid,
+      grd_j = g(rd_j, q),
+      grd_ij = g(sqrt(rd_i^2 + rd_j^2), q),
+      out = as.integer(rank_i < rank_j),
+      out_hat = out_hat(r_i, r_j, grd_j),
+      e_out = out_hat(r_i, r_j, grd_ij)
+    )
 
-    output <-
-      heat_grid |>
-      group_by(id2_i) |>
+    output <- heat_grid %>%
+      group_by(id2_i) %>%
       summarize(
         r_i = first(r_i),
         rd_i = first(rd_i),
@@ -211,16 +211,16 @@ testScript1 <- function() {
 
     if (sum(is.na(output)) > 0) stop()
 
-    heat %<>% left_join(output, by = c("id2" = "id2_i"))
+    heat <- left_join(heat, output, by = c("id2" = "id2_i"))
     R[heat$rider_name] <- heat$r_prim
     RD[heat$rider_name] <- heat$rd_prim
 
-    output_list[[inID]] <- output |> mutate(id = inID)
+    output_list[[inID]] <- output %>% mutate(id = inID)
   }
 
-  outputs <- output_list |> bind_rows()
-  colnames(outputs) %<>% gsub("_i$", "", x = .)
-  outputs %<>% left_join(heats)
+  outputs <- bind_rows(output_list)
+  colnames(outputs) <- gsub(colnames(outputs), "_i$", "", x = .)
+  outputs <- left_join(outputs, heats)
 }
 
 testScript2 <- function() {
@@ -237,11 +237,11 @@ testScript2 <- function() {
                   d1.id2 != d2.id2
                   ")
 
-    colnames(df) %<>% paste0("_i")
-    grid %<>% left_join(df)
+    colnames(df) <- paste0(colnames(df), "_i")
+    grid <- left_join(grid, df)
 
-    colnames(df) %<>% gsub("_i", "_j", x = .)
-    grid %<>% left_join(df)
+    colnames(df) <- gsub(colnames(df), "_i", "_j", x = .)
+    grid <- left_join(grid, df)
     return(grid)
   }
 
@@ -281,18 +281,18 @@ testScript2 <- function() {
 
 
   heat_grid <- expandPairwise(heat)
-  heat_grid %<>%
-    mutate(
-      grd_j = g(rd_j, q),
-      grd_ij = g(sqrt(rd_i^2 + rd_j^2), q),
-      out = as.integer(rank_i < rank_j),
-      out_hat = out_hat(r_i, r_j, grd_j),
-      e_out = out_hat(r_i, r_j, grd_ij)
-    )
+  heat_grid <- mutate(
+    heat_grid,
+    grd_j = g(rd_j, q),
+    grd_ij = g(sqrt(rd_i^2 + rd_j^2), q),
+    out = as.integer(rank_i < rank_j),
+    out_hat = out_hat(r_i, r_j, grd_j),
+    e_out = out_hat(r_i, r_j, grd_ij)
+  )
 
   output <-
-    heat_grid |>
-    group_by(id2_i) |>
+    heat_grid %>%
+    group_by(id2_i) %>%
     summarize(
       r_i = first(r_i),
       rd_i = first(rd_i),
@@ -318,8 +318,8 @@ testScript2 <- function() {
   # BT Model ------
 
   library(ggplot2)
-  outputs |>
-    filter(rider_name %in% c("Greg Hancock", "Tomasz Gollob", "Tony Rickardsson")) |>
+  outputs %>%
+    filter(rider_name %in% c("Greg Hancock", "Tomasz Gollob", "Tony Rickardsson")) %>%
     ggplot(aes(x = id, y = r_prim, group = rider_name, color = rider_name)) +
     geom_line() +
     geom_ribbon(aes(ymin = r_prim - 1.96 * rd_prim, ymax = r_prim + 1.96 * rd_prim, fill = rider_name, alpha = .1, color = NULL))

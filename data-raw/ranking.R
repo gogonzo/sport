@@ -26,8 +26,6 @@
 
 
 ranking <- function(..., ties = "none") {
-  require(magrittr)
-  require(dplyr)
   args <- list(...)
   # args <- list(a1=df$final, a2=df$semi, a3=df$pts, a4=df$bal, b1 =df$rel, x1=df$x)
   id <- 1:length(args[[1]])

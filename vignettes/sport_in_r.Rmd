@@ -275,9 +275,9 @@ the column name to `lambda` argument.
 
 ```{r warning=FALSE , message=FALSE}
 # bbt example
-data <- data |>
-  group_by(rider) |>
-  mutate(idle_30d = if_else(as.integer(date - lag(date)) > 30, 1.0, 2.0)) |>
+data <- data %>%
+  group_by(rider) %>%
+  mutate(idle_30d = if_else(as.integer(date - lag(date)) > 30, 1.0, 2.0)) %>%
   filter(!is.na(idle_30d))
 
 bbt <- bbt_run(

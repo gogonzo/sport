@@ -494,11 +494,11 @@ testthat::test_that("Reasonable estimates", {
   dbl <- dbl_run(rank | id ~ player(rider), data = gpheats[1:10000, ])
 
   library(dplyr)
-  by_rank <- gpheats |>
-    head(10000) |>
-    group_by(rider) |>
-    summarize(mean_rank = mean(rank, na.rm = TRUE)) |>
-    ungroup() |>
+  by_rank <- gpheats %>%
+    head(10000) %>%
+    group_by(rider) %>%
+    summarize(mean_rank = mean(rank, na.rm = TRUE)) %>%
+    ungroup() %>%
     arrange(mean_rank)
 
   worst <- unique(c(
