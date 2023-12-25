@@ -89,7 +89,7 @@ predict.rating <- function(object, newdata, ...) {
     )
   }
 
-  P <- model$pairs
+  P <- model$pairs # data.table
   P <- P[, Y := ifelse(P > .5, 1, ifelse(P == .5, .5, 0))]
 
   return(P)

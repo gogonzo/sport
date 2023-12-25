@@ -11,7 +11,7 @@ data <- data.frame(
 )
 
 
-test_that("valid glicko predict computation", {
+testthat::test_that("valid glicko predict computation", {
   r <- setNames(rep(1500, 4), c("A", "B", "C", "D"))
   rd <- setNames(rep(350, 4), c("A", "B", "C", "D"))
   sigma <- setNames(rep(1, 4), c("A", "B", "C", "D"))
@@ -23,16 +23,16 @@ test_that("valid glicko predict computation", {
     rd = rd
   )
 
-  expect_identical(glicko$final_r, r)
-  expect_silent(pred <- predict(glicko, data))
-  expect_true(all(pred$Y == .5))
+  testthat::expect_identical(glicko$final_r, r)
+  testthat::expect_silent(pred <- predict(glicko, data))
+  testthat::expect_true(all(pred$Y == .5))
 
 
   r <- setNames(c(1500, 1400, 1550, 1700), c("A", "B", "C", "D"))
   rd <- setNames(c(200, 30, 100, 300), c("A", "B", "C", "D"))
   glicko <- glicko_run(rank | id ~ player(name), data = data, r = r, rd = rd)
 
-  expect_identical(
+  testthat::expect_identical(
     round(predict(glicko, data)$P, 3),
     c(
       0.634, 0.457, 0.412,
@@ -43,7 +43,7 @@ test_that("valid glicko predict computation", {
   )
 })
 
-test_that("valid glicko2 predict computation", {
+testthat::test_that("valid glicko2 predict computation", {
   r <- setNames(rep(1500, 4), c("A", "B", "C", "D"))
   rd <- setNames(rep(350, 4), c("A", "B", "C", "D"))
   sigma <- setNames(rep(1, 4), c("A", "B", "C", "D"))
@@ -55,16 +55,16 @@ test_that("valid glicko2 predict computation", {
     rd = rd
   )
 
-  expect_identical(glicko2$final_r, r)
-  expect_silent(pred <- predict(glicko2, data))
-  expect_true(all(pred$Y == .5))
+  testthat::expect_identical(glicko2$final_r, r)
+  testthat::expect_silent(pred <- predict(glicko2, data))
+  testthat::expect_true(all(pred$Y == .5))
 
 
   r <- setNames(c(1500, 1400, 1550, 1700), c("A", "B", "C", "D"))
   rd <- setNames(c(200, 30, 100, 300), c("A", "B", "C", "D"))
   glicko2 <- glicko2_run(rank | id ~ player(name), data = data, r = r, rd = rd)
 
-  expect_identical(
+  testthat::expect_identical(
     round(predict(glicko2, data)$P, 3),
     c(
       0.703, 0.451, 0.536,
@@ -75,7 +75,7 @@ test_that("valid glicko2 predict computation", {
   )
 })
 
-test_that("valid bbt predict computation", {
+testthat::test_that("valid bbt predict computation", {
   r <- setNames(rep(25.0, 4), c("A", "B", "C", "D"))
   rd <- setNames(rep(25 / 3, 4), c("A", "B", "C", "D"))
   sigma <- setNames(rep(1, 4), c("A", "B", "C", "D"))
@@ -87,16 +87,16 @@ test_that("valid bbt predict computation", {
     rd = rd
   )
 
-  expect_identical(bbt$final_r, r)
-  expect_silent(pred <- predict(bbt, data))
-  expect_true(all(pred$Y == .5))
+  testthat::expect_identical(bbt$final_r, r)
+  testthat::expect_silent(pred <- predict(bbt, data))
+  testthat::expect_true(all(pred$Y == .5))
 
 
   r <- setNames(c(25.0, 20.0, 15.0, 30.0), c("A", "B", "C", "D"))
   rd <- setNames(c(6.0, 7.0, 5.0, 20.0), c("A", "B", "C", "D"))
   bbt <- bbt_run(rank | id ~ player(name), data = data, r = r, rd = rd)
 
-  expect_identical(
+  testthat::expect_identical(
     round(predict(bbt, data)$P, 3),
     c(
       0.585, 0.698, 0.501,
@@ -107,10 +107,10 @@ test_that("valid bbt predict computation", {
   )
 })
 
-test_that("valid dbl predict computation", {
+testthat::test_that("valid dbl predict computation", {
   dbl <- dbl_run(rank | id ~ player(name), data = data)
-  expect_silent(pred <- predict(dbl, data))
-  expect_identical(
+  testthat::expect_silent(pred <- predict(dbl, data))
+  testthat::expect_identical(
     round(pred$P, 3),
     c(
       0.624, 0.267, 0.376,
@@ -125,20 +125,20 @@ test_that("valid dbl predict computation", {
     data = data
   )
 
-  expect_silent(pred <- predict(dbl, data))
-  expect_true(all(pred$Y == .5))
+  testthat::expect_silent(pred <- predict(dbl, data))
+  testthat::expect_true(all(pred$Y == .5))
 })
 
-test_that("New data consistent", {
+testthat::test_that("New data consistent", {
   glicko <- glicko_run(rank | id ~ player(rider), data = gpheats[1:4, ])
-  expect_error(
+  testthat::expect_error(
     predict(glicko, newdata = data),
     "Variables \\(rider\\) are not present in newdata"
   )
 
-  test_that("New data consistent", {
+  testthat::test_that("New data consistent", {
     glicko <- glicko_run(rank | id ~ player(rider), data = gpheats[1:4, ])
-    expect_warning(
+    testthat::expect_warning(
       predict(glicko, newdata = gpheats[5:8, ]),
       "Missing parameters will be added with init_rd"
     )

@@ -116,16 +116,15 @@ print.rating <- function(x, ...) {
 plot.rating <- function(x, n = 10, players, ...) {
   formula <- attr(x, "formula")
   variable <- extract_team_terms(formula)[1]
-
   if (!missing(players)) {
     data <- x$r[x$r[[variable]] %in% players, ]
     ggplot(
       data,
-      aes_string(
-        x = "id",
-        y = "r",
-        group = variable,
-        color = variable
+      aes(
+        x = .data$id,
+        y = .data$r,
+        group = .data[[variable]],
+        color = .data[[variable]]
       )
     ) +
       geom_line() +
@@ -137,23 +136,20 @@ plot.rating <- function(x, n = 10, players, ...) {
       r = x$final_r,
       rd = x$final_rd,
       row.names = NULL,
-      stringsAsFactors = F
+      stringsAsFactors = FALSE
     )
     names(data)[1] <- variable
 
     data <- data[order(data$r, decreasing = TRUE), ][1:n, ]
     data[[variable]] <- reorder(data[[variable]], nrow(data):1)
-    ggplot(data, aes_string(
-      x = variable,
-      y = "r"
-    )) +
+    ggplot(data, aes(x = .data[[variable]], y = .data$r)) +
       ggtitle("Actual ratings") +
       geom_linerange(
         aes(
-          ymin = r - rd * 1.98,
-          ymax = r + rd * 1.98
+          ymin = .data$r - .data$rd * 1.98,
+          ymax = .data$r + .data$rd * 1.98
         ),
-        size = 1 * 0.8,
+        linewidth = 1 * 0.8,
         alpha = 0.4
       ) +
       geom_point(colour = "grey20", size = 1) +
