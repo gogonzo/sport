@@ -21,7 +21,6 @@
 #' @name gpheats
 NULL
 
-
 #' Turnament results of Speedway Grand-Prix
 #'
 #' Actual dataset containing turnament results of all Speedway Grand-Prix events

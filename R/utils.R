@@ -19,7 +19,6 @@ is_newdata_consistent <- function(vars, newnames) {
 
 are_variables_in_dataset <- function(vars, data) {
   missing_vars <- setdiff(vars, colnames(data))
-
   if (length(missing_vars) > 0) {
     stop(
       sprintf(
@@ -32,6 +31,7 @@ are_variables_in_dataset <- function(vars, data) {
 
   return(invisible(TRUE))
 }
+
 check_numeric_argument <- function(x, var_name, min = -Inf, max = Inf) {
   if (!is.numeric(x)) {
     stop(sprintf("Variable %s should be of type numeric.", var_name),
@@ -50,15 +50,18 @@ check_numeric_argument <- function(x, var_name, min = -Inf, max = Inf) {
 
 check_integer_argument <- function(x, var_name, min = -Inf, max = Inf) {
   if (!is.integer(x)) {
-    stop(sprintf("Variable %s should be of type integer.", var_name),
+    stop(
+      sprintf("Variable %s should be of type integer.", var_name),
       call. = FALSE
     )
   } else if (any(!is.finite(x))) {
-    stop(sprintf("Variable %s contains non-finite values. All elements should be finite.", var_name),
+    stop(
+      sprintf("Variable %s contains non-finite values. All elements should be finite.", var_name),
       call. = FALSE
     )
   } else if (any(x < min | x > max)) {
-    stop(sprintf("All values in variable %s should be in range [%s, %s]", var_name, min, max),
+    stop(
+      sprintf("All values in variable %s should be in range [%s, %s]", var_name, min, max),
       call. = FALSE
     )
   }
@@ -78,15 +81,18 @@ check_string_argument <- function(x, var_name) {
 
 check_single_argument <- function(x, var_name, min = -Inf, max = Inf) {
   if (length(x) > 1) {
-    stop(sprintf("variable %s should be a single value", var_name),
+    stop(
+      sprintf("variable %s should be a single value", var_name),
       call. = FALSE
     )
   } else if (is.numeric(x) && x < min) {
-    stop(sprintf("variable %s should be greater than %s", var_name, min),
+    stop(
+      sprintf("variable %s should be greater than %s", var_name, min),
       call. = FALSE
     )
   } else if (is.numeric(x) && x > max) {
-    stop(sprintf("variable %s should be lower than %s", var_name, max),
+    stop(
+      sprintf("variable %s should be lower than %s", var_name, max),
       call. = FALSE
     )
   }
