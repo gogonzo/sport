@@ -1,4 +1,6 @@
-linters: 
-  linters_with_defaults(
+linters: linters_with_defaults(
     line_length_linter(100L)
   )
+exclusions: list(
+  "data-raw"
+)
