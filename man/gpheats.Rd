@@ -3,7 +3,8 @@
 \name{gpheats}
 \alias{gpheats}
 \title{Heat results of Speedway Grand-Prix}
-\format{A data frame with >19000 rows and 11 variables:
+\format{
+A data frame with >19000 rows and 11 variables:
 \describe{
   \item{id}{event identifier}
   \item{season}{year of Grand-Prix, 1995-now}
@@ -16,7 +17,8 @@
   \item{points}{paints gained, integer}
   \item{position}{position at finish line, string}
   \item{rank}{rank at finish line, integer}
-}}
+}
+}
 \source{
 internal
 }

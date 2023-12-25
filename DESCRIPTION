@@ -34,7 +34,7 @@ Encoding: UTF-8
 Language: en-US
 URL: https://github.com/gogonzo/sport
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.2.3
 Suggests: 
   dplyr,
   knitr, 
