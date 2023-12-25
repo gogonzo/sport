@@ -39,9 +39,7 @@ Suggests:
   dplyr,
   knitr, 
   lobstr,
-  magrittr,
   pkgdown,
   rmarkdown, 
-  spelling,
   testthat
 VignetteBuilder: knitr

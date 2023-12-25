@@ -46,7 +46,7 @@ ranking <- function(..., ties = "none") {
   }
 
   # order absolute ----
-  order_a <- a %>% paste(collapse = ",")
+  order_a <- toString(a)
   statement <- sprintf("idx <- order(%s,na.last = T, decreasing=T, method ='radix')", order_a)
   eval(parse(text = statement))
   id[idx] <- id

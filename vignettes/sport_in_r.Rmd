@@ -154,28 +154,28 @@ are stored. `player(...)` can be specified in two ways:
   
       ```{r}
 glicko2 <- glicko2_run(
+  formula = rank_player | id ~ player(player),
   data = data.frame(
     id = c(1, 1, 1, 1),
     player = c("a", "b", "c", "d"),
     rank_player = c(3, 4, 1, 2)
-  ),
-  formula = rank_player | id ~ player(player)
+  )
 )
       ```
   
-  2. `player(player | team)` when players competes within teams, and results are 
+  1. `player(player | team)` when players competes within teams, and results are 
   observed per team. This option is not available in `dbl_run` which requires only
   formula for player matchups.
   
       ```{r}
 glicko2 <- glicko2_run(
+  formula = rank_team | id ~ player(player | team),
   data = data.frame(
     id = c(1, 1, 1, 1),
     team = c("A", "A", "B", "B"),
     player = c("a", "b", "c", "d"),
     rank_team = c(1, 1, 2, 2)
-  ),
-  formula = rank_team | id ~ player(player | team)
+  )
 )
       ```
     
@@ -185,6 +185,7 @@ factors in model.
 
   ```{r}
 dbl <- dbl_run(
+  formula = rank | id ~ player(name) + gate * factor1,
   data = data.frame(
     id = c(1, 1, 1, 1),
     name = c("A", "B", "C", "D"),
@@ -192,8 +193,7 @@ dbl <- dbl_run(
     gate = c(1, 2, 3, 4),
     factor1 = c("a", "a", "b", "b"),
     factor2 = c("a", "b", "a", "b")
-  ),
-  formula = rank | id ~ player(name) + gate * factor1
+  )
 )
   ```
 
@@ -208,8 +208,8 @@ new estimates.
 
 ```{r warning=FALSE , message=FALSE}
 model <- glicko_run(
-  data = gpheats[1:16, ],
-  rank | id ~ player(rider)
+  formula = rank | id ~ player(rider),
+  data = gpheats[1:16, ]
 )
 ```
 
@@ -275,12 +275,13 @@ the column name to `lambda` argument.
 
 ```{r warning=FALSE , message=FALSE}
 # bbt example
-data <- data %>%
-  group_by(rider) %>%
-  mutate(idle_30d = if_else(as.integer(date - lag(date)) > 30, 1.0, 2.0)) %>%
+data <- data |>
+  group_by(rider) |>
+  mutate(idle_30d = if_else(as.integer(date - lag(date)) > 30, 1.0, 2.0)) |>
   filter(!is.na(idle_30d))
 
-bbt <- bbt_run(rank | id ~ player(rider),
+bbt <- bbt_run(
+  formula = rank | id ~ player(rider),
   data = data,
   lambda = "idle_30d"
 )

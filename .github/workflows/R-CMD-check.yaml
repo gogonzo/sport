@@ -91,7 +91,7 @@ jobs:
       - name: Install dependencies
         shell: Rscript {0}
         run: |
-          install.packages(c("Rcpp", "knitr", "rmarkdown", "tinytest", "rcmdcheck"))
+          install.packages(c("Rcpp", "knitr", "rmarkdown", "tinytest", "rcmdcheck",  "dplyr", "lobstr", "pkgdown", "testthat"))
 
       - name: Check 🔍
         shell: Rscript {0}
