@@ -5,7 +5,6 @@
 \title{Heat results of Speedway Grand-Prix}
 \format{
 A data frame with >19000 rows and 11 variables:
-\describe{
 \itemize{
 \item \code{id} - event identifier
 \item \code{season} - year of Grand-Prix, 1995-now
@@ -18,7 +17,6 @@ A data frame with >19000 rows and 11 variables:
 \item \code{points} - paints gained, integer
 \item \code{position} - position at finish line, string
 \item \code{rank} - rank at finish line, integer
-}
 }
 }
 \source{

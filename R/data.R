@@ -4,7 +4,6 @@
 #' `gpheats`.
 #'
 #' @format A data frame with >19000 rows and 11 variables:
-#' \describe{
 #'   - `id` - event identifier
 #'   - `season` - year of Grand-Prix, 1995-now
 #'   - `date` - date of turnament
@@ -16,7 +15,6 @@
 #'   - `points` - paints gained, integer
 #'   - `position` - position at finish line, string
 #'   - `rank` - rank at finish line, integer
-#' }
 #' @source internal
 #' @name gpheats
 NULL
@@ -27,7 +25,6 @@ NULL
 #' `gpsquads`
 #'
 #' @format A data frame with >4000 rows and 9 variables:
-#' \describe{
 #'   - `id` - event identifier
 #'   - `season` - year of Grand-Prix, 1995-now
 #'   - `date` - date of turnament
@@ -37,7 +34,6 @@ NULL
 #'   - `rider` - rider names, 1-6
 #'   - `points` - points gained, integer
 #'   - `classification` - classification after an event
-#' }
 #' @source internal
 #' @name gpsquads
 NULL

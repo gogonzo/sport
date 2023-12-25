@@ -17,7 +17,7 @@ List with following elements:
 \item \code{formula} modeled formula.
 \item \code{method} type of algorithm used.
 \item \verb{Overall Accuracy} named vector containing players ratings.
-\item \code{r} data.frame summarized players ratings and model winning probabilities.
+\item \code{r} a \code{data.frame} with summarized players ratings and model winning probabilities.
 }
 
 Probabilities are returned only in models with one variable (ratings):

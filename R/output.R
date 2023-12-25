@@ -14,7 +14,7 @@ NULL
 #' - `formula` modeled formula.
 #' - `method` type of algorithm used.
 #' - `Overall Accuracy` named vector containing players ratings.
-#' - `r` data.frame summarized players ratings and model winning probabilities.
+#' - `r` a `data.frame` with summarized players ratings and model winning probabilities.
 #'
 #' Probabilities are returned only in models with one variable (ratings):
 #'   - `name` of a player

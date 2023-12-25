@@ -5,7 +5,6 @@
 \title{Turnament results of Speedway Grand-Prix}
 \format{
 A data frame with >4000 rows and 9 variables:
-\describe{
 \itemize{
 \item \code{id} - event identifier
 \item \code{season} - year of Grand-Prix, 1995-now
@@ -16,7 +15,6 @@ A data frame with >4000 rows and 9 variables:
 \item \code{rider} - rider names, 1-6
 \item \code{points} - points gained, integer
 \item \code{classification} - classification after an event
-}
 }
 }
 \source{
