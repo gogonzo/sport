@@ -1,7 +1,6 @@
 \.o$
 \.so$
 \.dll$
-
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$

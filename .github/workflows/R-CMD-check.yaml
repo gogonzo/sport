@@ -73,7 +73,7 @@ jobs:
           install.packages(
             c(
               "Rcpp", "knitr", "rmarkdown", "tinytest", "rcmdcheck",  "dplyr", 
-              "lobstr", "pkgdown", "testthat", "data.table", "ggplot2", "pkgdown"
+              "lobstr", "pkgdown", "testthat", "data.table", "ggplot2"
             )
           )
 
@@ -99,7 +99,7 @@ jobs:
           install.packages(
             c(
               "Rcpp", "knitr", "rmarkdown", "tinytest", "rcmdcheck",  "dplyr", 
-              "lobstr", "pkgdown", "testthat", "data.table", "ggplot2", "pkgdown"
+              "lobstr", "pkgdown", "testthat", "data.table", "ggplot2"
             )
           )
 

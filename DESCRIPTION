@@ -40,7 +40,6 @@ Suggests:
   dplyr,
   knitr, 
   lobstr,
-  pkgdown,
   rmarkdown, 
   testthat
 VignetteBuilder: knitr
