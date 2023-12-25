@@ -70,7 +70,12 @@ jobs:
       - name: Install dependencies
         shell: Rscript {0}
         run: |
-          install.packages(c("Rcpp", "knitr", "rmarkdown", "tinytest", "rcmdcheck"))
+          install.packages(
+            c(
+              "Rcpp", "knitr", "rmarkdown", "tinytest", "rcmdcheck",  "dplyr", 
+              "lobstr", "pkgdown", "testthat", "data.table", "ggplot2"
+            )
+          )
 
       - name: Check 🔍
         shell: Rscript {0}
@@ -91,7 +96,12 @@ jobs:
       - name: Install dependencies
         shell: Rscript {0}
         run: |
-          install.packages(c("Rcpp", "knitr", "rmarkdown", "tinytest", "rcmdcheck",  "dplyr", "lobstr", "pkgdown", "testthat"))
+          install.packages(
+            c(
+              "Rcpp", "knitr", "rmarkdown", "tinytest", "rcmdcheck",  "dplyr", 
+              "lobstr", "pkgdown", "testthat", "data.table", "ggplot2"
+            )
+          )
 
       - name: Check 🔍
         shell: Rscript {0}

@@ -94,3 +94,4 @@ expected to involve extremely improbable collections of game outcomes, then
 \description{
 Apply rating algorithm
 }
+\keyword{internal}

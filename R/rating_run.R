@@ -74,6 +74,7 @@ NULL
 #'
 #' @param init_sigma initial values for \code{sigma} if not provided.
 #' Default = 0.5
+#' @keywords internal
 rating_run <- function(
     method,
     data,
