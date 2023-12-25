@@ -14,15 +14,11 @@
 #   Test Package:              'Cmd + Shift + T'
 
 test <- function() {
-  library(oddsandsods)
-  library(speedway)
-  library(Rcpp)
-  source("~/R_GLOBALS/speedway_connect.R")
-  getConnection()
+  speedway:::getConnection()
 
   season <- 2016
   competition <- "DMP"
-  teams <- customQuery(
+  teams <- DBI::dbGetQuery(
     {
       "
       SELECT
@@ -72,10 +68,8 @@ testScript1 <- function() {
   library(rvest)
   library(magrittr)
   library(dplyr)
-  library(oddsandsods)
   library(reshape2)
   options(scipen = 999, digits = 5, sqldf.driver = "SQLite", gsubfn.engine = "R")
-  source("~/R_GLOBALS/speedway_connect.R")
   expandPairwise <- function(df, id, id2) {
     library(sqldf)
     grid <- sqldf("
@@ -96,8 +90,8 @@ testScript1 <- function() {
     return(grid)
   }
 
-  getConnection()
-  raw_heats <- customQuery({
+  speedway:::getConnectionLocal()
+  raw_heats <- DBI::dbGetQuery({
     "
     SELECT
     event_id, heat, field, rider_name, points, position
@@ -107,14 +101,14 @@ testScript1 <- function() {
     rider_name != '' and
     points is not null"
   })
-  raw_events <- customQuery({
+  raw_events <- DBI::dbGetQuery({
     "
     SELECT
     e.id event_id,e.date, e.competition, e.season, e.stage, e.place
     FROM events e
     "
   })
-  dbDisconnect(con)
+  DBI::dbDisconnect(con)
 
   # wrangle events -----
   events <- raw_events
