@@ -1,15 +1,13 @@
-sport v0.2.1 (Release date: 2024-01-01)
-==============
+# sport v0.2.1
 
-Changes:
+----------------
+## Changes:
 
-* Fix CRAN issues
+* Fix CRAN issues.
 
-
-sport v0.2.0 (Release date: 2019-01-07)
-==============
-
-Changes:
+# sport v0.2.0
+----------------
+### Changes:
 
 * `sigma` argument replaced with `lambda`.
 * removed `beta` from glicko `gamma` from bbt.
@@ -18,9 +16,10 @@ Changes:
 * increased speed of the algorithms by rewriting event loop to c++.
 * updated SGP data
 
-sport v0.1.2 (Release date: 2018-01-07)
-==============
+# sport v0.1.2
 
-Changes:
+----------------
+
+### Changes:
 
 * Corrected weight parameter in all functions.
