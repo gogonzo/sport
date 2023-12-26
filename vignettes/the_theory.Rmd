@@ -88,11 +88,13 @@ deviation $rd \leq 350$.
 library(sport)
 
 # example taken from Glickman (1999)
-data <- data.frame(id = 1, 
-                   name = c("A", "B", "C", "D"), 
-                   rank = c(3, 4, 1, 2))
-r <- setNames(c(1500, 1400, 1550, 1700), c("A","B","C","D"))
-rd <- setNames(c(200, 30, 100, 300), c("A","B","C","D"))
+data <- data.frame(
+  id = 1,
+  name = c("A", "B", "C", "D"),
+  rank = c(3, 4, 1, 2)
+)
+r <- setNames(c(1500, 1400, 1550, 1700), c("A", "B", "C", "D"))
+rd <- setNames(c(200, 30, 100, 300), c("A", "B", "C", "D"))
 
 model <- glicko_run(rank | id ~ player(name), data = data, r = r, rd = rd)
 print(model$final_r)
@@ -123,15 +125,16 @@ with Glicko and values revolves around $R\sim1500$ with max deviation $RD \leq 3
 
 ```{r message=FALSE, warning=FALSE}
 # example taken from Glickman (2013)
-data <- data.frame(id = 1, 
-                   name = c("A", "B", "C", "D"), 
-                   rank = c(3, 4, 1, 2))
-r <- setNames(c(1500, 1400, 1550, 1700), c("A","B","C","D"))
-rd <- setNames(c(200, 30, 100, 300), c("A","B","C","D"))
+data <- data.frame(
+  id = 1,
+  name = c("A", "B", "C", "D"),
+  rank = c(3, 4, 1, 2)
+)
+r <- setNames(c(1500, 1400, 1550, 1700), c("A", "B", "C", "D"))
+rd <- setNames(c(200, 30, 100, 300), c("A", "B", "C", "D"))
 
 model <- glicko2_run(rank | id ~ player(name), data = data, r = r, rd = rd)
 print(model$final_r)
-
 ```
 
 Output probability and update formulas looks as follows:
@@ -173,12 +176,16 @@ data <- data.frame(
 )
 
 model <- bbt_run(
-  data = data, 
+  data = data,
   formula = rank_player | id ~ player(player),
-  r = setNames(c(25, 23.3, 25.83, 28.33), 
-               c("a", "b", "c", "d")),
-  rd = setNames(c(4.76, 0.71, 2.38, 7.14), 
-                c("a", "b", "c", "d"))
+  r = setNames(
+    c(25, 23.3, 25.83, 28.33),
+    c("a", "b", "c", "d")
+  ),
+  rd = setNames(
+    c(4.76, 0.71, 2.38, 7.14),
+    c("a", "b", "c", "d")
+  )
 )
 print(model$final_r)
 ```
@@ -231,8 +238,9 @@ data <- data.frame(
 )
 
 dbl <- dbl_run(
-  data = data, 
-  formula = rank | id ~ player(name) + gate * factor1)
+  data = data,
+  formula = rank | id ~ player(name) + gate * factor1
+)
 
 print(dbl$final_r)
 ```

@@ -19,59 +19,53 @@ dbl_run(
 \arguments{
 \item{formula}{formula which specifies the model. Unlike other algorithms
 in the packages (glicko_run, glicko2_run, bbt_run), this method doesn't allow
-players nested in teams with `player(player | team)` and user should matchup
-in formula using `player(player)`. DBL allows user specify multiple parameters 
+players nested in teams with \code{player(player | team)} and user should matchup
+in formula using \code{player(player)}. DBL allows user specify multiple parameters
 also in interaction with others.}
 
 \item{data}{data.frame which contains columns specified in formula, and
 optional columns defined by \code{lambda}, \code{weight}.}
 
-\item{r}{named vector of initial players ratings estimates. If not specified 
+\item{r}{named vector of initial players ratings estimates. If not specified
 then \code{r} will be created automatically for parameters specified in \code{formula}
 with initial value \code{init_r}.}
 
-\item{rd}{rd named vector of initial rating deviation estimates. If not specified 
+\item{rd}{rd named vector of initial rating deviation estimates. If not specified
 then \code{rd} will be created automatically for parameters specified in \code{formula}
 with initial value \code{init_rd}.}
 
-\item{lambda}{name of the column in `data` containing lambda values or one 
+\item{lambda}{name of the column in \code{data} containing lambda values or one
 constant value (eg. \code{lambda = colname} or \code{lambda = 0.5}).
-Lambda impact prior variance, and uncertainty of the matchup result. The 
-higher lambda, the higher prior variance and more uncertain result of the 
+Lambda impact prior variance, and uncertainty of the matchup result. The
+higher lambda, the higher prior variance and more uncertain result of the
 matchup. Higher lambda flattens chances of winning.}
 
-\item{weight}{name of the column in `data` containing weights values or
-one constant (eg. \code{weight = colname} or \code{weight = 0.5}). 
-Weights increasing (weight > 1) or decreasing (weight < 1) update change. 
+\item{weight}{name of the column in \code{data} containing weights values or
+one constant (eg. \code{weight = colname} or \code{weight = 0.5}).
+Weights increasing (weight > 1) or decreasing (weight < 1) update change.
 Higher weight increasing impact of event result on rating estimate.}
 
 \item{kappa}{controls \code{rd} shrinkage not to be greater than \code{rd*(1 - kappa)}.
-`kappa=1` means that  \code{rd} will not be decreased.}
+\code{kappa=1} means that  \code{rd} will not be decreased.}
 
-\item{init_r}{initial values for \code{r} if not provided. 
-Default (\code{glicko = 1500}, \code{glicko2 = 1500}, \code{bbt = 25}, 
+\item{init_r}{initial values for \code{r} if not provided.
+Default (\code{glicko = 1500}, \code{glicko2 = 1500}, \code{bbt = 25},
 \code{dbl = 0})}
 
-\item{init_rd}{initial values for \code{rd} if not provided. 
+\item{init_rd}{initial values for \code{rd} if not provided.
 Default (\code{glicko = 350}, \code{glicko2 = 350}, \code{bbt = 25/3}, \code{dbl = 1})}
 }
 \value{
-A "rating" object is returned: \itemize{
-
+A "rating" object is returned:
+\itemize{
 \item \code{final_r} named vector containing players ratings.
-
 \item \code{final_rd} named vector containing players ratings deviations.
-
 \item \code{r} data.frame with evolution of the ratings and ratings deviations
- estimated at each event.
- 
-\item \code{pairs} pairwise combinations of players in analysed events with 
+estimated at each event.
+\item \code{pairs} pairwise combinations of players in analysed events with
 prior probability and result of a challenge.
-
 \item \code{class} of the object.
-
 \item \code{method} type of algorithm used.
-
 \item \code{settings} arguments specified in function call.
 }
 }
@@ -91,11 +85,12 @@ data <- data.frame(
 )
 
 dbl <- dbl_run(
-  data = data, 
+  data = data,
   formula = rank | id ~ player(name)
- )
+)
 
 dbl <- dbl_run(
-  data = data, 
-  formula = rank | id ~ player(name) + gate * factor1)
+  data = data,
+  formula = rank | id ~ player(name) + gate * factor1
+)
 }

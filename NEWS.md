@@ -1,3 +1,11 @@
+sport v0.2.1 (Release date: 2024-01-01)
+==============
+
+Changes:
+
+* Fix CRAN issues
+
+
 sport v0.2.0 (Release date: 2019-01-07)
 ==============
 

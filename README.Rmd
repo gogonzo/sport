@@ -16,10 +16,9 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![CRAN badge](https://cranlogs.r-pkg.org/badges/sport)](https://cran.r-project.org/web/packages/sport/index.html)
-[![Travis-CI Build Status](https://travis-ci.org/gogonzo/sport.svg?branch=master)](https://travis-ci.org/gogonzo/sport)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/gogonzo/sport?branch=master&svg=true)](https://ci.appveyor.com/project/gogonzo/sport)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 [![Coverage status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)](https://codecov.io/gh/gogonzo/sport)
+[![R-CMD-check](https://github.com/gogonzo/sport/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/gogonzo/sport/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 # About
@@ -33,7 +32,7 @@ Install package from CRAN or development version from github.
 
 ```{r eval=FALSE}
 devtools::install_github("gogonzo/sport")
-install.packages("sport",repos = "https://cloud.r-project.org/")
+install.packages("sport", repos = "https://cloud.r-project.org/")
 ```
 
 ## Available Data
@@ -43,14 +42,14 @@ Package contains actual data from Speedway Grand-Prix. There are two data.frames
 2. `gpsquads` - summarized results of the events, with sum of point and final position.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-library(sport) 
+library(sport)
 str(gpheats)
 ```
 
 Data used in `sport` package must be in so called long format. Typically data.frame contains at least `id`, `name` and `rank`, with one row for one player within specific match. Package allows for any number of players within event and allows ties also. For all games, *output needs to be a rank/position in event*. Don't mix up rank output with typical 1-win, 0-lost. In `sport` package output for two player game is 1-winner 2-looser. Below example of two matches with 4 players each.
 
 ```{r echo=FALSE}
-gpheats[1:8,c("id","rider","rank")]
+gpheats[1:8, c("id", "rider", "rank")]
 ```
 
 ## Estimate dynamic ratings
@@ -59,10 +58,10 @@ To compute ratings using each algorithms one has to specify formula. Form `rank 
 `formula = rank|id ~ name` 
 
 ```{r warning=FALSE, message=FALSE}
-glicko  <- glicko_run(formula = rank|id ~ player(rider), data = gpheats)
-glicko2 <- glicko2_run(formula = rank|id ~ player(rider), data = gpheats)
-bbt     <- bbt_run(formula = rank|id ~ player(rider), data = gpheats)
-dbl     <- dbl_run(formula = rank|id ~ player(rider), data = gpheats)
+glicko <- glicko_run(formula = rank | id ~ player(rider), data = gpheats)
+glicko2 <- glicko2_run(formula = rank | id ~ player(rider), data = gpheats)
+bbt <- bbt_run(formula = rank | id ~ player(rider), data = gpheats)
+dbl <- dbl_run(formula = rank | id ~ player(rider), data = gpheats)
 
 print(dbl)
 ```
@@ -87,8 +86,7 @@ by specifying `players` argument.
 
 ```{r message=FALSE, fig.show='hold', out.width = "50%"}
 plot(glicko, n = 15)
-plot(glicko, 
-     players = c("Greg HANCOCK","Tomasz GOLLOB","Tony RICKARDSSON"))
+plot(glicko, players = c("Greg Hancock", "Tomasz Gollob", "Tony Rickardsson"))
 ```
 
 Except dedicated `print`,`summary` and `plot` there is possibility to extract more detailed information to be analyzed. `rating` object contains following elements:

@@ -11,7 +11,7 @@
 
 \item{n}{number of teams to be plotted}
 
-\item{players}{optional vector with names of the contestants (coefficients) to plot 
+\item{players}{optional vector with names of the contestants (coefficients) to plot
 their evolution in time.}
 
 \item{...}{optional arguments}

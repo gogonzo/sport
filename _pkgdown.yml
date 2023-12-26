@@ -21,6 +21,12 @@ reference:
       - glicko2_run
       - bbt_run
       - dbl_run
+  - title: "Ratings methods"
+    desc: ""
+    contents:
+      - plot.rating
+      - predict.rating
+      - summary.rating
   - title: "Data"
     desc: "Speedway Grand-Prix results"
     contents:
