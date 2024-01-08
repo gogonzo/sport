@@ -245,7 +245,7 @@ dbl <- dbl_run(
 print(dbl$final_r)
 ```
 
-For more details read [Stephen J. Roberts, William Penny (2011)](https://www.researchgate.net/publication/2465226_Dynamic_Logistic_Regression)
+For more details read [Stephen J. Roberts, William Penny (2011)](https://doi.org/10.1109/IJCNN.1999.832603)
 
 
 ## Additional controls
