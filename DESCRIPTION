@@ -20,8 +20,7 @@ Description: Calculates ratings for two-player or
   package refers to Mark E. Glickman (1999) 
   <http://www.glicko.net/research/glicko.pdf>; 
   Mark E. Glickman (2001) <doi:10.1080/02664760120059219>; 
-  Ruby C. Weng, Chih-Jen Lin (2011) 
-  <http://jmlr.csail.mit.edu/papers/volume12/weng11a/weng11a.pdf>; 
+  Ruby C. Weng, Chih-Jen Lin (2011) <doi:10.2307/270983>; 
   W. Penny, Stephen J. Roberts (1999) <doi:10.1109/IJCNN.1999.832603>.
 BugReports: https://github.com/gogonzo/sport/issues
 Imports: 
