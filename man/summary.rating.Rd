@@ -12,27 +12,33 @@
 \item{...}{optional arguments}
 }
 \value{
-List with following elements \itemize{
+List with following elements:
+\itemize{
 \item \code{formula} modeled formula.
 \item \code{method} type of algorithm used.
-\item \code{Overall Accuracy} named vector containing players ratings.
-\item \code{r} data.frame summarized players ratings and model winning probabilities. Probabilities are returned only in models with one variable (ratings) \itemize{
+\item \verb{Overall Accuracy} named vector containing players ratings.
+\item \code{r} a \code{data.frame} with summarized players ratings and model winning probabilities.
+}
+
+Probabilities are returned only in models with one variable (ratings):
+\itemize{
 \item \code{name} of a player
 \item \code{r} players ratings
 \item \code{rd} players ratings deviation
-\item \code{`Model probability`} mean predicted probability of winning the challenge by the player.
-\item \code{`True probability`} mean observed probability of winning the challenge by the player.
-\item \code{`Accuracy`} Accuracy of prediction.
-\item \code{`pairings`} number of pairwise occurrences.
-}
+\item \verb{Model probability} mean predicted probability of winning the challenge by the player.
+\item \verb{True probability} mean observed probability of winning the challenge by the player.
+\item \code{Accuracy} Accuracy of prediction.
+\item \code{pairings} number of pairwise occurrences.
 }
 }
 \description{
 Summarizing rating objects
-Summary for object of class `rating`
+Summary for object of class \code{rating}
 }
 \examples{
-model <- glicko_run(formula = rank | id ~ player(rider), 
-                    data = gpheats[1:102, ])
+model <- glicko_run(
+  formula = rank | id ~ player(rider),
+  data = gpheats[1:102, ]
+)
 summary(model)
 }

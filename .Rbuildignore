@@ -1,7 +1,6 @@
 \.o$
 \.so$
 \.dll$
-
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
@@ -17,3 +16,5 @@ TODO
 ^cran-comments\.md$
 \.xcf
 ^docs$
+^\.github$
+.lintr$

@@ -2,13 +2,13 @@
 #'
 #' Ranks multiple inputs with custom options
 #'
-#' @param a vector of attributes with prefix \code{a*} as variable to be ranked. Multiple arguments can be provided like \code{a1}, \code{a2}, ... \code{a10}. All arguments will be examined in given order to obtain ranking. If some observation have the same attribute (tie) then next argument will be decisive about ranking etc.
-#' @param b vector of attributes with prefix \code{b*}
-#' @param x vector with non-NA value pointing for an excluded from ranking. Ranking for \code{!is.na(x)} is being set to \code{NA} and others are updated
+#' @param a vector of attributes with prefix `a*` as variable to be ranked. Multiple arguments can be provided like `a1`, `a2`, ... `a10`. All arguments will be examined in given order to obtain ranking. If some observation have the same attribute (tie) then next argument will be decisive about ranking etc.
+#' @param b vector of attributes with prefix `b*`
+#' @param x vector with non-NA value pointing for an excluded from ranking. Ranking for `!is.na(x)` is being set to `NA` and others are updated
 #' @param ties method of dealing with ties. Available 'first' and default='none'
 #'
 #' @return A list with the elements
-#' \item{y}{The sum of the squared values.}
+#' - `y` - The sum of the squared values.
 #' @note This is a very simple function.
 #' @examples
 #' df <-
@@ -26,8 +26,6 @@
 
 
 ranking <- function(..., ties = "none") {
-  require(magrittr)
-  require(dplyr)
   args <- list(...)
   # args <- list(a1=df$final, a2=df$semi, a3=df$pts, a4=df$bal, b1 =df$rel, x1=df$x)
   id <- 1:length(args[[1]])
@@ -46,7 +44,7 @@ ranking <- function(..., ties = "none") {
   }
 
   # order absolute ----
-  order_a <- a %>% paste(collapse = ",")
+  order_a <- toString(a)
   statement <- sprintf("idx <- order(%s,na.last = T, decreasing=T, method ='radix')", order_a)
   eval(parse(text = statement))
   id[idx] <- id

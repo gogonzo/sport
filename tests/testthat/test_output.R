@@ -2,37 +2,35 @@ context("print, summary")
 glicko <- glicko_run(rank | id ~ player(rider), data = gpheats[1:32, ])
 dbl <- dbl_run(rank | id ~ player(rider), data = gpheats[1:32, ])
 
-test_that("summary", {
-  expect_identical(
+testthat::test_that("summary", {
+  testthat::expect_identical(
     c("formula", "method", "Overall Accuracy", "Number of pairs", "r"),
     names(summary(dbl))
   )
-  expect_identical(
+  testthat::expect_identical(
     c("formula", "method", "Overall Accuracy", "Number of pairs", "r"),
     names(summary(glicko))
   )
-
 })
 
-test_that("Plot layers match", {
-  expect_output(
+testthat::test_that("Plot layers match", {
+  testthat::expect_output(
     print(glicko)
   )
 })
 
-test_that("Plot layers match expectations", {
+testthat::test_that("Plot layers match expectations", {
   p <- plot(dbl)
-  expect_identical(class(p$layers[[1]]$geom), c("GeomLinerange", "Geom", "ggproto", "gg"))
-  expect_identical(class(p$layers[[2]]$geom), c("GeomPoint", "Geom", "ggproto", "gg"))
+  testthat::expect_identical(class(p$layers[[1]]$geom), c("GeomLinerange", "Geom", "ggproto", "gg"))
+  testthat::expect_identical(class(p$layers[[2]]$geom), c("GeomPoint", "Geom", "ggproto", "gg"))
 })
 
-test_that("Scale is labelled 'r'", {
+testthat::test_that("Scale is labelled 'r'", {
   p <- plot(dbl)
-  expect_identical(p$labels$y, "r")
+  testthat::expect_identical(p$labels$y, "r")
 })
 
-test_that("Scale range is NULL", {
+testthat::test_that("Scale range is NULL", {
   p <- plot(dbl)
-  expect_null(p$scales$scales[[1]]$range$range)
+  testthat::expect_null(p$scales$scales[[1]]$range$range)
 })
-
