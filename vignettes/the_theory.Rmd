@@ -191,7 +191,7 @@ print(model$final_r)
 ```
 
 For more details read
-[Ruby C. Weng and Chih-Jen Lin (2011)](https://doi.org/10.2307/270983)
+[Ruby C. Weng and Chih-Jen Lin (2011)](https://www.jmlr.org/papers/volume12/weng11a/weng11a.pdf)
 
 ## Dynamic Bayesian Logit
 Following algorithm gives some advantages over mentioned rating systems, allowing 
