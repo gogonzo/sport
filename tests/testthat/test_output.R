@@ -28,7 +28,11 @@ test_that("Plot layers match expectations", {
 
 test_that("Scale is labelled 'r'", {
   p <- plot(dbl)
-  expect_identical(p$labels$y, "r")
+  if ("get_labs" %in% getNamespaceExports("ggplot2")) {
+    expect_identical(get_labs(p)$y, "r")
+  } else {
+    expect_identical(p$labels$y, "r")
+  }
 })
 
 test_that("Scale range is NULL", {
