@@ -1,0 +1,21 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/articles/sport_in_r.html</loc></url>
+<url><loc>/articles/the_theory.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/reference/bbt_run.html</loc></url>
+<url><loc>/reference/dbl_run.html</loc></url>
+<url><loc>/reference/glicko2_run.html</loc></url>
+<url><loc>/reference/glicko_run.html</loc></url>
+<url><loc>/reference/gpheats.html</loc></url>
+<url><loc>/reference/gpsquads.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/plot.rating.html</loc></url>
+<url><loc>/reference/predict.rating.html</loc></url>
+<url><loc>/reference/rating_run.html</loc></url>
+<url><loc>/reference/summary.rating.html</loc></url>
+</urlset>
+
