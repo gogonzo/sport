@@ -1,52 +1,53 @@
 update_sgp_data <- function() {
-  library(oddsandsods)
   library(magrittr)
   library(dplyr)
   library(RMySQL)
   library(runner)
-  con <- dbConnect(drv = MySQL(), 
-                   username = "root", 
-                   dbname = "speedway", 
-                   password = "Elo#21ok",
-                   encoding = "UTF-8")
-  dbGetQuery(con, "SET NAMES utf8")
-  gpsquads <- customQuery({
+  con <- speedway:::getConnection()
+  DBI::dbGetQuery(con, "SET NAMES utf8")
+  gpsquads <- DBI::dbGetQuery(
+    statement = {
+      "
+      SELECT
+        e.id,
+        e.season,
+        e.date,
+        e.place,
+        e.round,
+        e.name,
+        s.rider_name rider,
+        s.points,
+        s.classification
+      FROM speedway.event_squads s
+      LEFT JOIN speedway.events e on e.id = s.event_id
+      WHERE competition = 'Grand-Prix'
+      ;"
+    },
+    conn = con
+  )
+  gpheats <- DBI::dbGetQuery(
+    statement = {
+      "
+      SELECT
+        e.id,
+        e.season,
+        e.date,
+        e.round,
+        e.name,
+        h.heat,
+        h.field,
+        h.rider_name rider,
+        h.points,
+        h.position
+      FROM speedway.event_heats h
+      LEFT JOIN speedway.events e on e.id = h.event_id
+      WHERE
+        competition = 'Grand-Prix'
     "
-    SELECT 
-      e.id,
-      e.season,
-      e.date,
-      e.place,
-      e.round,
-      e.name, 
-      s.rider_name rider,
-      s.points,
-      s.classification
-    FROM speedway.event_squads s
-    LEFT JOIN speedway.events e on e.id = s.event_id
-    WHERE competition = 'Grand-Prix'
-    ;"
-  })
-  gpheats <- customQuery({
-    "
-    SELECT 
-      e.id,
-      e.season,
-      e.date,
-      e.round,
-      e.name, 
-      h.heat,
-      h.field,
-      h.rider_name rider,
-      h.points,
-      h.position
-    FROM speedway.event_heats h
-    LEFT JOIN speedway.events e on e.id = h.event_id
-    WHERE 
-      competition = 'Grand-Prix'
-    "
-  })
-  dbDisconnect(con)
+    },
+    conn = con
+  )
+  DBI::dbDisconnect(con)
 
   gpsquads$date <- as.POSIXct(strptime(gpsquads$date, "%Y-%m-%d %H:%M:%S"))
   gpheats$date <- as.POSIXct(strptime(gpheats$date, "%Y-%m-%d %H:%M:%S"))
@@ -65,13 +66,15 @@ update_sgp_data <- function() {
       rank = ifelse(is.na(rank), max(rank, na.rm = T) + 1, rank)
     )
 
-  Encoding(gpheats$name)  <- "UTF-8"
+  Encoding(gpheats$name) <- "UTF-8"
   Encoding(gpheats$rider) <- "UTF-8"
-  Encoding(gpsquads$name)  <- "UTF-8"
+  Encoding(gpsquads$name) <- "UTF-8"
   Encoding(gpsquads$place) <- "UTF-8"
   Encoding(gpsquads$rider) <- "UTF-8"
-  
-  
-  usethis::use_data(gpsquads, 
-                   gpheats, overwrite = TRUE)
+
+
+  usethis::use_data(gpsquads,
+    gpheats,
+    overwrite = TRUE
+  )
 }

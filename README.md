@@ -7,14 +7,11 @@
 
 [![CRAN
 badge](https://cranlogs.r-pkg.org/badges/sport)](https://cran.r-project.org/web/packages/sport/index.html)
-[![Travis-CI Build
-Status](https://travis-ci.org/gogonzo/sport.svg?branch=master)](https://travis-ci.org/gogonzo/sport)
-[![AppVeyor Build
-Status](https://ci.appveyor.com/api/projects/status/github/gogonzo/sport?branch=master&svg=true)](https://ci.appveyor.com/project/gogonzo/sport)
 [![License: GPL
 v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 [![Coverage
 status](https://codecov.io/gh/gogonzo/sport/branch/master/graph/badge.svg)](https://codecov.io/gh/gogonzo/sport)
+[![R-CMD-check](https://github.com/gogonzo/sport/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/gogonzo/sport/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 # About
@@ -39,7 +36,7 @@ Install package from CRAN or development version from github.
 
 ``` r
 devtools::install_github("gogonzo/sport")
-install.packages("sport",repos = "https://cloud.r-project.org/")
+install.packages("sport", repos = "https://cloud.r-project.org/")
 ```
 
 ## Available Data
@@ -52,10 +49,8 @@ data.frames:
 2.  `gpsquads` - summarized results of the events, with sum of point and
     final position.
 
-<!-- end list -->
-
 ``` r
-library(sport) 
+library(sport)
 str(gpheats)
 #> 'data.frame':    21932 obs. of  11 variables:
 #>  $ id      : num  1 1 1 1 2 2 2 2 3 3 ...
@@ -93,16 +88,16 @@ to be a rank/position in event*. Don’t mix up rank output with typical
 
 To compute ratings using each algorithms one has to specify formula.
 Form `rank | id ~ name` is required, which estimates `name` - rating of
-a player, by observing outputs - `rank`, nested within particular event
-- `id`. Variable names in formula are unrestricted, but model structure
-remains the same. All methods are named `method_run`. `formula = rank|id
-~ name`
+a player, by observing outputs - `rank`, nested within particular
+event - `id`. Variable names in formula are unrestricted, but model
+structure remains the same. All methods are named `method_run`.
+`formula = rank|id ~ name`
 
 ``` r
-glicko  <- glicko_run(formula = rank|id ~ player(rider), data = gpheats)
-glicko2 <- glicko2_run(formula = rank|id ~ player(rider), data = gpheats)
-bbt     <- bbt_run(formula = rank|id ~ player(rider), data = gpheats)
-dbl     <- dbl_run(formula = rank|id ~ player(rider), data = gpheats)
+glicko <- glicko_run(formula = rank | id ~ player(rider), data = gpheats)
+glicko2 <- glicko2_run(formula = rank | id ~ player(rider), data = gpheats)
+bbt <- bbt_run(formula = rank | id ~ player(rider), data = gpheats)
+dbl <- dbl_run(formula = rank | id ~ player(rider), data = gpheats)
 
 print(dbl)
 #> 
@@ -172,8 +167,9 @@ ratings evolution in time, by specifying `players` argument.
 
 ``` r
 plot(glicko, n = 15)
-plot(glicko, 
-     players = c("Greg HANCOCK","Tomasz GOLLOB","Tony RICKARDSSON"))
+plot(glicko,
+  players = c("Greg HANCOCK", "Tomasz GOLLOB", "Tony RICKARDSSON")
+)
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="50%" /><img src="man/figures/README-unnamed-chunk-7-2.png" width="50%" />
@@ -187,15 +183,13 @@ names(glicko)
 #> [1] "final_r"  "final_rd" "r"        "pairs"
 ```
 
-  - `rating$final_r` and `rating$final_rd` contains ratings and ratings
+-   `rating$final_r` and `rating$final_rd` contains ratings and ratings
     deviations estimations.
-  - `r` contains data.frame with sequential ratings estimations from
+-   `r` contains data.frame with sequential ratings estimations from
     first event to the last. Number of rows in `r` equals number of rows
     in input data.
-  - `pairs` pairwise combinations of players in analyzed events with
+-   `pairs` pairwise combinations of players in analyzed events with
     prior probability and result of a challenge.
-
-<!-- end list -->
 
 ``` r
 tail(glicko$r)

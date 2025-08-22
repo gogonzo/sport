@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // glicko
 List glicko(IntegerVector unique_id, IntegerVector id, IntegerVector rank, StringVector team, StringVector player, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector share, NumericVector lambda, NumericVector weight, double init_r, double init_rd, double init_sigma, double kappa, double tau);
 RcppExport SEXP _sport_glicko(SEXP unique_idSEXP, SEXP idSEXP, SEXP rankSEXP, SEXP teamSEXP, SEXP playerSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP shareSEXP, SEXP lambdaSEXP, SEXP weightSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP init_sigmaSEXP, SEXP kappaSEXP, SEXP tauSEXP) {

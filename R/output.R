@@ -10,24 +10,26 @@ NULL
 #' @param object of class rating
 #' @param ... optional arguments
 #' @return
-#' List with following elements \itemize{
-#' \item \code{formula} modeled formula.
-#' \item \code{method} type of algorithm used.
-#' \item \code{Overall Accuracy} named vector containing players ratings.
-#' \item \code{r} data.frame summarized players ratings and model winning probabilities. Probabilities are returned only in models with one variable (ratings) \itemize{
-#' \item \code{name} of a player
-#' \item \code{r} players ratings
-#' \item \code{rd} players ratings deviation
-#' \item \code{`Model probability`} mean predicted probability of winning the challenge by the player.
-#' \item \code{`True probability`} mean observed probability of winning the challenge by the player.
-#' \item \code{`Accuracy`} Accuracy of prediction.
-#' \item \code{`pairings`} number of pairwise occurrences.
-#' }
-#' }
+#' List with following elements:
+#' - `formula` modeled formula.
+#' - `method` type of algorithm used.
+#' - `Overall Accuracy` named vector containing players ratings.
+#' - `r` a `data.frame` with summarized players ratings and model winning probabilities.
+#'
+#' Probabilities are returned only in models with one variable (ratings):
+#'   - `name` of a player
+#'   - `r` players ratings
+#'   - `rd` players ratings deviation
+#'   - `Model probability` mean predicted probability of winning the challenge by the player.
+#'   - `True probability` mean observed probability of winning the challenge by the player.
+#'   - `Accuracy` Accuracy of prediction.
+#'   - `pairings` number of pairwise occurrences.
 #'
 #' @examples
-#' model <- glicko_run(formula = rank | id ~ player(rider), 
-#'                     data = gpheats[1:102, ])
+#' model <- glicko_run(
+#'   formula = rank | id ~ player(rider),
+#'   data = gpheats[1:102, ]
+#' )
 #' summary(model)
 #' @export
 summary.rating <- function(object, ...) {
@@ -35,7 +37,7 @@ summary.rating <- function(object, ...) {
   team_terms <- extract_team_terms(formula)
   team_term_name <- get_team_name(formula)
   player_term_name <- get_player_name(formula)
-  
+
   model_probs_teams <- object$pairs[
     , .(
       `Model probability` = round(mean(P), 3),
@@ -44,10 +46,10 @@ summary.rating <- function(object, ...) {
       `pairings` = length(P)
     ),
     team_term_name
-    ]
-  
+  ]
+
   acc <- object$pairs[, .(`acc` = mean((P > .5) == Y), `pairings` = length(P)), ]
-  
+
   players_ratings <- data.table(
     team = names(object$final_r),
     r = round(object$final_r, 3),
@@ -58,14 +60,14 @@ summary.rating <- function(object, ...) {
   } else {
     player_term_name
   }
-  
-  
+
+
   r <- if (attr(object, "method") == "dbl" || length(team_terms) == 2) {
     players_ratings
   } else {
     merge(players_ratings, model_probs_teams, by = team_term_name)
   }
-  
+
   out <- list(
     formula = attr(object, "formula"),
     method = attr(object, "method"),
@@ -87,11 +89,11 @@ print.rating <- function(x, ...) {
       `n` = length(P)
     ),
     list(Interval = cut(P, breaks = seq(0, 1, by = 0.1), include.lowest = TRUE))
-    ][order(Interval)]
-  
-  
+  ][order(Interval)]
+
+
   out <- x$pairs[, .(n = length(P), `accuracy` = mean((P > .5) == Y))]
-  
+
   cat(
     paste("\nCall:", format(attr(x, "formula"))),
     paste("\nNumber of unique pairs:", out$n / 2),
@@ -107,21 +109,24 @@ print.rating <- function(x, ...) {
 #'
 #' @param x of class rating
 #' @param n number of teams to be plotted
-#' @param players optional vector with names of the contestants (coefficients) to plot 
+#' @param players optional vector with names of the contestants (coefficients) to plot
 #' their evolution in time.
 #' @param ... optional arguments
 #' @export
 plot.rating <- function(x, n = 10, players, ...) {
   formula <- attr(x, "formula")
   variable <- extract_team_terms(formula)[1]
-  
   if (!missing(players)) {
     data <- x$r[x$r[[variable]] %in% players, ]
-    ggplot(data, 
-           aes_string(x = "id", 
-                      y = "r", 
-                      group = variable, 
-                      color = variable)) +
+    ggplot(
+      data,
+      aes(
+        x = .data$id,
+        y = .data$r,
+        group = .data[[variable]],
+        color = .data[[variable]]
+      )
+    ) +
       geom_line() +
       ggtitle("Ratings evolution") +
       theme_bw()
@@ -131,19 +136,22 @@ plot.rating <- function(x, n = 10, players, ...) {
       r = x$final_r,
       rd = x$final_rd,
       row.names = NULL,
-      stringsAsFactors = F
+      stringsAsFactors = FALSE
     )
     names(data)[1] <- variable
-    
+
     data <- data[order(data$r, decreasing = TRUE), ][1:n, ]
-    data[[variable]] <- reorder(data[[variable]], nrow(data):1)
-    ggplot(data, aes_string(x = variable, 
-                            y = "r")) +
+    data[[variable]] <- reorder(data[[variable]], rev(seq_len(nrow(data))))
+    ggplot(data, aes(x = .data[[variable]], y = .data$r)) +
       ggtitle("Actual ratings") +
-      geom_linerange(aes(ymin = r - rd * 1.98, 
-                         ymax = r + rd * 1.98), 
-                     size = 1 * 0.8, 
-                     alpha = 0.4) +
+      geom_linerange(
+        aes(
+          ymin = .data$r - .data$rd * 1.98,
+          ymax = .data$r + .data$rd * 1.98
+        ),
+        linewidth = 1 * 0.8,
+        alpha = 0.4
+      ) +
       geom_point(colour = "grey20", size = 1) +
       coord_flip() +
       scale_x_discrete(variable) +
