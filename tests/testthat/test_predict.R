@@ -1,5 +1,3 @@
-context("predict")
-
 data <- data.frame(
   id = 1,
   name = c("A", "B", "C", "D"),

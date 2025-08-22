@@ -1,4 +1,3 @@
-context("rating")
 df <- data.frame(
   id = rep(1L, 8),
   rank = rep(c(3, 4, 1, 2), each = 2),

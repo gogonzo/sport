@@ -1,7 +1,7 @@
 Package: sport
 Type: Package
 Title: Sequential Pairwise Online Rating Techniques
-Version: 0.2.1
+Version: 0.2.2
 Depends: R (>= 3.0)
 Authors@R: person("Dawid",
                   "Kałędkowski",
@@ -40,5 +40,6 @@ Suggests:
   knitr,
   lobstr,
   rmarkdown,
-  testthat
+  testthat,
+  vdiffr
 VignetteBuilder: knitr
