@@ -113,7 +113,7 @@ $${R'}_i \leftarrow R_i +
 $${RD'}_i \leftarrow \sqrt{(\frac{1}{{RD}^2_{i}} + \frac{1}{d^2_i}})^{-1}$$
 
 
-For more details read [Mark E. Glickman (1999)](http://www.glicko.net/research/glicko.pdf).
+For more details read [Mark E. Glickman (1999)](https://www.glicko.net/research/glicko.pdf).
 
 ## Glicko2 rating system
 Glicko2 improved predecessor by adding volatile parameter $\sigma_i$ which 
@@ -148,7 +148,7 @@ $$ {\mu'_i} \leftarrow \mu_i +
 \sum_{j \neq i}{g(\phi_j) * (Y_{ij} - \hat{Y_{ij}})} $$
 
 For more details read 
-[Mark E. Glickman (2013)](http://www.glicko.net/glicko/glicko2.pdf)
+[Mark E. Glickman (2013)]( https://www.glicko.net/glicko/glicko2.pdf)
 
 ## Bayesian Bradley Terry
 The fastest algorithm with simple formula. Original BT formula lacks variance 
