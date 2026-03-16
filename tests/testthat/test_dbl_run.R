@@ -1,5 +1,3 @@
-testthat::context("dbl_run")
-
 testthat::test_that("formula supports rank_var | id_var ~ player(var) syntax", {
   testthat::expect_silent(
     dbl_run(
