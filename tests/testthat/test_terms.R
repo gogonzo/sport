@@ -1,5 +1,3 @@
-context("terms")
-
 testthat::test_that("valid lhs formula", {
   testthat::expect_error(
     is_formula_missing(NULL),

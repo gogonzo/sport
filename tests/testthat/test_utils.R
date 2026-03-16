@@ -1,5 +1,3 @@
-context("utils")
-
 testthat::test_that("check single arguments", {
   testthat::expect_error(
     check_single_argument(c(1, 2), "test"),

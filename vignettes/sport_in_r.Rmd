@@ -85,7 +85,7 @@ print(glicko)
 
 ## Output
 
-Objects returned by `<method>_run` are of class `rating` and have their own 
+Objects returned by `<method>_run` are of class `sport` and have their own 
 `print` and `summary` which provides simple overview. `print.sport` shows  
 condensed informations about model performance like accuracy and consistency of 
 model predictions with observed probabilities. More precise overview are  

@@ -12,8 +12,9 @@ dbl_run(
   lambda = NULL,
   weight = NULL,
   kappa = 0.95,
-  init_r = 0,
-  init_rd = 1
+  init_r = .defaults$dbl$init_r,
+  init_rd = .defaults$dbl$init_rd,
+  trajectory = TRUE
 )
 }
 \arguments{
@@ -49,25 +50,24 @@ Higher weight increasing impact of event result on rating estimate.}
 \code{kappa=1} means that  \code{rd} will not be decreased.}
 
 \item{init_r}{initial values for \code{r} if not provided.
-Default (\code{glicko = 1500}, \code{glicko2 = 1500}, \code{bbt = 25},
-\code{dbl = 0})}
+Defaults are method-specific, defined in \code{.defaults}.}
 
 \item{init_rd}{initial values for \code{rd} if not provided.
-Default (\code{glicko = 350}, \code{glicko2 = 350}, \code{bbt = 25/3}, \code{dbl = 1})}
+Defaults are method-specific, defined in \code{.defaults}.}
 }
 \value{
-A "rating" object is returned:
+An \code{"estimates"} object (a plain list) with components:
 \itemize{
-\item \code{final_r} named vector containing players ratings.
-\item \code{final_rd} named vector containing players ratings deviations.
-\item \code{r} data.frame with evolution of the ratings and ratings deviations
-estimated at each event.
-\item \code{pairs} pairwise combinations of players in analysed events with
-prior probability and result of a challenge.
-\item \code{class} of the object.
-\item \code{method} type of algorithm used.
-\item \code{settings} arguments specified in function call.
+\item \code{r} — named numeric vector of player ratings.
+\item \code{rd} — named numeric vector of rating deviations.
+\item \code{coefficients} — matrix with columns \code{r} and \code{rd} (extractable via \code{\link[=coef]{coef()}}).
+\item \code{trajectory} — \code{data.table} tracking the evolution of ratings across
+events (only when \code{trajectory = TRUE}).
+\item \code{pairs} — \code{data.table} of pairwise comparisons with predicted
+probability \code{P} and observed outcome \code{Y} (only when \code{trajectory = TRUE}).
 }
+
+Attributes \code{method}, \code{formula}, and \code{settings} carry the model metadata.
 }
 \description{
 Dynamic Bayesian Logit

@@ -11,8 +11,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // glicko
-List glicko(IntegerVector unique_id, IntegerVector id, IntegerVector rank, StringVector team, StringVector player, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector share, NumericVector lambda, NumericVector weight, double init_r, double init_rd, double init_sigma, double kappa, double tau);
-RcppExport SEXP _sport_glicko(SEXP unique_idSEXP, SEXP idSEXP, SEXP rankSEXP, SEXP teamSEXP, SEXP playerSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP shareSEXP, SEXP lambdaSEXP, SEXP weightSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP init_sigmaSEXP, SEXP kappaSEXP, SEXP tauSEXP) {
+List glicko(IntegerVector unique_id, IntegerVector id, IntegerVector rank, StringVector team, StringVector player, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector share, NumericVector lambda, NumericVector weight, double init_r, double init_rd, double init_sigma, double kappa, double tau, bool record_trajectory);
+RcppExport SEXP _sport_glicko(SEXP unique_idSEXP, SEXP idSEXP, SEXP rankSEXP, SEXP teamSEXP, SEXP playerSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP shareSEXP, SEXP lambdaSEXP, SEXP weightSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP init_sigmaSEXP, SEXP kappaSEXP, SEXP tauSEXP, SEXP record_trajectorySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -32,13 +32,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type init_sigma(init_sigmaSEXP);
     Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
     Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
-    rcpp_result_gen = Rcpp::wrap(glicko(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau));
+    Rcpp::traits::input_parameter< bool >::type record_trajectory(record_trajectorySEXP);
+    rcpp_result_gen = Rcpp::wrap(glicko(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau, record_trajectory));
     return rcpp_result_gen;
 END_RCPP
 }
 // glicko2
-List glicko2(IntegerVector unique_id, IntegerVector id, IntegerVector rank, StringVector team, StringVector player, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector share, NumericVector lambda, NumericVector weight, double init_r, double init_rd, double init_sigma, double kappa, double tau);
-RcppExport SEXP _sport_glicko2(SEXP unique_idSEXP, SEXP idSEXP, SEXP rankSEXP, SEXP teamSEXP, SEXP playerSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP shareSEXP, SEXP lambdaSEXP, SEXP weightSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP init_sigmaSEXP, SEXP kappaSEXP, SEXP tauSEXP) {
+List glicko2(IntegerVector unique_id, IntegerVector id, IntegerVector rank, StringVector team, StringVector player, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector share, NumericVector lambda, NumericVector weight, double init_r, double init_rd, double init_sigma, double kappa, double tau, bool record_trajectory);
+RcppExport SEXP _sport_glicko2(SEXP unique_idSEXP, SEXP idSEXP, SEXP rankSEXP, SEXP teamSEXP, SEXP playerSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP shareSEXP, SEXP lambdaSEXP, SEXP weightSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP init_sigmaSEXP, SEXP kappaSEXP, SEXP tauSEXP, SEXP record_trajectorySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -58,13 +59,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type init_sigma(init_sigmaSEXP);
     Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
     Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
-    rcpp_result_gen = Rcpp::wrap(glicko2(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau));
+    Rcpp::traits::input_parameter< bool >::type record_trajectory(record_trajectorySEXP);
+    rcpp_result_gen = Rcpp::wrap(glicko2(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau, record_trajectory));
     return rcpp_result_gen;
 END_RCPP
 }
 // bbt
-Rcpp::List bbt(IntegerVector unique_id, IntegerVector id, IntegerVector rank, StringVector team, StringVector player, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector share, NumericVector lambda, NumericVector weight, double init_r, double init_rd, double init_sigma, double kappa, double tau);
-RcppExport SEXP _sport_bbt(SEXP unique_idSEXP, SEXP idSEXP, SEXP rankSEXP, SEXP teamSEXP, SEXP playerSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP shareSEXP, SEXP lambdaSEXP, SEXP weightSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP init_sigmaSEXP, SEXP kappaSEXP, SEXP tauSEXP) {
+Rcpp::List bbt(IntegerVector unique_id, IntegerVector id, IntegerVector rank, StringVector team, StringVector player, NumericVector r, NumericVector rd, NumericVector sigma, NumericVector share, NumericVector lambda, NumericVector weight, double init_r, double init_rd, double init_sigma, double kappa, double tau, bool record_trajectory);
+RcppExport SEXP _sport_bbt(SEXP unique_idSEXP, SEXP idSEXP, SEXP rankSEXP, SEXP teamSEXP, SEXP playerSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP shareSEXP, SEXP lambdaSEXP, SEXP weightSEXP, SEXP init_rSEXP, SEXP init_rdSEXP, SEXP init_sigmaSEXP, SEXP kappaSEXP, SEXP tauSEXP, SEXP record_trajectorySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -84,13 +86,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type init_sigma(init_sigmaSEXP);
     Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
     Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
-    rcpp_result_gen = Rcpp::wrap(bbt(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau));
+    Rcpp::traits::input_parameter< bool >::type record_trajectory(record_trajectorySEXP);
+    rcpp_result_gen = Rcpp::wrap(bbt(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau, record_trajectory));
     return rcpp_result_gen;
 END_RCPP
 }
 // dbl
-Rcpp::List dbl(Rcpp::IntegerVector unique_id, Rcpp::IntegerVector id_vec, Rcpp::IntegerVector rank_vec, Rcpp::StringVector team_vec, Rcpp::StringMatrix MAP, Rcpp::NumericMatrix X, Rcpp::StringVector cls, Rcpp::NumericVector R, Rcpp::NumericVector RD, Rcpp::NumericVector lambda_vec, Rcpp::NumericVector weight_vec, double kappa);
-RcppExport SEXP _sport_dbl(SEXP unique_idSEXP, SEXP id_vecSEXP, SEXP rank_vecSEXP, SEXP team_vecSEXP, SEXP MAPSEXP, SEXP XSEXP, SEXP clsSEXP, SEXP RSEXP, SEXP RDSEXP, SEXP lambda_vecSEXP, SEXP weight_vecSEXP, SEXP kappaSEXP) {
+Rcpp::List dbl(Rcpp::IntegerVector unique_id, Rcpp::IntegerVector id_vec, Rcpp::IntegerVector rank_vec, Rcpp::StringVector team_vec, Rcpp::StringMatrix MAP, Rcpp::NumericMatrix X, Rcpp::StringVector cls, Rcpp::NumericVector R, Rcpp::NumericVector RD, Rcpp::NumericVector lambda_vec, Rcpp::NumericVector weight_vec, double kappa, bool record_trajectory);
+RcppExport SEXP _sport_dbl(SEXP unique_idSEXP, SEXP id_vecSEXP, SEXP rank_vecSEXP, SEXP team_vecSEXP, SEXP MAPSEXP, SEXP XSEXP, SEXP clsSEXP, SEXP RSEXP, SEXP RDSEXP, SEXP lambda_vecSEXP, SEXP weight_vecSEXP, SEXP kappaSEXP, SEXP record_trajectorySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -106,16 +109,98 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type lambda_vec(lambda_vecSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type weight_vec(weight_vecSEXP);
     Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
-    rcpp_result_gen = Rcpp::wrap(dbl(unique_id, id_vec, rank_vec, team_vec, MAP, X, cls, R, RD, lambda_vec, weight_vec, kappa));
+    Rcpp::traits::input_parameter< bool >::type record_trajectory(record_trajectorySEXP);
+    rcpp_result_gen = Rcpp::wrap(dbl(unique_id, id_vec, rank_vec, team_vec, MAP, X, cls, R, RD, lambda_vec, weight_vec, kappa, record_trajectory));
+    return rcpp_result_gen;
+END_RCPP
+}
+// predict_glicko
+Rcpp::List predict_glicko(Rcpp::IntegerVector unique_id, Rcpp::IntegerVector id_vec, Rcpp::IntegerVector rank_vec, Rcpp::StringVector team_vec, Rcpp::StringVector player_vec, Rcpp::NumericVector r, Rcpp::NumericVector rd, Rcpp::NumericVector share_vec, Rcpp::NumericVector lambda_vec);
+RcppExport SEXP _sport_predict_glicko(SEXP unique_idSEXP, SEXP id_vecSEXP, SEXP rank_vecSEXP, SEXP team_vecSEXP, SEXP player_vecSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP share_vecSEXP, SEXP lambda_vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type unique_id(unique_idSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type id_vec(id_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type rank_vec(rank_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type team_vec(team_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type player_vec(player_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type r(rSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type rd(rdSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type share_vec(share_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type lambda_vec(lambda_vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_glicko(unique_id, id_vec, rank_vec, team_vec, player_vec, r, rd, share_vec, lambda_vec));
+    return rcpp_result_gen;
+END_RCPP
+}
+// predict_glicko2
+Rcpp::List predict_glicko2(Rcpp::IntegerVector unique_id, Rcpp::IntegerVector id_vec, Rcpp::IntegerVector rank_vec, Rcpp::StringVector team_vec, Rcpp::StringVector player_vec, Rcpp::NumericVector r, Rcpp::NumericVector rd, Rcpp::NumericVector sigma, Rcpp::NumericVector share_vec, Rcpp::NumericVector lambda_vec);
+RcppExport SEXP _sport_predict_glicko2(SEXP unique_idSEXP, SEXP id_vecSEXP, SEXP rank_vecSEXP, SEXP team_vecSEXP, SEXP player_vecSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP sigmaSEXP, SEXP share_vecSEXP, SEXP lambda_vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type unique_id(unique_idSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type id_vec(id_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type rank_vec(rank_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type team_vec(team_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type player_vec(player_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type r(rSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type rd(rdSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type share_vec(share_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type lambda_vec(lambda_vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_glicko2(unique_id, id_vec, rank_vec, team_vec, player_vec, r, rd, sigma, share_vec, lambda_vec));
+    return rcpp_result_gen;
+END_RCPP
+}
+// predict_bbt
+Rcpp::List predict_bbt(Rcpp::IntegerVector unique_id, Rcpp::IntegerVector id_vec, Rcpp::IntegerVector rank_vec, Rcpp::StringVector team_vec, Rcpp::StringVector player_vec, Rcpp::NumericVector r, Rcpp::NumericVector rd, Rcpp::NumericVector share_vec, Rcpp::NumericVector lambda_vec);
+RcppExport SEXP _sport_predict_bbt(SEXP unique_idSEXP, SEXP id_vecSEXP, SEXP rank_vecSEXP, SEXP team_vecSEXP, SEXP player_vecSEXP, SEXP rSEXP, SEXP rdSEXP, SEXP share_vecSEXP, SEXP lambda_vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type unique_id(unique_idSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type id_vec(id_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type rank_vec(rank_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type team_vec(team_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type player_vec(player_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type r(rSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type rd(rdSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type share_vec(share_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type lambda_vec(lambda_vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_bbt(unique_id, id_vec, rank_vec, team_vec, player_vec, r, rd, share_vec, lambda_vec));
+    return rcpp_result_gen;
+END_RCPP
+}
+// predict_dbl
+Rcpp::List predict_dbl(Rcpp::IntegerVector unique_id, Rcpp::IntegerVector id_vec, Rcpp::IntegerVector rank_vec, Rcpp::StringVector team_vec, Rcpp::StringMatrix MAP, Rcpp::NumericMatrix X, Rcpp::NumericVector R, Rcpp::NumericVector RD, Rcpp::NumericVector lambda_vec);
+RcppExport SEXP _sport_predict_dbl(SEXP unique_idSEXP, SEXP id_vecSEXP, SEXP rank_vecSEXP, SEXP team_vecSEXP, SEXP MAPSEXP, SEXP XSEXP, SEXP RSEXP, SEXP RDSEXP, SEXP lambda_vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type unique_id(unique_idSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type id_vec(id_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type rank_vec(rank_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type team_vec(team_vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringMatrix >::type MAP(MAPSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type R(RSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type RD(RDSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type lambda_vec(lambda_vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_dbl(unique_id, id_vec, rank_vec, team_vec, MAP, X, R, RD, lambda_vec));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_sport_glicko", (DL_FUNC) &_sport_glicko, 16},
-    {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 16},
-    {"_sport_bbt", (DL_FUNC) &_sport_bbt, 16},
-    {"_sport_dbl", (DL_FUNC) &_sport_dbl, 12},
+    {"_sport_glicko", (DL_FUNC) &_sport_glicko, 17},
+    {"_sport_glicko2", (DL_FUNC) &_sport_glicko2, 17},
+    {"_sport_bbt", (DL_FUNC) &_sport_bbt, 17},
+    {"_sport_dbl", (DL_FUNC) &_sport_dbl, 13},
+    {"_sport_predict_glicko", (DL_FUNC) &_sport_predict_glicko, 9},
+    {"_sport_predict_glicko2", (DL_FUNC) &_sport_predict_glicko2, 10},
+    {"_sport_predict_bbt", (DL_FUNC) &_sport_predict_bbt, 9},
+    {"_sport_predict_dbl", (DL_FUNC) &_sport_predict_dbl, 9},
     {NULL, NULL, 0}
 };
 

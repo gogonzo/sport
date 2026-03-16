@@ -29,7 +29,7 @@ are_variables_in_dataset <- function(vars, data) {
     )
   }
 
-  return(invisible(TRUE))
+  invisible(TRUE)
 }
 
 check_numeric_argument <- function(x, var_name, min = -Inf, max = Inf) {
@@ -128,7 +128,7 @@ init_check_r <- function(r, init_r, unique_names, player) {
     )
   }
 
-  return(r)
+  r
 }
 
 init_check_rd <- function(rd, init_rd, unique_names, player) {
@@ -162,7 +162,7 @@ init_check_rd <- function(rd, init_rd, unique_names, player) {
     )
   }
 
-  return(rd)
+  rd
 }
 
 init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
@@ -198,7 +198,7 @@ init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
     )
   }
 
-  return(sigma)
+  sigma
 }
 
 check_equal_names <- function(x, y) {
@@ -219,7 +219,7 @@ check_equal_names <- function(x, y) {
     )
   }
 
-  return(invisible(TRUE))
+  invisible(TRUE)
 }
 
 initialize_vec <- function(var, data, argname, min = -Inf, max = Inf) {

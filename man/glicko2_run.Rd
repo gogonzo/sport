@@ -13,16 +13,17 @@ glicko2_run(
   lambda = NULL,
   share = NULL,
   weight = NULL,
-  init_r = 1500,
-  init_rd = 350,
-  init_sigma = 0.05,
+  init_r = .defaults$glicko2$init_r,
+  init_rd = .defaults$glicko2$init_rd,
+  init_sigma = .defaults$glicko2$init_sigma,
   kappa = 0.5,
-  tau = 0.5
+  tau = 0.5,
+  trajectory = TRUE
 )
 }
 \arguments{
 \item{formula}{formula which specifies the model. RHS Allows only player
-rating parameter and it should be specified in following manner:\cr
+rating parameter and it should be specified in following manner:
 
 \code{rank | id ~ player(name)}.
 \itemize{
@@ -32,10 +33,11 @@ rating parameter and it should be specified in following manner:\cr
 helps algorithm point name of the column where player names are stored.
 }
 
-Users can also specify formula in in different way:\cr
+Users can also specify formula in in different way:
 
-\code{rank | id ~ player(name|team)}. Which means that players are playing in teams,
-and results are observed for teams not for players. For more see vignette.}
+\code{rank | id ~ player(name|team)}. Which means that players are playing in
+teams, and results are observed for teams not for players. For more see
+vignette.}
 
 \item{data}{data.frame which contains columns specified in formula, and
 optional columns defined by \code{lambda}, \code{weight}.}
@@ -69,14 +71,13 @@ Weights increasing (weight > 1) or decreasing (weight < 1) update change.
 Higher weight increasing impact of event result on rating estimate.}
 
 \item{init_r}{initial values for \code{r} if not provided.
-Default (\code{glicko = 1500}, \code{glicko2 = 1500}, \code{bbt = 25},
-\code{dbl = 0})}
+Defaults are method-specific, defined in \code{.defaults}.}
 
 \item{init_rd}{initial values for \code{rd} if not provided.
-Default (\code{glicko = 350}, \code{glicko2 = 350}, \code{bbt = 25/3}, \code{dbl = 1})}
+Defaults are method-specific, defined in \code{.defaults}.}
 
 \item{init_sigma}{initial values for \code{sigma} if not provided.
-Default = 0.5}
+Defaults are method-specific, defined in \code{.defaults}.}
 
 \item{kappa}{controls \code{rd} shrinkage not to be greater than \code{rd*(1 - kappa)}.
 \code{kappa=1} means that  \code{rd} will not be decreased.}
@@ -91,19 +92,20 @@ expected to involve extremely improbable collections of game outcomes, then
 \code{tau} should be set to a small value, even as small as, say, \code{tau= 0}.}
 }
 \value{
-A "rating" object is returned:
+An \code{"estimates"} object (a plain list) with components:
 \itemize{
-\item \code{final_r} named vector containing players ratings.
-\item \code{final_rd} named vector containing players ratings deviations.
-\item \code{final_sigma} named vector containing players ratings volatile.
-\item \code{r} data.frame with evolution of the ratings and ratings deviations
-estimated at each event.
-\item \code{pairs} pairwise combinations of players in analysed events with
-prior probability and result of a challenge.
-\item \code{class} of the object.
-\item \code{method} type of algorithm used.
-\item \code{settings} arguments specified in function call.
+\item \code{r} — named numeric vector of player ratings.
+\item \code{rd} — named numeric vector of rating deviations.
+\item \code{sigma} — named numeric vector of player volatilities.
+\item \code{coefficients} — matrix with columns \code{r}, \code{rd}, and \code{sigma} (extractable
+via \code{\link[=coef]{coef()}}).
+\item \code{trajectory} — \code{data.table} tracking the evolution of ratings across
+events (only when \code{trajectory = TRUE}).
+\item \code{pairs} — \code{data.table} of pairwise comparisons with predicted
+probability \code{P} and observed outcome \code{Y} (only when \code{trajectory = TRUE}).
 }
+
+Attributes \code{method}, \code{formula}, and \code{settings} carry the model metadata.
 }
 \description{
 Glicko2 rating algorithm

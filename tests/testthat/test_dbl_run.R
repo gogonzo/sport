@@ -1,5 +1,3 @@
-testthat::context("dbl_run")
-
 testthat::test_that("formula supports rank_var | id_var ~ player(var) syntax", {
   testthat::expect_silent(
     dbl_run(
@@ -111,7 +109,7 @@ testthat::test_that("output", {
   )
 
   testthat::expect_identical(
-    out1$final_r,
+    out1$r,
     c(
       "rider=Chris Louis" = 1,
       "rider=Gary Havelock" = -1,
@@ -120,8 +118,8 @@ testthat::test_that("output", {
     )
   )
 
-  testthat::expect_true(all(out1$r$R == 0))
-  testthat::expect_true(all(out1$r$RD == 1))
+  testthat::expect_true(all(out1$trajectory$R == 0))
+  testthat::expect_true(all(out1$trajectory$RD == 1))
   testthat::expect_true(all(out1$pairs$P == 0.5))
 
 
@@ -134,7 +132,7 @@ testthat::test_that("output", {
     init_rd = 2
   )
 
-  testthat::expect_true(all(out2$r$R == 1))
-  testthat::expect_true(all(out2$r$RD == 2))
+  testthat::expect_true(all(out2$trajectory$R == 1))
+  testthat::expect_true(all(out2$trajectory$RD == 2))
   testthat::expect_true(all(out2$pairs$P == 0.5))
 })

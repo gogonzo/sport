@@ -1,5 +1,3 @@
-context("predict")
-
 data <- data.frame(
   id = 1,
   name = c("A", "B", "C", "D"),
@@ -23,7 +21,7 @@ testthat::test_that("valid glicko predict computation", {
     rd = rd
   )
 
-  testthat::expect_identical(glicko$final_r, r)
+  testthat::expect_identical(glicko$r, r)
   testthat::expect_silent(pred <- predict(glicko, data))
   testthat::expect_true(all(pred$Y == .5))
 
@@ -55,7 +53,7 @@ testthat::test_that("valid glicko2 predict computation", {
     rd = rd
   )
 
-  testthat::expect_identical(glicko2$final_r, r)
+  testthat::expect_identical(glicko2$r, r)
   testthat::expect_silent(pred <- predict(glicko2, data))
   testthat::expect_true(all(pred$Y == .5))
 
@@ -87,7 +85,7 @@ testthat::test_that("valid bbt predict computation", {
     rd = rd
   )
 
-  testthat::expect_identical(bbt$final_r, r)
+  testthat::expect_identical(bbt$r, r)
   testthat::expect_silent(pred <- predict(bbt, data))
   testthat::expect_true(all(pred$Y == .5))
 

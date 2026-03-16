@@ -3,22 +3,56 @@
 NULL
 
 
+#' Build an "estimates" object from raw C++ output
+#'
+#' @param g list returned by the C++ estimation (or pre-assembled with
+#'   `final_r`, `final_rd`, optionally `final_sigma`, `r`, `p`).
+#' @param method algorithm name.
+#' @param formula model formula.
+#' @param settings list of settings.
+#' @param trajectory whether `r` and `pairs` were recorded and should be
+#'   attached to the returned object.
+#' @return An "estimates" object.
+#' @noRd
+build_rating <- function(g, method, formula, settings, trajectory = TRUE) {
+  obj <- list(r = g$final_r, rd = g$final_rd)
+  if (method == "glicko2") obj$sigma <- g$final_sigma
+  obj$coefficients <- if (method == "glicko2") {
+    cbind(r = obj$r, rd = obj$rd, sigma = obj$sigma)
+  } else {
+    cbind(r = obj$r, rd = obj$rd)
+  }
+  if (trajectory) {
+    obj$trajectory <- g$r
+    obj$pairs <- g$p
+  }
+  structure(
+    obj,
+    class    = "estimates",
+    method   = method,
+    formula  = formula,
+    settings = settings
+  )
+}
+
 #' Apply rating algorithm
 #'
 #' Apply rating algorithm
 #' @param formula formula which specifies the model. RHS Allows only player
-#' rating parameter and it should be specified in following manner:\cr
+#' rating parameter and it should be specified in following manner:
 #'
 #' `rank | id ~ player(name)`.
+#'
 #' - `rank` player position in event.
 #' - `id` event identifier in which pairwise comparison is assessed.
 #' - `player(name)` name of the contestant. In this case `player(name)`
-#'     helps algorithm point name of the column where player names are stored.
+#'   helps algorithm point name of the column where player names are stored.
 #'
-#' Users can also specify formula in in different way:\cr
+#' Users can also specify formula in in different way:
 #'
-#'  `rank | id ~ player(name|team)`. Which means that players are playing in teams,
-#'  and results are observed for teams not for players. For more see vignette.
+#' `rank | id ~ player(name|team)`. Which means that players are playing in
+#' teams, and results are observed for teams not for players. For more see
+#' vignette.
 #'
 #' @param method one of `c("glicko", "glicko2", "bbt", "dbl")`
 #'
@@ -66,14 +100,13 @@ NULL
 #'  `tau` should be set to a small value, even as small as, say, `tau= 0`.
 #'
 #' @param init_r initial values for `r` if not provided.
-#' Default (`glicko = 1500`, `glicko2 = 1500`, `bbt = 25`,
-#' `dbl = 0`)
+#' Defaults are method-specific, defined in `.defaults`.
 #'
 #' @param init_rd initial values for `rd` if not provided.
-#' Default (`glicko = 350`, `glicko2 = 350`, `bbt = 25/3`, `dbl = 1`)
+#' Defaults are method-specific, defined in `.defaults`.
 #'
 #' @param init_sigma initial values for `sigma` if not provided.
-#' Default = 0.5
+#' Defaults are method-specific, defined in `.defaults`.
 #' @keywords internal
 rating_run <- function(
     method,
@@ -89,7 +122,8 @@ rating_run <- function(
     share = numeric(0),
     weight = numeric(0),
     kappa = numeric(0),
-    tau = numeric(0)) {
+    tau = numeric(0),
+    trajectory = TRUE) {
   if (length(kappa) == 0) kappa <- 0.5
   if (length(tau) == 0) tau <- 0.5
 
@@ -154,7 +188,8 @@ rating_run <- function(
       share = share_vec,
       weight = weight_vec,
       kappa = kappa,
-      tau = 0.0
+      tau = 0.0,
+      record_trajectory = trajectory
     )
   } else if (method == "glicko2") {
     glicko2(
@@ -173,7 +208,8 @@ rating_run <- function(
       share = share_vec,
       weight = weight_vec,
       kappa = kappa,
-      tau = tau
+      tau = tau,
+      record_trajectory = trajectory
     )
   } else if (method == "bbt") {
     bbt(
@@ -192,28 +228,34 @@ rating_run <- function(
       share = share_vec,
       weight = weight_vec,
       kappa = kappa,
-      tau = 0.0
+      tau = 0.0,
+      record_trajectory = trajectory
     )
   }
 
-  ratings <- data.table::rbindlist(g$r)
-  pairs <- data.table::rbindlist(g$p)
+  if (trajectory) {
+    ratings <- data.table::rbindlist(g$r)
+    pairs <- data.table::rbindlist(g$p)
 
-  rhs_terms <- extract_team_terms(formula)
-  if (length(rhs_terms) == 1) {
-    ratings <- ratings[, "player" := NULL]
-    names(ratings)[names(ratings) == "team"] <- rhs_terms[1]
-    names(pairs)[names(pairs) == "team"] <- rhs_terms[1]
+    rhs_terms <- extract_team_terms(formula)
+    if (length(rhs_terms) == 1) {
+      ratings <- ratings[, "player" := NULL]
+      names(ratings)[names(ratings) == "team"] <- rhs_terms[1]
+      names(pairs)[names(pairs) == "team"] <- rhs_terms[1]
+    } else {
+      names(ratings)[names(ratings) == "player"] <- rhs_terms[1]
+      names(ratings)[names(ratings) == "team"] <- rhs_terms[2]
+      names(pairs)[names(pairs) == "team"] <- rhs_terms[2]
+    }
+
+    g$r <- if (method == "glicko2") ratings else ratings[, "sigma" := NULL]
+    g$p <- pairs
   } else {
-    names(ratings)[names(ratings) == "player"] <- rhs_terms[1]
-    names(ratings)[names(ratings) == "team"] <- rhs_terms[2]
-    names(pairs)[names(pairs) == "team"] <- rhs_terms[2]
+    g$r <- NULL
+    g$p <- NULL
   }
 
-  g$r <- if (method == "glicko2") ratings else ratings[, "sigma" := NULL]
-  g$p <- pairs
-
-  return(g)
+  g
 }
 
 
@@ -224,18 +266,17 @@ rating_run <- function(
 #' @inheritParams rating_run
 #'
 #' @return
+#' An `"estimates"` object (a plain list) with components:
 #'
-#' A "rating" object is returned:
+#' - `r` — named numeric vector of player ratings.
+#' - `rd` — named numeric vector of rating deviations.
+#' - `coefficients` — matrix with columns `r` and `rd` (extractable via [coef()]).
+#' - `trajectory` — `data.table` tracking the evolution of ratings across
+#'   events (only when `trajectory = TRUE`).
+#' - `pairs` — `data.table` of pairwise comparisons with predicted
+#'   probability `P` and observed outcome `Y` (only when `trajectory = TRUE`).
 #'
-#' - `final_r` named vector containing players ratings.
-#' - `final_rd` named vector containing players ratings deviations.
-#' - `r` data.frame with evolution of the ratings and ratings deviations
-#'  estimated at each event.
-#' - `pairs` pairwise combinations of players in analysed events with
-#' prior probability and result of a challenge.
-#' - `class` of the object.
-#' - `method` type of algorithm used.
-#' - `settings` arguments specified in function call.
+#' Attributes `method`, `formula`, and `settings` carry the model metadata.
 #'
 #' @examples
 #' # the simplest example
@@ -264,12 +305,13 @@ rating_run <- function(
 glicko_run <- function(data, formula,
                        r = numeric(0),
                        rd = numeric(0),
-                       init_r = 1500,
-                       init_rd = 350,
+                       init_r = .defaults$glicko$init_r,
+                       init_rd = .defaults$glicko$init_rd,
                        lambda = numeric(0),
                        share = numeric(0),
                        weight = numeric(0),
-                       kappa = 0.5) {
+                       kappa = 0.5,
+                       trajectory = TRUE) {
   g <- rating_run(
     method = "glicko",
     data = data,
@@ -281,30 +323,16 @@ glicko_run <- function(data, formula,
     share = share,
     weight = weight,
     lambda = lambda,
-    kappa = kappa
+    kappa = kappa,
+    trajectory = trajectory
   )
 
-  out <- structure(
-    list(
-      final_r = g$final_r,
-      final_rd = g$final_rd,
-      r = g$r,
-      pairs = g$p
-    ),
-    class = "rating",
-    method = "glicko",
-    formula = formula,
-    settings = list(
-      init_r = init_r,
-      init_rd = init_rd,
-      lambda = lambda,
-      share = share,
-      weight = weight,
-      kappa = kappa
-    )
+  settings <- list(
+    init_r = init_r, init_rd = init_rd,
+    lambda = lambda, share = share
   )
 
-  return(out)
+  build_rating(g, method = "glicko", formula = formula, settings = settings, trajectory = trajectory)
 }
 
 #' Glicko2 rating algorithm
@@ -313,19 +341,19 @@ glicko_run <- function(data, formula,
 #' @inheritParams rating_run
 #'
 #' @return
+#' An `"estimates"` object (a plain list) with components:
 #'
-#' A "rating" object is returned:
+#' - `r` — named numeric vector of player ratings.
+#' - `rd` — named numeric vector of rating deviations.
+#' - `sigma` — named numeric vector of player volatilities.
+#' - `coefficients` — matrix with columns `r`, `rd`, and `sigma` (extractable
+#'   via [coef()]).
+#' - `trajectory` — `data.table` tracking the evolution of ratings across
+#'   events (only when `trajectory = TRUE`).
+#' - `pairs` — `data.table` of pairwise comparisons with predicted
+#'   probability `P` and observed outcome `Y` (only when `trajectory = TRUE`).
 #'
-#' - `final_r` named vector containing players ratings.
-#' - `final_rd` named vector containing players ratings deviations.
-#' - `final_sigma` named vector containing players ratings volatile.
-#' - `r` data.frame with evolution of the ratings and ratings deviations
-#' estimated at each event.
-#' - `pairs` pairwise combinations of players in analysed events with
-#' prior probability and result of a challenge.
-#' - `class` of the object.
-#' - `method` type of algorithm used.
-#' - `settings` arguments specified in function call.
+#' Attributes `method`, `formula`, and `settings` carry the model metadata.
 #'
 #' @examples
 #' # the simplest example
@@ -359,11 +387,12 @@ glicko2_run <- function(formula,
                         lambda = NULL,
                         share = NULL,
                         weight = NULL,
-                        init_r = 1500,
-                        init_rd = 350,
-                        init_sigma = 0.05,
+                        init_r = .defaults$glicko2$init_r,
+                        init_rd = .defaults$glicko2$init_rd,
+                        init_sigma = .defaults$glicko2$init_sigma,
                         kappa = 0.5,
-                        tau = 0.5) {
+                        tau = 0.5,
+                        trajectory = TRUE) {
   g <- rating_run(
     method = "glicko2",
     data = data,
@@ -378,33 +407,16 @@ glicko2_run <- function(formula,
     share = share,
     weight = weight,
     kappa = kappa,
-    tau = tau
+    tau = tau,
+    trajectory = trajectory
   )
 
-  out <- structure(
-    list(
-      final_r = g$final_r,
-      final_rd = g$final_rd,
-      final_sigma = g$final_sigma,
-      r = g$r,
-      pairs = g$p
-    ),
-    class = "rating",
-    method = "glicko2",
-    formula = formula,
-    settings = list(
-      init_r = init_r,
-      init_rd = init_rd,
-      init_sigma = init_sigma,
-      lambda = lambda,
-      share = share,
-      weight = weight,
-      kappa = kappa,
-      tau = tau
-    )
+  settings <- list(
+    init_r = init_r, init_rd = init_rd, init_sigma = init_sigma,
+    lambda = lambda, share = share
   )
 
-  return(out)
+  build_rating(g, method = "glicko2", formula = formula, settings = settings, trajectory = trajectory)
 }
 #' Bayesian Bradley-Terry
 #'
@@ -412,17 +424,17 @@ glicko2_run <- function(formula,
 #' @inheritParams rating_run
 #'
 #' @return
+#' An `"estimates"` object (a plain list) with components:
 #'
-#' A "rating" object is returned:
-#' - `final_r` named vector containing players ratings.
-#' - `final_rd` named vector containing players ratings deviations.
-#' - `r` data.frame with evolution of the ratings and ratings deviations
-#'  estimated at each event.
-#' - `pairs` pairwise combinations of players in analysed events with
-#' prior probability and result of a challenge.
-#' - `class` of the object.
-#' - `method` type of algorithm used.
-#' - `settings` arguments specified in function call.
+#' - `r` — named numeric vector of player ratings.
+#' - `rd` — named numeric vector of rating deviations.
+#' - `coefficients` — matrix with columns `r` and `rd` (extractable via [coef()]).
+#' - `trajectory` — `data.table` tracking the evolution of ratings across
+#'   events (only when `trajectory = TRUE`).
+#' - `pairs` — `data.table` of pairwise comparisons with predicted
+#'   probability `P` and observed outcome `Y` (only when `trajectory = TRUE`).
+#'
+#' Attributes `method`, `formula`, and `settings` carry the model metadata.
 #'
 #' @examples
 #' # the simplest example
@@ -452,12 +464,13 @@ bbt_run <- function(formula,
                     data,
                     r = numeric(0),
                     rd = numeric(0),
-                    init_r = 25,
-                    init_rd = 25 / 3,
+                    init_r = .defaults$bbt$init_r,
+                    init_rd = .defaults$bbt$init_rd,
                     lambda = NULL,
                     share = NULL,
                     weight = NULL,
-                    kappa = 0.5) {
+                    kappa = 0.5,
+                    trajectory = TRUE) {
   g <- rating_run(
     method = "bbt",
     data = data,
@@ -469,29 +482,16 @@ bbt_run <- function(formula,
     lambda = lambda,
     share = share,
     weight = weight,
-    kappa = kappa
+    kappa = kappa,
+    trajectory = trajectory
   )
 
-  out <- structure(
-    list(
-      final_r = g$final_r,
-      final_rd = g$final_rd,
-      r = g$r,
-      pairs = g$p
-    ),
-    class = "rating",
-    method = "bbt",
-    formula = formula,
-    settings = list(
-      init_r = init_r,
-      init_rd = init_rd,
-      lambda = lambda,
-      share = share,
-      weight = weight,
-      kappa = kappa
-    )
+  settings <- list(
+    init_r = init_r, init_rd = init_rd,
+    lambda = lambda, share = share
   )
-  return(out)
+
+  build_rating(g, method = "bbt", formula = formula, settings = settings, trajectory = trajectory)
 }
 
 
@@ -507,18 +507,17 @@ bbt_run <- function(formula,
 #' also in interaction with others.
 #'
 #' @return
+#' An `"estimates"` object (a plain list) with components:
 #'
-#' A "rating" object is returned:
-#' - `final_r` named vector containing players ratings.
-#' - `final_rd` named vector containing players ratings deviations.
-#' - `r` data.frame with evolution of the ratings and ratings deviations
-#'  estimated at each event.
-#' - `pairs` pairwise combinations of players in analysed events with
-#' prior probability and result of a challenge.
-#' - `class` of the object.
-#' - `method` type of algorithm used.
-#' - `settings` arguments specified in function call.
-#
+#' - `r` — named numeric vector of player ratings.
+#' - `rd` — named numeric vector of rating deviations.
+#' - `coefficients` — matrix with columns `r` and `rd` (extractable via [coef()]).
+#' - `trajectory` — `data.table` tracking the evolution of ratings across
+#'   events (only when `trajectory = TRUE`).
+#' - `pairs` — `data.table` of pairwise comparisons with predicted
+#'   probability `P` and observed outcome `Y` (only when `trajectory = TRUE`).
+#'
+#' Attributes `method`, `formula`, and `settings` carry the model metadata.
 #'
 #' @examples
 #' # the simplest example
@@ -549,8 +548,9 @@ dbl_run <- function(formula,
                     lambda = NULL,
                     weight = NULL,
                     kappa = 0.95,
-                    init_r = 0,
-                    init_rd = 1) {
+                    init_r = .defaults$dbl$init_r,
+                    init_rd = .defaults$dbl$init_rd,
+                    trajectory = TRUE) {
   is_formula_missing(formula)
   is_data_provided(data)
   is_lhs_valid(formula, data)
@@ -593,34 +593,29 @@ dbl_run <- function(formula,
     RD = rd,
     lambda_vec = lambda_vec,
     weight_vec = weight_vec,
-    kappa = kappa
+    kappa = kappa,
+    record_trajectory = trajectory
   )
 
-  ratings <- data.table::rbindlist(g$r)
-  pairs <- data.table::rbindlist(g$p)
+  if (trajectory) {
+    ratings <- data.table::rbindlist(g$r)
+    pairs <- data.table::rbindlist(g$p)
 
-  rhs_terms <- extract_team_terms(formula)
-  names(ratings)[names(ratings) == "team"] <- rhs_terms[1]
-  names(pairs)[names(pairs) == "team"] <- rhs_terms[1]
+    rhs_terms <- extract_team_terms(formula)
+    names(ratings)[names(ratings) == "team"] <- rhs_terms[1]
+    names(pairs)[names(pairs) == "team"] <- rhs_terms[1]
+  } else {
+    ratings <- NULL
+    pairs <- NULL
+  }
 
-  out <- structure(
-    list(
-      final_r = g$final_r,
-      final_rd = g$final_rd,
-      r = ratings,
-      pairs = pairs
-    ),
-    class = "rating",
-    method = "dbl",
-    formula = formula,
-    settings = list(
-      init_r = init_r,
-      init_rd = init_rd,
-      lambda = lambda,
-      weight = weight,
-      kappa = kappa
-    )
+  settings <- list(
+    init_r = init_r, init_rd = init_rd,
+    lambda = lambda
   )
 
-  return(out)
+  build_rating(
+    list(final_r = g$final_r, final_rd = g$final_rd, r = ratings, p = pairs),
+    method = "dbl", formula = formula, settings = settings, trajectory = trajectory
+  )
 }

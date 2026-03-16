@@ -1,4 +1,3 @@
-context("rating")
 df <- data.frame(
   id = rep(1L, 8),
   rank = rep(c(3, 4, 1, 2), each = 2),
@@ -64,8 +63,8 @@ testthat::test_that("check rating default arguments", {
 
   testthat::expect_identical(g1, g2)
   testthat::expect_identical(g2, g3)
-  testthat::expect_identical(g3$final_r, g4$final_r)
-  testthat::expect_identical(g3$final_rd, g4$final_rd)
+  testthat::expect_identical(g3$final_r, g4$r)
+  testthat::expect_identical(g3$final_rd, g4$rd)
 
   testthat::expect_silent(
     g5 <- rating_run(
@@ -132,9 +131,9 @@ testthat::test_that("check rating default arguments", {
     )
   )
 
-  testthat::expect_identical(g9$final_r, g10$final_r)
-  testthat::expect_identical(g9$final_rd, g10$final_rd)
-  testthat::expect_identical(g9$final_sigma, g10$final_sigma)
+  testthat::expect_identical(g9$final_r, g10$r)
+  testthat::expect_identical(g9$final_rd, g10$rd)
+  testthat::expect_identical(g9$final_sigma, g10$sigma)
 
 
   testthat::expect_silent(
@@ -155,8 +154,8 @@ testthat::test_that("check rating default arguments", {
     )
   )
 
-  testthat::expect_identical(g11$final_r, g12$final_r)
-  testthat::expect_identical(g11$final_rd, g12$final_rd)
+  testthat::expect_identical(g11$final_r, g12$r)
+  testthat::expect_identical(g11$final_rd, g12$rd)
 
 
   testthat::expect_warning(
@@ -217,7 +216,7 @@ testthat::test_that("check rating default arguments", {
 
 
   testthat::expect_true(
-    !"ff" %in% glicko$final_rd
+    !"ff" %in% glicko$rd
   )
 
 
@@ -226,8 +225,8 @@ testthat::test_that("check rating default arguments", {
     glicko_run(
       formula = rank | id ~ player(rider),
       data = gpheats[5:8, ],
-      r = glicko$final_r,
-      rd = glicko$final_rd
+      r = glicko$r,
+      rd = glicko$rd
     ),
     "Missing parameters will be added with init"
   )
@@ -319,10 +318,10 @@ testthat::test_that("glicko result", {
 
 
   testthat::expect_identical(expected_r, round(cpp_glicko$final_r, 3))
-  testthat::expect_identical(expected_r, round(r_glicko$final_r, 3))
+  testthat::expect_identical(expected_r, round(r_glicko$r, 3))
 
   testthat::expect_identical(expected_rd, round(cpp_glicko$final_rd, 3))
-  testthat::expect_identical(expected_rd, round(r_glicko$final_rd, 3))
+  testthat::expect_identical(expected_rd, round(r_glicko$rd, 3))
 })
 
 testthat::test_that("glicko2 result", {
@@ -383,17 +382,17 @@ testthat::test_that("glicko2 result", {
 
   testthat::expect_identical(
     cpp_glicko2$final_r,
-    r_glicko2$final_r
+    r_glicko2$r
   )
 
   testthat::expect_identical(
     cpp_glicko2$final_rd,
-    r_glicko2$final_rd
+    r_glicko2$rd
   )
 
   testthat::expect_identical(
     cpp_glicko2$final_sigma,
-    r_glicko2$final_sigma
+    r_glicko2$sigma
   )
 })
 
@@ -444,12 +443,12 @@ testthat::test_that("bbt result", {
 
   testthat::expect_identical(
     cpp_bbt$final_r,
-    r_bbt$final_r
+    r_bbt$r
   )
 
   testthat::expect_identical(
     cpp_bbt$final_rd,
-    r_bbt$final_rd
+    r_bbt$rd
   )
 })
 
@@ -471,7 +470,7 @@ testthat::test_that("dbl result", {
   )
 
   testthat::expect_identical(
-    round(r_dbl$final_r, 2),
+    round(r_dbl$r, 2),
     setNames(
       c(-0.02, -0.18, 0.15, 0.05, -0.38, 0.64),
       c("player=A", "player=B", "player=C", "player=D", "factor=a:gate", "factor=b:gate")
@@ -479,7 +478,7 @@ testthat::test_that("dbl result", {
   )
 
   testthat::expect_identical(
-    round(r_dbl$final_rd, 2),
+    round(r_dbl$rd, 2),
     setNames(
       c(0.95, 0.95, 0.95, 0.95, 0.90, 0.90),
       c("player=A", "player=B", "player=C", "player=D", "factor=a:gate", "factor=b:gate")
@@ -502,19 +501,19 @@ testthat::test_that("Reasonable estimates", {
     arrange(mean_rank)
 
   worst <- unique(c(
-    names(sort(glicko$final_r)[1:10]),
-    names(sort(glicko2$final_r)[1:10]),
-    names(sort(bbt$final_r)[1:10]),
-    gsub("rider\\=", "", x = names(sort(dbl$final_r)[1:10])),
+    names(sort(glicko$r)[1:10]),
+    names(sort(glicko2$r)[1:10]),
+    names(sort(bbt$r)[1:10]),
+    gsub("rider\\=", "", x = names(sort(dbl$r)[1:10])),
     tail(by_rank$rider, 10)
   ))
 
   best <- unique(
     c(
-      names(sort(glicko$final_r, decreasing = TRUE)[1:10]),
-      names(sort(glicko2$final_r, decreasing = TRUE)[1:10]),
-      names(sort(bbt$final_r, decreasing = TRUE)[1:10]),
-      gsub("rider\\=", "", x = names(sort(dbl$final_r, decreasing = TRUE)[1:10]))
+      names(sort(glicko$r, decreasing = TRUE)[1:10]),
+      names(sort(glicko2$r, decreasing = TRUE)[1:10]),
+      names(sort(bbt$r, decreasing = TRUE)[1:10]),
+      gsub("rider\\=", "", x = names(sort(dbl$r, decreasing = TRUE)[1:10]))
     ),
     head(by_rank$rider, 10)
   )
@@ -546,13 +545,13 @@ testthat::test_that("Weighting", {
   )
 
   testthat::expect_equal(
-    abs(bbt2$final_r - 25),
-    abs(bbt1$final_r - 25) * 2
+    abs(bbt2$r - 25),
+    abs(bbt1$r - 25) * 2
   )
 
   testthat::expect_equal(
-    abs(bbt2$final_rd - 25 / 3),
-    abs(bbt1$final_rd - 25 / 3) * 2
+    abs(bbt2$rd - 25 / 3),
+    abs(bbt1$rd - 25 / 3) * 2
   )
 })
 
@@ -579,15 +578,15 @@ testthat::test_that("Lambda", {
 
   testthat::expect_true(
     all(
-      abs(glicko2$final_r - 1500) <
-        abs(glicko1$final_r - 1500)
+      abs(glicko2$r - 1500) <
+        abs(glicko1$r - 1500)
     )
   )
 
   testthat::expect_true(
     all(
-      abs(glicko2$final_rd - 350) <
-        abs(glicko1$final_rd - 350)
+      abs(glicko2$rd - 350) <
+        abs(glicko1$rd - 350)
     )
   )
 })
@@ -599,7 +598,7 @@ testthat::test_that("kappa", {
   )
 
   testthat::expect_true(all(
-    glicko1$final_rd == 350
+    glicko1$rd == 350
   ))
 
 
@@ -610,7 +609,7 @@ testthat::test_that("kappa", {
 
 
   testthat::expect_true(all(
-    glicko2$final_rd == (350 * 0.99)
+    glicko2$rd == (350 * 0.99)
   ))
 
   glicko3 <- bbt_run(rank | id ~ player(player),
@@ -619,7 +618,7 @@ testthat::test_that("kappa", {
   )
 
   testthat::expect_true(all(
-    glicko3$final_rd == (25 / 3 * 0.98)
+    glicko3$rd == (25 / 3 * 0.98)
   ))
 })
 
@@ -646,29 +645,29 @@ testthat::test_that("share", {
 
   testthat::expect_true(
     all(
-      (x$final_r[1:4] - 1500) < 0
+      (x$r[1:4] - 1500) < 0
     )
   )
 
   testthat::expect_true(
     all(
-      (x$final_r[5:8] - 1500) >= 0
+      (x$r[5:8] - 1500) >= 0
     )
   )
 
 
   testthat::expect_equal(
-    (1500 - x$final_r[1:2]) / sum((1500 - x$final_r[1:2])),
+    (1500 - x$r[1:2]) / sum((1500 - x$r[1:2])),
     setNames(c(0.9, 0.1), c("a", "b"))
   )
 
   testthat::expect_equal(
-    (1500 - x$final_r[3:4]) / sum((1500 - x$final_r[3:4])),
+    (1500 - x$r[3:4]) / sum((1500 - x$r[3:4])),
     setNames(c(0.1, 0.9), c("c", "d"))
   )
 
   testthat::expect_equal(
-    (x$final_r[5:6] - 1500) / sum((x$final_r[5:6] - 1500)),
+    (x$r[5:6] - 1500) / sum((x$r[5:6] - 1500)),
     setNames(c(0.5, 0.5), c("e", "f"))
   )
 })

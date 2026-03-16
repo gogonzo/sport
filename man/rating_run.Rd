@@ -18,7 +18,8 @@ rating_run(
   share = numeric(0),
   weight = numeric(0),
   kappa = numeric(0),
-  tau = numeric(0)
+  tau = numeric(0),
+  trajectory = TRUE
 )
 }
 \arguments{
@@ -28,7 +29,7 @@ rating_run(
 optional columns defined by \code{lambda}, \code{weight}.}
 
 \item{formula}{formula which specifies the model. RHS Allows only player
-rating parameter and it should be specified in following manner:\cr
+rating parameter and it should be specified in following manner:
 
 \code{rank | id ~ player(name)}.
 \itemize{
@@ -38,10 +39,11 @@ rating parameter and it should be specified in following manner:\cr
 helps algorithm point name of the column where player names are stored.
 }
 
-Users can also specify formula in in different way:\cr
+Users can also specify formula in in different way:
 
-\code{rank | id ~ player(name|team)}. Which means that players are playing in teams,
-and results are observed for teams not for players. For more see vignette.}
+\code{rank | id ~ player(name|team)}. Which means that players are playing in
+teams, and results are observed for teams not for players. For more see
+vignette.}
 
 \item{r}{named vector of initial players ratings estimates. If not specified
 then \code{r} will be created automatically for parameters specified in \code{formula}
@@ -56,14 +58,13 @@ estimates. If not specified then \code{sigma} will be created automatically for
 parameters specified in \code{formula} with initial value \code{init_sigma}.}
 
 \item{init_r}{initial values for \code{r} if not provided.
-Default (\code{glicko = 1500}, \code{glicko2 = 1500}, \code{bbt = 25},
-\code{dbl = 0})}
+Defaults are method-specific, defined in \code{.defaults}.}
 
 \item{init_rd}{initial values for \code{rd} if not provided.
-Default (\code{glicko = 350}, \code{glicko2 = 350}, \code{bbt = 25/3}, \code{dbl = 1})}
+Defaults are method-specific, defined in \code{.defaults}.}
 
 \item{init_sigma}{initial values for \code{sigma} if not provided.
-Default = 0.5}
+Defaults are method-specific, defined in \code{.defaults}.}
 
 \item{lambda}{name of the column in \code{data} containing lambda values or one
 constant value (eg. \code{lambda = colname} or \code{lambda = 0.5}).

@@ -93,13 +93,13 @@ is_rhs_valid <- function(formula, data, only_team_term = FALSE, single = FALSE) 
     data
   )
 
-  return(invisible(TRUE))
+  invisible(TRUE)
 }
 
 get_rank_name <- function(formula) {
   lhs <- all.vars(update(formula, . ~ 0))
   rank <- lhs[1]
-  return(rank)
+  rank
 }
 
 get_id_name <- function(formula) {
@@ -113,7 +113,7 @@ get_id_name <- function(formula) {
     character(0)
   }
 
-  return(id)
+  id
 }
 
 extract_team_terms <- function(formula) {
@@ -124,7 +124,7 @@ extract_team_terms <- function(formula) {
   x <- gsub("player\\(([^)]*)\\)", "\\1", team_terms, perl = TRUE)
   vars <- trimws(unlist(strsplit(x, "[+|:*]")))
 
-  return(vars)
+  vars
 }
 
 get_team_name <- function(formula) {
@@ -177,7 +177,7 @@ get_terms <- function(data, formula) {
   term_vars <- lapply(term_vars, function(x) unlist(classes[x]))
   term_vars <- lapply(term_vars, function(x) x[order(!x %in% c("character"))])
 
-  return(term_vars)
+  term_vars
 }
 
 get_terms_map <- function(data, terms) {
@@ -229,7 +229,7 @@ get_terms_map <- function(data, terms) {
   names(df) <- names
   df <- as.matrix(df)
 
-  return(df)
+  df
 }
 
 get_terms_mat <- function(data, terms) {
@@ -273,7 +273,7 @@ get_terms_mat <- function(data, terms) {
   colnames(df) <- names
   df <- as.matrix(df)
 
-  return(df)
+  df
 }
 
 get_terms_cls <- function(data, terms) {
@@ -300,5 +300,5 @@ get_terms_cls <- function(data, terms) {
     }
   }, FUN.VALUE = character(1))
 
-  return(out)
+  out
 }
