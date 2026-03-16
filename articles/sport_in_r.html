@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sport</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.2</span>
       </span>
     </div>
 
@@ -91,7 +91,7 @@ algorithms</h1>
                         <h4 data-toc-skip class="author">Dawid
 Kałędkowski</h4>
             
-            <h4 data-toc-skip class="date">2025-08-22</h4>
+            <h4 data-toc-skip class="date">2026-03-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/gogonzo/sport/blob/master/vignettes/sport_in_r.Rmd" class="external-link"><code>vignettes/sport_in_r.Rmd</code></a></small>
       <div class="hidden name"><code>sport_in_r.Rmd</code></div>
@@ -270,7 +270,8 @@ comparing model win probabilities with observed.</p>
 <span><span class="co">## 24:        rider=Joe Screen -0.155 0.264</span></span>
 <span><span class="co">## 25:       rider=Leigh Adams -0.333 0.358</span></span>
 <span><span class="co">## 26:   rider=Stefano Alfonso -1.733 0.735</span></span>
-<span><span class="co">##                       rider      r    rd</span></span></code></pre>
+<span><span class="co">##                       rider      r    rd</span></span>
+<span><span class="co">##                      &lt;char&gt;  &lt;num&gt; &lt;num&gt;</span></span></code></pre>
 <p>To visualize top n ratings with their 95% confidence interval one can
 use dedicated <code>plot.rating</code> function. For <code>dbl</code>
 method top coefficients are presented which doesn’t have to be player
@@ -279,7 +280,7 @@ time, by specifying <code>players</code> argument.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">glicko</span>, n <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">glicko</span>, players <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Greg Hancock"</span>, <span class="st">"Tomasz Gollob"</span>, <span class="st">"Tony Rickardsson"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="sport_in_r_files/figure-html/unnamed-chunk-6-1.png" width="50%"><img src="sport_in_r_files/figure-html/unnamed-chunk-6-2.png" width="50%"></p>
+<p><img src="sport_in_r_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="50%"><img src="sport_in_r_files/figure-html/unnamed-chunk-6-2.png" class="r-plt" alt="" width="50%"></p>
 <p>Except dedicated <code>print</code>,<code>summary</code> and
 <code>plot</code> there is possibility to extract more detailed
 information for analyses. <code>rating</code> object contains following
@@ -542,7 +543,7 @@ team, and <code>r</code> contains prior ratings per individuals.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>
