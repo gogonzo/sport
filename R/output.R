@@ -128,9 +128,9 @@ summary.estimates <- function(object, ...) {
   }
   formula <- attr(object, "formula")
   method <- attr(object, "method")
-  team_terms <- extract_team_terms(formula)
-  team_term_name <- get_team_name(formula)
-  player_term_name <- get_player_name(formula)
+  team_terms <- .extract_team_terms(formula)
+  team_term_name <- .get_team_name(formula)
+  player_term_name <- .get_player_name(formula)
 
   model_probs_teams <- object$pairs[
     , .(
@@ -250,7 +250,7 @@ print.estimates <- function(x, ...) {
 #' @export
 plot.estimates <- function(x, n = 10, players, ...) {
   formula <- attr(x, "formula")
-  variable <- extract_team_terms(formula)[1]
+  variable <- .extract_team_terms(formula)[1]
   if (!missing(players)) {
     if (is.null(x$trajectory)) {
       stop("plot(players=) requires a model fitted with trajectory = TRUE", call. = FALSE)

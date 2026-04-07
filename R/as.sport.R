@@ -98,7 +98,7 @@ as.sport.numeric <- function(x,
     p = if (has_traj) pairs else NULL
   )
 
-  build_rating(
+  .build_rating(
     g,
     method = method,
     formula = formula,

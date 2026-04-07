@@ -12,7 +12,7 @@ df <- data.frame(
 
 testthat::test_that("check rating default arguments", {
   testthat::expect_silent(
-    g1 <- rating_run(
+    g1 <- .rating_run(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -28,7 +28,7 @@ testthat::test_that("check rating default arguments", {
   )
 
   testthat::expect_silent(
-    g2 <- rating_run(
+    g2 <- .rating_run(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -44,7 +44,7 @@ testthat::test_that("check rating default arguments", {
   )
 
   testthat::expect_silent(
-    g3 <- rating_run(
+    g3 <- .rating_run(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -67,7 +67,7 @@ testthat::test_that("check rating default arguments", {
   testthat::expect_identical(g3$final_rd, g4$rd)
 
   testthat::expect_silent(
-    g5 <- rating_run(
+    g5 <- .rating_run(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -78,7 +78,7 @@ testthat::test_that("check rating default arguments", {
   )
 
   testthat::expect_silent(
-    g6 <- rating_run(
+    g6 <- .rating_run(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -90,7 +90,7 @@ testthat::test_that("check rating default arguments", {
   testthat::expect_identical(g5, g6)
 
   testthat::expect_silent(
-    g7 <- rating_run(
+    g7 <- .rating_run(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -100,7 +100,7 @@ testthat::test_that("check rating default arguments", {
   )
 
   testthat::expect_silent(
-    g8 <- rating_run(
+    g8 <- .rating_run(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -112,7 +112,7 @@ testthat::test_that("check rating default arguments", {
   testthat::expect_identical(g7, g8)
 
   testthat::expect_silent(
-    g9 <- rating_run(
+    g9 <- .rating_run(
       method = "glicko2",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -137,7 +137,7 @@ testthat::test_that("check rating default arguments", {
 
 
   testthat::expect_silent(
-    g11 <- rating_run(
+    g11 <- .rating_run(
       method = "bbt",
       data = df,
       formula = rank | id ~ player(player | team),

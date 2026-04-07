@@ -35,8 +35,8 @@ predict.estimates <- function(object, newdata, ...) {
   settings <- attr(object, "settings")
 
   all_vars <- all.vars(formula)
-  is_newdata_consistent(
-    c(get_team_name(formula), get_player_name(formula), all_vars[-1]),
+  .is_newdata_consistent(
+    c(.get_team_name(formula), .get_player_name(formula), all_vars[-1]),
     colnames(newdata)
   )
 
@@ -44,20 +44,20 @@ predict.estimates <- function(object, newdata, ...) {
     newdata[all_vars[1]] <- 1
   }
 
-  rank <- get_rank_name(formula)
+  rank <- .get_rank_name(formula)
   rank_vec <- as.integer(newdata[[rank]])
 
-  id <- get_id_name(formula)
+  id <- .get_id_name(formula)
   id_vec <- if (length(id) == 0) rep(1L, nrow(newdata)) else as.integer(newdata[[id]])
 
-  team <- get_team_name(formula)
-  player <- get_player_name(formula)
+  team <- .get_team_name(formula)
+  player <- .get_player_name(formula)
   team_vec <- as.character(newdata[[team]])
   player_vec <- if (length(player) == 0) team_vec else as.character(newdata[[player]])
 
   unique_id <- unique(id_vec)
-  lambda_vec <- initialize_vec(var = settings$lambda, data = newdata, argname = "lambda", min = 0)
-  share_vec <- initialize_vec(var = settings$share, data = newdata, argname = "share", min = 0, max = 1)
+  lambda_vec <- .initialize_vec(var = settings$lambda, data = newdata, argname = "lambda", min = 0)
+  share_vec <- .initialize_vec(var = settings$share, data = newdata, argname = "share", min = 0, max = 1)
 
   r <- object$r
   rd_vec_model <- object$rd
@@ -134,9 +134,9 @@ predict.estimates <- function(object, newdata, ...) {
       lambda_vec = lambda_vec
     )
   } else if (method == "dbl") {
-    terms <- get_terms(newdata, formula)
-    map <- get_terms_map(newdata, terms)
-    x <- get_terms_mat(newdata, terms)
+    terms <- .get_terms(newdata, formula)
+    map <- .get_terms_map(newdata, terms)
+    x <- .get_terms_mat(newdata, terms)
 
     predict_dbl(
       unique_id = unique_id,
@@ -153,7 +153,7 @@ predict.estimates <- function(object, newdata, ...) {
 
   pairs <- data.table::rbindlist(out_p)
 
-  rhs_terms <- extract_team_terms(formula)
+  rhs_terms <- .extract_team_terms(formula)
   if (length(rhs_terms) == 1) {
     names(pairs)[names(pairs) == "team"] <- rhs_terms[1]
   } else {

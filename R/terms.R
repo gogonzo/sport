@@ -1,6 +1,6 @@
 #' @importFrom stats terms
 
-is_formula_missing <- function(formula) {
+.is_formula_missing <- function(formula) {
   if (length(formula) == 0) {
     stop("Formula is not specified", call. = FALSE)
   } else if (!inherits(formula, "formula")) {
@@ -10,7 +10,7 @@ is_formula_missing <- function(formula) {
   invisible(TRUE)
 }
 
-is_lhs_valid <- function(formula, data) {
+.is_lhs_valid <- function(formula, data) {
   if (length(all.vars(update(formula, . ~ 0))) == 1) {
     warning("LHS of formula doesn't contain `| id` element.
             It will be assummed that all belongs to the same event id",
@@ -40,7 +40,7 @@ is_lhs_valid <- function(formula, data) {
   invisible(TRUE)
 }
 
-is_team_term_valid <- function(formula, single) {
+.is_team_term_valid <- function(formula, single) {
   rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
   team_term <- grep("player\\(.+\\)", rhs_terms, value = TRUE)
 
@@ -76,19 +76,19 @@ is_team_term_valid <- function(formula, single) {
   invisible(TRUE)
 }
 
-is_rhs_valid <- function(formula, data, only_team_term = FALSE, single = FALSE) {
+.is_rhs_valid <- function(formula, data, only_team_term = FALSE, single = FALSE) {
   rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
   if (only_team_term && length(rhs_terms) > 1) {
     stop("This formula requires only one RHS term which is player(...) function.")
   }
 
-  is_team_term_valid(formula, single)
+  .is_team_term_valid(formula, single)
   rhs_terms <- grep("player\\(", rhs_terms, value = TRUE, invert = TRUE)
 
-  are_variables_in_dataset(
+  .are_variables_in_dataset(
     union(
       unique(unlist(strsplit(rhs_terms, "[*:+|]+"))),
-      extract_team_terms(formula)
+      .extract_team_terms(formula)
     ),
     data
   )
@@ -96,13 +96,13 @@ is_rhs_valid <- function(formula, data, only_team_term = FALSE, single = FALSE) 
   invisible(TRUE)
 }
 
-get_rank_name <- function(formula) {
+.get_rank_name <- function(formula) {
   lhs <- all.vars(update(formula, . ~ 0))
   rank <- lhs[1]
   rank
 }
 
-get_id_name <- function(formula) {
+.get_id_name <- function(formula) {
   lhs <- all.vars(update(formula, . ~ 0))
   id <- if (length(lhs) == 2) {
     lhs[2]
@@ -116,8 +116,8 @@ get_id_name <- function(formula) {
   id
 }
 
-extract_team_terms <- function(formula) {
-  is_team_term_valid(formula = formula, single = FALSE)
+.extract_team_terms <- function(formula) {
+  .is_team_term_valid(formula = formula, single = FALSE)
   rhs_terms <- attr(terms(update(formula, 0 ~ .)), "term.labels")
   team_terms <- grep("player\\(", rhs_terms, value = TRUE)
 
@@ -127,8 +127,8 @@ extract_team_terms <- function(formula) {
   vars
 }
 
-get_team_name <- function(formula) {
-  terms <- extract_team_terms(formula)
+.get_team_name <- function(formula) {
+  terms <- .extract_team_terms(formula)
 
   if (length(terms) == 2) {
     terms[2]
@@ -137,12 +137,12 @@ get_team_name <- function(formula) {
   }
 }
 
-get_player_name <- function(formula) {
-  terms <- extract_team_terms(formula)
+.get_player_name <- function(formula) {
+  terms <- .extract_team_terms(formula)
   terms[1]
 }
 
-get_type <- function(x) {
+.get_type <- function(x) {
   if (is.character(x) || is.factor(x)) {
     "character"
   } else if (is.numeric(x)) {
@@ -150,7 +150,7 @@ get_type <- function(x) {
   }
 }
 
-get_terms <- function(data, formula) {
+.get_terms <- function(data, formula) {
   trm <- unlist(strsplit(attr(terms(formula), "term.labels"), "[ ][+][ ]+"))
   team_term_idx <- grep("player\\(", trm)
   if (length(team_term_idx) > 0) {
@@ -169,9 +169,9 @@ get_terms <- function(data, formula) {
 
   term_vars <- strsplit(trm, ":")
 
-  are_variables_in_dataset(unlist(term_vars), data)
+  .are_variables_in_dataset(unlist(term_vars), data)
 
-  classes <- lapply(data, get_type)
+  classes <- lapply(data, .get_type)
   term_vars <- lapply(term_vars, gsub, pattern = "([a-zA-Z]+\\()|(\\))", replacement = "")
 
   term_vars <- lapply(term_vars, function(x) unlist(classes[x]))
@@ -180,7 +180,7 @@ get_terms <- function(data, formula) {
   term_vars
 }
 
-get_terms_map <- function(data, terms) {
+.get_terms_map <- function(data, terms) {
   df <- as.data.frame(
     lapply(terms, function(term) {
       if (length(term) == 1) {
@@ -232,7 +232,7 @@ get_terms_map <- function(data, terms) {
   df
 }
 
-get_terms_mat <- function(data, terms) {
+.get_terms_mat <- function(data, terms) {
   df <- as.data.frame(
     lapply(terms, function(term) {
       if (length(term) == 1) {
@@ -276,7 +276,7 @@ get_terms_mat <- function(data, terms) {
   df
 }
 
-get_terms_cls <- function(data, terms) {
+.get_terms_cls <- function(data, terms) {
   out <- vapply(terms, function(term) {
     if (length(term) == 1) {
       if (term == "character") {
