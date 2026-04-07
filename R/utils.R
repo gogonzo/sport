@@ -1,10 +1,10 @@
 #' @importFrom stats setNames terms update
 
-is_data_provided <- function(data) {
+.is_data_provided <- function(data) {
   if (missing(data)) stop("Data is not provided", call. = FALSE)
 }
 
-is_newdata_consistent <- function(vars, newnames) {
+.is_newdata_consistent <- function(vars, newnames) {
   if (!all(vars %in% newnames)) {
     stop(
       paste0(
@@ -17,7 +17,7 @@ is_newdata_consistent <- function(vars, newnames) {
   }
 }
 
-are_variables_in_dataset <- function(vars, data) {
+.are_variables_in_dataset <- function(vars, data) {
   missing_vars <- setdiff(vars, colnames(data))
   if (length(missing_vars) > 0) {
     stop(
@@ -32,7 +32,7 @@ are_variables_in_dataset <- function(vars, data) {
   invisible(TRUE)
 }
 
-check_numeric_argument <- function(x, var_name, min = -Inf, max = Inf) {
+.check_numeric_argument <- function(x, var_name, min = -Inf, max = Inf) {
   if (!is.numeric(x)) {
     stop(sprintf("Variable %s should be of type numeric.", var_name),
       call. = FALSE
@@ -49,7 +49,7 @@ check_numeric_argument <- function(x, var_name, min = -Inf, max = Inf) {
   }
 }
 
-check_integer_argument <- function(x, var_name, min = -Inf, max = Inf) {
+.check_integer_argument <- function(x, var_name, min = -Inf, max = Inf) {
   if (!is.integer(x)) {
     stop(
       sprintf("Variable %s should be of type integer.", var_name),
@@ -68,7 +68,7 @@ check_integer_argument <- function(x, var_name, min = -Inf, max = Inf) {
   }
 }
 
-check_string_argument <- function(x, var_name) {
+.check_string_argument <- function(x, var_name) {
   if (!is.character(x)) {
     stop(sprintf("Variable %s should be of type character.", var_name), call. = FALSE)
   } else if (any(is.na(x))) {
@@ -79,7 +79,7 @@ check_string_argument <- function(x, var_name) {
   }
 }
 
-check_single_argument <- function(x, var_name, min = -Inf, max = Inf) {
+.check_single_argument <- function(x, var_name, min = -Inf, max = Inf) {
   if (length(x) > 1) {
     stop(
       sprintf("variable %s should be a single value", var_name),
@@ -98,7 +98,7 @@ check_single_argument <- function(x, var_name, min = -Inf, max = Inf) {
   }
 }
 
-init_check_r <- function(r, init_r, unique_names, player) {
+.init_check_r <- function(r, init_r, unique_names, player) {
   if (length(r) == 0) {
     if (!is.finite(init_r)) {
       stop("init_r should be a finite number", call. = FALSE)
@@ -131,7 +131,7 @@ init_check_r <- function(r, init_r, unique_names, player) {
   r
 }
 
-init_check_rd <- function(rd, init_rd, unique_names, player) {
+.init_check_rd <- function(rd, init_rd, unique_names, player) {
   if (length(rd) == 0) {
     if (!is.finite(init_rd) || init_rd <= 0) {
       stop("init_rd value should be positive", call. = FALSE)
@@ -165,7 +165,7 @@ init_check_rd <- function(rd, init_rd, unique_names, player) {
   rd
 }
 
-init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
+.init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
   if (method != "glicko2") {
     return(numeric(0))
   } else if (length(sigma) == 0) {
@@ -201,7 +201,7 @@ init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
   sigma
 }
 
-check_equal_names <- function(x, y) {
+.check_equal_names <- function(x, y) {
   xname <- deparse(substitute(x))
   yname <- deparse(substitute(y))
 
@@ -222,7 +222,7 @@ check_equal_names <- function(x, y) {
   invisible(TRUE)
 }
 
-initialize_vec <- function(var, data, argname, min = -Inf, max = Inf) {
+.initialize_vec <- function(var, data, argname, min = -Inf, max = Inf) {
   if (length(var) == 0) {
     var_vec <- rep(1.0, nrow(data))
   } else if (is.character(var) && length(var) == 1) {
@@ -233,9 +233,9 @@ initialize_vec <- function(var, data, argname, min = -Inf, max = Inf) {
       ))
     }
     var_vec <- data[[var]] # 1 divided by n_it
-    check_numeric_argument(var_vec, var, min = min, max = max)
+    .check_numeric_argument(var_vec, var, min = min, max = max)
   } else if (is.numeric(var) && length(var) == 1) {
-    check_numeric_argument(var, argname, min = min, max = max)
+    .check_numeric_argument(var, argname, min = min, max = max)
     var_vec <- rep(var, nrow(data))
   } else {
     stop(

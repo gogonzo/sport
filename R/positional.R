@@ -38,7 +38,7 @@ positional <- function(object, newdata) {
   }
 
   formula <- attr(object, "formula")
-  rhs_terms <- extract_team_terms(formula)
+  rhs_terms <- .extract_team_terms(formula)
   player_col <- if (length(rhs_terms) == 1) rhs_terms[1] else rhs_terms[2]
 
   players <- as.character(newdata[[player_col]])
@@ -75,7 +75,7 @@ positional <- function(object, newdata) {
   }
 
   # Enumerate all permutations
-  perms <- permutations(n)
+  perms <- .permutations(n)
 
   # Compute Plackett-Luce probability for each permutation
   # P(perm) = prod_{k=1}^{n} strength[perm[k]] / sum_{j=k}^{n} strength[perm[j]]
@@ -114,9 +114,9 @@ positional <- function(object, newdata) {
 #' @param n integer
 #' @return matrix with n! rows and n columns
 #' @noRd
-permutations <- function(n) {
+.permutations <- function(n) {
   if (n == 1) return(matrix(1L, nrow = 1, ncol = 1))
-  sub <- permutations(n - 1L)
+  sub <- .permutations(n - 1L)
   out <- matrix(0L, nrow = n * nrow(sub), ncol = n)
   idx <- 1L
   for (i in seq_len(n)) {
