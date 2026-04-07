@@ -124,7 +124,8 @@ NULL
     kappa = numeric(0),
     tau = numeric(0),
     trajectory = TRUE) {
-  if (length(kappa) == 0) kappa <- 0.5
+  is_dbl <- method == "dbl"
+  if (length(kappa) == 0) kappa <- if (is_dbl) 0.95 else 0.5
   if (length(tau) == 0) tau <- 0.5
 
   if (method == "glicko2") {
@@ -135,44 +136,69 @@ NULL
   .is_data_provided(data)
   .is_formula_missing(formula)
   .is_lhs_valid(formula, data)
-  .is_rhs_valid(formula, data, only_team_term = TRUE, single = FALSE)
-  .check_single_argument(init_r, "init_r", min = 0)
-  .check_single_argument(init_rd, "init_rd", min = 0)
+  .is_rhs_valid(formula, data, only_team_term = !is_dbl, single = is_dbl)
 
   rank <- .get_rank_name(formula)
   rank_vec <- as.integer(data[[rank]])
-
   id <- .get_id_name(formula)
   id_vec <- if (length(id) == 0) rep(1L, nrow(data)) else as.integer(data[[id]])
-
-  team <- .get_team_name(formula)
-  player <- .get_player_name(formula)
-  .are_variables_in_dataset(c(rank, id, team, player), data)
-
-  team_vec <- as.character(data[[team]])
-  player_vec <- if (length(player) == 0) team_vec else as.character(data[[player]])
-
-
-  .check_integer_argument(id_vec, id)
-  .check_integer_argument(rank_vec, rank)
-  .check_string_argument(player_vec, player)
-  .check_string_argument(team_vec, team)
-
-  lambda_vec <- .initialize_vec(var = lambda, data = data, argname = "lambda", min = 0)
-  share_vec <- .initialize_vec(var = share, data = data, argname = "share", min = 0, max = 1)
-  weight_vec <- .initialize_vec(var = weight, data = data, argname = "weight", min = 0)
-
-  # default rating
-  unique_names <- unique(c(unlist(player_vec), names(r), names(rd), names(sigma)))
   unique_id <- unique(id_vec)
 
-  r <- .init_check_r(r, init_r, unique_names, player)
-  rd <- .init_check_rd(rd, init_rd, unique_names, player)
-  sigma <- .init_check_sigma(sigma, init_sigma, unique_names, player, method)
-  .check_equal_names(r, rd)
+  team <- .get_team_name(formula)
+  team_vec <- as.character(data[[team]])
 
-  g <- if (method == "glicko") {
-    glicko(
+  lambda_vec <- .initialize_vec(var = lambda, data = data, argname = "lambda", min = 0)
+  weight_vec <- .initialize_vec(var = weight, data = data, argname = "weight", min = 0)
+
+  if (is_dbl) {
+    terms <- .get_terms(data, formula)
+    map <- .get_terms_map(data, terms)
+    x <- .get_terms_mat(data, terms)
+    cls <- .get_terms_cls(data, terms)
+    unique_params <- unname(unlist(apply(map, 2, unique)))
+
+    r <- .init_check_r(r, init_r, unique_params, "term columns")
+    rd <- .init_check_rd(rd, init_rd, unique_params, "term columns")
+    .check_equal_names(r, rd)
+
+    g <- dbl(
+      unique_id = unique_id,
+      id_vec = id_vec,
+      rank_vec = rank_vec,
+      team_vec = team_vec,
+      MAP = as.matrix(map),
+      X = as.matrix(x),
+      cls = cls,
+      R = r,
+      RD = rd,
+      lambda_vec = lambda_vec,
+      weight_vec = weight_vec,
+      kappa = kappa,
+      record_trajectory = trajectory
+    )
+  } else {
+    .check_single_argument(init_r, "init_r", min = 0)
+    .check_single_argument(init_rd, "init_rd", min = 0)
+
+    player <- .get_player_name(formula)
+    .are_variables_in_dataset(c(rank, id, team, player), data)
+    player_vec <- if (length(player) == 0) team_vec else as.character(data[[player]])
+
+    .check_integer_argument(id_vec, id)
+    .check_integer_argument(rank_vec, rank)
+    .check_string_argument(player_vec, player)
+    .check_string_argument(team_vec, team)
+
+    share_vec <- .initialize_vec(var = share, data = data, argname = "share", min = 0, max = 1)
+
+    unique_names <- unique(c(unlist(player_vec), names(r), names(rd), names(sigma)))
+    r <- .init_check_r(r, init_r, unique_names, player)
+    rd <- .init_check_rd(rd, init_rd, unique_names, player)
+    sigma <- .init_check_sigma(sigma, init_sigma, unique_names, player, method)
+    .check_equal_names(r, rd)
+
+    cpp_fn <- switch(method, glicko = glicko, glicko2 = glicko2, bbt = bbt)
+    g <- cpp_fn(
       unique_id = unique_id,
       id = id_vec,
       rank = rank_vec,
@@ -180,55 +206,15 @@ NULL
       player = player_vec,
       r = r,
       rd = rd,
-      sigma = numeric(0),
+      sigma = if (method == "glicko2") sigma else numeric(0),
       init_r = init_r,
       init_rd = init_rd,
-      init_sigma = 0.0,
+      init_sigma = if (method == "glicko2") init_sigma else 0.0,
       lambda = lambda_vec,
       share = share_vec,
       weight = weight_vec,
       kappa = kappa,
-      tau = 0.0,
-      record_trajectory = trajectory
-    )
-  } else if (method == "glicko2") {
-    glicko2(
-      unique_id,
-      id = id_vec,
-      rank = rank_vec,
-      team = team_vec,
-      player = player_vec,
-      r = r,
-      rd = rd,
-      sigma = sigma,
-      init_r = init_r,
-      init_rd = init_rd,
-      init_sigma = init_sigma,
-      lambda = lambda_vec,
-      share = share_vec,
-      weight = weight_vec,
-      kappa = kappa,
-      tau = tau,
-      record_trajectory = trajectory
-    )
-  } else if (method == "bbt") {
-    bbt(
-      unique_id,
-      id = id_vec,
-      rank = rank_vec,
-      team = team_vec,
-      player = player_vec,
-      r = r,
-      rd = rd,
-      sigma = numeric(0),
-      init_r = init_r,
-      init_rd = init_rd,
-      init_sigma = 0.0,
-      lambda = lambda_vec,
-      share = share_vec,
-      weight = weight_vec,
-      kappa = kappa,
-      tau = 0.0,
+      tau = if (method == "glicko2") tau else 0.0,
       record_trajectory = trajectory
     )
   }
@@ -236,10 +222,9 @@ NULL
   if (trajectory) {
     ratings <- data.table::rbindlist(g$r)
     pairs <- data.table::rbindlist(g$p)
-
     rhs_terms <- .extract_team_terms(formula)
-    if (length(rhs_terms) == 1) {
-      ratings <- ratings[, "player" := NULL]
+    if (is_dbl || length(rhs_terms) == 1) {
+      if (!is_dbl) ratings <- ratings[, "player" := NULL]
       names(ratings)[names(ratings) == "team"] <- rhs_terms[1]
       names(pairs)[names(pairs) == "team"] <- rhs_terms[1]
     } else {
@@ -247,8 +232,8 @@ NULL
       names(ratings)[names(ratings) == "team"] <- rhs_terms[2]
       names(pairs)[names(pairs) == "team"] <- rhs_terms[2]
     }
-
-    g$r <- if (method == "glicko2") ratings else ratings[, "sigma" := NULL]
+    if (method %in% c("glicko", "bbt")) ratings <- ratings[, "sigma" := NULL]
+    g$r <- ratings
     g$p <- pairs
   } else {
     g$r <- NULL
@@ -551,71 +536,25 @@ dbl_run <- function(formula,
                     init_r = .defaults$dbl$init_r,
                     init_rd = .defaults$dbl$init_rd,
                     trajectory = TRUE) {
-  .is_formula_missing(formula)
-  .is_data_provided(data)
-  .is_lhs_valid(formula, data)
-  .is_rhs_valid(formula, data, only_team_term = FALSE, single = TRUE)
-
-  rank <- .get_rank_name(formula)
-  rank_vec <- as.integer(data[[rank]])
-
-  id <- .get_id_name(formula)
-  id_vec <- if (length(id) == 0) rep(1L, nrow(data)) else as.integer(data[[id]])
-
-
-  terms <- .get_terms(data, formula)
-  map <- .get_terms_map(data, terms)
-  x <- .get_terms_mat(data, terms)
-  cls <- .get_terms_cls(data, terms)
-  unique_params <- unname(unlist(apply(map, 2, unique)))
-
-  team <- .get_team_name(formula)
-  team_vec <- as.character(data[[team]])
-
-  r <- .init_check_r(r, init_r, unique_params, "term columns")
-  rd <- .init_check_rd(rd, init_rd, unique_params, "term columns")
-  .check_equal_names(r, rd)
-
-  lambda_vec <- .initialize_vec(var = lambda, data = data, argname = "lambda", min = 0)
-  weight_vec <- .initialize_vec(var = weight, data = data, argname = "weight", min = 0)
-
   if (is.null(kappa)) kappa <- 0.0001
-
-  g <- dbl(
-    unique_id = unique(id_vec),
-    id_vec = id_vec,
-    rank_vec = rank_vec,
-    team_vec = team_vec,
-    MAP = as.matrix(map),
-    X = as.matrix(x),
-    cls = cls,
-    R = r,
-    RD = rd,
-    lambda_vec = lambda_vec,
-    weight_vec = weight_vec,
+  g <- .rating_run(
+    method = "dbl",
+    data = data,
+    formula = formula,
+    r = r,
+    rd = rd,
+    init_r = init_r,
+    init_rd = init_rd,
+    lambda = lambda,
+    weight = weight,
     kappa = kappa,
-    record_trajectory = trajectory
+    trajectory = trajectory
   )
-
-  if (trajectory) {
-    ratings <- data.table::rbindlist(g$r)
-    pairs <- data.table::rbindlist(g$p)
-
-    rhs_terms <- .extract_team_terms(formula)
-    names(ratings)[names(ratings) == "team"] <- rhs_terms[1]
-    names(pairs)[names(pairs) == "team"] <- rhs_terms[1]
-  } else {
-    ratings <- NULL
-    pairs <- NULL
-  }
 
   settings <- list(
     init_r = init_r, init_rd = init_rd,
     lambda = lambda
   )
 
-  .build_rating(
-    list(final_r = g$final_r, final_rd = g$final_rd, r = ratings, p = pairs),
-    method = "dbl", formula = formula, settings = settings, trajectory = trajectory
-  )
+  .build_rating(g, method = "dbl", formula = formula, settings = settings, trajectory = trajectory)
 }
