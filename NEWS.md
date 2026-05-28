@@ -1,11 +1,4 @@
-# sport v0.2.2
-
-----------------
-## Changes:
-
-* Fixes for `ggplot2` version 4.0.
-
-# sport (development version)
+# sport 0.5.0
 
 ----------------
 ## Changes:

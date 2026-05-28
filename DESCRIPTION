@@ -1,7 +1,7 @@
 Package: sport
 Type: Package
 Title: Sequential Pairwise Online Rating Techniques
-Version: 0.2.2
+Version: 0.5.0
 Depends: 
     R (>= 3.5)
 Authors@R: person(given = "Dawid",
