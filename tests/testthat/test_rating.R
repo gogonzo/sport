@@ -12,7 +12,7 @@ df <- data.frame(
 
 testthat::test_that("check rating default arguments", {
   testthat::expect_silent(
-    g1 <- .rating_run(
+    g1 <- .run_player_ratings(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -28,7 +28,7 @@ testthat::test_that("check rating default arguments", {
   )
 
   testthat::expect_silent(
-    g2 <- .rating_run(
+    g2 <- .run_player_ratings(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -44,7 +44,7 @@ testthat::test_that("check rating default arguments", {
   )
 
   testthat::expect_silent(
-    g3 <- .rating_run(
+    g3 <- .run_player_ratings(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -67,7 +67,7 @@ testthat::test_that("check rating default arguments", {
   testthat::expect_identical(g3$final_rd, g4$rd)
 
   testthat::expect_silent(
-    g5 <- .rating_run(
+    g5 <- .run_player_ratings(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -78,7 +78,7 @@ testthat::test_that("check rating default arguments", {
   )
 
   testthat::expect_silent(
-    g6 <- .rating_run(
+    g6 <- .run_player_ratings(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -90,7 +90,7 @@ testthat::test_that("check rating default arguments", {
   testthat::expect_identical(g5, g6)
 
   testthat::expect_silent(
-    g7 <- .rating_run(
+    g7 <- .run_player_ratings(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -100,7 +100,7 @@ testthat::test_that("check rating default arguments", {
   )
 
   testthat::expect_silent(
-    g8 <- .rating_run(
+    g8 <- .run_player_ratings(
       method = "glicko",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -112,7 +112,7 @@ testthat::test_that("check rating default arguments", {
   testthat::expect_identical(g7, g8)
 
   testthat::expect_silent(
-    g9 <- .rating_run(
+    g9 <- .run_player_ratings(
       method = "glicko2",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -137,7 +137,7 @@ testthat::test_that("check rating default arguments", {
 
 
   testthat::expect_silent(
-    g11 <- .rating_run(
+    g11 <- .run_player_ratings(
       method = "bbt",
       data = df,
       formula = rank | id ~ player(player | team),
@@ -486,6 +486,44 @@ testthat::test_that("dbl result", {
   )
 })
 
+testthat::test_that("trajectory/pairs use formula id and player names", {
+  d <- data.frame(
+    event_id = c(1, 1, 1, 1, 2, 2, 2, 2),
+    place = c(3, 4, 1, 2, 1, 2, 3, 4),
+    squad = c("a", "b", "c", "d", "a", "b", "c", "d"),
+    rider = c("A", "B", "C", "D", "A", "B", "C", "D"),
+    gate = c(1, 2, 3, 4, 1, 2, 3, 4),
+    stringsAsFactors = FALSE
+  )
+
+  # Flat player(team) -- glicko / glicko2 / bbt
+  for (method in c("glicko", "bbt")) {
+    run <- get(paste0(method, "_run"))
+    out <- run(data = d, formula = place | event_id ~ player(rider))
+    testthat::expect_identical(names(out$trajectory), c("event_id", "rider", "r", "rd"))
+    testthat::expect_identical(names(out$pairs), c("event_id", "rider", "opponent", "Y", "P"))
+  }
+  out <- glicko2_run(data = d, formula = place | event_id ~ player(rider))
+  testthat::expect_identical(names(out$trajectory), c("event_id", "rider", "r", "rd", "sigma"))
+  testthat::expect_identical(names(out$pairs), c("event_id", "rider", "opponent", "Y", "P"))
+
+  # Nested player(player | team)
+  for (method in c("glicko", "bbt")) {
+    run <- get(paste0(method, "_run"))
+    out <- run(data = d, formula = place | event_id ~ player(rider | squad))
+    testthat::expect_identical(names(out$trajectory), c("event_id", "squad", "rider", "r", "rd"))
+    testthat::expect_identical(names(out$pairs), c("event_id", "squad", "opponent", "Y", "P"))
+  }
+  out <- glicko2_run(data = d, formula = place | event_id ~ player(rider | squad))
+  testthat::expect_identical(names(out$trajectory), c("event_id", "squad", "rider", "r", "rd", "sigma"))
+  testthat::expect_identical(names(out$pairs), c("event_id", "squad", "opponent", "Y", "P"))
+
+  # DBL
+  out <- dbl_run(data = d, formula = place | event_id ~ player(rider) + gate)
+  testthat::expect_identical(names(out$trajectory), c("event_id", "rider", "param", "R", "RD"))
+  testthat::expect_identical(names(out$pairs), c("event_id", "rider", "opponent", "Y", "P"))
+})
+
 testthat::test_that("Reasonable estimates", {
   glicko <- glicko_run(rank | id ~ player(rider), data = gpheats[1:10000, ])
   glicko2 <- glicko2_run(rank | id ~ player(rider), data = gpheats[1:10000, ])
@@ -504,7 +542,7 @@ testthat::test_that("Reasonable estimates", {
     names(sort(glicko$r)[1:10]),
     names(sort(glicko2$r)[1:10]),
     names(sort(bbt$r)[1:10]),
-    gsub("rider\\=", "", x = names(sort(dbl$r)[1:10])),
+    names(sort(dbl$r)[1:10]),
     tail(by_rank$rider, 10)
   ))
 
@@ -513,7 +551,7 @@ testthat::test_that("Reasonable estimates", {
       names(sort(glicko$r, decreasing = TRUE)[1:10]),
       names(sort(glicko2$r, decreasing = TRUE)[1:10]),
       names(sort(bbt$r, decreasing = TRUE)[1:10]),
-      gsub("rider\\=", "", x = names(sort(dbl$r, decreasing = TRUE)[1:10]))
+      names(sort(dbl$r, decreasing = TRUE)[1:10])
     ),
     head(by_rank$rider, 10)
   )
@@ -621,7 +659,6 @@ testthat::test_that("kappa", {
     glicko3$rd == (25 / 3 * 0.98)
   ))
 })
-
 
 testthat::test_that("share", {
   df <- data.frame(

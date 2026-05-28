@@ -7,7 +7,7 @@
 positional(object, newdata)
 }
 \arguments{
-\item{object}{An object of class "estimates" (output of \code{glicko_run}, \code{glicko2_run}, \code{bbt_run}, or \code{dbl_run}).}
+\item{object}{An object of class "ratings" (output of \code{glicko_run}, \code{glicko2_run}, \code{bbt_run}, or \code{dbl_run}).}
 
 \item{newdata}{A data.frame with player names and event id columns matching the model formula.
 All rows should belong to a single event (heat). Rank column is not needed (set to NA internally).}

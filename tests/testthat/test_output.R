@@ -19,6 +19,14 @@ testthat::test_that("Plot layers match", {
 })
 
 testthat::test_that("Plot output matches snapshot", {
-  vdiffr::expect_doppelganger("dbl_plot", plot(dbl))
-  vdiffr::expect_doppelganger("glicko_plot", plot(glicko))
+  testthat::skip_if_not_installed("ggplot2")
+  suppressWarnings({
+    vdiffr::expect_doppelganger("dbl_plot", plot(dbl))
+    vdiffr::expect_doppelganger("glicko_plot", plot(glicko))
+  })
+})
+
+testthat::test_that("plot.ratings is deprecated", {
+  testthat::skip_if_not_installed("ggplot2")
+  testthat::expect_warning(plot(glicko), "deprecated")
 })

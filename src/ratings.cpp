@@ -702,16 +702,16 @@ Rcpp::List bbt(
 Rcpp::List
 dbl(
     Rcpp::IntegerVector unique_id,
-    Rcpp::IntegerVector id_vec,
-    Rcpp::IntegerVector rank_vec,
-    Rcpp::StringVector team_vec,
-    Rcpp::StringMatrix MAP,
-    Rcpp::NumericMatrix X,
+    Rcpp::IntegerVector id,
+    Rcpp::IntegerVector rank,
+    Rcpp::StringVector team,
+    Rcpp::StringMatrix map,
+    Rcpp::NumericMatrix x,
     Rcpp::StringVector cls,
-    Rcpp::NumericVector R,
-    Rcpp::NumericVector RD,
-    Rcpp::NumericVector lambda_vec,
-    Rcpp::NumericVector weight_vec,
+    Rcpp::NumericVector r,
+    Rcpp::NumericVector rd,
+    Rcpp::NumericVector lambda,
+    Rcpp::NumericVector weight,
     double kappa,
     bool record_trajectory = true)
 {
@@ -723,39 +723,39 @@ dbl(
   double s2, Ks, prob, y, y_var, error, delta_;
 
   Rcpp::NumericVector idx_i;
-  Rcpp::StringVector team_vec_i;
-  Rcpp::IntegerVector rank_vec_i;
-  Rcpp::NumericVector lambda_vec_i;
-  Rcpp::NumericVector weight_vec_i;
+  Rcpp::StringVector team_i;
+  Rcpp::IntegerVector rank_i;
+  Rcpp::NumericVector lambda_i;
+  Rcpp::NumericVector weight_i;
 
-  Rcpp::StringMatrix MAP_i;
-  Rcpp::NumericMatrix X_i;
-  Rcpp::IntegerMatrix Idx_i;
-  Rcpp::NumericMatrix R_i;
-  Rcpp::NumericMatrix RD_i;
+  Rcpp::StringMatrix map_i;
+  Rcpp::NumericMatrix x_i;
+  Rcpp::IntegerMatrix idx_mat_i;
+  Rcpp::NumericMatrix r_i;
+  Rcpp::NumericMatrix rd_i;
 
   int id_i;
-  Rcpp::StringVector param_names = R.names();
+  Rcpp::StringVector param_names = r.names();
   for (int i = 0; i < n_events; i++)
   {
     id_i = unique_id(i);
-    idx_i = utils::find<int>(id_i, id_vec);
+    idx_i = utils::find<int>(id_i, id);
     if (idx_i.size() == 1)
       continue;
 
-    team_vec_i = team_vec[idx_i];
-    rank_vec_i = rank_vec[idx_i];
-    lambda_vec_i = lambda_vec[idx_i];
-    weight_vec_i = weight_vec[idx_i];
+    team_i = team[idx_i];
+    rank_i = rank[idx_i];
+    lambda_i = lambda[idx_i];
+    weight_i = weight[idx_i];
 
-    MAP_i = subset_matrix(MAP, idx_i);
-    X_i = subset_matrix(X, idx_i);
-    Idx_i = term_matrix_idx(MAP_i, param_names);
-    R_i = term_matrix(Idx_i, R);
-    RD_i = term_matrix(Idx_i, RD);
+    map_i = subset_matrix(map, idx_i);
+    x_i = subset_matrix(x, idx_i);
+    idx_mat_i = term_matrix_idx(map_i, param_names);
+    r_i = term_matrix(idx_mat_i, r);
+    rd_i = term_matrix(idx_mat_i, rd);
 
-    int n = MAP_i.nrow();
-    int k = MAP_i.ncol();
+    int n = map_i.nrow();
+    int k = map_i.ncol();
 
     Rcpp::StringVector team2(n * n - n);
     Rcpp::StringVector team1(n * n - n);
@@ -772,24 +772,24 @@ dbl(
 
     for (int row = 0; row < n; row++) {
       for (int col = 0; col < k; col++) {
-        x_rows[row][col] = X_i(row, col);
-        r_rows[row][col] = R_i(row, col);
-        rd_rows[row][col] = RD_i(row, col);
+        x_rows[row][col] = x_i(row, col);
+        r_rows[row][col] = r_i(row, col);
+        rd_rows[row][col] = rd_i(row, col);
       }
     }
 
     idx = 0;
     for (int p = 0; p < n; p++)
     {
-      double lambda_p = lambda_vec_i(p);
+      double lambda_p = lambda_i(p);
       for (int q = 0; q < n; q++)
       {
         if (p != q)
         {
-          double lambda_q = lambda_vec_i(q);
+          double lambda_q = lambda_i(q);
 
-          team1(idx) = team_vec_i(p);
-          team2(idx) = team_vec_i(q);
+          team1(idx) = team_i(p);
+          team2(idx) = team_i(q);
 
           // Manual dot-product computations to avoid Rcpp temporaries
           s2 = 0.0;
@@ -806,7 +806,7 @@ dbl(
           Ks = 1.0 / sqrt(1.0 + CONST_PI * s2 / 8.0);
 
           prob = 1.0 / (1.0 + exp(-Ks * linear_sum));
-          y = dbl_calc_y(rank_vec_i(p), rank_vec_i(q));
+          y = dbl_calc_y(rank_i(p), rank_i(q));
           error = y - prob;
 
           P(idx) = prob;
@@ -829,36 +829,36 @@ dbl(
     // update params and save history
     Rcpp::StringVector team_long(n * k);
     Rcpp::StringVector param_long(n * k);
-    Rcpp::NumericVector R_long(n * k);
-    Rcpp::NumericVector RD_long(n * k);
+    Rcpp::NumericVector r_long(n * k);
+    Rcpp::NumericVector rd_long(n * k);
     idx = 0;
     for (int ii = 0; ii < n; ii++)
     {
       for (int j = 0; j < k; j++)
       {
-        team_long(idx) = team_vec_i(ii);
-        param_long(idx) = MAP_i(ii, j);
-        R_long(idx) = R_i(ii, j);
-        RD_long(idx) = RD_i(ii, j);
+        team_long(idx) = team_i(ii);
+        param_long(idx) = map_i(ii, j);
+        r_long(idx) = r_i(ii, j);
+        rd_long(idx) = rd_i(ii, j);
         idx++;
 
-        R(Idx_i(ii, j)) = R(Idx_i(ii, j)) +
+        r(idx_mat_i(ii, j)) = r(idx_mat_i(ii, j)) +
                          OMEGA(ii, j) *
-                             weight_vec_i(ii) /
+                             weight_i(ii) /
                              k;
 
-        delta_ = DELTA(ii, j) * weight_vec_i(ii) / k;
+        delta_ = DELTA(ii, j) * weight_i(ii) / k;
 
-        if (delta_ > (RD(Idx_i(ii, j)) * (1.0 - kappa)))
+        if (delta_ > (rd(idx_mat_i(ii, j)) * (1.0 - kappa)))
         {
-          RD(Idx_i(ii, j)) = RD(Idx_i(ii, j)) -
-                            RD(Idx_i(ii, j)) *
+          rd(idx_mat_i(ii, j)) = rd(idx_mat_i(ii, j)) -
+                            rd(idx_mat_i(ii, j)) *
                                 (1.0 - kappa);
         }
         else
         {
-          RD(Idx_i(ii, j)) =
-              RD(Idx_i(ii, j)) -
+          rd(idx_mat_i(ii, j)) =
+              rd(idx_mat_i(ii, j)) -
               delta_;
         }
       }
@@ -870,8 +870,8 @@ dbl(
           _["id"] = id_i,
           _["team"] = team_long,
           _["param"] = param_long,
-          _["R"] = R_long,
-          _["RD"] = RD_long,
+          _["R"] = r_long,
+          _["RD"] = rd_long,
           _["stringsAsFactors"] = false);
 
       Rcpp::DataFrame out_p_i = Rcpp::DataFrame::create(
@@ -890,8 +890,8 @@ dbl(
   return Rcpp::List::create(
       _["r"] = out_r,
       _["p"] = out_p,
-      _["final_r"] = R,
-      _["final_rd"] = RD
+      _["final_r"] = r,
+      _["final_rd"] = rd
 
   );
 }
@@ -901,14 +901,14 @@ dbl(
 // [[Rcpp::export]]
 Rcpp::List predict_glicko(
     Rcpp::IntegerVector unique_id,
-    Rcpp::IntegerVector id_vec,
-    Rcpp::IntegerVector rank_vec,
-    Rcpp::StringVector team_vec,
-    Rcpp::StringVector player_vec,
+    Rcpp::IntegerVector id,
+    Rcpp::IntegerVector rank,
+    Rcpp::StringVector team,
+    Rcpp::StringVector player,
     Rcpp::NumericVector r,
     Rcpp::NumericVector rd,
-    Rcpp::NumericVector share_vec,
-    Rcpp::NumericVector lambda_vec)
+    Rcpp::NumericVector share,
+    Rcpp::NumericVector lambda)
 {
   Rcpp::StringVector player_names = r.names();
   int n_events = unique_id.size();
@@ -916,14 +916,14 @@ Rcpp::List predict_glicko(
 
   for (int i = 0; i < n_events; i++) {
     int id_i = unique_id(i);
-    Rcpp::IntegerVector idx_i = utils::find<int>(id_i, id_vec);
+    Rcpp::IntegerVector idx_i = utils::find<int>(id_i, id);
     if (idx_i.size() <= 1) continue;
 
-    Rcpp::StringVector team_vec_i = team_vec[idx_i];
-    Rcpp::StringVector player_vec_i = player_vec[idx_i];
-    Rcpp::IntegerVector idx_rating_i = Rcpp::match(player_vec_i, player_names) - 1;
+    Rcpp::StringVector team_i = team[idx_i];
+    Rcpp::StringVector player_i = player[idx_i];
+    Rcpp::IntegerVector idx_rating_i = Rcpp::match(player_i, player_names) - 1;
 
-    Rcpp::StringVector unique_team_i = utils::unique(team_vec_i);
+    Rcpp::StringVector unique_team_i = utils::unique(team_i);
     int k = unique_team_i.size();
 
     // Aggregate team ratings
@@ -931,22 +931,22 @@ Rcpp::List predict_glicko(
     Rcpp::IntegerVector rank_it(k);
     for (int t = 0; t < k; t++) {
       std::string team_t = Rcpp::as<std::string>(unique_team_i(t));
-      Rcpp::IntegerVector idx_t = utils::find<std::string>(team_t, team_vec_i) + idx_i(0);
-      Rcpp::StringVector pv = player_vec[idx_t];
+      Rcpp::IntegerVector idx_t = utils::find<std::string>(team_t, team_i) + idx_i(0);
+      Rcpp::StringVector pv = player[idx_t];
       Rcpp::IntegerVector idx_r = Rcpp::match(pv, player_names) - 1;
       double r_sum = 0.0, rd_ssq = 0.0;
       int idx_df_last = 0;
       for (int p = 0; p < idx_r.size(); p++) {
         int ir = idx_r(p);
         int idf = idx_t(p);
-        r_sum += r(ir) * share_vec(idf);
-        double v = rd(ir) * lambda_vec(idf) * share_vec(idf);
+        r_sum += r(ir) * share(idf);
+        double v = rd(ir) * lambda(idf) * share(idf);
         rd_ssq += v * v;
         idx_df_last = idf;
       }
       r_it(t) = r_sum;
       rd2_it(t) = rd_ssq;
-      rank_it(t) = rank_vec(idx_df_last);
+      rank_it(t) = rank(idx_df_last);
     }
 
     // Compute pairwise probabilities
@@ -984,15 +984,15 @@ Rcpp::List predict_glicko(
 // [[Rcpp::export]]
 Rcpp::List predict_glicko2(
     Rcpp::IntegerVector unique_id,
-    Rcpp::IntegerVector id_vec,
-    Rcpp::IntegerVector rank_vec,
-    Rcpp::StringVector team_vec,
-    Rcpp::StringVector player_vec,
+    Rcpp::IntegerVector id,
+    Rcpp::IntegerVector rank,
+    Rcpp::StringVector team,
+    Rcpp::StringVector player,
     Rcpp::NumericVector r,
     Rcpp::NumericVector rd,
     Rcpp::NumericVector sigma,
-    Rcpp::NumericVector share_vec,
-    Rcpp::NumericVector lambda_vec)
+    Rcpp::NumericVector share,
+    Rcpp::NumericVector lambda)
 {
   Rcpp::StringVector player_names = r.names();
   int n_events = unique_id.size();
@@ -1000,35 +1000,35 @@ Rcpp::List predict_glicko2(
 
   for (int i = 0; i < n_events; i++) {
     int id_i = unique_id(i);
-    Rcpp::IntegerVector idx_i = utils::find<int>(id_i, id_vec);
+    Rcpp::IntegerVector idx_i = utils::find<int>(id_i, id);
     if (idx_i.size() <= 1) continue;
 
-    Rcpp::StringVector team_vec_i = team_vec[idx_i];
-    Rcpp::StringVector player_vec_i = player_vec[idx_i];
+    Rcpp::StringVector team_i = team[idx_i];
+    Rcpp::StringVector player_i = player[idx_i];
 
-    Rcpp::StringVector unique_team_i = utils::unique(team_vec_i);
+    Rcpp::StringVector unique_team_i = utils::unique(team_i);
     int k = unique_team_i.size();
 
     Rcpp::NumericVector r_it(k), rd2_it(k);
     Rcpp::IntegerVector rank_it(k);
     for (int t = 0; t < k; t++) {
       std::string team_t = Rcpp::as<std::string>(unique_team_i(t));
-      Rcpp::IntegerVector idx_t = utils::find<std::string>(team_t, team_vec_i) + idx_i(0);
-      Rcpp::StringVector pv = player_vec[idx_t];
+      Rcpp::IntegerVector idx_t = utils::find<std::string>(team_t, team_i) + idx_i(0);
+      Rcpp::StringVector pv = player[idx_t];
       Rcpp::IntegerVector idx_r = Rcpp::match(pv, player_names) - 1;
       double r_sum = 0.0, rd_ssq = 0.0;
       int idx_df_last = 0;
       for (int p = 0; p < idx_r.size(); p++) {
         int ir = idx_r(p);
         int idf = idx_t(p);
-        r_sum += r(ir) * share_vec(idf);
-        double v = rd(ir) * lambda_vec(idf) * share_vec(idf);
+        r_sum += r(ir) * share(idf);
+        double v = rd(ir) * lambda(idf) * share(idf);
         rd_ssq += v * v;
         idx_df_last = idf;
       }
       r_it(t) = r_sum;
       rd2_it(t) = rd_ssq;
-      rank_it(t) = rank_vec(idx_df_last);
+      rank_it(t) = rank(idx_df_last);
     }
 
     // Convert to Glicko2 scale
@@ -1068,14 +1068,14 @@ Rcpp::List predict_glicko2(
 // [[Rcpp::export]]
 Rcpp::List predict_bbt(
     Rcpp::IntegerVector unique_id,
-    Rcpp::IntegerVector id_vec,
-    Rcpp::IntegerVector rank_vec,
-    Rcpp::StringVector team_vec,
-    Rcpp::StringVector player_vec,
+    Rcpp::IntegerVector id,
+    Rcpp::IntegerVector rank,
+    Rcpp::StringVector team,
+    Rcpp::StringVector player,
     Rcpp::NumericVector r,
     Rcpp::NumericVector rd,
-    Rcpp::NumericVector share_vec,
-    Rcpp::NumericVector lambda_vec)
+    Rcpp::NumericVector share,
+    Rcpp::NumericVector lambda)
 {
   Rcpp::StringVector player_names = r.names();
   int n_events = unique_id.size();
@@ -1084,35 +1084,35 @@ Rcpp::List predict_bbt(
 
   for (int i = 0; i < n_events; i++) {
     int id_i = unique_id(i);
-    Rcpp::IntegerVector idx_i = utils::find<int>(id_i, id_vec);
+    Rcpp::IntegerVector idx_i = utils::find<int>(id_i, id);
     if (idx_i.size() <= 1) continue;
 
-    Rcpp::StringVector team_vec_i = team_vec[idx_i];
-    Rcpp::StringVector player_vec_i = player_vec[idx_i];
+    Rcpp::StringVector team_i = team[idx_i];
+    Rcpp::StringVector player_i = player[idx_i];
 
-    Rcpp::StringVector unique_team_i = utils::unique(team_vec_i);
+    Rcpp::StringVector unique_team_i = utils::unique(team_i);
     int k = unique_team_i.size();
 
     Rcpp::NumericVector r_it(k), rd2_it(k);
     Rcpp::IntegerVector rank_it(k);
     for (int t = 0; t < k; t++) {
       std::string team_t = Rcpp::as<std::string>(unique_team_i(t));
-      Rcpp::IntegerVector idx_t = utils::find<std::string>(team_t, team_vec_i) + idx_i(0);
-      Rcpp::StringVector pv = player_vec[idx_t];
+      Rcpp::IntegerVector idx_t = utils::find<std::string>(team_t, team_i) + idx_i(0);
+      Rcpp::StringVector pv = player[idx_t];
       Rcpp::IntegerVector idx_r = Rcpp::match(pv, player_names) - 1;
       double r_sum = 0.0, rd_ssq = 0.0;
       int idx_df_last = 0;
       for (int p = 0; p < idx_r.size(); p++) {
         int ir = idx_r(p);
         int idf = idx_t(p);
-        r_sum += r(ir) * share_vec(idf);
-        double v = rd(ir) * lambda_vec(idf) * share_vec(idf);
+        r_sum += r(ir) * share(idf);
+        double v = rd(ir) * lambda(idf) * share(idf);
         rd_ssq += v * v;
         idx_df_last = idf;
       }
       r_it(t) = r_sum;
       rd2_it(t) = rd_ssq;
-      rank_it(t) = rank_vec(idx_df_last);
+      rank_it(t) = rank(idx_df_last);
     }
 
     int n_pairs = k * k - k;
@@ -1143,40 +1143,40 @@ Rcpp::List predict_bbt(
 // [[Rcpp::export]]
 Rcpp::List predict_dbl(
     Rcpp::IntegerVector unique_id,
-    Rcpp::IntegerVector id_vec,
-    Rcpp::IntegerVector rank_vec,
-    Rcpp::StringVector team_vec,
-    Rcpp::StringMatrix MAP,
-    Rcpp::NumericMatrix X,
-    Rcpp::NumericVector R,
-    Rcpp::NumericVector RD,
-    Rcpp::NumericVector lambda_vec)
+    Rcpp::IntegerVector id,
+    Rcpp::IntegerVector rank,
+    Rcpp::StringVector team,
+    Rcpp::StringMatrix map,
+    Rcpp::NumericMatrix x,
+    Rcpp::NumericVector r,
+    Rcpp::NumericVector rd,
+    Rcpp::NumericVector lambda)
 {
   int n_events = unique_id.size();
   Rcpp::List out_p(n_events);
-  Rcpp::StringVector param_names = R.names();
+  Rcpp::StringVector param_names = r.names();
 
   for (int i = 0; i < n_events; i++) {
     int id_i = unique_id(i);
-    Rcpp::IntegerVector idx_i = utils::find<int>(id_i, id_vec);
+    Rcpp::IntegerVector idx_i = utils::find<int>(id_i, id);
     if (idx_i.size() <= 1) continue;
 
     // Need to convert to NumericVector for subset_matrix
     Rcpp::NumericVector idx_i_num(idx_i.size());
     for (int j = 0; j < idx_i.size(); j++) idx_i_num(j) = idx_i(j);
 
-    Rcpp::StringVector team_vec_i = team_vec[idx_i];
-    Rcpp::IntegerVector rank_vec_i = rank_vec[idx_i];
-    Rcpp::NumericVector lambda_vec_i = lambda_vec[idx_i];
+    Rcpp::StringVector team_i = team[idx_i];
+    Rcpp::IntegerVector rank_i = rank[idx_i];
+    Rcpp::NumericVector lambda_i = lambda[idx_i];
 
-    Rcpp::StringMatrix MAP_i = subset_matrix(MAP, idx_i_num);
-    Rcpp::NumericMatrix X_i = subset_matrix(X, idx_i_num);
-    Rcpp::IntegerMatrix Idx_i = term_matrix_idx(MAP_i, param_names);
-    Rcpp::NumericMatrix R_i = term_matrix(Idx_i, R);
-    Rcpp::NumericMatrix RD_i = term_matrix(Idx_i, RD);
+    Rcpp::StringMatrix map_i = subset_matrix(map, idx_i_num);
+    Rcpp::NumericMatrix x_i = subset_matrix(x, idx_i_num);
+    Rcpp::IntegerMatrix idx_mat_i = term_matrix_idx(map_i, param_names);
+    Rcpp::NumericMatrix r_i = term_matrix(idx_mat_i, r);
+    Rcpp::NumericMatrix rd_i = term_matrix(idx_mat_i, rd);
 
-    int n = MAP_i.nrow();
-    int k = MAP_i.ncol();
+    int n = map_i.nrow();
+    int k = map_i.ncol();
 
     Rcpp::StringVector team1(n * n - n), team2(n * n - n);
     Rcpp::NumericVector P(n * n - n), Y(n * n - n);
@@ -1187,20 +1187,20 @@ Rcpp::List predict_dbl(
     std::vector<std::vector<double>> rd_rows(n, std::vector<double>(k));
     for (int row = 0; row < n; row++) {
       for (int col = 0; col < k; col++) {
-        x_rows[row][col] = X_i(row, col);
-        r_rows[row][col] = R_i(row, col);
-        rd_rows[row][col] = RD_i(row, col);
+        x_rows[row][col] = x_i(row, col);
+        r_rows[row][col] = r_i(row, col);
+        rd_rows[row][col] = rd_i(row, col);
       }
     }
 
     int idx = 0;
     for (int p = 0; p < n; p++) {
-      double lambda_p = lambda_vec_i(p);
+      double lambda_p = lambda_i(p);
       for (int q = 0; q < n; q++) {
         if (p != q) {
-          double lambda_q = lambda_vec_i(q);
-          team1(idx) = team_vec_i(p);
-          team2(idx) = team_vec_i(q);
+          double lambda_q = lambda_i(q);
+          team1(idx) = team_i(p);
+          team2(idx) = team_i(q);
 
           double s2 = 0.0, linear_sum = 0.0;
           for (int j = 0; j < k; j++) {
@@ -1216,7 +1216,7 @@ Rcpp::List predict_dbl(
           double prob = 1.0 / (1.0 + exp(-Ks * linear_sum));
 
           P(idx) = prob;
-          Y(idx) = dbl_calc_y(rank_vec_i(p), rank_vec_i(q));
+          Y(idx) = dbl_calc_y(rank_i(p), rank_i(q));
           idx++;
         }
       }

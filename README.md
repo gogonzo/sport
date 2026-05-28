@@ -160,21 +160,12 @@ summary(dbl)
 #> 217:        rider=Charles WRIGHT -0.655 0.774
 ```
 
-To visualize top n ratings with their 95% confidence interval one can
-use dedicated `plot.rating` function. For DBL method top coefficients
-are presented not necessarily ratings. It’s also possible to examine
-ratings evolution in time, by specifying `players` argument.
+For visualisation, build a plot directly from `coef(model)` and
+`model$trajectory` using whichever plotting package you prefer. The
+previously shipped `plot.ratings()` method is deprecated and will be
+removed in a future release.
 
-``` r
-plot(glicko, n = 15)
-plot(glicko,
-  players = c("Greg HANCOCK", "Tomasz GOLLOB", "Tony RICKARDSSON")
-)
-```
-
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="50%" /><img src="man/figures/README-unnamed-chunk-7-2.png" width="50%" />
-
-Except dedicated `print`,`summary` and `plot` there is possibility to
+Except dedicated `print` and `summary` there is possibility to
 extract more detailed information to be analyzed. `rating` object
 contains following elements:
 

@@ -13,23 +13,23 @@ bbt <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda, 
     .Call('_sport_bbt', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda, weight, init_r, init_rd, init_sigma, kappa, tau, record_trajectory)
 }
 
-dbl <- function(unique_id, id_vec, rank_vec, team_vec, MAP, X, cls, R, RD, lambda_vec, weight_vec, kappa, record_trajectory = TRUE) {
-    .Call('_sport_dbl', PACKAGE = 'sport', unique_id, id_vec, rank_vec, team_vec, MAP, X, cls, R, RD, lambda_vec, weight_vec, kappa, record_trajectory)
+dbl <- function(unique_id, id, rank, team, map, x, cls, r, rd, lambda, weight, kappa, record_trajectory = TRUE) {
+    .Call('_sport_dbl', PACKAGE = 'sport', unique_id, id, rank, team, map, x, cls, r, rd, lambda, weight, kappa, record_trajectory)
 }
 
-predict_glicko <- function(unique_id, id_vec, rank_vec, team_vec, player_vec, r, rd, share_vec, lambda_vec) {
-    .Call('_sport_predict_glicko', PACKAGE = 'sport', unique_id, id_vec, rank_vec, team_vec, player_vec, r, rd, share_vec, lambda_vec)
+predict_glicko <- function(unique_id, id, rank, team, player, r, rd, share, lambda) {
+    .Call('_sport_predict_glicko', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, share, lambda)
 }
 
-predict_glicko2 <- function(unique_id, id_vec, rank_vec, team_vec, player_vec, r, rd, sigma, share_vec, lambda_vec) {
-    .Call('_sport_predict_glicko2', PACKAGE = 'sport', unique_id, id_vec, rank_vec, team_vec, player_vec, r, rd, sigma, share_vec, lambda_vec)
+predict_glicko2 <- function(unique_id, id, rank, team, player, r, rd, sigma, share, lambda) {
+    .Call('_sport_predict_glicko2', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, sigma, share, lambda)
 }
 
-predict_bbt <- function(unique_id, id_vec, rank_vec, team_vec, player_vec, r, rd, share_vec, lambda_vec) {
-    .Call('_sport_predict_bbt', PACKAGE = 'sport', unique_id, id_vec, rank_vec, team_vec, player_vec, r, rd, share_vec, lambda_vec)
+predict_bbt <- function(unique_id, id, rank, team, player, r, rd, share, lambda) {
+    .Call('_sport_predict_bbt', PACKAGE = 'sport', unique_id, id, rank, team, player, r, rd, share, lambda)
 }
 
-predict_dbl <- function(unique_id, id_vec, rank_vec, team_vec, MAP, X, R, RD, lambda_vec) {
-    .Call('_sport_predict_dbl', PACKAGE = 'sport', unique_id, id_vec, rank_vec, team_vec, MAP, X, R, RD, lambda_vec)
+predict_dbl <- function(unique_id, id, rank, team, map, x, r, rd, lambda) {
+    .Call('_sport_predict_dbl', PACKAGE = 'sport', unique_id, id, rank, team, map, x, r, rd, lambda)
 }
 

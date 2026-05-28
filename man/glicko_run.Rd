@@ -71,16 +71,24 @@ Higher weight increasing impact of event result on rating estimate.}
 
 \item{kappa}{controls \code{rd} shrinkage not to be greater than \code{rd*(1 - kappa)}.
 \code{kappa=1} means that  \code{rd} will not be decreased.}
+
+\item{trajectory}{whether to record per-event ratings (\code{trajectory}) and
+pairwise comparisons (\code{pairs}) in the returned object. Defaults to \code{TRUE}.
+Set to \code{FALSE} to skip the per-event recording in C++ -- the result then
+contains only the final \code{r}/\code{rd}/\code{sigma} vectors and \code{coefficients}, which
+is faster and produces a smaller object suitable for prediction-only
+workflows. Methods like \code{\link[=summary]{summary()}}, \code{\link[=print]{print()}}, and \code{plot(players=)} that
+rely on \code{pairs}/\code{trajectory} will error on such objects.}
 }
 \value{
-An \code{"estimates"} object (a plain list) with components:
+A \code{"ratings"} object (a plain list) with components:
 \itemize{
-\item \code{r} — named numeric vector of player ratings.
-\item \code{rd} — named numeric vector of rating deviations.
-\item \code{coefficients} — matrix with columns \code{r} and \code{rd} (extractable via \code{\link[=coef]{coef()}}).
-\item \code{trajectory} — \code{data.table} tracking the evolution of ratings across
+\item \code{r} -- named numeric vector of player ratings.
+\item \code{rd} -- named numeric vector of rating deviations.
+\item \code{coefficients} -- matrix with columns \code{r} and \code{rd} (extractable via \code{\link[=coef]{coef()}}).
+\item \code{trajectory} -- \code{data.table} tracking the evolution of ratings across
 events (only when \code{trajectory = TRUE}).
-\item \code{pairs} — \code{data.table} of pairwise comparisons with predicted
+\item \code{pairs} -- \code{data.table} of pairwise comparisons with predicted
 probability \code{P} and observed outcome \code{Y} (only when \code{trajectory = TRUE}).
 }
 

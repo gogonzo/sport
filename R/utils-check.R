@@ -1,10 +1,21 @@
 #' @importFrom stats setNames terms update
+NULL
 
-.is_data_provided <- function(data) {
+#' Stop if `data` was not supplied to a `*_run()` call.
+#' @param data caller's `data` argument (typically captured via `missing()`).
+#' @return Invisibly `NULL`. Called for its side effect.
+#' @noRd
+.validate_data <- function(data) {
   if (missing(data)) stop("Data is not provided", call. = FALSE)
 }
 
-.is_newdata_consistent <- function(vars, newnames) {
+#' Stop if `newdata` is missing any column required by the model formula.
+#' Used by [predict.ratings()] before passing `newdata` to the C++ predictor.
+#' @param vars character vector of required column names.
+#' @param newnames `colnames(newdata)`.
+#' @return Invisibly `NULL`. Called for its side effect.
+#' @noRd
+.validate_newdata_columns <- function(vars, newnames) {
   if (!all(vars %in% newnames)) {
     stop(
       paste0(
@@ -17,7 +28,12 @@
   }
 }
 
-.are_variables_in_dataset <- function(vars, data) {
+#' Stop if any variable referenced by the formula is missing from `data`.
+#' @param vars character vector of column names extracted from the formula.
+#' @param data the user-supplied training/prediction data.frame.
+#' @return Invisibly `TRUE`. Called for its side effect.
+#' @noRd
+.validate_variables_present <- function(vars, data) {
   missing_vars <- setdiff(vars, colnames(data))
   if (length(missing_vars) > 0) {
     stop(
@@ -32,6 +48,12 @@
   invisible(TRUE)
 }
 
+#' Type/range check for a numeric input vector.
+#' @param x value to check.
+#' @param var_name name to use in error messages.
+#' @param min,max inclusive bounds.
+#' @return Invisibly `NULL`. Called for its side effect.
+#' @noRd
 .check_numeric_argument <- function(x, var_name, min = -Inf, max = Inf) {
   if (!is.numeric(x)) {
     stop(sprintf("Variable %s should be of type numeric.", var_name),
@@ -49,6 +71,11 @@
   }
 }
 
+#' Type/range check for an integer input vector. Used to assert that
+#' `id`/`rank` columns coerced via `as.integer()` are well-formed.
+#' @inheritParams .check_numeric_argument
+#' @return Invisibly `NULL`. Called for its side effect.
+#' @noRd
 .check_integer_argument <- function(x, var_name, min = -Inf, max = Inf) {
   if (!is.integer(x)) {
     stop(
@@ -68,6 +95,11 @@
   }
 }
 
+#' Type check for a character input vector. Disallows `NA`.
+#' @param x value to check.
+#' @param var_name name to use in error messages.
+#' @return Invisibly `NULL`. Called for its side effect.
+#' @noRd
 .check_string_argument <- function(x, var_name) {
   if (!is.character(x)) {
     stop(sprintf("Variable %s should be of type character.", var_name), call. = FALSE)
@@ -79,6 +111,13 @@
   }
 }
 
+#' Assert that a scalar argument is length-1 and (if numeric) within bounds.
+#' Used for `init_r`, `init_rd`, `init_sigma`, `tau`, `kappa`.
+#' @param x value to check.
+#' @param var_name name to use in error messages.
+#' @param min,max inclusive bounds (only enforced when `x` is numeric).
+#' @return Invisibly `NULL`. Called for its side effect.
+#' @noRd
 .check_single_argument <- function(x, var_name, min = -Inf, max = Inf) {
   if (length(x) > 1) {
     stop(
@@ -98,7 +137,23 @@
   }
 }
 
-.init_check_r <- function(r, init_r, unique_names, player) {
+#' Resolve the user's `r` argument into a complete, named rating vector.
+#'
+#' One of three branches runs:
+#' - if `r` is empty, build a fresh vector filled with `init_r` for every
+#'   player in `unique_names`;
+#' - if `r` is supplied but missing some names, warn and patch the gaps with
+#'   `init_r` (preserving any provided ratings);
+#' - if `r` already covers `unique_names`, validate and return as-is.
+#'
+#' @param r user-supplied named numeric vector (possibly empty).
+#' @param init_r scalar default for missing names.
+#' @param unique_names character vector of every player/parameter that must
+#'   appear in the result.
+#' @param player name of the formula term (used in warning messages only).
+#' @return Named numeric vector covering exactly `unique_names`.
+#' @noRd
+.resolve_r <- function(r, init_r, unique_names, player) {
   if (length(r) == 0) {
     if (!is.finite(init_r)) {
       stop("init_r should be a finite number", call. = FALSE)
@@ -131,7 +186,13 @@
   r
 }
 
-.init_check_rd <- function(rd, init_rd, unique_names, player) {
+#' Resolve the user's `rd` argument into a complete, named RD vector.
+#' Mirrors `.resolve_r()` but additionally requires `init_rd > 0` and
+#' rejects negative values in a supplied `rd`.
+#' @inheritParams .resolve_r
+#' @return Named numeric vector covering exactly `unique_names`.
+#' @noRd
+.resolve_rd <- function(rd, init_rd, unique_names, player) {
   if (length(rd) == 0) {
     if (!is.finite(init_rd) || init_rd <= 0) {
       stop("init_rd value should be positive", call. = FALSE)
@@ -165,7 +226,16 @@
   rd
 }
 
-.init_check_sigma <- function(sigma, init_sigma, unique_names, player, method) {
+#' Resolve the user's `sigma` argument into a complete, named volatility
+#' vector -- only meaningful for Glicko-2. For other methods this short-circuits
+#' to `numeric(0)` so the rest of `.rating_run()` can stay branch-free.
+#' @inheritParams .resolve_r
+#' @param sigma user-supplied named numeric vector (possibly empty).
+#' @param init_sigma scalar default for missing names.
+#' @param method one of `"glicko"`, `"glicko2"`, `"bbt"`, `"dbl"`.
+#' @return Named numeric vector for Glicko-2; `numeric(0)` otherwise.
+#' @noRd
+.resolve_sigma <- function(sigma, init_sigma, unique_names, player, method) {
   if (method != "glicko2") {
     return(numeric(0))
   } else if (length(sigma) == 0) {
@@ -201,6 +271,13 @@
   sigma
 }
 
+#' Assert that two named vectors share the exact same set of names.
+#' Used to ensure `r` and `rd` describe the same set of players/parameters
+#' before they reach the C++ layer. Error messages refer to the caller-side
+#' variable names captured via `substitute()`.
+#' @param x,y named vectors to compare.
+#' @return Invisibly `TRUE`. Called for its side effect.
+#' @noRd
 .check_equal_names <- function(x, y) {
   xname <- deparse(substitute(x))
   yname <- deparse(substitute(y))
@@ -222,7 +299,22 @@
   invisible(TRUE)
 }
 
-.initialize_vec <- function(var, data, argname, min = -Inf, max = Inf) {
+#' Resolve a per-row weighting/lambda/share argument into a numeric vector
+#' aligned with `data`.
+#'
+#' Accepts three input shapes:
+#' - empty/NULL -> vector of `1.0` of length `nrow(data)`;
+#' - a single column name from `data` -> that column, after a numeric/range check;
+#' - a single numeric scalar -> recycled to length `nrow(data)`.
+#'
+#' Anything else is an error.
+#' @param var user input (NULL, length-1 character, or length-1 numeric).
+#' @param data the training/prediction data.frame.
+#' @param argname argument name used in error messages.
+#' @param min,max inclusive bounds passed to `.check_numeric_argument()`.
+#' @return Numeric vector of length `nrow(data)`.
+#' @noRd
+.resolve_vec_arg <- function(var, data, argname, min = -Inf, max = Inf) {
   if (length(var) == 0) {
     var_vec <- rep(1.0, nrow(data))
   } else if (is.character(var) && length(var) == 1) {

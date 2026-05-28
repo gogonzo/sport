@@ -4,7 +4,7 @@
 #' probability of each player finishing in each position (1st, 2nd, ..., nth)
 #' using the Plackett-Luce model with exact enumeration.
 #'
-#' @param object An object of class "estimates" (output of `glicko_run`, `glicko2_run`, `bbt_run`, or `dbl_run`).
+#' @param object An object of class "ratings" (output of `glicko_run`, `glicko2_run`, `bbt_run`, or `dbl_run`).
 #' @param newdata A data.frame with player names and event id columns matching the model formula.
 #'   All rows should belong to a single event (heat). Rank column is not needed (set to NA internally).
 #' @return A data.frame with columns: player name, and one column per position (pos_1, pos_2, ..., pos_n)
@@ -33,12 +33,12 @@
 #' positional(glicko, newdata)
 #' @export
 positional <- function(object, newdata) {
-  if (!inherits(object, "estimates")) {
-    stop("object must be of class 'estimates'", call. = FALSE)
+  if (!inherits(object, "ratings")) {
+    stop("object must be of class 'ratings'", call. = FALSE)
   }
 
   formula <- attr(object, "formula")
-  rhs_terms <- .extract_team_terms(formula)
+  rhs_terms <- .get_team_term_vars(formula)
   player_col <- if (length(rhs_terms) == 1) rhs_terms[1] else rhs_terms[2]
 
   players <- as.character(newdata[[player_col]])
