@@ -9,17 +9,18 @@ bbt_run(
   data,
   r = numeric(0),
   rd = numeric(0),
-  init_r = 25,
-  init_rd = 25/3,
+  init_r = .defaults$bbt$init_r,
+  init_rd = .defaults$bbt$init_rd,
   lambda = NULL,
   share = NULL,
   weight = NULL,
-  kappa = 0.5
+  kappa = 0.5,
+  trajectory = TRUE
 )
 }
 \arguments{
 \item{formula}{formula which specifies the model. RHS Allows only player
-rating parameter and it should be specified in following manner:\cr
+rating parameter and it should be specified in following manner:
 
 \code{rank | id ~ player(name)}.
 \itemize{
@@ -29,10 +30,11 @@ rating parameter and it should be specified in following manner:\cr
 helps algorithm point name of the column where player names are stored.
 }
 
-Users can also specify formula in in different way:\cr
+Users can also specify formula in in different way:
 
-\code{rank | id ~ player(name|team)}. Which means that players are playing in teams,
-and results are observed for teams not for players. For more see vignette.}
+\code{rank | id ~ player(name|team)}. Which means that players are playing in
+teams, and results are observed for teams not for players. For more see
+vignette.}
 
 \item{data}{data.frame which contains columns specified in formula, and
 optional columns defined by \code{lambda}, \code{weight}.}
@@ -46,11 +48,10 @@ then \code{rd} will be created automatically for parameters specified in \code{f
 with initial value \code{init_rd}.}
 
 \item{init_r}{initial values for \code{r} if not provided.
-Default (\code{glicko = 1500}, \code{glicko2 = 1500}, \code{bbt = 25},
-\code{dbl = 0})}
+Defaults are method-specific, defined in \code{.defaults}.}
 
 \item{init_rd}{initial values for \code{rd} if not provided.
-Default (\code{glicko = 350}, \code{glicko2 = 350}, \code{bbt = 25/3}, \code{dbl = 1})}
+Defaults are method-specific, defined in \code{.defaults}.}
 
 \item{lambda}{name of the column in \code{data} containing lambda values or one
 constant value (eg. \code{lambda = colname} or \code{lambda = 0.5}).
@@ -70,20 +71,28 @@ Higher weight increasing impact of event result on rating estimate.}
 
 \item{kappa}{controls \code{rd} shrinkage not to be greater than \code{rd*(1 - kappa)}.
 \code{kappa=1} means that  \code{rd} will not be decreased.}
+
+\item{trajectory}{whether to record per-event ratings (\code{trajectory}) and
+pairwise comparisons (\code{pairs}) in the returned object. Defaults to \code{TRUE}.
+Set to \code{FALSE} to skip the per-event recording in C++ -- the result then
+contains only the final \code{r}/\code{rd}/\code{sigma} vectors and \code{coefficients}, which
+is faster and produces a smaller object suitable for prediction-only
+workflows. Methods like \code{\link[=summary]{summary()}}, \code{\link[=print]{print()}}, and \code{plot(players=)} that
+rely on \code{pairs}/\code{trajectory} will error on such objects.}
 }
 \value{
-A "rating" object is returned:
+A \code{"ratings"} object (a plain list) with components:
 \itemize{
-\item \code{final_r} named vector containing players ratings.
-\item \code{final_rd} named vector containing players ratings deviations.
-\item \code{r} data.frame with evolution of the ratings and ratings deviations
-estimated at each event.
-\item \code{pairs} pairwise combinations of players in analysed events with
-prior probability and result of a challenge.
-\item \code{class} of the object.
-\item \code{method} type of algorithm used.
-\item \code{settings} arguments specified in function call.
+\item \code{r} -- named numeric vector of player ratings.
+\item \code{rd} -- named numeric vector of rating deviations.
+\item \code{coefficients} -- matrix with columns \code{r} and \code{rd} (extractable via \code{\link[=coef]{coef()}}).
+\item \code{trajectory} -- \code{data.table} tracking the evolution of ratings across
+events (only when \code{trajectory = TRUE}).
+\item \code{pairs} -- \code{data.table} of pairwise comparisons with predicted
+probability \code{P} and observed outcome \code{Y} (only when \code{trajectory = TRUE}).
 }
+
+Attributes \code{method}, \code{formula}, and \code{settings} carry the model metadata.
 }
 \description{
 Bayesian Bradley-Terry

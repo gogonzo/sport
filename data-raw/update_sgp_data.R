@@ -20,7 +20,7 @@ update_sgp_data <- function() {
         s.classification
       FROM speedway.event_squads s
       LEFT JOIN speedway.events e on e.id = s.event_id
-      WHERE competition = 'Grand-Prix'
+      WHERE competition = 'SGP'
       ;"
     },
     conn = con
@@ -42,7 +42,7 @@ update_sgp_data <- function() {
       FROM speedway.event_heats h
       LEFT JOIN speedway.events e on e.id = h.event_id
       WHERE
-        competition = 'Grand-Prix'
+        competition = 'SGP'
     "
     },
     conn = con

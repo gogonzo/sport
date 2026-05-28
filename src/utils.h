@@ -1,3 +1,8 @@
+#include <unordered_set>
+#include <unordered_map>
+#include <string>
+#include <vector>
+
 namespace utils {
 
   template <typename itype>
@@ -6,10 +11,10 @@ namespace utils {
       bool found = false;
       int n = x.size();
       Rcpp::IntegerVector y;
-      
+
       for(int i = 0; i < n; i++) {
           if (x[i] == val) {
-            y.push_back(i); 
+            y.push_back(i);
             found = true;
           } else if (found) {
             return(y);
@@ -17,34 +22,43 @@ namespace utils {
       }
       return y;
   }
-  
-  
-  template <int ITYPE>
-  Rcpp::Vector<ITYPE> unique(Rcpp::Vector<ITYPE> x) {
-    int n = x.size(), k = 0, j;
-    if (n == 1) return(x);
-    
-    bool duplicated = false;
-    Rcpp::Vector<ITYPE> res;
-    
+
+
+  // O(n) unique for StringVector using unordered_set
+  inline Rcpp::StringVector unique(Rcpp::StringVector x) {
+    int n = x.size();
+    if (n <= 1) return x;
+
+    std::unordered_set<std::string> seen;
+    seen.reserve(n);
+    Rcpp::StringVector res;
+
     for (int i = 0; i < n; i++) {
-      duplicated = false;
-      
-      j = k - 1;
-      while (!duplicated && j >= 0) {
-        if (x(i) == res(j)) duplicated = true;
-        j--;
-      } 
-      
-      if (!duplicated) {
+      std::string val = Rcpp::as<std::string>(x(i));
+      if (seen.insert(val).second) {
         res.push_back(x(i));
-        k++;
       }
     }
-    
+
+    return res;
+  }
+
+  // O(n) unique for IntegerVector using unordered_set
+  inline Rcpp::IntegerVector unique(Rcpp::IntegerVector x) {
+    int n = x.size();
+    if (n <= 1) return x;
+
+    std::unordered_set<int> seen;
+    seen.reserve(n);
+    Rcpp::IntegerVector res;
+
+    for (int i = 0; i < n; i++) {
+      int val = x(i);
+      if (seen.insert(val).second) {
+        res.push_back(x(i));
+      }
+    }
+
     return res;
   }
 }
-
-
-

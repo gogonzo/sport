@@ -83,7 +83,7 @@ testthat::test_that("initial", {
     dbl_run(
       formula <- rank | id ~ player(rider),
       data = gpheats[1:8, ],
-      r = setNames(.5, "rider=Tomasz Gollob")
+      r = setNames(.5, "Tomasz Gollob")
     ),
     "Missing parameters will be added with init_r"
   )
@@ -92,7 +92,7 @@ testthat::test_that("initial", {
     dbl_run(
       formula <- rank | id ~ player(rider),
       data = gpheats[1:8, ],
-      rd = setNames(.5, "rider=Tomasz Gollob")
+      rd = setNames(.5, "Tomasz Gollob")
     ),
     "Missing parameters will be added with init_rd"
   )
@@ -109,17 +109,17 @@ testthat::test_that("output", {
   )
 
   testthat::expect_identical(
-    out1$final_r,
+    out1$r,
     c(
-      "rider=Chris Louis" = 1,
-      "rider=Gary Havelock" = -1,
-      "rider=Tomasz Gollob" = 1 / 3,
-      "rider=Tony Rickardsson" = -1 / 3
+      "Chris Louis" = 1,
+      "Gary Havelock" = -1,
+      "Tomasz Gollob" = 1 / 3,
+      "Tony Rickardsson" = -1 / 3
     )
   )
 
-  testthat::expect_true(all(out1$r$R == 0))
-  testthat::expect_true(all(out1$r$RD == 1))
+  testthat::expect_true(all(out1$trajectory$R == 0))
+  testthat::expect_true(all(out1$trajectory$RD == 1))
   testthat::expect_true(all(out1$pairs$P == 0.5))
 
 
@@ -132,7 +132,7 @@ testthat::test_that("output", {
     init_rd = 2
   )
 
-  testthat::expect_true(all(out2$r$R == 1))
-  testthat::expect_true(all(out2$r$RD == 2))
+  testthat::expect_true(all(out2$trajectory$R == 1))
+  testthat::expect_true(all(out2$trajectory$RD == 2))
   testthat::expect_true(all(out2$pairs$P == 0.5))
 })
